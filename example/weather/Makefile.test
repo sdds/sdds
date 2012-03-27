@@ -1,0 +1,21 @@
+JACKDAW = fe80::12:13ff:fe14:1516
+BOARD = fe80::00ff:fe00:0001
+CONTIKI = $(shell echo $$HOME)/es-projekt/contiki
+
+all:
+	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board avr-atmega128rfa1-write.hex $(MAKEOPTS) \
+	                    USE_DERFMEGA128=1 \
+	                    SDDS_CONTIKI_SEND_ADDRESS="$(JACKDAW)"
+	$(MAKE) -f Makefile BUILD=linux test-write $(MAKEOPTS) \
+	                    SDDS_LINUX_LISTEN_ADDRESS="$(JACKDAW)%usb0" \
+	                    SDDS_LINUX_SEND_ADDRESS="$(BOARD)%usb0"
+
+flash:
+	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board flash $(MAKEOPTS)
+
+debug:
+	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board debug $(MAKEOPTS)
+
+clean:
+	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board clean
+	$(MAKE) -f Makefile BUILD=linux clean

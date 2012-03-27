@@ -1,0 +1,39 @@
+This sDDS package provides a way to generate
+the sDDS implementation and datastructures used by it.
+
+A typical implementation file named 'myimpl-sdds-roles' could look like this:
+endian: little
+
+[something]
+subscriber
+
+[something_else]
+publisher
+subscriber
+
+[...]
+
+A typical datastructures file named 'datastructures' could look like this:
+[something]
+domain: 0
+topic: 1
+
+/* this is a comment
+ * probably with multiple lines, which will be put
+ * into the interface */
+dds_unsigned_short_t value
+
+dds_unsigned_t another_value
+
+[something_else]
+
+[...]
+
+Now invoke ./generate_sdds.py myimpl [datastructures] to generate
+'myimpl_sdds_impl.{c,h}', 'something-ds.{c,h}' and 'myimpl_constants.h'.
+
+You may want to look at the constants file and adjust the values generated.
+
+Now all you have to do is joining your binary with the compilation of
+those generated C files and add the constants file to your translation unit.
+To init sdds you invoke 'init_sdds(log_level);'.

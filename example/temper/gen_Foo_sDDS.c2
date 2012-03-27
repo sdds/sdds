@@ -1,0 +1,91 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  sDDS.c
+ *
+ *    Description:  Impl file for the sDDS thingy
+ *
+ *        Version:  1.0
+ *        Created:  22.02.2010 15:50:10
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Kai Beckmann (kai), kai-oliver.beckmann@hs-rm.de
+ *        Company:  Hochschule RheinMain - DOPSY Labor für verteilte Systeme
+ *
+ * =====================================================================================
+ */
+#include "sDDS/sDDS.h"
+#include "sDDS/Memory.h"
+#include "sDDS/Network.h"
+#include "sDDS/Topic.h"
+#include "sDDS/DataSource.h"
+#include "DDS/DDS_DCPS.h"
+#include "Foo.h"
+#include "sDDS/Marshalling.h"
+#include "sDDS/TopicMarshalling.h"
+
+
+DDS_FooDataWriter fooDataWriter;
+DDS_Topic fooTopic;
+
+#define SIZE_LONG 4
+#define SIZE_USHORT 2
+
+rc_t sDDS_init()
+{
+    Memory_init();
+    Network_init();
+    DataSource ds = DataSource_create();
+    //ds
+
+    fooTopic = (DDS_Topic) sDDS_create_topic();
+    Topic topic = (Topic) fooTopic;
+    topic->Data_encode = TopicMarshalling_encode;
+    topic->domain = 15;
+    topic->id = 1;
+    Locator loc;
+    Network_createLocator(&loc);
+
+    topic->dsinks.list = loc;
+
+    fooDataWriter = (DDS_FooDataWriter)  DataSource_create_datawriter(ds, fooTopic, NULL, NULL, NULL);
+
+    return SDDS_RT_OK;
+}
+
+
+DDS_ReturnCode_t DDS_FooDataWriter_write(
+    DDS_DataWriter _this,
+    const Foo* instance_data,
+    const DDS_InstanceHandle_t handle)
+{
+
+    rc_t rc; 
+
+    rc = DataSource_write((DW) _this, (Data) instance_data, (void*) handle);
+    if (rc == SDDS_RT_OK) {
+	return DDS_RETCODE_OK;
+    } else {
+	return DDS_RETCODE_ERROR;
+    }
+
+}
+
+rc_t TopicMarshalling_encode(byte_t* buff, Data data, size_t* size)
+{
+    Foo* d = (Foo*) data;
+    *size = 0;
+    Marshalling_enc_int32(buff, &(d->temperatur));
+    *size += SIZE_LONG;
+    Marshalling_enc_uint16((buff+(*size)), &(d->id));
+    *size += SIZE_USHORT;
+
+    return SDDS_RT_OK;
+}
+rc_t TopicMarshalling_decode(byte_t* buff, Data data, size_t* size)
+{
+
+    return SDDS_RT_OK;
+}
+

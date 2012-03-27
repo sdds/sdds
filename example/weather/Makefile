@@ -1,0 +1,149 @@
+SDDS_TOPDIR := ../..
+
+ifeq ($(BUILD),linux)
+
+  SDDS_OBJDIR := objs-linux
+  TARGET := linux
+  SDDS_PLATFORM := linux
+  SDDS_ARCH := x86
+
+  IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_sdds_impl.o
+  ALL_OBJS += $(IMPL_DEPEND_OBJS)
+  ALL_OBJS += $(SDDS_OBJDIR)/test-write.o
+
+  ifneq ($(SDDS_LINUX_PORT),)
+    CFLAGS += -DSDDS_LINUX_PORT=$(SDDS_LINUX_PORT)
+  endif
+  ifneq ($(SDDS_LINUX_PROTOCOL),)
+    CFLAGS += -DSDDS_LINUX_PROTOCOL=$(SDDS_LINUX_PROTOCOL)
+  endif
+  ifneq ($(SDDS_LINUX_LISTEN_ADDRESS),)
+    CFLAGS += -DSDDS_LINUX_LISTEN_ADDRESS=\"$(SDDS_LINUX_LISTEN_ADDRESS)\"
+  endif
+  ifneq ($(SDDS_LINUX_SEND_ADDRESS),)
+    CFLAGS += -DSDDS_LINUX_SEND_ADDRESS=\"$(SDDS_LINUX_SEND_ADDRESS)\"
+  endif
+
+  SDDS_CONSTANTS_FILE := ./linux_constants.h
+else
+
+  ifeq ($(BUILD),sensor_board)
+    SDDS_OBJDIR := objs-128rfa1
+    TARGET := avr-atmega128rfa1
+  else
+    SDDS_OBJDIR := objs-1284p
+    TARGET := avr-raven
+  endif
+
+  SDDS_PLATFORM := contiki
+  SDDS_ARCH := ATmega
+
+  SENSORIO_DEPEND_OBJS += $(SDDS_OBJDIR)/adc.o
+  SENSORIO_DEPEND_OBJS += $(SDDS_OBJDIR)/spi.o
+  SENSORIO_DEPEND_OBJS += $(SDDS_OBJDIR)/twi.o
+  SENSORIO_DEPEND_OBJS += $(SDDS_OBJDIR)/weather-drivers.o
+  IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/atmega_sdds_impl.o
+  ALL_OBJS += $(SENSORIO_DEPEND_OBJS)
+  ALL_OBJS += $(IMPL_DEPEND_OBJS)
+  ALL_OBJS += $(SDDS_OBJDIR)/$(TARGET)-write.o
+
+  ifneq ($(SDDS_CONTIKI_PORT),)
+    CFLAGS += -DSDDS_CONTIKIPORT=$(SDDS_CONTIKI_PORT)
+  endif
+  ifneq ($(SDDS_CONTIKI_LISTEN_ADDRESS),)
+    CFLAGS += -DSDDS_CONTIKI_LISTEN_ADDRESS=\"$(SDDS_CONTIKI_LISTEN_ADDRESS)\"
+  endif
+  ifneq ($(SDDS_CONTIKI_SEND_ADDRESS),)
+    CFLAGS += -DSDDS_CONTIKI_SEND_ADDRESS=\"$(SDDS_CONTIKI_SEND_ADDRESS)\"
+  endif
+
+  ifneq ($(USE_DERFMEGA128),)
+    CFLAGS += -DUSE_DERFMEGA128
+  endif
+
+  SDDS_CONSTANTS_FILE := ./atmega_constants.h
+endif
+
+include $(SDDS_TOPDIR)/sdds.mk
+
+ifneq ($(BUILD),linux)
+include $(CONTIKI)/Makefile.include
+endif
+
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/humidity-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/pressure-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/rainfall-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/temperature-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/wind_direction-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/wind_speed-ds.o
+ALL_OBJS += $(DATA_DEPEND_OBJS)
+
+DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
+DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.h,$(DATA_DEPEND_OBJS))
+CLEAN += $(DATA_DEPEND_SRCS)
+
+IMPL_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(IMPL_DEPEND_OBJS))
+IMPL_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.h,$(IMPL_DEPEND_OBJS))
+CLEAN += $(IMPL_DEPEND_SRCS)
+
+CLEAN += $(ALL_OBJS)
+CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
+CLEAN += $(SDDS_CONSTANTS_FILE)
+
+%-ds.c %-ds.h: datastructures
+	$(shell python $(SDDS_TOPDIR)/generate_ds.py $<)
+
+%_sdds_impl.c %_sdds_impl.h: %-dds-roles datastructures $(DATA_DEPEND_SRCS)
+	$(shell python $(SDDS_TOPDIR)/generate_sdds.py $(<:-dds-roles=))
+
+all:
+
+CFLAGS += -I.
+
+ifeq ($(BUILD),linux)
+$(SDDS_OBJDIR)/%.o: %.cc
+	$(COMPILE.cc) $(CXXFLAGS) -MMD $(OUTPUT_OPTION) $<
+
+$(SDDS_OBJDIR)/%.o: %.c
+	$(COMPILE.c) $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
+
+test-write.cc: $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
+
+test-write: $(SDDS_OBJDIR)/test-write.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
+	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+clean:
+	$(RM) ./test-write
+	$(RM) $(CLEAN)
+	$(RM) $(SDDS_OBJS) $(SDDS_OBJS_DEPEND)
+
+else
+$(SDDS_OBJDIR)/%.o: %.c
+	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
+
+$(TARGET)-write.c: $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
+$(TARGET)-write.c: write.c
+	$(CC) $(CFLAGS) -MM -MF$(SDDS_OBJDIR)/$(TARGET)-write.d -MT$@ $^
+	cp $< $@
+
+$(TARGET)-write.elf: $(TARGET)-write.co $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS) $(SENSORIO_DEPEND_OBJS) contiki-$(TARGET).a
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $^ $(LIBC)
+
+%.hex: %.elf
+	$(OBJCOPY) $^ -j .text -j .data -O ihex $@
+
+%.ihex: %.elf
+	$(OBJCOPY) $^ -O ihex $@
+
+flash:
+	avarice -g -e -p -f $(TARGET)-write.hex $(FLASH_ARGS)
+
+debug:
+	avr-gdb $(TARGET)-write.elf
+
+CLEAN += $(TARGET)-write.elf $(TARGET)-write.hex $(TARGET)-write.ihex $(TARGET)-write.out
+CLEAN += symbols.c symbols.h
+CLEAN += $(TARGET)-write.c $(TARGET)-write.d
+endif
+
+-include $(patsubst %.o,%.d,$(ALL_OBJS))

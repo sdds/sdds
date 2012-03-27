@@ -1,0 +1,66 @@
+[wind_speed]
+domain: 0
+topic: 1
+
+/* [0, 65536), current wind speed in 0.01 km/h */
+dds_unsigned_short_t speed_current
+dds_unsigned_short_t speed_minute
+dds_unsigned_short_t speed_hour
+
+
+
+
+
+[wind_direction]
+domain: 0
+topic: 2
+
+/* [0, 16), current vane position multiplier
+ * degrees = 22.5 * multiplier
+ */
+dds_octet_t degrees_multiplier
+
+
+
+
+
+[humidity]
+domain: 0
+topic: 3
+
+/* [0, 65536), the relative humidity in 0.01% */
+dds_unsigned_short_t relative_humidity
+
+
+
+
+
+[temperature]
+domain: 0
+topic: 4
+
+/* [-32768, 32768), the temperature in 0.01°C */
+dds_short_t temperature
+
+
+
+
+
+[pressure]
+domain: 0
+topic: 5
+
+/* [0, 65536), the pressure in 10Pa (0.1hPa, 0.1mbar) */
+dds_unsigned_short_t pressure
+
+
+
+
+
+[rainfall]
+domain: 0
+topic: 6
+/* [0, 65536), the amount of rain in 0.01 mm/h */
+dds_unsigned_short_t amount_current
+dds_unsigned_short_t amount_minute
+dds_unsigned_short_t amount_hour

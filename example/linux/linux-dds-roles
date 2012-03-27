@@ -1,0 +1,5 @@
+endian: little
+
+[ipc]
+subscriber
+publisher

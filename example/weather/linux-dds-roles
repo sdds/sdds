@@ -1,0 +1,19 @@
+endian: little
+
+[wind_speed]
+subscriber
+
+[rainfall]
+subscriber
+
+[wind_direction]
+subscriber
+
+[humidity]
+subscriber
+
+[temperature]
+subscriber
+
+[pressure]
+subscriber

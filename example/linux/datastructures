@@ -1,0 +1,5 @@
+[ipc]
+domain: 0
+topic: 1
+
+dds_unsigned_short_t value

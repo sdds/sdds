@@ -1,0 +1,13 @@
+*_sdds_impl.[hc]
+*-ds.[hc]
+*_constants.h
+obj*/
+avr-atmega128rfa1-write.c
+avr-raven-write.c
+test-write
+
+# contiki stuff
+*.co
+*.elf
+*.hex
+*.map

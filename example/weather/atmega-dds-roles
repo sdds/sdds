@@ -1,0 +1,19 @@
+endian: little
+
+[wind_speed]
+publisher
+
+[rainfall]
+publisher
+
+[wind_direction]
+publisher
+
+[humidity]
+publisher
+
+[temperature]
+publisher
+
+[pressure]
+publisher
