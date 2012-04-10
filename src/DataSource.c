@@ -87,7 +87,7 @@ rc_t DataSource_init(void)
     return SDDS_RT_OK;
 }
 
-#if sDDS_MAX_DW_APP > 0
+#if sDDS_MAX_DATA_WRITERS > 0
 DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask)
 {
     qos=qos;
@@ -113,7 +113,7 @@ DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, Sta
 
     return dw;
 }
-#endif // sDDS_MAX_DW_APP
+#endif // sDDS_MAX_DATA_WRITERS
 
 NetBuffRef findFreeFrame(Locator dest)
 {

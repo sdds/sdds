@@ -36,7 +36,9 @@ SDDS_OBJS_DEPEND := $(patsubst %.o, %.d, $(SDDS_OBJS))
 
 ifeq ($(SDDS_PLATFORM),linux)
 # required for timer_t (POSIX.1b (real-time extensions))
-CFLAGS += -D_POSIX_C_SOURCE=199309L
+# and getline
+CFLAGS += -D_POSIX_C_SOURCE=200809L
+
 
 CFLAGS += -std=c99
 

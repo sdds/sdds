@@ -1,6 +1,6 @@
 #include <os-ssal/SSW.h>
 
-#include <sDDS/sdds_types.h>
+#include <sdds/sdds_types.h>
 
 #include <stdlib.h>
 

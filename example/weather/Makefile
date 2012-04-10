@@ -6,6 +6,10 @@ ifeq ($(BUILD),linux)
   TARGET := linux
   SDDS_PLATFORM := linux
   SDDS_ARCH := x86
+  
+  LDFLAGS += -lm
+  
+#  CFLAGS += -D_POSIX_C_SOURCE=200809L
 
   IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_sdds_impl.o
   ALL_OBJS += $(IMPL_DEPEND_OBJS)
@@ -101,16 +105,14 @@ all:
 CFLAGS += -I.
 
 ifeq ($(BUILD),linux)
-$(SDDS_OBJDIR)/%.o: %.cc
-	$(COMPILE.cc) $(CXXFLAGS) -MMD $(OUTPUT_OPTION) $<
 
 $(SDDS_OBJDIR)/%.o: %.c
 	$(COMPILE.c) $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
 
-test-write.cc: $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
+test-write.c: $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
 
 test-write: $(SDDS_OBJDIR)/test-write.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
-	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
 	$(RM) ./test-write

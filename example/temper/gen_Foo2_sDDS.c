@@ -112,7 +112,7 @@ DDS_ReturnCode_t DDS_FooDataReader_take_next_sample (
 {
     // find new sample
     // invoce the methode of the datasink
-    rc_t ret = DataSink_take_next_sample((DR) _this, (Data*) data_values, (DataInfo) sample_info);
+    rc_t ret = DataSink_take_next_sample((DataReader) _this, (Data*) data_values, (DataInfo) sample_info);
 
     if (ret == SDDS_RT_NODATA)
 	return DDS_RETCODE_NO_DATA;

@@ -16,12 +16,15 @@
  * =====================================================================================
  */
 
+#include "sDDS.h"
+
 #include "DataSink.h"
 #include "SNPS.h"
 #include "Topic.h"
 #include "TopicDB.h"
 #include "BuiltinTopic.h"
 #include "Marshalling.h"
+#include "sdds_types.h"
 
 struct DataReader {
     Topic topic;
@@ -106,6 +109,7 @@ rc_t DataSink_processFrame(NetBuffRef buff)
 		// go to next submsg
 		// unknown content
 		SNPS_discardSubMsg(buff);
+		break;
 	}
 
     }

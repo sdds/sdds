@@ -1,32 +1,34 @@
 #!/usr/bin/env python
 
 decl_headers = r"""
-#include <dds/dcps.h>
+#include <dds/DDS_DCPS.h>
 """
 
 impl_headers = r"""
-#include <os-ssal/memory.h>
-#include <sdds/data_sink.h>
-#include <sdds/data_source.h>
-#include <sdds/locator_db.h>
-#include <sdds/log.h>
-#include <sdds/network.h>
+#include <os-ssal/Memory.h>
+#include <sdds/DataSink.h>
+#include <sdds/DataSource.h>
+#include <sdds/LocatorDB.h>
+#include <sdds/Log.h>
+#include <sdds/Network.h>
+#include <sdds/sDDS.h>
 """
 
 impl_decl = r"""
-int init_sdds(int log_level);
+//int init_sdds(int log_level);
 """
 
 impl_init = r"""
-int init_sdds(int log_level)
+rc_t sDDS_init(void)
 {
-	memory_init();
-	network_init();
-	locator_db_init();
-	data_source_init();
-	data_sink_init();
+	Memory_init();
+	Network_init();
+	LocatorDB_init();
+	DataSource_init();
+	DataSink_init();
+    int log_level = 3;
 
-	log_set_level(log_level);
+	Log_setLvl(log_level);
 
 %s
 
@@ -36,10 +38,10 @@ int init_sdds(int log_level)
 
 def get_decl(f, impl_name, datastructures):
 	f.write(r"""
-#ifndef %(up_name)s_SDDS_IMPL_H_INCLUDED
-#define %(up_name)s_SDDS_IMPL_H_INCLUDED
+#ifndef %(up_name)s_SDDS_IMPL_H_INC
+#define %(up_name)s_SDDS_IMPL_H_INC
 
-"""[1:] % {'up_name': impl_name.upper()})
+"""[1:] % {'up_name': impl_name.upper(), 'cap_name': impl_name.capitalize()})
 
 	for ds in datastructures:
 		f.write('#include "%s-ds.h"\n' % ds['name'])
@@ -48,11 +50,11 @@ def get_decl(f, impl_name, datastructures):
 
 	for ds in datastructures:
 		f.write(r"""
-extern dds_data_reader_t *g_%(name)s_reader;
-extern dds_data_writer_t *g_%(name)s_writer;
-extern dds_topic_t *g_%(name)s_topic;
-extern %(name)s_data_t g_%(name)s_pool[sDDS_TOPIC_MSG_COUNT];
-"""[1:] % {'name': ds['name']})
+extern DDS_DataReader g_%(name)s_reader;
+extern DDS_DataWriter g_%(name)s_writer;
+extern DDS_Topic g_%(name)s_topic;
+//extern %(name)s_data_t g_%(name)s_pool[sDDS_TOPIC_APP_MSG_COUNT];
+"""[1:] % {'name': ds['name'].capitalize()})
 
 		f.write('\n')
 
@@ -74,14 +76,14 @@ def get_impl(f, impl_name, datastructures):
 
 	for ds in datastructures:
 		if ds['subscriber'] or ds['publisher']:
-			def_string += 'dds_topic_t *g_%s_topic;\n' % ds['name']
-			def_string += '%(name)s_data_t g_%(name)s_pool[sDDS_TOPIC_MSG_COUNT];\n' % {'name': ds['name']}
+			def_string += 'DDS_Topic g_%s_topic;\n' % ds['name'].capitalize()
+			def_string += '%(name)s g_%(name)s_pool[sDDS_TOPIC_APP_MSG_COUNT];\n' % {'name': ds['name'].capitalize()}
 
 		if ds['subscriber']:
-			def_string += 'dds_data_reader_t *g_%s_reader;\n' % ds['name']
+			def_string += 'DDS_DataReader g_%s_reader;\n' % ds['name'].capitalize()
 
 		if ds['publisher']:
-			def_string += 'dds_data_writer_t *g_%s_writer;\n' % ds['name']
+			def_string += 'DDS_DataWriter g_%s_writer;\n' % ds['name'].capitalize()
 	
 		def_string += '\n'
 
@@ -91,13 +93,13 @@ def get_impl(f, impl_name, datastructures):
 
 	for ds in datastructures:
 		if ds['subscriber'] or ds['publisher']:
-			impl_string += '\tg_%(name)s_topic = sdds_%(name)s_topic_create(g_%(name)s_pool, sDDS_TOPIC_MSG_COUNT);\n' % {'name': ds['name']}
+			impl_string += '\tg_%(name)s_topic = sDDS_%(name)sTopic_create(g_%(name)s_pool, sDDS_TOPIC_APP_MSG_COUNT);\n' % {'name': ds['name'].capitalize()}
 
 		if ds['subscriber']:
-			impl_string += '\tg_%(name)s_reader = data_sink_create_data_reader(g_%(name)s_topic, NULL, NULL, NULL);\n' % {'name': ds['name']}
+			impl_string += '\tg_%(name)s_reader = DataSink_create_datareader(g_%(name)s_topic, NULL, NULL, NULL);\n' % {'name': ds['name'].capitalize()}
 
 		if ds['publisher']:
-			impl_string += '\tg_%(name)s_writer = data_source_create_data_writer(g_%(name)s_topic, NULL, NULL, NULL);\n' % {'name': ds['name']}
+			impl_string += '\tg_%(name)s_writer = DataSource_create_datawriter(g_%(name)s_topic, NULL, NULL, NULL);\n' % {'name': ds['name'].capitalize()}
 
 		impl_string += '\n'
 
@@ -256,11 +258,11 @@ fconstants.write(r"""
 #define sDDS_NET_MAX_OUT_QUEUE 2
 #define sDDS_NET_MAX_BUF_SIZE 30
 #define sDDS_NET_MAX_LOCATOR_COUNT 10
-#define sDDS_QOS_DATA_WRITER_1_LAT_BUD 100
-#define sDDS_QOS_DATA_WRITER_2_LAT_BUD 500
+#define sDDS_QOS_DW1_LATBUD 100
+#define sDDS_QOS_DW2_LATBUD 500
 %(any_subscriptions)s
 %(any_publications)s
-#define sDDS_TOPIC_MSG_COUNT 5
+#define sDDS_TOPIC_APP_MSG_COUNT 5
 #define sDDS_TOPIC_MAX_COUNT %(max_topics)d
 #define sDDS_MNG_WORKER_CYCLE_TIME 10000
 #define sDDS_MNG_BUILTINT_PUBCYCLE_PRESCALER 2

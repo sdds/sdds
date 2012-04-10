@@ -1,6 +1,7 @@
 JACKDAW = fe80::12:13ff:fe14:1516
 BOARD = fe80::00ff:fe00:0001
-CONTIKI = $(shell echo $$HOME)/es-projekt/contiki
+#CONTIKI = $(shell echo $$HOME)/es-projekt/contiki
+CONTIKI = ../../../platform/contiki
 
 all:
 	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board avr-atmega128rfa1-write.hex $(MAKEOPTS) \

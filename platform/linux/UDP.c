@@ -22,6 +22,7 @@
 #include "os-ssal/Memory.h"
 #include "NetBuffRef.h"
 #include "DataSink.h"
+#include "sdds_types.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -65,6 +66,7 @@ static struct Network_t net;
 static struct NetBuffRef_t inBuff;
 
 void* recvLoop(void*);
+static int create_socket(struct addrinfo *address);
 
 // for the builtintopic
 // IF BUILTIN
@@ -240,7 +242,7 @@ void *recvLoop(void *netBuff)
 
 		// spare address field?
 		struct sockaddr_storage addr;
-		size_t addr_len = sizeof addr;
+		socklen_t addr_len = sizeof(addr);
 		ssize_t recv_size = recvfrom(net.fd_uni_socket, buff->buff_start,
 		                             buff->frame_start->size, 0,
 		                             (struct sockaddr *)&addr, &addr_len);
@@ -439,6 +441,8 @@ bool_t Locator_isEqual(Locator l1, Locator l2)
 	if (memcmp(&addr[0]->sin_addr.s_addr, &addr[1]->sin_addr.s_addr, 4) == 0)
 	{
 		return true;
+	} else {
+		return false;
 	}
 #elif SDDS_LINUX_PROTOCOL == AF_INET6
 	struct sockaddr_in6 *addr[2];
@@ -452,5 +456,6 @@ bool_t Locator_isEqual(Locator l1, Locator l2)
 	} else {
 	    return false;
     }
+#endif
 }
 

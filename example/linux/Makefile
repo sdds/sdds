@@ -51,22 +51,23 @@ all:
 
 CFLAGS += -I.
 CFLAGS += -O0 -ggdb3
+LDLIBS += -lpthread
 
-$(SDDS_OBJDIR)/%.o: %.cc
-	echo $(SDDS_DEPEND_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
-	$(COMPILE.cc) -std=c++0x $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
+$(SDDS_OBJDIR)/%.o: %.c
+	echo $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
+	$(COMPILE.c)  $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
 
 $(SDDS_OBJDIR)/%.o: %.c
 	$(COMPILE.c) $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
 
-sdds.cc: $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
+sdds.c: $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
 
-sdds: $(SDDS_OBJDIR)/sdds.o $(SDDS_DEPEND_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
-	$(CXX) -std=c++0x -o $@ $^ $(LDLIBS)
+sdds: $(SDDS_OBJDIR)/sdds.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
+	$(CC) -o $@ $^ $(LDLIBS)
 
 clean:
 	$(RM) ./sdds
 	$(RM) $(CLEAN)
-	$(RM) $(SDDS_DEPEND_OBJS) $(SDDS_DEPEND_OBJS_DEPEND)
+	$(RM) $(SDDS_OBJS) $(SDDS_OBJS_DEPEND)
 
 -include $(patsubst %.o,%.d,$(ALL_OBJS))

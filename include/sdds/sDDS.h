@@ -22,8 +22,11 @@
 
 #include "sdds_types.h"
 //#include "Topic.h"
-
+#ifdef _ECLIPSE_DEV_
+#include "CONSTANTS.h"
+#endif // _ECLIPSE_DEV_
 // special types
+
 
 rc_t sDDS_init(void);
 

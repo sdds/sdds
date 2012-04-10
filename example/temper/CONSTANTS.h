@@ -20,11 +20,14 @@
 #ifndef  CONSTANTS_GEN_H_INC
 #define  CONSTANTS_GEN_H_INC
 
+// todo temp for eclipse
+#ifndef SDDS_ARCH_x86
+#define SDDS_ARCH_x86
+#endif
+
 #define sDDS_LOCAL_BYTEORDER_LITTLE_ENDIAN
 //#define sDDS_LOCAL_BYTEORDER_BIG_ENDIAN
 #define sDDS_NET_VERSION 0x01
-
-#define sDDS_MAX_DW_APP 2
 
 #define sDDS_MAX_DATA_READERS 7
 #define sDDS_MAX_DATA_WRITERS 7

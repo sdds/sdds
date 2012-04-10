@@ -4,19 +4,19 @@
 # support arrays (names with [])
 
 valid_types = [ \
-	('dds_short_t', 2, 'int16'),
-	('dds_long_t', 4, 'int32'),
-	('dds_long_long_t', 8, 'int64'),
-	('dds_unsigned_short_t', 2, 'uint16'),
-	('dds_unsigned_long_t', 4, 'uint32'),
-	('dds_unsigned_long_long_t', 8, 'uint64'),
-	('dds_float_t', 4, None),
-	('dds_double_t', 8, None),
-	('dds_long_double_t', 16, None),
-	('dds_char_t', 1, 'int8'),
-	('dds_octet_t', 1, 'uint8'),
-	('dds_boolean_t', 1, 'bool'),
-	('dds_string_t', 4, None)
+	('DDS_short', 2, 'int16'),
+	('DDS_long', 4, 'int32'),
+	('DDS_long_long', 8, 'int64'),
+	('DDS_unsigned_short', 2, 'uint16'),
+	('DDS_unsigned_long', 4, 'uint32'),
+	('DDS_unsigned_long_long', 8, 'uint64'),
+	('DDS_float', 4, None),
+	('DDS_double', 8, None),
+	('DDS_long_double', 16, None),
+	('DDS_char', 1, 'int8'),
+	('DDS_octet', 1, 'uint8'),
+	('DDS_boolean', 1, 'bool'),
+	('DDS_string', 4, None)
 ]
 
 valid_typenames = []
@@ -33,43 +33,40 @@ def get_header(f, name, data):
 	whitespace_string = '\t'
 
 	string = r"""
-#ifndef %(up_name)s_DS_H_INCLUDED
-#define %(up_name)s_DS_H_INCLUDED
+#ifndef %(up_name)s_H_INC
+#define %(up_name)s_H_INC
 
-#include <dds/dcps.h>
+#include <dds/DDS_DCPS.h>
 
-#include <sdds/topic.h>
+#include <sdds/Topic.h>
 
-struct %(name)s_data
+struct %(cap_name)s
 {
 %(data)s
 };
 
-typedef struct %(name)s_data %(name)s_data_t;
+typedef struct %(cap_name)s %(cap_name)s;
 
 #ifdef sDDS_TOPIC_HAS_PUB
-dds_return_t %(name)s_data_reader_take_next_sample(
-%(indent)sdds_data_reader_t *_this,
-%(indent)s%(name)s_data_t **values,
-%(indent)sdds_sample_info_t *sample_info
+DDS_ReturnCode_t DDS_%(cap_name)sDataReader_take_next_sample(
+%(indent)sDDS_DataReader _this,
+%(indent)s%(cap_name)s** values,
+%(indent)sDDS_SampleInfo* sample_info
 );
-rc_t topic_marshalling_%(name)s_decode(byte_t *buf, data_t *data, size_t *size);
 #endif
 
 #ifdef sDDS_TOPIC_HAS_SUB
-dds_return_t %(name)s_data_writer_write(
-%(indent)sdds_data_writer_t *_this,
-%(indent)s%(name)s_data_t *values,
-%(indent)sdds_instance_handle_t const *handle
+DDS_ReturnCode_t DDS_%(cap_name)sDataWriter_write(
+%(indent)sDDS_DataWriter _this,
+%(indent)sconst %(cap_name)s* instance_data,
+%(indent)sconst DDS_InstanceHandle_t handle
 );
-rc_t topic_marshalling_%(name)s_encode(byte_t *buf, data_t *data, size_t *size);
 #endif
 
-topic_t *sdds_%(name)s_topic_create(%(name)s_data_t *pool, int count);
-rc_t data_%(name)s_copy(data_t *dest, data_t *source);
+Topic sDDS_%(cap_name)sTopic_create(%(cap_name)s* pool, int count);
 
 #endif
-""" % {'name': name, 'up_name': name.upper(), 'data': data[:-1], 'indent': whitespace_string}
+""" % {'name': name, 'up_name': name.upper(), 'data': data[:-1], 'indent': whitespace_string, 'cap_name': name.capitalize()}
 	f.write(string[1:])
 
 def get_impl(f, name, marshalling_enc, marshalling_dec, sdds_domain, sdds_topic, size):
@@ -87,15 +84,15 @@ extern "C"
 
 #include "%(name)s-ds.h"
 
-#include <os-ssal/memory.h>
+#include <os-ssal/Memory.h>
 
-#include <sdds/data_sink.h>
-#include <sdds/data_source.h>
-#include <sdds/locator_db.h>
-#include <sdds/marshalling.h>
-#include <sdds/network.h>
-#include <sdds/topic_db.h>
-#include <sdds/topic_marshalling.h>
+#include <sdds/DataSink.h>
+#include <sdds/DataSource.h>
+#include <sdds/LocatorDB.h>
+#include <sdds/Marshalling.h>
+#include <sdds/Network.h>
+#include <sdds/TopicDB.h>
+#include <sdds/TopicMarshalling.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -107,14 +104,20 @@ extern "C"
 #define sDDS_DOMAIN %(sdds_domain)s
 #define sDDS_TOPIC %(sdds_topic)s
 
+
+rc_t TopicMarshalling_%(cap_name)s_cpy(Data dest, Data source);
+
 #ifdef sDDS_TOPIC_HAS_PUB
-dds_return_t %(name)s_data_reader_take_next_sample(
-%(indent)sdds_data_reader_t *_this,
-%(indent)s%(name)s_data_t **values,
-%(indent)sdds_sample_info_t *sample_info
+
+rc_t TopicMarshalling_%(cap_name)s_decode(byte_t* buffer, Data data, size_t* size);
+
+DDS_ReturnCode_t DDS_%(cap_name)sDataReader_take_next_sample(
+%(indent)sDDS_DataReader _this,
+%(indent)s%(cap_name)s** data_values,
+%(indent)sDDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = data_sink_take_next_sample(_this, (data_t **)values, sample_info);
+	rc_t ret = DataSink_take_next_sample((DataReader) _this, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 		return DDS_RETCODE_NO_DATA;
@@ -127,13 +130,16 @@ dds_return_t %(name)s_data_reader_take_next_sample(
 #endif
 
 #ifdef sDDS_TOPIC_HAS_SUB
-dds_return_t %(name)s_data_writer_write(
-%(indent)sdds_data_writer_t *_this,
-%(indent)s%(name)s_data_t *values,
-%(indent)sdds_instance_handle_t const *handle
+
+rc_t TopicMarshalling_%(cap_name)s_encode(byte_t* buffer, Data data, size_t* size);
+
+DDS_ReturnCode_t DDS_%(cap_name)sDataWriter_write(
+%(indent)sDDS_DataWriter _this,
+%(indent)sconst %(cap_name)s* instance_data,
+%(indent)sconst DDS_InstanceHandle_t  handle
 )
 {
-	rc_t ret = data_source_write(_this, values, handle);
+	rc_t ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
 
 	if (ret == SDDS_RT_OK)
 		return DDS_RETCODE_OK;
@@ -142,58 +148,58 @@ dds_return_t %(name)s_data_writer_write(
 }
 #endif
 
-topic_t *sdds_%(name)s_topic_create(%(name)s_data_t *pool, int count)
+Topic sDDS_%(cap_name)sTopic_create(%(cap_name)s* pool, int count)
 {
-	topic_t *topic = topic_db_create_topic();
-	locator_t *locator;
+	Topic topic = TopicDB_createTopic();
+	Locator locator;
 
-	network_create_locator(&locator);
+	Network_createLocator(&locator);
 
 	for (int i = 0; i < count; i++)
-		message_init(topic->messages + i, pool + i);
+		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
 
 #ifdef sDDS_TOPIC_HAS_SUB
-	topic->data_encode = topic_marshalling_%(name)s_encode;
-	topic->data_sinks.list = locator;
+	topic->Data_encode = TopicMarshalling_%(cap_name)s_encode;
+	topic->dsinks.list = locator;
 #endif
 
 #ifdef sDDS_TOPIC_HAS_PUB
-	topic->data_decode = topic_marshalling_%(name)s_decode;
+	topic->Data_decode = TopicMarshalling_%(cap_name)s_decode;
 #endif
 
-	topic->domain_id = sDDS_DOMAIN;
+	topic->domain = sDDS_DOMAIN;
 	topic->id = sDDS_TOPIC;
-	topic->data_copy = data_%(name)s_copy;
+	topic->Data_cpy = TopicMarshalling_%(cap_name)s_cpy;
 
 	return topic;
 }
 
-rc_t data_%(name)s_copy(data_t *dest, data_t *source)
+rc_t TopicMarshalling_%(cap_name)s_cpy(Data dest, Data source)
 {
-	memcpy(dest, source, sizeof(%(name)s_data_t));
+	memcpy(dest, source, sizeof(%(cap_name)s));
 
 	return SDDS_RT_OK;
 }
 
-rc_t topic_marshalling_%(name)s_encode(byte_t *buffer, data_t *data, size_t *size)
+rc_t TopicMarshalling_%(cap_name)s_encode(byte_t* buffer, Data data, size_t* size)
 {
 	*size = 0;
 
-	%(name)s_data_t *real_data = (%(name)s_data_t *)data;
+	%(cap_name)s* real_data = (%(cap_name)s*) data;
 
 %(marshalling_enc)s
 
 	return SDDS_RT_OK;
 }
 
-rc_t topic_marshalling_%(name)s_decode(byte_t *buffer, data_t *data, size_t *size)
+rc_t TopicMarshalling_%(cap_name)s_decode(byte_t* buffer, Data data, size_t* size)
 {
 	if (*size != %(size)s)
 		fprintf(stderr, "size mismatch\n");
 
 	*size = 0;
 
-	%(name)s_data_t *real_data = (%(name)s_data_t *)data;
+	%(cap_name)s* real_data = (%(cap_name)s*) data;
 
 %(marshalling_dec)s
 
@@ -203,7 +209,7 @@ rc_t topic_marshalling_%(name)s_decode(byte_t *buffer, data_t *data, size_t *siz
 { \
 	'name': name, 'marshalling_enc': marshalling_enc, 'marshalling_dec': marshalling_dec, \
 	'sdds_domain': sdds_domain, 'sdds_topic': sdds_topic, 'size': size, \
-	'indent': whitespace_string \
+	'indent': whitespace_string, 'cap_name': name.capitalize() \
 }
 	f.write(string)
 
@@ -225,8 +231,8 @@ def generate_marshalling(encdec, data):
 		sys.exit(1)
 
 	string = r"""
-	marshalling_%(encdec)s_%(decoder)s(buffer + *size, &real_data->%(varname)s);
-	*size += sizeof real_data->%(varname)s;
+	Marshalling_%(encdec)s_%(decoder)s(buffer + *size, &real_data->%(varname)s);
+	*size += sizeof(real_data->%(varname)s);
 
 """ % {'decoder': type__[2], 'encdec': encdec, 'varname': data[1]}
 

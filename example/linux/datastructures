@@ -2,4 +2,4 @@
 domain: 0
 topic: 1
 
-dds_unsigned_short_t value
+DDS_unsigned_short value

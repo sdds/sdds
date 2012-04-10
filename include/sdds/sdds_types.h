@@ -19,6 +19,10 @@
 #ifndef  SDDS_TYPES_H_INC
 #define  SDDS_TYPES_H_INC
 
+#ifdef _ECLIPSE_DEV_
+#include "CONSTANTS.h"
+#endif // _ECLIPSE_DEV_
+
 #ifdef SDDS_ARCH_ATmega
 #include <stdint.h>
 #include <string.h>
@@ -58,6 +62,8 @@ typedef double                  float64_t;
 
 
 #ifdef SDDS_ARCH_x86
+#include <stdbool.h>
+#include <stddef.h>
 #ifndef __int8_t_defined
 #define __int8_t_defined
 typedef	char 			int8_t;
@@ -85,8 +91,6 @@ typedef unsigned int 		size_t;
 #ifndef NULL
 #define NULL    ((void *)0)
 #endif
-#define false 0
-#define true 1
 
 typedef uint32_t SDDS_timestamp_t ;
 typedef uint16_t SDDS_msec_t ;

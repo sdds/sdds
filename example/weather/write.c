@@ -4,8 +4,8 @@
 
 #include "twi.h"
 
-#include <sdds/data_sink.h>
-#include <sdds/data_source.h>
+#include <sdds/DataSink.h>
+#include <sdds/DataSource.h>
 
 #include <contiki.h>
 #include <contiki-net.h>
@@ -86,13 +86,13 @@ PROCESS_THREAD(write_process, ev, data)
 	sht15_init();
 	bmp085_init();
 
-	init_sdds(3);
+	sDDS_init();
 
 	for (;;)
 	{
 		do
 		{
-			rainfall_data_t rainfall_data_used;
+			Rainfall rainfall_data_used;
 
 			if (raingauge_read_current(&rainfall_data_used.amount_current) != 0)
 				break;
@@ -103,7 +103,7 @@ PROCESS_THREAD(write_process, ev, data)
 			if (raingauge_read_hour(&rainfall_data_used.amount_hour) != 0)
 				break;
 
-			if (data_source_write(g_rainfall_writer, &rainfall_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_RainfallDataWriter_write(g_Rainfall_writer, &rainfall_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
@@ -111,7 +111,7 @@ PROCESS_THREAD(write_process, ev, data)
 
 		do
 		{
-			wind_speed_data_t wind_speed_data_used;
+			Wind_speed wind_speed_data_used;
 
 			if (anemometer_read_current(&wind_speed_data_used.speed_current) != 0)
 				break;
@@ -122,7 +122,7 @@ PROCESS_THREAD(write_process, ev, data)
 			if (anemometer_read_hour(&wind_speed_data_used.speed_hour) != 0)
 				break;
 
-			if (data_source_write(g_wind_speed_writer, &wind_speed_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_Wind_speedDataWriter_write(g_Wind_speed_writer, &wind_speed_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
@@ -130,12 +130,13 @@ PROCESS_THREAD(write_process, ev, data)
 
 		do
 		{
-			wind_direction_data_t wind_direction_data_used;
+			Wind_direction wind_direction_data_used;
 
 			if (wind_vane_read(&wind_direction_data_used.degrees_multiplier) != 0)
 				break;
 
-			if (data_source_write(g_wind_direction_writer, &wind_direction_data_used, NULL) != DDS_RETCODE_OK)
+			
+			if (DDS_Wind_directionDataWriter_write(g_Wind_direction_writer, &wind_direction_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
@@ -143,7 +144,7 @@ PROCESS_THREAD(write_process, ev, data)
 
 		do
 		{
-			temperature_data_t temperature_data_used;
+			Temperature temperature_data_used;
 
 			if (bmp085_read_temperature(&temperature_data_used.temperature) != 0)
 			{
@@ -152,7 +153,7 @@ PROCESS_THREAD(write_process, ev, data)
 					break;
 			}
 
-			if (data_source_write(g_temperature_writer, &temperature_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_TemperatureDataWriter_write(g_Temperature_writer, &temperature_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
@@ -160,12 +161,12 @@ PROCESS_THREAD(write_process, ev, data)
 
 		do
 		{
-			humidity_data_t humidity_data_used;
+			Humidity humidity_data_used;
 
 			if (sht15_read_relative_humidity(&humidity_data_used.relative_humidity) != 0)
 				break;
 
-			if (data_source_write(g_humidity_writer, &humidity_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_HumidityDataWriter_write(g_Humidity_writer, &humidity_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
@@ -173,12 +174,12 @@ PROCESS_THREAD(write_process, ev, data)
 
 		do
 		{
-			pressure_data_t pressure_data_used;
+			Pressure pressure_data_used;
 
 			if (bmp085_read_pressure(&pressure_data_used.pressure) != 0)
 				break;
 
-			if (data_source_write(g_pressure_writer, &pressure_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_PressureDataWriter_write(g_Pressure_writer, &pressure_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
