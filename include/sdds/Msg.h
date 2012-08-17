@@ -25,20 +25,35 @@
 #define SDDS_MSG_DIR_INCOMMING	1
 #define SDDS_MSG_DIR_OUTGOING	2
 
+
 typedef struct Msg_t* Msg;
+
 struct Msg_t {
-    Msg next;
-    Data data;
-    _Bool isEmpty	: 1;
-    unsigned int dir	: 2;
-    _Bool isRead	: 1;
-    _Bool isLoaned	: 1;
-    _Bool isNew		: 1;
+	//  Msg next;D
+	Data data;
+	//    _Bool isEmpty	: 1;
+	//    unsigned int dir	: 2;
+	//    _Bool isRead	: 1;
+	//    _Bool isLoaned	: 1;
+	//    _Bool isNew		: 1;
 };
+
+struct MsgPool{
+    struct Msg_t pool[sDDS_TOPIC_APP_MSG_COUNT];
+    uint8_t start; // TODO generate datatype
+    uint8_t count;   // TODO generate datatype
+};
+
 
 rc_t Msg_init(Msg _this, Data dataBuffer);
 rc_t Msg_getData(Msg _this, Data* data);
 // abstract -> impl in generated file
 size_t Msg_getSize(Msg _this);
+
+#ifdef sDDS_TOPIC_HAS_PUB
+rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg* msg);
+rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg* msg);
+rc_t MsgPool_getUnreadMsgCount(struct MsgPool* _this, uint8_t* count);
+#endif
 
 #endif   /* ----- #ifndef MSG_INC  ----- */

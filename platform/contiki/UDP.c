@@ -59,7 +59,7 @@ rc_t Network_init(void)
 
 	NetBuffRef_init(&g_incoming_buffer);
 
-	if (simple_udp_register(&g_connection, SDDS_CONTIKI_PORT, &address, 0, receive) != 1)
+	if (simple_udp_register(&g_connection, SDDS_CONTIKI_PORT, NULL, 0, receive) != 1)
 		return 1;
 
 	return SDDS_RT_OK;
@@ -135,20 +135,27 @@ void receive(struct simple_udp_connection *connection,
 	Locator_downRef(locator);
 }
 
-rc_t Network_send(NetBuffRef buffer)
-{
-	int result;
-	uip_ipaddr_t address;
-	Contiki_Locator locator;
+rc_t Network_send(NetBuffRef buffer) {
+	Locator loc = buffer->addr;
 
-	locator = (Contiki_Locator)buffer->addr;
+	while (loc != NULL ) {
+		uip_ipaddr_t address;
+		Contiki_Locator locator;
 
-	// multicast on all nodes link-local
-	//uip_ip6addr(&address, 0xff02, 0, 0, 0, 0, 0, 0, 1);
-	address = locator->address;
+		locator = (Contiki_Locator) loc;
 
-	uip_udp_packet_sendto(g_connection.udp_conn, buffer->buff_start, buffer->curPos,
-	                      &address, UIP_HTONS(SDDS_CONTIKI_PORT));
+		// multicast on all nodes link-local
+		//uip_ip6addr(&address, 0xff02, 0, 0, 0, 0, 0, 0, 1);
+		address = locator->address;
+
+		Log_debug("sending %d bytes to 0x%x buffer addr %p\n",
+				buffer->curPos, locator->address.u8[15], buffer);
+
+		uip_udp_packet_sendto(g_connection.udp_conn, buffer->buff_start,
+				buffer->curPos, &address, UIP_HTONS(SDDS_CONTIKI_PORT));
+
+		loc = loc->next;
+	}
 
 	return SDDS_RT_OK;
 }
@@ -194,6 +201,19 @@ rc_t Network_getPayloadBegin(size_t *startByte)
 	return SDDS_RT_OK;
 }
 
+rc_t Network_setAddressToLocator(Locator loc, char* addr) {
+
+	if (loc == NULL || addr == NULL) {
+		return SDDS_RT_BAD_PARAMETER;
+	}
+	Contiki_Locator l = (Contiki_Locator) loc;
+
+	uiplib_ipaddrconv(addr, &l->address);
+	l->port = UIP_HTONS(SDDS_CONTIKI_PORT);
+
+	return SDDS_RT_OK;
+}
+
 rc_t Network_createLocator(Locator* locator)
 {
 	Contiki_Locator contiki_locator;
@@ -205,12 +225,10 @@ rc_t Network_createLocator(Locator* locator)
 		Log_error("contiki: out of memory\n");
 		return SDDS_RT_NOMEM;
 	}
-
 	contiki_locator->sdds_locator.next = NULL;
-	uiplib_ipaddrconv(SDDS_CONTIKI_SEND_ADDRESS, &contiki_locator->address);
-	contiki_locator->port = UIP_HTONS(SDDS_CONTIKI_PORT);
 
 	*locator = (Locator) contiki_locator;
 
-	return SDDS_RT_OK;
+	return Network_setAddressToLocator(contiki_locator, SDDS_CONTIKI_SEND_ADDRESS);
+
 }

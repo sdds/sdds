@@ -1,0 +1,14 @@
+endian: little
+
+
+[Wattage]
+subscriber
+
+[Switch]
+subscriber
+
+[Switch_control]
+publisher
+
+[Lamp]
+subscriber

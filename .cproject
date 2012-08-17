@@ -54,11 +54,9 @@
 					</folderInfo>
 					<fileInfo id="cdt.managedbuild.toolchain.gnu.base.2031615490.652308214" name="UDP.c" rcbsApplicability="disable" resourcePath="platform/contiki/UDP.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.base.1083158013.1326751366">
 						<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1083158013.1326751366" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.1083158013">
-							<option id="gnu.c.compiler.option.include.paths.859997246" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+							<option id="gnu.c.compiler.option.include.paths.859997246" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 								<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sdds/example/temper}&quot;"/>
-								<listOptionValue 
-								    builtIn="false" 
-								    value="../platform/contiki/core"/>
+								<listOptionValue builtIn="false" value="../platform/contiki/core"/>
 							</option>
 							<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.193077270" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 						</tool>
@@ -71,12 +69,8 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.115615528" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.1083158013">
 								<option id="gnu.c.compiler.option.include.paths.526375670" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sdds/example/temper}&quot;"/>
-									<listOptionValue 
-									    builtIn="false" 
-									    value="../platform/contiki/core"/>
-									<listOptionValue 
-									    builtIn="false" 
-									    value="../platform/contiki/core/sys"/>
+									<listOptionValue builtIn="false" value="../platform/contiki/core"/>
+									<listOptionValue builtIn="false" value="../platform/contiki/core/sys"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2139582376" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -95,14 +89,30 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="sdds.null.877833712" name="sdds"/>
 	</storageModule>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Default">
+			<resource resourceType="PROJECT" workspacePath="/sdds"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="all" path="example/linux" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-f Makefile.test</buildArguments>
+				<buildTarget>all</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>false</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
+	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.2031615490;cdt.managedbuild.toolchain.gnu.base.2031615490.2048983804;cdt.managedbuild.tool.gnu.c.compiler.base.1083158013;cdt.managedbuild.tool.gnu.c.compiler.input.1724830911">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.toolchain.winavr.base.488640026;de.innot.avreclipse.toolchain.winavr.base.488640026.1122153502">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.2031615490;cdt.managedbuild.toolchain.gnu.base.2031615490.2048983804;cdt.managedbuild.tool.gnu.c.compiler.base.1083158013;cdt.managedbuild.tool.gnu.c.compiler.input.1724830911">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.2031615490;cdt.managedbuild.toolchain.gnu.base.2031615490.652308214;cdt.managedbuild.tool.gnu.c.compiler.base.1083158013.1326751366;cdt.managedbuild.tool.gnu.c.compiler.input.193077270">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
@@ -114,4 +124,5 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 </cproject>

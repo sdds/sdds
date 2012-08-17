@@ -1,0 +1,21 @@
+#JACKDAW = fe80::12:13ff:fe14:1516
+JACKDAW = fe80::50:c4ff:fe04:2e3
+BOARD = fe80::50:c4ff:fe04:81a5
+#CONTIKI = $(shell echo $$HOME)/es-projekt/contiki
+#CONTIKI = ../../../platform/contiki
+CONTIKI = ../../../platform/hexabus/firmware/contiki-2.x
+
+APPLICATION_NAME := mywrite
+
+all:
+	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board $(APPLICATION_NAME).hex $(MAKEOPTS) \
+	                    SDDS_CONTIKI_SEND_ADDRESS="$(JACKDAW)"
+
+flash:
+	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board flash $(MAKEOPTS)
+
+debug:
+	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board debug $(MAKEOPTS)
+
+clean:
+	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board clean

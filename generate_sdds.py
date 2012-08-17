@@ -21,6 +21,8 @@ impl_decl = r"""
 impl_init = r"""
 rc_t sDDS_init(void)
 {
+	rc_t ret;
+	
 	Memory_init();
 	Network_init();
 	LocatorDB_init();
@@ -32,7 +34,7 @@ rc_t sDDS_init(void)
 
 %s
 
-	return 0;
+	return SDDS_RT_OK;
 }
 """
 
@@ -90,6 +92,7 @@ def get_impl(f, impl_name, datastructures):
 	f.write(def_string)
 
 	impl_string = ''
+	impl_string += '\tLocator l;\n'
 
 	for ds in datastructures:
 		if ds['subscriber'] or ds['publisher']:
@@ -100,7 +103,24 @@ def get_impl(f, impl_name, datastructures):
 
 		if ds['publisher']:
 			impl_string += '\tg_%(name)s_writer = DataSource_create_datawriter(g_%(name)s_topic, NULL, NULL, NULL);\n' % {'name': ds['name'].capitalize()}
-
+			impl_string += '\n'
+			for addr in ds['addresses']:
+				impl_string += '\n'
+				impl_string += '\tret = LocatorDB_newLocator(&l);\n'
+				impl_string += '\tif (ret != SDDS_RT_OK)\n'
+				impl_string += '\t\treturn ret;\n'
+				impl_string += '\n'
+				impl_string += '\tLocator_upRef(l);\n'
+				impl_string += '\n'
+				impl_string += '\tret = Network_setAddressToLocator(l, "%(addr)s");\n' % {'addr': addr.rstrip()}
+				impl_string += '\tif (ret != SDDS_RT_OK)\n'
+				impl_string += '\t\treturn ret;\n'
+				impl_string += '\n'
+				impl_string += '\tret = Topic_addRemoteDataSink(g_%(name)s_topic, l);\n' % {'name' : ds['name'].capitalize()}
+				impl_string += '\tif (ret != SDDS_RT_OK)\n'
+				impl_string += '\t\treturn ret;\n'
+				impl_string += '\tLocator_downRef(l);\n'
+				
 		impl_string += '\n'
 
 	f.write(impl_init[1:] % impl_string[:-2])
@@ -157,13 +177,19 @@ def get_info(filename, datastructures):
 			continue
 
 		token = None
+		addr_list = None
 
-		if line.strip() == 'publisher':
+		if line.startswith('publisher'):
 			if not role['name']:
 				print 'can\'t publish, because no name yet'
 				sys.exit(1)
 			token = 'publisher'
-		elif line.strip() == 'subscriber':
+			addr_list = line.split(' ')
+			addr_list.pop(0)
+			for s in addr_list:
+				s.rstrip()
+				
+		elif line.startswith('subscriber'):
 			if not role['name']:
 				print 'can\'t subscribe, because no name yet'
 				sys.exit(1)
@@ -183,6 +209,7 @@ def get_info(filename, datastructures):
 			sys.exit(1)
 
 		datastructures[found][token] = True
+		datastructures[found]['addresses'] = addr_list
 		role['is_%s' % token] = True
 
 	make_data(role, roles)
@@ -266,6 +293,87 @@ fconstants.write(r"""
 #define sDDS_TOPIC_MAX_COUNT %(max_topics)d
 #define sDDS_MNG_WORKER_CYCLE_TIME 10000
 #define sDDS_MNG_BUILTINT_PUBCYCLE_PRESCALER 2
+
+/* TWI bus speed in Hz */
+#define TWI_BUS_SPEED 100000UL
+
+/* TWI data and clock pin and port */
+#define TWI_CLOCK_PORT D
+#define TWI_DATA_PORT D
+#define TWI_CLOCK_PIN 0
+#define TWI_DATA_PIN 1
+
+
+/* adc reference voltage, see adc.h */
+#define WIND_VANE_ADC_REFERENCE ADC_USE_AVCC
+
+/* adc channel for the wind vane */
+#define WIND_VANE_ADC_CHANNEL 0
+
+/* resistor used as voltage divider */
+#define WIND_VANE_DIVIDER_RESISTOR 5.4f
+
+/* internal = 10bit resoluti0on, pcf8591 = 8bit */
+#define WIND_VANE_POSSIBLE_VALUES (1 << 10)
+
+/* define port and pin for the anemometer interrupt */
+#define ANEMOMETER_PORT E
+#define ANEMOMETER_PIN 5
+
+/* which interrupt is used for the anemometer (5 == PE5) */
+#define ANEMOMETER_INTERRUPT 5
+
+/* the external interrupt control register for this interrupt */
+#define ANEMOMETER_EICR EICRB
+
+/* how often is the callback called (in seconds) */
+#define ANEMOMETER_CALLBACK_PERIOD 1
+
+/* define port and pin for the rain gauge interrupt */
+#define RAINGAUGE_PORT E
+#define RAINGAUGE_PIN 4
+
+/* which interrupt is used for the rain gauge (4 == PE4) */
+#define RAINGAUGE_INTERRUPT 4
+
+/* the external interrupt control register for this interrupt */
+#define RAINGAUGE_EICR EICRB
+
+/* how often is the callback called (in seconds) */
+#define RAINGAUGE_CALLBACK_PERIOD 1
+
+/* SHT15 bus speed in Hz */
+#define SHT15_BUS_SPEED 100000
+
+/* SHT15 data and clock pin and port */
+#define SHT15_CLOCK_PORT D
+#define SHT15_DATA_PORT D
+#define SHT15_CLOCK_PIN 7
+#define SHT15_DATA_PIN 5
+
+/*
+ * SHT15 temperature coefficients
+ * 5V = -4010, 4V = -3980, 3.5V = -3970, 3V = -3960, 2.5V = -3940
+ */
+#define SHT15_TEMPERATURE_COEFFICIENT -3960
+
+/*
+ * SHT15 measurement resolution
+ * can be 14bit temperature/12bit humidity
+ * or 12bit temperature/8bit humidity
+ */
+#define SHT15_HIGH_RESOLUTION
+
+/* settings for the AMN31112 PIR Sensor
+ */
+
+#define AMN31112_PORT B
+#define AMN31112_PIN 5
+
+/* settings for the TSL2561 light sensor
+*/
+
+#define TSL2561_TWI_ADDRESS (0x39<<1)
 
 #endif
 """[1:] % \

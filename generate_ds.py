@@ -151,16 +151,16 @@ DDS_ReturnCode_t DDS_%(cap_name)sDataWriter_write(
 Topic sDDS_%(cap_name)sTopic_create(%(cap_name)s* pool, int count)
 {
 	Topic topic = TopicDB_createTopic();
-	Locator locator;
+	//Locator locator;
 
-	Network_createLocator(&locator);
+	//Network_createLocator(&locator);
 
 	for (int i = 0; i < count; i++)
 		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
 
 #ifdef sDDS_TOPIC_HAS_SUB
 	topic->Data_encode = TopicMarshalling_%(cap_name)s_encode;
-	topic->dsinks.list = locator;
+	//topic->dsinks.list = locator;
 #endif
 
 #ifdef sDDS_TOPIC_HAS_PUB

@@ -1,6 +1,12 @@
 #include "atmega_sdds_impl.h"
 
-#include "weather-drivers.h"
+//#include "weather-drivers.h"
+
+#include "anemometer.h"
+#include "bmp085.h"
+#include "raingauge.h"
+#include "sht15.h"
+#include "wind_vane.h"
 
 #include "twi.h"
 

@@ -8,6 +8,7 @@ ifeq ($(BUILD),linux)
   SDDS_ARCH := x86
   
   LDFLAGS += -lm
+  LDLIBS += -lm
   
 #  CFLAGS += -D_POSIX_C_SOURCE=200809L
 
@@ -40,14 +41,24 @@ else
   endif
 
   SDDS_PLATFORM := contiki
-  SDDS_ARCH := ATmega
+  SDDS_ARCH := atmega
 
-  SENSORIO_DEPEND_OBJS += $(SDDS_OBJDIR)/adc.o
-  SENSORIO_DEPEND_OBJS += $(SDDS_OBJDIR)/spi.o
-  SENSORIO_DEPEND_OBJS += $(SDDS_OBJDIR)/twi.o
-  SENSORIO_DEPEND_OBJS += $(SDDS_OBJDIR)/weather-drivers.o
+  #DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/adc.o
+  #DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/spi.o
+  #DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/twi.o
+  #DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/weather-drivers.o
+  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-adc.o
+  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-spi.o
+  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-twi.o
+  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-anemometer.o
+  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-bmp085.o
+  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-raingauge.o
+  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-sht15.o
+  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-wind_vane.o
+  
+  
   IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/atmega_sdds_impl.o
-  ALL_OBJS += $(SENSORIO_DEPEND_OBJS)
+  ALL_OBJS += $(DRIVER_DEPEND_OBJS)
   ALL_OBJS += $(IMPL_DEPEND_OBJS)
   ALL_OBJS += $(SDDS_OBJDIR)/$(TARGET)-write.o
 
@@ -128,7 +139,7 @@ $(TARGET)-write.c: write.c
 	$(CC) $(CFLAGS) -MM -MF$(SDDS_OBJDIR)/$(TARGET)-write.d -MT$@ $^
 	cp $< $@
 
-$(TARGET)-write.elf: $(TARGET)-write.co $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS) $(SENSORIO_DEPEND_OBJS) contiki-$(TARGET).a
+$(TARGET)-write.elf: $(TARGET)-write.co $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS) $(DRIVER_DEPEND_OBJS) contiki-$(TARGET).a
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $^ $(LIBC)
 
 %.hex: %.elf

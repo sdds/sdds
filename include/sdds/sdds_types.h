@@ -23,7 +23,7 @@
 #include "CONSTANTS.h"
 #endif // _ECLIPSE_DEV_
 
-#ifdef SDDS_ARCH_ATmega
+#ifdef SDDS_ARCH_atmega
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
@@ -64,6 +64,7 @@ typedef double                  float64_t;
 #ifdef SDDS_ARCH_x86
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #ifndef __int8_t_defined
 #define __int8_t_defined
 typedef	char 			int8_t;
@@ -72,16 +73,19 @@ typedef	int 			int32_t;
 typedef long int 		int64_t;
 #endif
 
+#if 0
 typedef	unsigned char		uint8_t;		/* 8 bit unsigned  */
 typedef	unsigned short int	uint16_t;	/* 16 bit ungned  */
 typedef unsigned int		uint32_t;	/*  */
 typedef unsigned long 		uint64_t;	/*  */
+#endif
 typedef unsigned char		bool_t;		/*  */
 typedef char			char_t;
 typedef unsigned char		byte_t;
 typedef float			float32_t;
 typedef double			float64_t;
 typedef long double		float128_t;
+
 #ifndef __size_t
 #define __size_t__
 typedef unsigned int 		size_t;
@@ -108,6 +112,7 @@ typedef uint8_t rc_t;
 #define SDDS_RT_FAIL 1
 #define SDDS_RT_NOMEM 2
 #define SDDS_RT_NODATA 3
+#define SDDS_RT_BAD_PARAMETER 4
 
 
 //abstract definistion for Data

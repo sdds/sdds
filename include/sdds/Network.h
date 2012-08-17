@@ -41,4 +41,7 @@ rc_t Network_getPayloadBegin(size_t* startByte);
 rc_t Network_createLocator(Locator* loc);
 size_t Network_locSize(void);
 
+rc_t Network_setAddressToLocator(Locator loc, char* addr);
+
+
 #endif   /* ----- #ifndef NETWORK_H_INC  ----- */

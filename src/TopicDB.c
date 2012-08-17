@@ -33,11 +33,16 @@ rc_t BuiltinTopicTopic_encode(byte_t* buff, Data data, size_t* size);
 
 Topic TopicDB_createTopic(void)
 {
-    if (topicdb.topicCount < sDDS_TOPIC_MAX_COUNT){
-	return &(topicdb.db[topicdb.topicCount++]);
-    } else {
-	return NULL;
-    }
+	if (topicdb.topicCount < sDDS_TOPIC_MAX_COUNT){
+		Topic n = &(topicdb.db[topicdb.topicCount++]);
+		memset(n, 0, sizeof(struct Topic_t));
+		n->msg.count = 0;
+		n->msg.start = 0;
+
+		return n;
+	} else {
+		return NULL;
+	}
 }
 
 bool_t TopicDB_checkDomain(domainid_t domain)

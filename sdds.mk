@@ -30,8 +30,13 @@ SDDS_PLATFORM_SRCS := $(wildcard $(SDDS_TOPDIR)/platform/$(SDDS_PLATFORM)/*.c)
 SDDS_PLATFORM_OBJS := $(patsubst $(SDDS_TOPDIR)/platform/$(SDDS_PLATFORM)/%.c, \
 	$(SDDS_OBJDIR)/sdds-$(SDDS_PLATFORM)-%.o, \
 	$(SDDS_PLATFORM_SRCS))
+	
+#SDDS_DRIVER_SRCS := $(wildcard $(SDDS_TOPDIR)/driver/src/$(SDDS_ARCH)/*.c)
+#SDDS_DRIVER_OBJS := $(patsubst $(SDDS_TOPDIR)/driver/src/$(SDDS_ARCH)/%.c, \
+	$(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-%.o, \
+	$(SDDS_DRIVER_SRCS))
 
-SDDS_OBJS := $(SDDS_SRC_OBJS) $(SDDS_PLATFORM_OBJS)
+SDDS_OBJS := $(SDDS_SRC_OBJS) $(SDDS_PLATFORM_OBJS) #$(SDDS_DRIVER_OBJS)
 SDDS_OBJS_DEPEND := $(patsubst %.o, %.d, $(SDDS_OBJS))
 
 ifeq ($(SDDS_PLATFORM),linux)
@@ -61,6 +66,7 @@ endif
 
 SDDS_INCLUDES += $(SDDS_TOPDIR)/include/sdds $(SDDS_TOPDIR)/include
 SDDS_INCLUDES += $(SDDS_TOPDIR)/platform/$(SDDS_PLATFORM)/include
+SDDS_INCLUDES += $(SDDS_TOPDIR)/driver/include
 
 CFLAGS_ALL += $(addprefix -I, $(SDDS_INCLUDES))
 CFLAGS_ALL += -DSDDS_PLATFORM_$(SDDS_PLATFORM)
@@ -70,6 +76,9 @@ CFLAGS += $(CFLAGS_ALL)
 CXXFLAGS += $(CFLAGS_ALL)
 
 $(SDDS_OBJDIR)/sdds-$(SDDS_PLATFORM)-%.o: $(SDDS_TOPDIR)/platform/$(SDDS_PLATFORM)/%.c
+	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
+
+$(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-%.o: $(SDDS_TOPDIR)/driver/src/$(SDDS_ARCH)/%.c
 	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
 
 $(SDDS_OBJDIR)/sdds-%.o: $(SDDS_TOPDIR)/src/%.c

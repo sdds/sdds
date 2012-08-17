@@ -97,9 +97,9 @@ rc_t Network_init(void)
 	// returned addresses will be used to create datagram sockets
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_family = SDDS_LINUX_PROTOCOL;
+	hints.ai_flags = AI_PASSIVE;
 
-	int gai_ret = getaddrinfo(SDDS_LINUX_LISTEN_ADDRESS, port_buffer, &hints, &address);
-
+	int gai_ret = getaddrinfo(NULL, port_buffer, &hints, &address);
 	if (gai_ret != 0)
 	{
 		Log_error("can't obtain suitable addresses for listening\n");
@@ -308,23 +308,29 @@ void *recvLoop(void *netBuff)
     return SDDS_RT_OK;
 }
 
-rc_t Network_send(NetBuffRef buff)
-{
-	ssize_t transmitted;
-	struct sockaddr *addr = (struct sockaddr *)&((struct UDPLocator_t *)buff->addr)->addr_storage;
+rc_t Network_send(NetBuffRef buff) {
 
-	transmitted = sendto(net.fd_uni_socket, buff->buff_start, buff->curPos, 0, addr, sizeof(struct sockaddr_storage));
+	Locator loc = buff->addr;
 
-	if (transmitted == -1)
-	{
-	Log_error("can't send udp packet\n");
+	while (loc != NULL ) {
+
+		ssize_t transmitted;
+		struct sockaddr *addr =
+				(struct sockaddr *) &((struct UDPLocator_t *) loc)->addr_storage;
+
+		transmitted = sendto(net.fd_uni_socket, buff->buff_start, buff->curPos,
+				0, addr, sizeof(struct sockaddr_storage));
+
+		if (transmitted == -1) {
+			Log_error("can't send udp packet\n");
+		} else {
+			Log_debug("Transmitted %d bytes \n", transmitted);
+		}
+
+		loc = loc->next;
 	}
-	else
-	{
-		Log_debug("Transmitted %d bytes \n", transmitted);
-    }
 
-    return SDDS_RT_OK;
+	return SDDS_RT_OK;
 }
 
 void Network_recvFrameHandler(Network _this)
@@ -361,16 +367,15 @@ size_t Network_locSize(void)
 {
     return sizeof(struct UDPLocator_t);
 }
-rc_t Network_createLocator(Locator* loc)
-{
 
-    *loc = Memory_alloc(sizeof(struct UDPLocator_t));
+rc_t Network_setAddressToLocator(Locator loc, char* addr) {
 
-	if (*loc == NULL)
-	{
-    	return SDDS_RT_NOMEM;
-    }
-    struct UDPLocator_t* l = (struct UDPLocator_t*) *loc;
+	if (loc == NULL || addr == NULL) {
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+	struct UDPLocator_t* l = (struct UDPLocator_t*) loc;
+
 	struct addrinfo *address;
 	struct addrinfo hints;
 	char port_buffer[6];
@@ -385,14 +390,15 @@ rc_t Network_createLocator(Locator* loc)
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_family = SDDS_LINUX_PROTOCOL;
 
-	int gai_ret = getaddrinfo(SDDS_LINUX_SEND_ADDRESS, port_buffer, &hints, &address);
+	int gai_ret = getaddrinfo(addr, port_buffer, &hints, &address);
 
 	if (gai_ret != 0)
 	{
-		free(*loc);
-		Log_error("can't obtain suitable addresses for sending\n");
-		return -1;
+		Log_error("can't obtain suitable addresses for setting UDP locator\n");
+
+		return SDDS_RT_FAIL;
 	}
+
 
 #ifdef _DEBUG
 	// show which address was assigned
@@ -424,7 +430,21 @@ rc_t Network_createLocator(Locator* loc)
 	// free up address
 	freeaddrinfo(address);
 
-    return SDDS_RT_OK;
+	return SDDS_RT_OK;
+}
+
+rc_t Network_createLocator(Locator* loc)
+{
+
+    *loc = Memory_alloc(sizeof(struct UDPLocator_t));
+
+	if (*loc == NULL)
+	{
+    	return SDDS_RT_NOMEM;
+    }
+
+	return Network_setAddressToLocator(*loc, SDDS_LINUX_SEND_ADDRESS);
+
 }
 
 bool_t Locator_isEqual(Locator l1, Locator l2)

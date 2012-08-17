@@ -25,9 +25,6 @@
 #include "Msg.h"
 
 
-struct MsgPool{
-    struct Msg_t pool[sDDS_TOPIC_APP_MSG_COUNT];
-};
 
 struct datasources{
     Locator list;
@@ -49,6 +46,7 @@ struct Topic_t {
 #endif
 
     struct MsgPool msg;
+
     rc_t (*Data_decode)(byte_t* buff, Data data, size_t* size);
     rc_t (*Data_cpy)(Data dest, Data source);
 
@@ -59,14 +57,60 @@ struct Topic_t {
 typedef struct Topic_t* Topic;
 
 
+#ifdef sDDS_TOPIC_HAS_PUB
 rc_t Topic_getFreeMsg(Topic _this, Msg* msg);
-
+rc_t Topic_getNextMsg(Topic _this, Msg* msg);
+rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count);
+#endif
 
 #ifdef sDDS_TOPIC_HAS_SUB
-rc_t Topic_addDataSink(Topic _this, Locator addr);
+/**
+ * Add the address/locator object of a remote node as a Data sink,
+ * aka receiver of data samples of this, to the topic.
+ *
+ * @param _this Pointer to object
+ * @param addr Locator object of the remote node
+ * @return SDDS return code @see rc_t
+ */
+rc_t Topic_addRemoteDataSink(Topic _this, Locator addr);
 #endif
+
+#if defined (sDDS_TOPIC_HAS_PUB) && (sDDS_TOPIC_DYNAMIC)
+/**
+ * Remove the address/locator object of a data sink remote node
+ * from this topic. The remote datareader wont get any data samples
+ * afterwards.
+ *
+ * @param _this Pointer to the class object
+ * @param addr Locator object to remove
+ * @return sdds return code @see rc_t
+ */
+rc_t Topic_removeRemoteDataSink(Topic _this, Locator addr);
+#endif
+
 #ifdef sDDS_TOPIC_HAS_PUB
-rc_t Topic_addDataSource(Topic _this, Locator addr);
+/**
+ * Add a address/locator object of a remote data source node
+ * aka. sender/publisher of data samples for this topic, to the
+ * topic.
+ * @param _this Pointer to the object
+ * @param addr Locator object of the remote node
+ * @return sdds return code @see rc_t
+ */
+rc_t Topic_addRemoteDataSource(Topic _this, Locator addr);
 #endif
+
+#if defined (sDDS_TOPIC_HAS_SUB) && (sDDS_TOPIC_DYNAMIC)
+/**
+ * Remove the address/locator object of a remote data source node
+ * from this topic.
+ *
+ * @param _this Pointer to the class object
+ * @param addr Locator object to remove
+ * @return sdds return code @see rc_t
+ */
+rc_t Topic_removeRemoteDataSink(Topic _this, Locator addr);
+#endif
+
 
 #endif   /* ----- #ifndef TOPIC_H_INC  ----- */

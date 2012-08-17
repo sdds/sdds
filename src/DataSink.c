@@ -25,6 +25,10 @@
 #include "BuiltinTopic.h"
 #include "Marshalling.h"
 #include "sdds_types.h"
+#include "Log.h"
+
+typedef void (*Listener_ptr)(int);
+Listener_ptr listener_ptr;
 
 struct DataReader {
     Topic topic;
@@ -69,6 +73,7 @@ rc_t DataSink_processFrame(NetBuffRef buff)
     
     // should be NULL!
     msg = NULL;
+    topicid_t topic;
 
     while (buff->subMsgCount > 0)
     {
@@ -87,7 +92,6 @@ rc_t DataSink_processFrame(NetBuffRef buff)
 	    case (SNPS_T_TOPIC) :
 		// check data
 		submitData();
-		topicid_t topic;
 		SNPS_readTopic(buff, &topic);
 		// check topic
 		checkTopic(buff, topic);
@@ -119,6 +123,7 @@ rc_t DataSink_processFrame(NetBuffRef buff)
     NetBuffRef_renew(buff);
 
     // ggf send events to the applications
+    listener_ptr(topic);
 
     return SDDS_RT_OK;
 		}
@@ -142,8 +147,9 @@ rc_t DataSink_init(void)
 #ifdef sDDS_TOPIC_HAS_PUB
 DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm)
 {
+
     qos = qos;
-    listener = listener;
+    listener_ptr = listener;
     sm = sm;
 
     DataReader dr = NULL;
@@ -163,7 +169,7 @@ DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, S
 }
 #endif
 
-//#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef sDDS_TOPIC_HAS_PUB
 rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info)
 {
     Msg msg = NULL;
@@ -171,41 +177,35 @@ rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info)
     Msg tmppool = NULL;
 
     Topic topic = _this->topic;
-    info = info;
+    (DataInfo)info;
 
-    // find a unread msg
-    for (int i = 0; i < sDDS_TOPIC_APP_MSG_COUNT; i++){
-	tmppool = &topic->msg.pool;
-	tmp = &tmppool[i]; //&(topic->msg.pool[i]);
-	if (tmp->isEmpty == false && tmp->dir == SDDS_MSG_DIR_INCOMMING && tmp->isRead == false){
-	    // found one!
-	    msg = tmp;
-	    break;
-	}
+    rc_t ret = Topic_getNextMsg(topic, &msg);
 
-    }
-    if (msg == NULL){
-	return SDDS_RT_NODATA;
+    if (ret == SDDS_RT_NODATA) {
+    	return SDDS_RT_NODATA;
     }
 
-//    cpy the data?
-    if (*data != NULL){
-	(*topic->Data_cpy)(*data, msg->data);
-	// free the msg
-	Msg_init(msg, NULL);
-	return SDDS_RT_OK;
+    // check if buffer is provided
+
+    if (*data != NULL) {
+    	// cpy the data
+    	Data newData;
+    	Msg_getData(msg, &newData);
+    	(*topic->Data_cpy)(*data, newData);
+    	// free the msg
+    	Msg_init(msg, NULL);
     } else {
-	// its a loan
-	msg->isLoaned = true;
-	msg->isNew = false;
-	msg->isRead = true;
-	*data = msg->data;
-	return SDDS_RT_OK;
+    	// TODO impl loan
+    	Log_error("No buffer for datasample is provided. Data is lost\n");
+    	return SDDS_RT_FAIL;
     }
+
     //TODO sample infos
     
+    return SDDS_RT_OK;
+
 }
-//#endif
+#endif
 
 
 
@@ -213,39 +213,40 @@ rc_t submitData(void)
 {
     if (msg != NULL){
 	// add msg to topic incomming queue
-	msg->dir = SDDS_MSG_DIR_INCOMMING;
-	msg->isRead = false;
-	msg->isNew = true;
+	// msg->dir = SDDS_MSG_DIR_INCOMMING;
+	// msg->isRead = false;
+	// msg->isNew = true;
 	// TODO
 	// impl of app  callback
-	msg = NULL;
+    	msg = NULL;
     }
     return SDDS_RT_OK;
 }
 
 #ifdef sDDS_TOPIC_HAS_PUB
-rc_t parseData(NetBuffRef buff)
-{
-    Topic topic;
-    // check if there is a topic provided (should be)
-    // data without topic are useless for this version!
-    if (buff->curTopic == NULL){
-	// should not happen
-	SNPS_discardSubMsg(buff);
-	return SDDS_RT_FAIL;
-    } else {
-	topic = buff->curTopic;
-    }
-    // get msg from topic
-    if (Topic_getFreeMsg(topic, &msg) != SDDS_RT_OK){
-	SNPS_discardSubMsg(buff);
-	return SDDS_RT_FAIL;
-    }
-    msg->isEmpty = false;
-    // parse data
-    rc_t ret = SNPS_readData(buff, topic->Data_decode, msg->data);
+rc_t parseData(NetBuffRef buff) {
+	Topic topic;
+	// check if there is a topic provided (should be)
+	// data without topic are useless for this version!
+	if (buff->curTopic == NULL) {
+		// should not happen
+		SNPS_discardSubMsg(buff);
+		return SDDS_RT_FAIL;
+	} else {
+		topic = buff->curTopic;
+	}
+	// get msg from topic
+	if (Topic_getFreeMsg(topic, &msg) != SDDS_RT_OK) {
+		SNPS_discardSubMsg(buff);
+		return SDDS_RT_FAIL;
+	}
+	//msg->isEmpty = false;
+	// parse data
+	Data newData;
+	Msg_getData(msg, &newData);
+	rc_t ret = SNPS_readData(buff, topic->Data_decode, newData);
 
-    return ret;
+	return ret;
 }
 #endif
 

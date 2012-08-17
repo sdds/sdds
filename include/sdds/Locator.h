@@ -39,15 +39,74 @@ struct Locator_t{
     _Bool isEmpty		: 1;
     _Bool isDest		: 1;
     _Bool isSender		: 1;
-    unsigned int refCount	: 4;
+    uint8_t refCount;
 };
 typedef struct Locator_t* Locator;
 
-bool_t Locator_isEqual(Locator l1, Locator l2);
-#define Locator_upRef(x) if (x->refCount <= 15) x->refCount++ 
-#define Locator_downRef(x) if (x->refCount > 0) x->refCount-- 
+/**
+ * Initialises a Locator object
+ *
+ * @param _this Pointer to the object
+ * @return is always SDDS_RT_OK
+ */
+rc_t Locator_init(Locator _this);
 
-rc_t Locator_add(Locator head, Locator newL);
-rc_t Locator_del(Locator head, Locator toDel);
+/**
+ * Checks if two Locator instances are equal or the same.
+ * There is no distinction between these two cases.
+ * The comparison depends on the specific implementation.
+ * This method is abstract and have to be implemented in the
+ * network specific class, like the "network module"
+ *
+ * @param l1 First Locator instance
+ * @param l2 Second Locator instance
+ * @return true or false, dependig if the two instances are equal or not
+ */
+bool_t Locator_isEqual(Locator l1, Locator l2);
+
+/**
+ * Increments the reference counter of the locator instance.
+ * @param _this Poniter to the Locator instance
+ */
+void Locator_upRef(Locator _this);
+
+
+/**
+ * decrements the reference counter of the locator instance.
+ * If the counter becomes zero, the instance will be freed in the LocatorDB.
+ *
+ * @param _this Locator instance, which refcount shall be reduced
+ */
+void Locator_downRef(Locator _this);
+
+
+/**
+ * adds the given Locator instance to the end of the list.
+ * If there is already an equal instance the refcounter of the instance in the list
+ * will be incremented and the given instance decremented.
+ *
+ * @param head Pointer to the head of the list
+ * @param newL Pointer to the locator instance to insert
+ * @return SDDS_RT_OK if insert was successful,
+ * SDDS_RT_BAD_PARAMETER if one of the parameter is NULL
+ */
+rc_t Locator_addToList(Locator head, Locator newL);
+
+/**
+ * Removes a Locator instance from the locator list.
+ * If the locator is within the list, the reference counter
+ * will be decremented and if the counter becomes zero the instance
+ * will be freed.
+ * If the given locator instance to remove is not the same as the
+ * instance in the list, both instances reference counter will be
+ * decremented
+ *
+ * @param head Pointer to the head of the list
+ * @param newL Pointer to the locator instance to remove
+ * @return SDDS_RT_OK if success,
+ * SDDS_RT_FAIL if the given instance was not found in the list,
+ * SDDS_RT_BAD_PARAMETER if one of the parameter is NULL
+ */
+rc_t Locator_removeFromList(Locator head, Locator toDel);
 
 #endif   /* ----- #ifndef LOCATOR_H_INC  ----- */

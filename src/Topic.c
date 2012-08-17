@@ -16,9 +16,25 @@
  * =====================================================================================
  */
 #include "Topic.h"
+#include "sdds_types.h"
+#include "Msg.h"
 
 
 #ifdef sDDS_TOPIC_HAS_PUB
+rc_t Topic_getFreeMsg(Topic _this, Msg* msg) {
+	return MsgPool_getFreeMsg(&(_this->msg), msg);
+}
+rc_t Topic_getNextMsg(Topic _this, Msg* msg) {
+	return MsgPool_getNextMsg(&(_this->msg), msg);
+}
+rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count) {
+	return MsgPool_getUnreadMsgCount(&(_this->msg), count);
+}
+#endif
+
+
+
+#if 0
 rc_t Topic_getFreeMsg(Topic _this, Msg* msg)
 {
     for (int i = 0; i < sDDS_TOPIC_APP_MSG_COUNT; i++){
@@ -48,31 +64,41 @@ rc_t Topic_getFreeMsg(Topic _this, Msg* msg)
 
 
 #ifdef sDDS_TOPIC_HAS_SUB
-rc_t Topic_addDataSink(Topic _this, Locator addr)
+rc_t Topic_addRemoteDataSink(Topic _this, Locator addr)
 {
+	if (_this == NULL || addr == NULL){
+		return SDDS_RT_BAD_PARAMETER;
+	}
+	if (_this->dsinks.list == NULL) {
+		_this->dsinks.list = addr;
+		Locator_upRef(addr);
+		return SDDS_RT_OK;
+	}
 
-    Locator tmp = _this->dsinks.list;
+	Locator tmp = _this->dsinks.list;
 
-    while (tmp->next != NULL) tmp = tmp->next;
-    tmp->next = addr;
-    // FIXME here is a big logical problem
-    // what if the locator is allreay in another list?
-    addr->next = NULL;
-
-    return SDDS_RT_OK;
-
+	return Locator_addToList(tmp, addr);
 }
 #endif
+
 #ifdef sDDS_TOPIC_HAS_PUB
-rc_t Topic_addDataSource(Topic _this, Locator addr)
+rc_t Topic_addRemoteDataSource(Topic _this, Locator addr)
 {
-    if (_this == NULL || addr == NULL){
-	return SDDS_RT_FAIL;
-    }
-    Locator tmp = _this->dsources.list;
-    while (tmp->next != NULL) tmp = tmp->next;
-    tmp->next = NULL;
-    return SDDS_RT_OK;
+	if (_this == NULL || addr == NULL){
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+	// first element in list
+	if (_this->dsources.list == NULL) {
+		_this->dsources.list = addr;
+		Locator_upRef(addr);
+		return SDDS_RT_OK;
+	}
+	Locator tmp = _this->dsources.list;
+
+
+
+	return Locator_addToList(tmp, addr);
 }
 #endif
 

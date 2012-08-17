@@ -193,6 +193,7 @@ rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 	return SDDS_RT_FAIL;
     }
 
+    Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
    // return 0;
    return checkSending(buffRef);
 }
