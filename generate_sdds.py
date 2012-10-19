@@ -100,7 +100,7 @@ def get_impl(f, impl_name, datastructures):
 			impl_string += '\tg_%(name)s_topic = sDDS_%(name)sTopic_create(g_%(name)s_pool, sDDS_TOPIC_APP_MSG_COUNT);\n' % {'name': ds['name'].capitalize()}
 
 		if ds['subscriber']:
-			impl_string += '\tg_%(name)s_reader = DataSink_create_datareader(g_%(name)s_topic, NULL, &sdds_listener, NULL);\n' % {'name': ds['name'].capitalize()}
+			impl_string += '\tg_%(name)s_reader = DataSink_create_datareader(g_%(name)s_topic, NULL, NULL /*&sdds_listener*/, NULL);\n' % {'name': ds['name'].capitalize()}
 
 		if ds['publisher']:
 			impl_string += '\tg_%(name)s_writer = DataSource_create_datawriter(g_%(name)s_topic, NULL, NULL, NULL);\n' % {'name': ds['name'].capitalize()}
