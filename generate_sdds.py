@@ -12,6 +12,7 @@ impl_headers = r"""
 #include <sdds/Log.h>
 #include <sdds/Network.h>
 #include <sdds/sDDS.h>
+#include <sdds_conn.h>
 """
 
 impl_decl = r"""
@@ -99,7 +100,7 @@ def get_impl(f, impl_name, datastructures):
 			impl_string += '\tg_%(name)s_topic = sDDS_%(name)sTopic_create(g_%(name)s_pool, sDDS_TOPIC_APP_MSG_COUNT);\n' % {'name': ds['name'].capitalize()}
 
 		if ds['subscriber']:
-			impl_string += '\tg_%(name)s_reader = DataSink_create_datareader(g_%(name)s_topic, NULL, NULL, NULL);\n' % {'name': ds['name'].capitalize()}
+			impl_string += '\tg_%(name)s_reader = DataSink_create_datareader(g_%(name)s_topic, NULL, &sdds_listener, NULL);\n' % {'name': ds['name'].capitalize()}
 
 		if ds['publisher']:
 			impl_string += '\tg_%(name)s_writer = DataSource_create_datawriter(g_%(name)s_topic, NULL, NULL, NULL);\n' % {'name': ds['name'].capitalize()}
@@ -156,8 +157,9 @@ def get_info(filename, datastructures):
 
 	for line in f:
 		if line[0] == '[' and line[:-1]:
-			possible_name = line[1:-2]
-
+			lst = line.split()			
+			possible_name = lst[0][1:-1]
+		
 			role = make_data(role, roles)
 
 			if role['name']:
@@ -284,7 +286,7 @@ fconstants.write(r"""
 #define sDDS_MAX_DATA_READERS %(data_readers)s
 #define sDDS_NET_MAX_OUT_QUEUE 2
 #define sDDS_NET_MAX_BUF_SIZE 30
-#define sDDS_NET_MAX_LOCATOR_COUNT 10
+#define sDDS_NET_MAX_LOCATOR_COUNT 20
 #define sDDS_QOS_DW1_LATBUD 100
 #define sDDS_QOS_DW2_LATBUD 500
 %(any_subscriptions)s
@@ -295,7 +297,8 @@ fconstants.write(r"""
 #define sDDS_MNG_BUILTINT_PUBCYCLE_PRESCALER 2
 
 /* TWI bus speed in Hz */
-#define TWI_BUS_SPEED 100000UL
+#define TWI_BUS_SPEED 10000UL // 10kh to use internal pull ups
+//#define TWI_BUS_SPEED 100000UL
 
 /* TWI data and clock pin and port */
 #define TWI_CLOCK_PORT D
@@ -374,6 +377,12 @@ fconstants.write(r"""
 */
 
 #define TSL2561_TWI_ADDRESS (0x39<<1)
+
+/*
+ * Settings for the one wire bus
+ */
+#define ONEWIRE_PORT B
+#define ONEWIRE_PIN 6
 
 #endif
 """[1:] % \

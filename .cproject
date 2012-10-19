@@ -34,6 +34,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1083158013" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="gnu.c.compiler.option.include.paths.832125231" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sdds/example/temper}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/lib/avr/include"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.608790338" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="_ECLIPSE_DEV_"/>

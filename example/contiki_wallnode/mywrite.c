@@ -39,13 +39,13 @@ PROCESS_THREAD(write_process, ev, data)
 
 	PRINTF("TEST OUT \n");
 
-	DDRD |= _BV(PD7);
+	DDRB |= _BV(PB7);
 	// eingang
 //	DDRB &= ~_BV(PB5);
 	// pullup anschalten
 //	PORTB |= _BV(PB5);
 
-	PORTD |= _BV(PD7);
+	PORTB |= _BV(PB7);
 
 
 
@@ -55,11 +55,17 @@ PROCESS_THREAD(write_process, ev, data)
 	
 	AMN31112_init();
 
-	rc_t ret = bmp085_init();
+	rc_t ret;
+	/*
+	ret = bmp085_init();
 
 	if (ret != SDDS_RT_OK) {
 			Log_error("cant init bmp085\n");
 	}
+	*/
+	twi_activateInternalPullUp();
+
+
 
 	ret = TSL2561_init();
 
@@ -76,7 +82,7 @@ PROCESS_THREAD(write_process, ev, data)
 	Log_debug("TSL: id 0x%x, ret %d\n", id, ret);
 
 
-	PORTD &= ~_BV(PD7);
+	PORTB &= ~_BV(PB7);
 	for (;;)
 	{
 
@@ -96,7 +102,8 @@ PROCESS_THREAD(write_process, ev, data)
 						Log_error("cant read channels of tsl2561 ret %d\n", ret);
 					}
 
-			uint32_t lux;
+			Log_debug("channel 0 %u channel 1 %u \n", ch0, ch1);
+			uint32_t lux = 0;
 			TSL2561_calculateLux(ch0, ch1, &lux);
 
 			Log_debug("lux %u 0x%x \n", lux, lux);
@@ -121,13 +128,13 @@ PROCESS_THREAD(write_process, ev, data)
 
 			AMN31112_readMovement(&movement);
 
-			if (movement)
+			if (!movement)
 			{
 			  //  Log_debug("Bewegung\n");
-				PORTD |= _BV(PD7);
+				PORTB |= _BV(PB7);
 			} else {
 			 //   Log_debug("nuechts\n");
-			    PORTD &= ~_BV(PD7);
+			    PORTB &= ~_BV(PB7);
 			}
 			
 		} while(0);

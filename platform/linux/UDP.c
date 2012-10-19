@@ -260,6 +260,9 @@ void *recvLoop(void *netBuff)
 
 		// search in the db for the locator
 		// TODO do something better than this hack here....
+
+
+
 		struct UDPLocator_t sloc;
 
 		memcpy(&(sloc.addr_storage), &addr, addr_len);
@@ -287,6 +290,7 @@ void *recvLoop(void *netBuff)
 		// add locator to the netbuffref
 		inBuff.addr = loc;
 
+
 #if PRINT_RECVBUF
 	printf("recvBuffer: \n");
 	for (int i =0; i< recv_size; i++){
@@ -301,7 +305,8 @@ void *recvLoop(void *netBuff)
 
 	// invoke the datasink handler
 	DataSink_processFrame(buff);
-	Locator_downRef(loc);
+
+	LocatorDB_freeLocator(loc);
 
     }
 
@@ -451,7 +456,6 @@ bool_t Locator_isEqual(Locator l1, Locator l2)
 {
 	struct UDPLocator_t *a = (struct UDPLocator_t *)l1;
 	struct UDPLocator_t *b = (struct UDPLocator_t *)l2;
-
 #if SDDS_LINUX_PROTOCOL == AF_INET
 	struct sockaddr_in *addr[2];
 
@@ -465,6 +469,7 @@ bool_t Locator_isEqual(Locator l1, Locator l2)
 		return false;
 	}
 #elif SDDS_LINUX_PROTOCOL == AF_INET6
+
 	struct sockaddr_in6 *addr[2];
 
 	addr[0] = (struct sockaddr_in6 *)&a->addr_storage;
