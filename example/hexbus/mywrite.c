@@ -21,26 +21,29 @@
 #include <metering.h>
 #include <relay.h>
 
-PROCESS(write_process, "sDDS");
-PROCESS(switch_process, "switch control");
+PROCESS(publish_process, "sdds publish");
+PROCESS(subscribe_process, "sdds subscribe");
 
-AUTOSTART_PROCESSES(&write_process);
+// the publish process starts the subsciber process, after initialising sdds
+AUTOSTART_PROCESSES(&publish_process);
 
-static struct etimer g_wait_timer;
-static struct etimer g_wait_timer_command;
+static struct etimer g_wait_timer_subscribe;
+static struct etimer g_wait_timer_publish;
 
 static SSW_NodeID_t nodeID = 0;
 
 
 #define PRINTF(FORMAT,args...) printf_P(PSTR(FORMAT),##args)
 
-void _publishSwitchState();
-void _publishLampState();
-void _publishWattage();
-void _processRelayControl();
-void _processLampControl();
+void _publishPowerMeter();
+void _publishPowerMeterAverage();
+void _publishOnOffSwitch();
+void _publishSimpleLamp();
 
-PROCESS_THREAD(switch_process, ev, data)
+void _processOnOffFunctionality();
+void _processToggleFunctionality();
+
+PROCESS_THREAD(subscribe_process, ev, data)
 {
 	PROCESS_BEGIN();
 	// make gcc happy
@@ -50,11 +53,11 @@ PROCESS_THREAD(switch_process, ev, data)
 
 	while (1) {
 
-		_processRelayControl();
-		_processLampControl();
+		_processOnOffFunctionality();
+		_processToggleFunctionality();
 
-	    etimer_set(&g_wait_timer_command, CLOCK_SECOND);
-	    PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer_command));
+	    etimer_set(&g_wait_timer_subscribe, CLOCK_SECOND);
+	    PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer_subscribe));
 	}
 
 	PROCESS_END();
@@ -62,7 +65,7 @@ PROCESS_THREAD(switch_process, ev, data)
 
 
 
-PROCESS_THREAD(write_process, ev, data)
+PROCESS_THREAD(publish_process, ev, data)
 {
 	PROCESS_BEGIN();
 
@@ -78,179 +81,178 @@ PROCESS_THREAD(write_process, ev, data)
 	Log_setLvl(0);
 
 
-	process_start(&switch_process, NULL);
+	process_start(&subscribe_process, NULL);
 
-	for (;;)
+	uint8_t foo = 0;
+
+	while (1)
 	{
 
 
-		do
-		{
-			static char t = 0;
+		if ( foo == 0) {
+			_publishOnOffSwitch();
+			foo = 1;
+		} else
 
-			if (t == 0) {
-				_publishWattage();
-				t =1;
-			} else {
+		if (foo == 1) {
+			_publishPowerMeter();
+			foo = 2;
+		} else
+		if (foo == 2) {
+			_publishSimpleLamp();
+			foo = 3;
+		} else
+		if (foo == 3) {
+			_publishPowerMeterAverage();
+			foo = 0;
+		}
 
-				_publishLampState();
-
-				t=0;
-			}
-
-		} while(0);
-
-		etimer_set(&g_wait_timer, CLOCK_SECOND);
-		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer));
+		etimer_set(&g_wait_timer_publish, CLOCK_SECOND);
+		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer_publish));
 	}
 
 	PROCESS_END();
 }
 
-void _processRelayControl() {
 
-	Switch_control switchControl;
-	Switch_control* switchControl_ptr = &switchControl;
+void _processOnOffFunctionality() {
+	OnOffFunctionality func;
+	OnOffFunctionality* func_ptr = &func;
 
-	DDS_ReturnCode_t ret = DDS_Switch_controlDataReader_take_next_sample(
-			g_Switch_control_reader, &switchControl_ptr, NULL);
+	DDS_ReturnCode_t ret;
 
-	if (ret == DDS_RETCODE_NO_DATA) {
-		return;
-	}
-	if (ret != DDS_RETCODE_OK) {
-		Log_error("Error reading topic Switch_control\n");
-		return;
-	}
-
-	Log_debug("Got a switch command %d for switch 0x%4x\n",
-			switchControl.command, switchControl.id);
-
-	if (nodeID == switchControl.id) {
-		Log_debug("It's for me!!\n");
-		switch (switchControl.command) {
-		case (0): // switch off
-			Log_debug("switching relay off\n");
-			relay_on();
-			break;
-		case (1): // switch on
-			Log_debug("switching relay on\n");
-			relay_off();
-			break;
-		case (2):
-			Log_debug("toggle the relay\n");
-			relay_toggle();
-			break;
-		case (3):
-			Log_debug("Publish the relay state\n");
-			_publishSwitchState();
-			break;
-		}
-	}
-
-}
-
-void _processLampControl() {
-	Lamp_control lampControl;
-	Lamp_control* lampControl_ptr = &lampControl;
-
-	DDS_ReturnCode_t ret = DDS_Lamp_controlDataReader_take_next_sample(
-			g_Lamp_control_reader, &lampControl_ptr, NULL);
+	ret = DDS_OnOffFunctionalityDataReader_take_next_sample(
+			g_OnOffFunctionality_reader, &func_ptr, NULL );
 
 	if (ret == DDS_RETCODE_NO_DATA) {
 		return;
 	}
 	if (ret != DDS_RETCODE_OK) {
-		Log_error("Error reading topic Lamp_control\n");
+		Log_error("Error reading topic OnOffFunctionality\n");
 		return;
 	}
 
-	Log_debug("Got a lamp command %d for lamp 0x%4x\n",
-			lampControl.command, lampControl.id);
+	Log_debug(
+			"Got a OnOffFunctionality command %d for lamp 0x%4x\n", func.command, func.id);
 
-	if (nodeID == lampControl.id) {
-		Log_debug("It's for me!!\n");
-		switch (lampControl.command) {
-		case (0): // lamp off
-			Log_debug("switching lamp off\n");
+	if (func.id == nodeID) {
+		Log_debug("Command is for this node\n");
+
+		switch (func.command) {
+		case (0):
+			Log_debug("Switching PowerSocket on\n");
 			relay_on();
 			break;
-		case (1): // switch on
-			Log_debug("switching lamp on\n");
+		case (1):
+			Log_debug("Switching PowerSocket off\n");
 			relay_off();
 			break;
-		case (2):
-			Log_debug("toggle the lamp state\n");
+		default:
+			Log_error("Received unknown command %d\n", func.command);
+			break;
+		}
+	}
+
+}
+void _processToggleFunctionality()
+{
+	ToggleFunctionality func;
+	ToggleFunctionality* func_ptr = &func;
+
+	DDS_ReturnCode_t ret;
+
+	ret = DDS_ToggleFunctionalityDataReader_take_next_sample(
+			g_ToggleFunctionality_reader, &func_ptr, NULL );
+
+	if (ret == DDS_RETCODE_NO_DATA) {
+		return;
+	}
+	if (ret != DDS_RETCODE_OK) {
+		Log_error("Error reading topic ToggleFunctionality\n");
+		return;
+	}
+
+	Log_debug("Got a ToggleFunctionality command %d for lamp 0x%4x\n",
+			func.command, func.id);
+
+	if (func.id == nodeID) {
+		Log_debug("Command is for this node\n");
+
+		switch (func.command) {
+		case (0):
+			Log_debug("Toggling PowerSocket\n");
 			relay_toggle();
 			break;
-		case (3):
-			Log_debug("Publish the lamp state\n");
-			_publishLampState();
+		default:
+			Log_error("Received unknown command %d\n", func.command);
 			break;
 		}
 	}
 }
 
-void _publishWattage() {
+
+void _publishPowerMeter()
+{
 	uint16_t power;
-	Wattage w;
+	PowerMeter p;
 
 	power = metering_get_power();
-	w.id = nodeID;
-	w.watt = power;
-	Log_debug("write dds data for node 0x%x power %d \n", nodeID, power);
+	p.id = nodeID;
+	p.watt = power;
+	Log_debug("Publish PowerMeter power %d \n", power);
 
-	DDS_ReturnCode_t ret = DDS_WattageDataWriter_write(g_Wattage_writer, &w, NULL);
-
-	if (ret != DDS_RETCODE_OK)
-	{
-		Log_error("Can't publish wattage \n");
-	}
-}
-
-void _publishSwitchState() {
-
-	bool_t state = relay_get_state();
-
-	Switch s;
-
-	s.id = nodeID;
-	s.dummy = 0;
-
-	if (state == 0) {
-		s.state  = 0;
-	} else {
-		s.state = 1;
-	}
-
-	Log_debug("Publish Switch state: %d", s.state);
-
-	DDS_ReturnCode_t ret = DDS_SwitchDataWriter_write(g_Switch_writer, &s, NULL);
+	DDS_ReturnCode_t ret = DDS_PowerMeterDataWriter_write(g_PowerMeter_writer, &p,
+			NULL );
 
 	if (ret != DDS_RETCODE_OK) {
-		Log_error("Can't publish switch state \n");
+		Log_error("Can't publish PowerMeter \n");
 	}
-
 
 }
+void _publishPowerMeterAverage()
+{
 
-void _publishLampState() {
+}
+void _publishOnOffSwitch()
+{
 	bool_t state = relay_get_state();
 
-	Lamp l;
-	l.id = nodeID;
-	l.dummy = 0;
+	OnOffSwitch sw;
+	sw.id = nodeID;
 
 	if (state == 0) {
-		l.state = 1;
+		sw.state = 1;
 	} else {
-		l.state = 0;
+		sw.state = 0;
+	}
+	sw.dummy = 0;
+
+	Log_debug("Publish OnOffSwitch state: %d\n", sw.state);
+	DDS_ReturnCode_t ret = DDS_OnOffSwitchDataWriter_write(g_OnOffSwitch_writer, &sw, NULL);
+	if (ret != DDS_RETCODE_OK) {
+		Log_error("Can't publish OnOffSwitch \n");
 	}
 
-	Log_debug("Publish Lamp state: %d\n", l.state);
-	DDS_ReturnCode_t ret = DDS_LampDataWriter_write(g_Lamp_writer, &l, NULL);
+}
+void _publishSimpleLamp()
+{
+	bool_t state = relay_get_state();
+
+	SimpleLamp lamp;
+	lamp.id = nodeID;
+
+	if (state == 0) {
+		lamp.state = 1;
+	} else {
+		lamp.state = 0;
+	}
+	lamp.dummy = 0;
+
+	Log_debug("Publish SimpleLamp state: %d\n", lamp.state);
+	DDS_ReturnCode_t ret = DDS_SimpleLampDataWriter_write(g_SimpleLamp_writer,
+			&lamp, NULL );
 
 	if (ret != DDS_RETCODE_OK) {
-		Log_error("Can't publish lamp state \n");
+		Log_error("Can't publish SimpleLamp \n");
 	}
 }

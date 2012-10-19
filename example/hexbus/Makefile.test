@@ -19,3 +19,4 @@ debug:
 
 clean:
 	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board clean
+# DO NOT DELETE

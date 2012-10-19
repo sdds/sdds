@@ -66,7 +66,7 @@ DDS_ReturnCode_t DDS_%(cap_name)sDataWriter_write(
 Topic sDDS_%(cap_name)sTopic_create(%(cap_name)s* pool, int count);
 
 #endif
-""" % {'name': name, 'up_name': name.upper(), 'data': data[:-1], 'indent': whitespace_string, 'cap_name': name.capitalize()}
+""" % {'name': name, 'up_name': name.upper(), 'data': data[:-1], 'indent': whitespace_string, 'cap_name': name[0].capitalize() + name[1:]}
 	f.write(string[1:])
 
 def get_impl(f, name, marshalling_enc, marshalling_dec, sdds_domain, sdds_topic, size):
@@ -209,7 +209,7 @@ rc_t TopicMarshalling_%(cap_name)s_decode(byte_t* buffer, Data data, size_t* siz
 { \
 	'name': name, 'marshalling_enc': marshalling_enc, 'marshalling_dec': marshalling_dec, \
 	'sdds_domain': sdds_domain, 'sdds_topic': sdds_topic, 'size': size, \
-	'indent': whitespace_string, 'cap_name': name.capitalize() \
+	'indent': whitespace_string, 'cap_name': name[0].capitalize() + name[1:] \
 }
 	f.write(string)
 

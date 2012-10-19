@@ -21,13 +21,12 @@ APPLICATION_NAME := mywrite
 
 # Object files of the generateted dds data types
 #DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/power_cur-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/Wattage-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/Switch_control-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/Switch-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/Energy_summation-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/Wattage_averages-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/Lamp-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/Lamp_control-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/PowerMeter-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/PowerMeterAverage-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/OnOffSwitch-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/OnOffFunctionality-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/SimpleLamp-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/ToggleFunctionality-ds.o
 
 # object files depending on driver for sensors
 # DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-adc.o
@@ -118,3 +117,4 @@ CLEAN += $(APPLICATION_NAME).d
 
 
 -include $(patsubst %.o,%.d,$(ALL_OBJS))
+# DO NOT DELETE

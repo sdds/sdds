@@ -1,20 +1,20 @@
-[Wattage]
+[PowerMeter]
 
 /* Anzeige der derzeitigen Leistung eines elektrischen Verbrauchers in Watt. Der Verbrauch wird regelmäßig 1x pro Sekunde veröffentlicht */
 
 domain: 0
-topic: 1
+topic: 14
 
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id 
 DDS_unsigned_short watt
 
-[Wattage_averages]
+[PowerMeterAverage]
 
 /* Anzeige de Leistungsverbrauchs von Geräte über verschiedene Zeitintervalle. */
 
 domain: 0
-topic: 2
+topic: 15
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id 
 /* Durchschnittsverbrauch in der letzten Minute */
@@ -30,41 +30,40 @@ DDS_unsigned_short watt_month
 /* Durchschnittsverbrauch seit einem Jahr */ 
 DDS_unsigned_short watt_year 
 
-[Energy_summation]
-
+/* [Energy_summation] */
 /* Anzeige des Energieverbrauchs in Kilowatt/Stunde seit dem Stichtag */
-
-domain: 0
-topic: 3
-
+/*
+/* domain: 0 */
+/* topic: 3 */
+*/
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
-DDS_unsigned_short id 
+/*DDS_unsigned_short id */
 /* Energieverbrauch in kW/h */
-DDS_unsigned_long energy 
+/*DDS_unsigned_long energy */
 
-[Switch]
+[OnOffSwitch]
 domain: 0
 topic: 4
 
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id
-/* enum emulierung: stati: {off, on, transit, defect} */ 
+/* enum emulierung: stati: {off, on} */ 
 DDS_octet state 
 DDS_octet dummy
 
-[Switch_control]
+[OnOffFunctionality]
 domain: 0
-topic: 5
+topic: 11
 
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id
-/* Kommando an den Schalter: enum emulierung:  {off, on, toggle, publish_state} */ 
+/* Kommando an den Schalter: enum emulierung:  {off, on} */ 
 DDS_octet command 
 DDS_octet dummy
 
-[Lamp]
+[SimpleLamp]
 domain: 0
-topic: 6
+topic: 5
 
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id
@@ -72,15 +71,12 @@ DDS_unsigned_short id
 DDS_octet state
 DDS_octet dummy
 
-[Lamp_control]
+[ToggleFunctionality]
 domain: 0
-topic: 7
+topic: 12
 
-/* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id
-/* Kommando an die Lampe: enum emulierung:  {off, on, toggle, publish_state} */ 
 DDS_octet command 
 DDS_octet dummy
-
 
 

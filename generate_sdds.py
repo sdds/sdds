@@ -44,7 +44,7 @@ def get_decl(f, impl_name, datastructures):
 #ifndef %(up_name)s_SDDS_IMPL_H_INC
 #define %(up_name)s_SDDS_IMPL_H_INC
 
-"""[1:] % {'up_name': impl_name.upper(), 'cap_name': impl_name.capitalize()})
+"""[1:] % {'up_name': impl_name.upper(), 'cap_name': impl_name[0].capitalize() + impl_name[1:]})
 
 	for ds in datastructures:
 		f.write('#include "%s-ds.h"\n' % ds['name'])
@@ -57,7 +57,7 @@ extern DDS_DataReader g_%(name)s_reader;
 extern DDS_DataWriter g_%(name)s_writer;
 extern DDS_Topic g_%(name)s_topic;
 //extern %(name)s_data_t g_%(name)s_pool[sDDS_TOPIC_APP_MSG_COUNT];
-"""[1:] % {'name': ds['name'].capitalize()})
+"""[1:] % {'name': ds['name'][0].capitalize() + ds['name'][1:]})
 
 		f.write('\n')
 
@@ -79,14 +79,14 @@ def get_impl(f, impl_name, datastructures):
 
 	for ds in datastructures:
 		if ds['subscriber'] or ds['publisher']:
-			def_string += 'DDS_Topic g_%s_topic;\n' % ds['name'].capitalize()
-			def_string += '%(name)s g_%(name)s_pool[sDDS_TOPIC_APP_MSG_COUNT];\n' % {'name': ds['name'].capitalize()}
+			def_string += 'DDS_Topic g_%s_topic;\n' % (ds['name'][0].capitalize() + ds['name'][1:])
+			def_string += '%(name)s g_%(name)s_pool[sDDS_TOPIC_APP_MSG_COUNT];\n' % {'name': ds['name'][0].capitalize() + ds['name'][1:]}
 
 		if ds['subscriber']:
-			def_string += 'DDS_DataReader g_%s_reader;\n' % ds['name'].capitalize()
+			def_string += 'DDS_DataReader g_%s_reader;\n' % (ds['name'][0].capitalize() + ds['name'][1:])
 
 		if ds['publisher']:
-			def_string += 'DDS_DataWriter g_%s_writer;\n' % ds['name'].capitalize()
+			def_string += 'DDS_DataWriter g_%s_writer;\n' % (ds['name'][0].capitalize() + ds['name'][1:])
 	
 		def_string += '\n'
 
@@ -97,13 +97,13 @@ def get_impl(f, impl_name, datastructures):
 
 	for ds in datastructures:
 		if ds['subscriber'] or ds['publisher']:
-			impl_string += '\tg_%(name)s_topic = sDDS_%(name)sTopic_create(g_%(name)s_pool, sDDS_TOPIC_APP_MSG_COUNT);\n' % {'name': ds['name'].capitalize()}
+			impl_string += '\tg_%(name)s_topic = sDDS_%(name)sTopic_create(g_%(name)s_pool, sDDS_TOPIC_APP_MSG_COUNT);\n' % {'name': ds['name'][0].capitalize() + ds['name'][1:]}
 
 		if ds['subscriber']:
-			impl_string += '\tg_%(name)s_reader = DataSink_create_datareader(g_%(name)s_topic, NULL, NULL /*&sdds_listener*/, NULL);\n' % {'name': ds['name'].capitalize()}
+			impl_string += '\tg_%(name)s_reader = DataSink_create_datareader(g_%(name)s_topic, NULL, NULL /*&sdds_listener*/, NULL);\n' % {'name': ds['name'][0].capitalize() + ds['name'][1:]}
 
 		if ds['publisher']:
-			impl_string += '\tg_%(name)s_writer = DataSource_create_datawriter(g_%(name)s_topic, NULL, NULL, NULL);\n' % {'name': ds['name'].capitalize()}
+			impl_string += '\tg_%(name)s_writer = DataSource_create_datawriter(g_%(name)s_topic, NULL, NULL, NULL);\n' % {'name': ds['name'][0].capitalize() + ds['name'][1:]}
 			impl_string += '\n'
 			for addr in ds['addresses']:
 				impl_string += '\n'
@@ -117,7 +117,7 @@ def get_impl(f, impl_name, datastructures):
 				impl_string += '\tif (ret != SDDS_RT_OK)\n'
 				impl_string += '\t\treturn ret;\n'
 				impl_string += '\n'
-				impl_string += '\tret = Topic_addRemoteDataSink(g_%(name)s_topic, l);\n' % {'name' : ds['name'].capitalize()}
+				impl_string += '\tret = Topic_addRemoteDataSink(g_%(name)s_topic, l);\n' % {'name' : ds['name'][0].capitalize() + ds['name'][1:]}
 				impl_string += '\tif (ret != SDDS_RT_OK)\n'
 				impl_string += '\t\treturn ret;\n'
 				impl_string += '\tLocator_downRef(l);\n'
