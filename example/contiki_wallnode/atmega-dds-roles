@@ -1,5 +1,19 @@
 endian: little
 
+[TemperatureAndHumiditySensor]
+publisher
 
-[test]
+[TemperatureSensor]
+publisher
+
+[MovementSensor]
+publisher
+
+[DoorSensor]
+publisher
+
+[LightSensor]
+publisher
+
+[OnOffSwitch]
 publisher

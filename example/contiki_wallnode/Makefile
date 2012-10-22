@@ -16,14 +16,19 @@ APPLICATION_NAME := mywrite
 
 # Object files of the generateted dds data types
 #DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/power_cur-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/test-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/DoorSensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/LightSensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/MovementSensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/OnOffSwitch-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/TemperatureAndHumiditySensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/TemperatureSensor-ds.o
 
 # object files depending on driver for sensors
 #  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-adc.o
 DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-AMN31112.o
 DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-TSL2561.o
 DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-twi.o
-DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-bmp085.o
+DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
 
 
 # object files of the generates implementation code file of sdds

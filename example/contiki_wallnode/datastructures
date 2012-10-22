@@ -1,5 +1,42 @@
-[test]
+[TemperatureAndHumiditySensor]
 domain: 0
-topic: 1
+topic: 10
 
-DDS_short testvalue
+DDS_unsigned_short id
+DDS_short temperature
+DDS_unsigned_short relative_humidity
+
+[TemperatureSensor]
+domain: 0
+topic: 6
+
+DDS_unsigned_short id
+DDS_short temperature
+
+[MovementSensor]
+domain: 0
+topic: 7
+
+DDS_unsigned_short id
+DDS_octet state
+
+[DoorSensor]
+domain: 0
+topic: 9
+
+DDS_unsigned_short id
+DDS_octet state
+
+[LightSensor]
+domain: 0
+topic: 8
+
+DDS_unsigned_short id
+DDS_unsigned_short lux
+
+[OnOffSwitch]
+domain: 0
+topic: 4
+
+DDS_unsigned_short id
+DDS_octet state
