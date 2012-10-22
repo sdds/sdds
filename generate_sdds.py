@@ -12,7 +12,7 @@ impl_headers = r"""
 #include <sdds/Log.h>
 #include <sdds/Network.h>
 #include <sdds/sDDS.h>
-#include <sdds_conn.h>
+/*#include <sdds_conn.h>*/
 """
 
 impl_decl = r"""
