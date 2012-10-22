@@ -37,7 +37,7 @@ static SSW_NodeID_t nodeID = 0;
 
 void _publishPowerMeter();
 void _publishPowerMeterAverage();
-void _publishOnOffSwitch();
+void _publishOnOffOutput();
 void _publishSimpleLamp();
 
 void _processOnOffFunctionality();
@@ -90,7 +90,7 @@ PROCESS_THREAD(publish_process, ev, data)
 
 
 		if ( foo == 0) {
-			_publishOnOffSwitch();
+			_publishOnOffOutput();
 			foo = 1;
 		} else
 
@@ -213,11 +213,11 @@ void _publishPowerMeterAverage()
 {
 
 }
-void _publishOnOffSwitch()
+void _publishOnOffOutput()
 {
 	bool_t state = relay_get_state();
 
-	OnOffSwitch sw;
+	OnOffOutput sw;
 	sw.id = nodeID;
 
 	if (state == 0) {
@@ -227,10 +227,10 @@ void _publishOnOffSwitch()
 	}
 	sw.dummy = 0;
 
-	Log_debug("Publish OnOffSwitch state: %d\n", sw.state);
-	DDS_ReturnCode_t ret = DDS_OnOffSwitchDataWriter_write(g_OnOffSwitch_writer, &sw, NULL);
+	Log_debug("Publish OnOffOutput state: %d\n", sw.state);
+	DDS_ReturnCode_t ret = DDS_OnOffOutputDataWriter_write(g_OnOffOutput_writer, &sw, NULL);
 	if (ret != DDS_RETCODE_OK) {
-		Log_error("Can't publish OnOffSwitch \n");
+		Log_error("Can't publish OnOffOutput \n");
 	}
 
 }

@@ -7,7 +7,7 @@ publisher
 [PowerMeterAverage]
 publisher
 
-[OnOffSwitch]
+[OnOffOutput]
 publisher
 
 [OnOffFunctionality]

@@ -41,9 +41,9 @@ DDS_unsigned_short watt_year
 /* Energieverbrauch in kW/h */
 /*DDS_unsigned_long energy */
 
-[OnOffSwitch]
+[OnOffOutput]
 domain: 0
-topic: 4
+topic: 3
 
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id

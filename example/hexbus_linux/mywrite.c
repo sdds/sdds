@@ -28,9 +28,9 @@ char* commands[] = {"read watt\n", "switch on\n", "switch off\n",
 		"switch toggle\n", "switch state\n", "quit\n", "help\n", "lamp state\n", NULL};
 
 void _readPowerMeter();
-void _setOnOffSwitch(bool state);
-void _toggleOnOffSwitch();
-void _readOnOffSwitch();
+void _setOnOffOutput(bool state);
+void _toggleOnOffOutput();
+void _readOnOffOutput();
 void _readSimpleLamp();
 
 int main(void)
@@ -58,20 +58,20 @@ int main(void)
 		}
 		else if (strcmp(s, commands[COM_SW_ON]) == 0)
 		{
-			_setOnOffSwitch(true);
+			_setOnOffOutput(true);
 
 		}
 		else if (strcmp(s, commands[COM_SW_OFF]) == 0)
 		{
-			_setOnOffSwitch(false);
+			_setOnOffOutput(false);
 		}
 		else if (strcmp(s, commands[COM_SW_TG]) == 0)
 		{
-			_toggleOnOffSwitch();
+			_toggleOnOffOutput();
 		}
 		else if (strcmp(s, commands[COM_SW_ST]) == 0)
 		{
-
+			_readOnOffOutput();
 		}
 		else if (strcmp(s, commands[COM_LAMP_ST]) == 0)
 		{
@@ -127,7 +127,7 @@ void _readSimpleLamp()
 }
 
 
-void _setOnOffSwitch(bool state)
+void _setOnOffOutput(bool state)
 {
 	OnOffFunctionality func;
 
@@ -148,7 +148,7 @@ void _setOnOffSwitch(bool state)
 	}
 }
 
-void _toggleOnOffSwitch()
+void _toggleOnOffOutput()
 {
 	ToggleFunctionality tog;
 
@@ -165,24 +165,24 @@ void _toggleOnOffSwitch()
 	}
 }
 
-void _readOnOffSwitch()
+void _readOnOffOutput()
 {
-	OnOffSwitch st;
-	OnOffSwitch* st_ptr = &st;
+	OnOffOutput st;
+	OnOffOutput* st_ptr = &st;
 
 	DDS_ReturnCode_t ret;
 
-	ret = DDS_OnOffSwitchDataReader_take_next_sample(g_OnOffSwitch_reader, &st_ptr, NULL);
+	ret = DDS_OnOffOutputDataReader_take_next_sample(g_OnOffOutput_reader, &st_ptr, NULL);
 
 	if (ret == DDS_RETCODE_NO_DATA)
 		return;
 
 	if (ret != DDS_RETCODE_OK) {
-		printf("Error getting next sample for topic OnOffSwitch, retcode: %d\n", ret);
+		printf("Error getting next sample for topic OnOffOutput, retcode: %d\n", ret);
 		return;
 	}
 
-	printf("Status of OnOffSwitch is %s for node 0x%4x\n", (st.state ? "on" : "off"), st.id);
+	printf("Status of OnOffOutput is %s for node 0x%4x\n", (st.state ? "on" : "off"), st.id);
 }
 
 void _readPowerMeter()

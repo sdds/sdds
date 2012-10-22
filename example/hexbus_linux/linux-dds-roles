@@ -7,7 +7,7 @@ subscriber
 [PowerMeterAverage]
 subscriber
 
-[OnOffSwitch]
+[OnOffOutput]
 subscriber
 
 [OnOffFunctionality]
