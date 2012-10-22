@@ -1,14 +1,20 @@
 endian: little
 
 
-[Wattage]
+[PowerMeter]
 subscriber
 
-[Switch]
+[PowerMeterAverage]
 subscriber
 
-[Switch_control]
+[OnOffSwitch]
+subscriber
+
+[OnOffFunctionality]
 publisher
 
-[Lamp]
+[SimpleLamp]
 subscriber
+
+[ToggleFunctionality]
+publisher

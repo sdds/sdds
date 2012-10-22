@@ -11,6 +11,7 @@
 #include <sdds/DataSink.h>
 #include <sdds/DataSource.h>
 #include <dds/DDS_DCPS.h>
+#include <sdds/Log.h>
 
 #define COM_READ 0
 #define COM_SW_ON 1
@@ -19,11 +20,18 @@
 #define COM_SW_ST 4
 #define COM_QUIT 5
 #define COM_HELP 6
-#define COM_LAMP_READ 7
+#define COM_LAMP_ST 7
 
+#define RECEIVER_ID 0x81a5
 
 char* commands[] = {"read watt\n", "switch on\n", "switch off\n",
-		"switch toggle\n", "switch state\n", "quit\n", "help\n", "read lamp\n", NULL};
+		"switch toggle\n", "switch state\n", "quit\n", "help\n", "lamp state\n", NULL};
+
+void _readPowerMeter();
+void _setOnOffSwitch(bool state);
+void _toggleOnOffSwitch();
+void _readOnOffSwitch();
+void _readSimpleLamp();
 
 int main(void)
 {
@@ -46,85 +54,28 @@ int main(void)
 
 		if (strcmp(s, commands[COM_READ]) == 0)
 		{
-			Wattage t;
-			Wattage* t_ptr = &t;
-
-			if (DDS_WattageDataReader_take_next_sample(g_Wattage_reader, &t_ptr, NULL) != DDS_RETCODE_NO_DATA)
-			{
-				printf("wattage of node 0x%x: %d watt \n", (t.id), t.watt );
-			}
+			_readPowerMeter();
 		}
 		else if (strcmp(s, commands[COM_SW_ON]) == 0)
 		{
-		    Switch_control switch_state;
-		    switch_state.command = 1;
-		    switch_state.id = 0x81a5;
+			_setOnOffSwitch(true);
 
-		    if (DDS_Switch_controlDataWriter_write(g_Switch_control_writer, &switch_state, NULL) == DDS_RETCODE_OK) {
-			printf("Command on send to switch 0x%4x \n", switch_state.id);
-
-		    } else {
-			printf("Error sending command on to switch 0x%4x \n", switch_state.id);
-
-		    }
 		}
 		else if (strcmp(s, commands[COM_SW_OFF]) == 0)
 		{
-		    Switch_control switch_state;
-		    switch_state.command = 0;
-		    switch_state.id = 0x81a5;
-
-		    if (DDS_Switch_controlDataWriter_write(g_Switch_control_writer, &switch_state, NULL) == DDS_RETCODE_OK) {
-			printf("Command off send to switch 0x%4x \n", switch_state.id);
-
-		    } else {
-			printf("Error sending command off to switch 0x%4x \n", switch_state.id);
-
-		    }
+			_setOnOffSwitch(false);
 		}
 		else if (strcmp(s, commands[COM_SW_TG]) == 0)
-				{
-				    Switch_control switch_state;
-				    switch_state.command = 2;
-				    switch_state.id = 0x81a5;
-
-				    if (DDS_Switch_controlDataWriter_write(g_Switch_control_writer, &switch_state, NULL) == DDS_RETCODE_OK) {
-					printf("Command toggle send to switch 0x%4x \n", switch_state.id);
-
-				    } else {
-					printf("Error sending command toggle to switch 0x%4x \n", switch_state.id);
-
-				    }
-				}
-		else if (strcmp(s, commands[COM_SW_ST]) == 0)
-						{
-						    Switch_control switch_state;
-						    switch_state.command = 3;
-						    switch_state.id = 0x81a5;
-
-						    if (DDS_Switch_controlDataWriter_write(g_Switch_control_writer, &switch_state, NULL) == DDS_RETCODE_OK) {
-							printf("Command get state send to switch 0x%4x \n", switch_state.id);
-
-						    } else {
-							printf("Error sending command get state to switch 0x%4x \n", switch_state.id);
-
-						    }
-						}
-		else if (strcmp(s, commands[COM_LAMP_READ]) == 0)
 		{
-			Lamp l;
+			_toggleOnOffSwitch();
+		}
+		else if (strcmp(s, commands[COM_SW_ST]) == 0)
+		{
 
-			Lamp* l_ptr = &l;
-
-			DDS_ReturnCode_t ret = DDS_LampDataReader_take_next_sample(g_Lamp_reader, &l_ptr, NULL);
-
-			if (ret != DDS_RETCODE_NO_DATA) {
-				printf("Lamp state of node 0x%x: %d\n", l.id, l.state);
-			} else {
-				printf("Not data aviable\n");
-			}
-
-
+		}
+		else if (strcmp(s, commands[COM_LAMP_ST]) == 0)
+		{
+			_readSimpleLamp();
 		}
 		else if (strcmp(s, commands[COM_QUIT]) == 0)
 		{
@@ -153,4 +104,104 @@ int main(void)
 	}
 
 	return 0;
+}
+
+void _readSimpleLamp()
+{
+	SimpleLamp st;
+	SimpleLamp* st_ptr = &st;
+
+	DDS_ReturnCode_t ret;
+
+	ret = DDS_SimpleLampDataReader_take_next_sample(g_SimpleLamp_reader, &st_ptr, NULL);
+
+	if (ret == DDS_RETCODE_NO_DATA)
+		return;
+
+	if (ret != DDS_RETCODE_OK) {
+		printf("Error getting next sample for topic SimpleLamp, retcode: %d\n", ret);
+		return;
+	}
+
+	printf("Status of SimpleLamp is %s for node 0x%4x\n", (st.state ? "on" : "off"), st.id);
+}
+
+
+void _setOnOffSwitch(bool state)
+{
+	OnOffFunctionality func;
+
+	if (state == true) {
+		func.command = 1;
+	} else {
+		func.command = 0;
+	}
+	func.dummy = 0;
+	func.id = RECEIVER_ID;
+
+	DDS_ReturnCode_t ret;
+
+	ret = DDS_OnOffFunctionalityDataWriter_write(g_OnOffFunctionality_writer, &func, NULL);
+
+	if (ret != DDS_RETCODE_OK) {
+		printf("Error publishing OnOffFunctionality topic to node 0x%4x \n", func.id);
+	}
+}
+
+void _toggleOnOffSwitch()
+{
+	ToggleFunctionality tog;
+
+	tog.command = 0;
+	tog.dummy = 0;
+	tog.id = RECEIVER_ID;
+
+	DDS_ReturnCode_t ret;
+
+	ret = DDS_ToggleFunctionalityDataWriter_write(g_ToggleFunctionality_writer,&tog, NULL);
+
+	if (ret != DDS_RETCODE_OK) {
+		printf("Error publishing ToggleFunctionality topic to node 0x%4x  \n", tog.id);
+	}
+}
+
+void _readOnOffSwitch()
+{
+	OnOffSwitch st;
+	OnOffSwitch* st_ptr = &st;
+
+	DDS_ReturnCode_t ret;
+
+	ret = DDS_OnOffSwitchDataReader_take_next_sample(g_OnOffSwitch_reader, &st_ptr, NULL);
+
+	if (ret == DDS_RETCODE_NO_DATA)
+		return;
+
+	if (ret != DDS_RETCODE_OK) {
+		printf("Error getting next sample for topic OnOffSwitch, retcode: %d\n", ret);
+		return;
+	}
+
+	printf("Status of OnOffSwitch is %s for node 0x%4x\n", (st.state ? "on" : "off"), st.id);
+}
+
+void _readPowerMeter()
+{
+	PowerMeter power;
+	PowerMeter* power_ptr = &power;
+
+	DDS_ReturnCode_t ret;
+	ret = DDS_PowerMeterDataReader_take_next_sample(g_PowerMeter_reader, &power_ptr, NULL);
+
+	if (ret == DDS_RETCODE_NO_DATA)
+		return;
+
+	if (ret != DDS_RETCODE_OK) {
+		printf("Error getting next sample for topic PowerMeter, retcode: %d\n", ret);
+		return;
+	}
+
+
+	printf("Power consumption of node 0x%x: %d watt \n", (power.id), power.watt );
+
 }
