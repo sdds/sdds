@@ -399,7 +399,7 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr) {
 
 	if (gai_ret != 0)
 	{
-		Log_error("can't obtain suitable addresses for setting UDP locator\n");
+		Log_error("can't obtain suitable addresses %s for setting UDP locator\n", addr);
 
 		return SDDS_RT_FAIL;
 	}
