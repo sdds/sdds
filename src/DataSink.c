@@ -123,7 +123,7 @@ rc_t DataSink_processFrame(NetBuffRef buff)
     NetBuffRef_renew(buff);
 
     // ggf send events to the applications
-    listener_ptr(topic);
+   // listener_ptr(topic);
 
     return SDDS_RT_OK;
 		}
