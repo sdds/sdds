@@ -11,10 +11,10 @@ subscriber
 subscriber
 
 [OnOffFunctionality]
-publisher
+publisher fe80::50:c4ff:fe04:81a5
 
 [SimpleLamp]
 subscriber
 
 [ToggleFunctionality]
-publisher
+publisher fe80::50:c4ff:fe04:81a5
