@@ -83,7 +83,7 @@ PROCESS_THREAD(publish_process, ev, data)
 
 	process_start(&subscribe_process, NULL);
 
-	uint8_t foo = 0;
+	static uint8_t foo = 0;
 
 	while (1)
 	{
