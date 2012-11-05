@@ -3,7 +3,7 @@
 /* Anzeige der derzeitigen Leistung eines elektrischen Verbrauchers in Watt. Der Verbrauch wird regelmäßig 1x pro Sekunde veröffentlicht */
 
 domain: 0
-topic: 14
+topic: e
 
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id 
@@ -14,7 +14,7 @@ DDS_unsigned_short watt
 /* Anzeige de Leistungsverbrauchs von Geräte über verschiedene Zeitintervalle. */
 
 domain: 0
-topic: 15
+topic: f
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id 
 /* Durchschnittsverbrauch in der letzten Minute */
@@ -53,7 +53,7 @@ DDS_octet dummy
 
 [OnOffFunctionality]
 domain: 0
-topic: 11
+topic: b
 
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id
@@ -73,7 +73,7 @@ DDS_octet dummy
 
 [ToggleFunctionality]
 domain: 0
-topic: 12
+topic: c
 
 DDS_unsigned_short id
 DDS_octet command 
