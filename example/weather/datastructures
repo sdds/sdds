@@ -1,7 +1,8 @@
-[wind_speed]
+[WindSpeedSensor]
 domain: 0
-topic: 1
+topic: 11
 
+DDS_unsigned_short id
 /* [0, 65536), current wind speed in 0.01 km/h */
 DDS_unsigned_short speed_current
 DDS_unsigned_short speed_minute
@@ -11,10 +12,11 @@ DDS_unsigned_short speed_hour
 
 
 
-[wind_direction]
+[WindDirectionSensor]
 domain: 0
-topic: 2
+topic: 12
 
+DDS_unsigned_short id
 /* [0, 16), current vane position multiplier
  * degrees = 22.5 * multiplier
  */
@@ -24,10 +26,13 @@ DDS_octet degrees_multiplier
 
 
 
-[humidity]
+[TemperatureAndHumiditySensor]
 domain: 0
-topic: 3
+topic: a
 
+DDS_unsigned_short id
+/* [-32768, 32768), the temperature in 0.01°C */
+DDS_short temperature
 /* [0, 65536), the relative humidity in 0.01% */
 DDS_unsigned_short relative_humidity
 
@@ -35,10 +40,11 @@ DDS_unsigned_short relative_humidity
 
 
 
-[temperature]
+[TemperatureSensor]
 domain: 0
-topic: 4
+topic: 6
 
+DDS_unsigned_short id
 /* [-32768, 32768), the temperature in 0.01°C */
 DDS_short temperature
 
@@ -46,10 +52,11 @@ DDS_short temperature
 
 
 
-[pressure]
+[AirPressureSensor]
 domain: 0
-topic: 5
+topic: 10
 
+DDS_unsigned_short id
 /* [0, 65536), the pressure in 10Pa (0.1hPa, 0.1mbar) */
 DDS_unsigned_short pressure
 
@@ -57,10 +64,19 @@ DDS_unsigned_short pressure
 
 
 
-[rainfall]
+[RainfallSensor]
 domain: 0
-topic: 6
+topic: 13
+
+DDS_unsigned_short id
 /* [0, 65536), the amount of rain in 0.01 mm/h */
 DDS_unsigned_short amount_current
 DDS_unsigned_short amount_minute
 DDS_unsigned_short amount_hour
+
+[LightSensor]
+domain: 0
+topic: 8
+
+DDS_unsigned_short id
+DDS_unsigned_short lux

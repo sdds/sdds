@@ -7,11 +7,14 @@
 #include "raingauge.h"
 #include "sht15.h"
 #include "wind_vane.h"
+#include "TSL2561.h"
 
 #include "twi.h"
 
 #include <sdds/DataSink.h>
 #include <sdds/DataSource.h>
+#include <os-ssal/NodeConfig.h>
+#include <sdds/Log.h>
 
 #include <contiki.h>
 #include <contiki-net.h>
@@ -27,6 +30,8 @@ static struct etimer g_anemometer_timer;
 static void (*g_anemometer_callback)(void);
 static struct etimer g_raingauge_timer;
 static void (*g_raingauge_callback)(void);
+
+static SSW_NodeID_t nodeID = 0;
 
 void anemometer_register_callback(void(*callback)(void))
 {
@@ -91,14 +96,17 @@ PROCESS_THREAD(write_process, ev, data)
 	wind_vane_init();
 	sht15_init();
 	bmp085_init();
+	TSL2561_init();
 
 	sDDS_init();
+	nodeID = NodeConfig_getNodeID();
 
 	for (;;)
 	{
 		do
 		{
-			Rainfall rainfall_data_used;
+			RainfallSensor rainfall_data_used;
+			rainfall_data_used.id = nodeID;
 
 			if (raingauge_read_current(&rainfall_data_used.amount_current) != 0)
 				break;
@@ -109,7 +117,7 @@ PROCESS_THREAD(write_process, ev, data)
 			if (raingauge_read_hour(&rainfall_data_used.amount_hour) != 0)
 				break;
 
-			if (DDS_RainfallDataWriter_write(g_Rainfall_writer, &rainfall_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_RainfallSensorDataWriter_write(g_RainfallSensor_writer, &rainfall_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
@@ -117,7 +125,8 @@ PROCESS_THREAD(write_process, ev, data)
 
 		do
 		{
-			Wind_speed wind_speed_data_used;
+			WindSpeedSensor wind_speed_data_used;
+			wind_speed_data_used.id = nodeID;
 
 			if (anemometer_read_current(&wind_speed_data_used.speed_current) != 0)
 				break;
@@ -128,7 +137,7 @@ PROCESS_THREAD(write_process, ev, data)
 			if (anemometer_read_hour(&wind_speed_data_used.speed_hour) != 0)
 				break;
 
-			if (DDS_Wind_speedDataWriter_write(g_Wind_speed_writer, &wind_speed_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_WindSpeedSensorDataWriter_write(g_WindSpeedSensor_writer, &wind_speed_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
@@ -136,13 +145,14 @@ PROCESS_THREAD(write_process, ev, data)
 
 		do
 		{
-			Wind_direction wind_direction_data_used;
+			WindDirectionSensor wind_direction_data_used;
+			wind_direction_data_used.id = nodeID;
 
 			if (wind_vane_read(&wind_direction_data_used.degrees_multiplier) != 0)
 				break;
 
 			
-			if (DDS_Wind_directionDataWriter_write(g_Wind_direction_writer, &wind_direction_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_WindDirectionSensorDataWriter_write(g_WindDirectionSensor_writer, &wind_direction_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
@@ -150,7 +160,8 @@ PROCESS_THREAD(write_process, ev, data)
 
 		do
 		{
-			Temperature temperature_data_used;
+			TemperatureSensor temperature_data_used;
+			temperature_data_used.id = nodeID;
 
 			if (bmp085_read_temperature(&temperature_data_used.temperature) != 0)
 			{
@@ -159,7 +170,7 @@ PROCESS_THREAD(write_process, ev, data)
 					break;
 			}
 
-			if (DDS_TemperatureDataWriter_write(g_Temperature_writer, &temperature_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_TemperatureSensorDataWriter_write(g_TemperatureSensor_writer, &temperature_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
@@ -167,12 +178,15 @@ PROCESS_THREAD(write_process, ev, data)
 
 		do
 		{
-			Humidity humidity_data_used;
+			TemperatureAndHumiditySensor humidity_data_used;
+			humidity_data_used.id = nodeID;
 
 			if (sht15_read_relative_humidity(&humidity_data_used.relative_humidity) != 0)
 				break;
+			if (sht15_read_temperature(&humidity_data_used.temperature) != 0)
+				break;
 
-			if (DDS_HumidityDataWriter_write(g_Humidity_writer, &humidity_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_TemperatureAndHumiditySensorDataWriter_write(g_TemperatureAndHumiditySensor_writer, &humidity_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
@@ -180,16 +194,42 @@ PROCESS_THREAD(write_process, ev, data)
 
 		do
 		{
-			Pressure pressure_data_used;
+			AirPressureSensor pressure_data_used;
+			pressure_data_used.id = nodeID;
 
 			if (bmp085_read_pressure(&pressure_data_used.pressure) != 0)
 				break;
 
-			if (DDS_PressureDataWriter_write(g_Pressure_writer, &pressure_data_used, NULL) != DDS_RETCODE_OK)
+			if (DDS_AirPressureSensorDataWriter_write(g_AirPressureSensor_writer, &pressure_data_used, NULL) != DDS_RETCODE_OK)
 			{
 				// handle error
 			}
 		} while(0);
+
+		do
+		{
+			LightSensor ldata;
+			ldata.id = nodeID;
+
+			uint16_t ch0, ch1;
+			rc_t ret;
+			ret = TSL2561_getChannels(&ch0, &ch1);
+
+			if (ret != SDDS_RT_OK) {
+				Log_error("cant read channels of tsl2561 ret %d\n", ret);
+				break;
+			}
+			uint32_t lux = 0;
+			ret = TSL2561_calculateLux(ch0, ch1, &lux);
+
+			ldata.lux = (uint16_t) lux;
+
+			if (DDS_LightSensorDataWriter_write(g_LightSensor_writer, &ldata, NULL) != DDS_RETCODE_OK)
+			{
+
+			}
+
+		} while (0);
 
 		etimer_set(&g_wait_timer, CLOCK_SECOND);
 		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer));

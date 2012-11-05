@@ -1,19 +1,22 @@
 endian: little
 
-[wind_speed]
+[WindSpeedSensor]
 publisher
 
-[rainfall]
+[RainfallSensor]
 publisher
 
-[wind_direction]
+[WindDirectionSensor]
 publisher
 
-[humidity]
+[TemperatureAndHumiditySensor]
 publisher
 
-[temperature]
+[TemperatureSensor]
 publisher
 
-[pressure]
+[AirPressureSensor]
+publisher
+
+[LightSensor]
 publisher

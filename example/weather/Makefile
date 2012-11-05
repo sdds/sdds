@@ -55,6 +55,7 @@ else
   DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-raingauge.o
   DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-sht15.o
   DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-wind_vane.o
+  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-TSL2561.o
   
   
   IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/atmega_sdds_impl.o
@@ -85,12 +86,13 @@ ifneq ($(BUILD),linux)
 include $(CONTIKI)/Makefile.include
 endif
 
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/humidity-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/pressure-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/rainfall-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/temperature-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/wind_direction-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/wind_speed-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/TemperatureAndHumiditySensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/AirPressureSensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/RainfallSensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/TemperatureSensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/WindDirectionSensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/WindSpeedSensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/LightSensor-ds.o
 ALL_OBJS += $(DATA_DEPEND_OBJS)
 
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))

@@ -10,6 +10,7 @@
 
 #include <sdds/DataSink.h>
 #include <sdds/DataSource.h>
+#include <dds/DDS_DCPS.h>
 
 
 int main(void)
@@ -32,30 +33,30 @@ int main(void)
 
 		if (strcmp(s, "read_temperature\n") == 0)
 		{
-			Temperature temperature_data_used;
-			Temperature *temperature_data_used_ptr = &temperature_data_used;
+			TemperatureSensor temperature_data_used;
+			TemperatureSensor *temperature_data_used_ptr = &temperature_data_used;
 
-			if (DDS_TemperatureDataReader_take_next_sample(g_Temperature_reader, &temperature_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
+			if (DDS_TemperatureSensorDataReader_take_next_sample(g_TemperatureSensor_reader, &temperature_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
 			{
 				printf("temperature: %f °C \n", (temperature_data_used.temperature / 100.0) );
 			}
 		}
 		else if (strcmp(s, "read_humidity\n") == 0)
 		{
-			Humidity humidity_data_used;
-			Humidity *humidity_data_used_ptr = &humidity_data_used;
+			TemperatureAndHumiditySensor humidity_data_used;
+			TemperatureAndHumiditySensor *humidity_data_used_ptr = &humidity_data_used;
 
-			if (DDS_HumidityDataReader_take_next_sample(g_Humidity_reader, &humidity_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
+			if (DDS_TemperatureAndHumiditySensorDataReader_take_next_sample(g_TemperatureAndHumiditySensor_reader, &humidity_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
 			{
-				printf("relative humidity: %f %%\n", (humidity_data_used.relative_humidity / 100.0) );
+				printf("relative humidity: %f temperature %f %%\n", (humidity_data_used.relative_humidity / 100.0), (humidity_data_used.temperature / 100.0));
 			}
 		}
 		else if (strcmp(s, "read_pressure\n") == 0)
 		{
-			Pressure pressure_data_used;
-			Pressure *pressure_data_used_ptr = &pressure_data_used;
+			AirPressureSensor pressure_data_used;
+			AirPressureSensor *pressure_data_used_ptr = &pressure_data_used;
 
-			if (DDS_PressureDataReader_take_next_sample(g_Pressure_reader, &pressure_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
+			if (DDS_AirPressureSensorDataReader_take_next_sample(g_AirPressureSensor_reader, &pressure_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
 			{
 				double pressure = pressure_data_used.pressure / 10.0;
 				double altitude = 44300 * (1 - pow(pressure / 1013.25, 1.0 / 5.255));
@@ -66,10 +67,10 @@ int main(void)
 		}
 		else if (strcmp(s, "read_wind_speed\n") == 0)
 		{
-			Wind_speed wind_speed_data_used;
-			Wind_speed *wind_speed_data_used_ptr = &wind_speed_data_used;
+			WindSpeedSensor wind_speed_data_used;
+			WindSpeedSensor *wind_speed_data_used_ptr = &wind_speed_data_used;
 
-			if (DDS_Wind_speedDataReader_take_next_sample(g_Wind_speed_reader, &wind_speed_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
+			if (DDS_WindSpeedSensorDataReader_take_next_sample(g_WindSpeedSensor_reader, &wind_speed_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
 			{
 				printf( "wind speed\n");
 				printf("current:     %f km/h\n", (wind_speed_data_used.speed_current / 100.0) );
@@ -79,10 +80,10 @@ int main(void)
 		}
 		else if (strcmp(s, "read_rainfall\n") == 0)
 		{
-			Rainfall rainfall_data_used;
-			Rainfall *rainfall_data_used_ptr = &rainfall_data_used;
+			RainfallSensor rainfall_data_used;
+			RainfallSensor *rainfall_data_used_ptr = &rainfall_data_used;
 
-			if (DDS_RainfallDataReader_take_next_sample(g_Rainfall_reader, &rainfall_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
+			if (DDS_RainfallSensorDataReader_take_next_sample(g_RainfallSensor_reader, &rainfall_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
 			{
 				printf("rain amount\n");
 				printf("current:     %f mm/h\n", (rainfall_data_used.amount_current / 100.0) );
@@ -92,12 +93,21 @@ int main(void)
 		}
 		else if (strcmp(s, "read_wind_direction\n") == 0)
 		{
-			Wind_direction wind_direction_data_used;
-			Wind_direction *wind_direction_data_used_ptr = &wind_direction_data_used;
+			WindDirectionSensor wind_direction_data_used;
+			WindDirectionSensor *wind_direction_data_used_ptr = &wind_direction_data_used;
 
-			if (DDS_Wind_directionDataReader_take_next_sample(g_Wind_direction_reader, &wind_direction_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
+			if (DDS_WindDirectionSensorDataReader_take_next_sample(g_WindDirectionSensor_reader, &wind_direction_data_used_ptr, NULL) != DDS_RETCODE_NO_DATA)
 			{
 				printf("wind direction: %f degrees\n", (wind_direction_data_used.degrees_multiplier * 22.5) );
+			}
+		}
+		else if (strcmp(s, "read_light\n") == 0) {
+			LightSensor ldata;
+			LightSensor* ldata_ptr = &ldata;
+
+			if (DDS_LightSensorDataReader_take_next_sample(g_LightSensor_reader, &ldata_ptr, NULL) != DDS_RETCODE_NO_DATA)
+			{
+				printf("light : %d lux\n", ldata.lux);
 			}
 		}
 		else if (strcmp(s, "quit\n") == 0)

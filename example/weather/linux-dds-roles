@@ -1,19 +1,22 @@
 endian: little
 
-[wind_speed]
+[WindSpeedSensor]
 subscriber
 
-[rainfall]
+[RainfallSensor]
 subscriber
 
-[wind_direction]
+[WindDirectionSensor]
 subscriber
 
-[humidity]
+[TemperatureAndHumiditySensor]
 subscriber
 
-[temperature]
+[TemperatureSensor]
 subscriber
 
-[pressure]
+[AirPressureSensor]
+subscriber
+
+[LightSensor]
 subscriber
