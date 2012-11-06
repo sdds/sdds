@@ -28,16 +28,16 @@ typedef uint8_t subMsg_t;
 
 #define SNPS_T_DOMAIN		 0
 #define SNPS_T_TOPIC		 1
-#define SNPS_T_DATA		 2
+#define SNPS_T_DATA			 2
 #define SNPS_T_SEQNR		 3
 #define SNPS_T_TSSIMPLE		 4
 #define SNPS_T_ACKSEQ		 5
 #define SNPS_T_NACKSEQ		 6
 #define SNPS_T_STATUS		 7
 
-#define SNPS_T_ACK		17
-#define SNPS_T_NACK		18
-#define SNPS_T_SEP		19
+#define SNPS_T_ACK			17
+#define SNPS_T_NACK			18
+#define SNPS_T_SEP			19
 #define SNPS_T_TSDDS		20
 #define SNPS_T_TSUSEC		33
 #define SNPS_T_TSMSEC		34
@@ -58,13 +58,15 @@ typedef uint8_t subMsg_t;
 #define SNPS_SUBMSG_NACKSEQ		0x06
 #define SNPS_SUBMSG_STATUS		0x07
 
-#define SNPS_SUBMSG_EXTENDED		0x0f
+#define SNPS_SUBMSG_EXTENDED	0x0f
 
 #define SNPS_EXTSUBMSG_ACK		0x00
 #define SNPS_EXTSUBMSG_NACK		0x01
 #define SNPS_EXTSUBMSG_SEP		0x02
-#define SNPS_EXTSUBMSG_TSDDS		0x03
-#define SNPS_EXTSUBMSG_ADDR16		0x04
+#define SNPS_EXTSUBMSG_TSDDS	0x03
+#define SNPS_EXTSUBMSG_ADDR16	0x04
+#define SNPS_EXTSUBMSG_CRC		0x05
+#define SNPS_EXTSUBMSG_TOPIC	0x06
 
 #define SNPS_EXTSUBMSG_EXTENDED		0x0f
 

@@ -104,7 +104,12 @@ typedef uint8_t domainid_t;
 #define SDDS_DOMAIN_NIL 0
 #define SDDS_DOMAIN_DEFAULT 1
 
+#ifdef sDDS_EXTENDED_TOPIC_SUPPORT
+typedef uint16_t topicid_t;
+#else
 typedef uint8_t topicid_t;
+#endif
+
 typedef uint8_t version_t;
 
 typedef uint8_t rc_t;

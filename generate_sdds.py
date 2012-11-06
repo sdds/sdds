@@ -234,6 +234,14 @@ if len(sys.argv) >= 3:
 
 datastructures = generate_ds.generate_datastructures(ds_filename)
 
+extended_topic_support = ''
+
+for ds in datastructures:
+	topicID = int(ds['topic'],16)
+	if topicID > 15:
+		extended_topic_support = "#define sDDS_EXTENDED_TOPIC_SUPPORT"
+	
+
 impl_name = sys.argv[1]
 
 info = get_info('%s-dds-roles' % impl_name, datastructures)
@@ -295,6 +303,8 @@ fconstants.write(r"""
 #define sDDS_TOPIC_MAX_COUNT %(max_topics)d
 #define sDDS_MNG_WORKER_CYCLE_TIME 10000
 #define sDDS_MNG_BUILTINT_PUBCYCLE_PRESCALER 2
+
+%(extended_topic_support)s
 
 /* TWI bus speed in Hz */
 #define TWI_BUS_SPEED 10000UL // 10kh to use internal pull ups
@@ -390,5 +400,5 @@ fconstants.write(r"""
 	'byte_order': byte_order.upper(), 'data_writers': data_writers, \
 	'data_readers': data_readers, 'any_subscriptions': any_subscriptions, \
 	'any_publications': any_publications, 'up_name': impl_name.upper(), \
-	'max_topics': len(datastructures) \
+	'max_topics': len(datastructures), 'extended_topic_support' : extended_topic_support \
 })
