@@ -92,9 +92,76 @@ struct DDS_DataWriterListener {
     DDS_long nope;
 };
 
-struct DDS_DataReaderListener{
-    DDS_long nope;
+typedef enum {
+    DDS_NOT_REJECTED,
+    DDS_REJECTED_BY_INSTANCE_LIMIT,
+    DDS_REJECTED_BY_SAMPLES_LIMIT,
+    DDS_REJECTED_BY_SAMPLES_PER_INSTANCE_LIMIT
+} DDS_SampleRejectedStatusKind;
+
+struct DDS_RequestedDeadlineMissedStatus {
+DDS_long total_count;
+DDS_long total_count_change;
+DDS_InstanceHandle_t last_instance_handle;
 };
+typedef struct DDS_RequestedDeadlineMissedStatus DDS_RequestedDeadlineMissedStatus;
+
+struct DDS_RequestedIncompatibleQosStatus {
+	DDS_long nope;
+};
+typedef struct DDS_RequestedIncompatibleQosStatus DDS_RequestedIncompatibleQosStatus;
+
+struct DDS_SampleRejectedStatus {
+	DDS_long nope;
+};
+typedef struct DDS_SampleRejectedStatus DDS_SampleRejectedStatus;
+
+struct DDS_LivelinessChangedStatus {
+DDS_long alive_count;
+DDS_long not_alive_count;
+DDS_long alive_count_change;
+DDS_long not_alive_count_change;
+DDS_InstanceHandle_t last_publication_handle;
+};
+typedef struct DDS_LivelinessChangedStatus DDS_LivelinessChangedStatus;
+
+struct DDS_SubscriptionMatchedStatus {
+DDS_long total_count;
+DDS_long total_count_change;
+DDS_long current_count;
+DDS_long current_count_change;
+DDS_InstanceHandle_t last_publication_handle;
+};
+typedef struct DDS_SubscriptionMatchedStatus DDS_SubscriptionMatchedStatus;
+
+struct DDS_SampleLostStatus {
+DDS_long total_count;
+DDS_long total_count_change;
+};
+typedef struct DDS_SampleLostStatus DDS_SampleLostStatus;
+
+
+typedef void (*DDS_DataReaderListener_RequestedDeadlineMissedListener)(DDS_DataReader reader, DDS_RequestedDeadlineMissedStatus* status);
+typedef void (*DDS_DataReaderListener_RequestedIncompatibleQosListener)(DDS_DataReader reader, DDS_RequestedIncompatibleQosStatus* status);
+typedef void (*DDS_DataReaderListener_SampleRejectedListener)(DDS_DataReader reader, DDS_SampleRejectedStatus* status);
+typedef void (*DDS_DataReaderListener_LivelinessChangedListener)(DDS_DataReader reader, DDS_LivelinessChangedStatus* status);
+typedef void (*DDS_DataReaderListener_DataAvailableListener)(DDS_DataReader reader);
+typedef void (*DDS_DataReaderListener_SubscriptionMatchListener)(DDS_DataReader reader, DDS_SubscriptionMatchedStatus* status);
+typedef void (*DDS_DataReaderListener_SampleLostListener)(DDS_DataReader reader, DDS_SampleLostStatus* status);
+
+
+struct DDS_DataReaderListener
+{
+void *listener_data;
+DDS_DataReaderListener_RequestedDeadlineMissedListener on_requested_deadline_missed;
+DDS_DataReaderListener_RequestedIncompatibleQosListener on_requested_incompatible_qos;
+DDS_DataReaderListener_SampleRejectedListener on_sample_rejected;
+DDS_DataReaderListener_LivelinessChangedListener on_liveliness_changed;
+DDS_DataReaderListener_DataAvailableListener on_data_available;
+DDS_DataReaderListener_SubscriptionMatchListener on_subscription_matched;
+DDS_DataReaderListener_SampleLostListener on_sample_lost;
+};
+
 
 #define DDS_init() sDDS_init()
 
@@ -112,5 +179,11 @@ DDS_DataReader DDS_Subscriber_create_datareader (
     const DDS_DataReaderQos *qos,
     const struct DDS_DataReaderListener *a_listener,
     const DDS_StatusMask mask);
+
+DDS_ReturnCode_t DDS_DataReader_set_listener (
+		DDS_DataReader _this,
+		const struct DDS_DataReaderListener* a_listener,
+		const DDS_StatusMask mask);
+
 
 #endif   /* ----- #ifndef DDS_DCPS_H_INC  ----- */

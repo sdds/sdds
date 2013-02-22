@@ -53,6 +53,12 @@ DDS_ReturnCode_t DDS_%(cap_name)sDataReader_take_next_sample(
 %(indent)s%(cap_name)s** values,
 %(indent)sDDS_SampleInfo* sample_info
 );
+
+DDS_ReturnCode_t DDS_%(cap_name)sDataReader_set_on_data_avail_listener(
+%(indent)sDDS_DataReader _this,
+%(indent)sconst struct DDS_DataReaderListener* a_listener,
+%(indent)sconst DDS_StatusMask mask
+);
 #endif
 
 #ifdef sDDS_TOPIC_HAS_SUB
@@ -127,6 +133,19 @@ DDS_ReturnCode_t DDS_%(cap_name)sDataReader_take_next_sample(
 
 	return DDS_RETCODE_ERROR;
 }
+
+DDS_ReturnCode_t DDS_%(cap_name)sDataReader_set_on_data_avail_listener(
+%(indent)sDDS_DataReader _this,
+%(indent)sconst struct DDS_DataReaderListener* a_listener,
+%(indent)sconst DDS_StatusMask mask
+)
+{
+	rc_t ret = DataSink_set_on_data_avail_listener((DataReader) _this, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
+	if (ret == SDDS_RT_OK)
+		return DDS_RETCODE_OK;
+
+	return DDS_RETCODE_ERROR;
+}
 #endif
 
 #ifdef sDDS_TOPIC_HAS_SUB
@@ -188,6 +207,7 @@ rc_t TopicMarshalling_%(cap_name)s_encode(byte_t* buffer, Data data, size_t* siz
 	%(cap_name)s* real_data = (%(cap_name)s*) data;
 
 %(marshalling_enc)s
+
 
 	return SDDS_RT_OK;
 }

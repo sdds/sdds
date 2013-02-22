@@ -33,10 +33,16 @@ typedef struct DataSink_t* DataSink;
 
 extern DataSink dataSink;
 
+typedef void (*On_Data_Avail_Listener)(DataReader);
 
 rc_t DataSink_init(void);
 DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm);
 rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info);
 rc_t DataSink_processFrame(NetBuffRef buff);
+rc_t DataSink_set_on_data_avail_listener (
+		DataReader _this,
+		On_Data_Avail_Listener listener,
+		const StatusMask sm);
+
 
 #endif   /* ----- #ifndef DATASINK_H_INC  ----- */

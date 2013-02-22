@@ -25,14 +25,13 @@
 #include "BuiltinTopic.h"
 #include "Marshalling.h"
 #include "sdds_types.h"
-#include "Log.h"
 
-typedef void (*Listener_ptr)(int);
-Listener_ptr listener_ptr;
+#include "Log.h"
 
 struct DataReader {
     Topic topic;
     unsigned int id : 3;
+    On_Data_Avail_Listener on_data_avail_listener;
 };
 
 struct DataSink_t {
@@ -123,8 +122,14 @@ rc_t DataSink_processFrame(NetBuffRef buff)
     NetBuffRef_renew(buff);
 
     // ggf send events to the applications
-   // listener_ptr(topic);
 
+    for (uint8_t i = 0; i < sDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i ++){
+    	DataReader dr = &(dataSink->readers[i]);
+    	int tpc = dr->topic->id;
+		if((topic == tpc) && dr->on_data_avail_listener){
+			dr->on_data_avail_listener(dr);
+		}
+    }
     return SDDS_RT_OK;
 		}
 
@@ -149,7 +154,6 @@ DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, S
 {
 
     qos = qos;
-    listener_ptr = listener;
     sm = sm;
 
     DataReader dr = NULL;
@@ -164,6 +168,7 @@ DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, S
     dataSink->remaining_datareader--;
 
     dr->topic = topic;
+    dr->on_data_avail_listener = NULL;
 
     return dr;
 }
@@ -201,7 +206,7 @@ rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info)
     }
 
     //TODO sample infos
-    
+
     return SDDS_RT_OK;
 
 }
@@ -292,4 +297,10 @@ rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size)
     *size += sizeof(topicid_t);
 
     return SDDS_RT_OK;
+}
+
+rc_t DataSink_set_on_data_avail_listener (DataReader _this, On_Data_Avail_Listener a_listener, const StatusMask sm)
+{
+	_this->on_data_avail_listener = a_listener;
+	return SDDS_RT_OK;
 }
