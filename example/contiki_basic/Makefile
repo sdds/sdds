@@ -14,6 +14,8 @@ SDDS_ARCH := atmega
 
 APPLICATION_NAME := mywrite
 
+DATASTRUCTURES_FILE := datastructures
+
 # Object files of the generateted dds data types
 #DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/power_cur-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/test-ds.o
@@ -68,10 +70,10 @@ CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
 
-%-ds.c %-ds.h: datastructures
+%-ds.c %-ds.h: $(DATASTRUCTURES_FILE)
 	$(shell python $(SDDS_TOPDIR)/generate_ds.py $<)
 
-%_sdds_impl.c %_sdds_impl.h: %-dds-roles datastructures $(DATA_DEPEND_SRCS)
+%_sdds_impl.c %_sdds_impl.h: %-dds-roles $(DATASTRUCTURES_FILE) $(DATA_DEPEND_SRCS)
 	$(shell python $(SDDS_TOPDIR)/generate_sdds.py $(<:-dds-roles=))
 
 all:

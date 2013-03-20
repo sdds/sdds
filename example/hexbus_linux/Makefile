@@ -7,6 +7,8 @@ SDDS_ARCH := x86
   
 APPLICATION_NAME := mywrite
 
+DATASTRUCTURES_FILE := datastructures
+
 # Object files of the generateted dds data types
 #DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/power_cur-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/PowerMeter-ds.o
@@ -17,7 +19,7 @@ DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/SimpleLamp-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/ToggleFunctionality-ds.o
 
 # object files depending on driver for sensors
-#  SENSORIO_DEPEND_OBJS += $(SDDS_OBJDIR)/weather-drivers.o
+# DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-adc.o
 
 # object files of the generates implementation code file of sdds
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_sdds_impl.o
@@ -26,7 +28,7 @@ IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_sdds_impl.o
 SDDS_CONSTANTS_FILE := ./linux_constants.h
 
 
-ALL_OBJS += $(SENSORIO_DEPEND_OBJS)
+ALL_OBJS += $(DRIVER_DEPEND_OBJS)
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
 ALL_OBJS += $(SDDS_OBJDIR)/$(APPLICATION_NAME).o
 ALL_OBJS += $(DATA_DEPEND_OBJS)
@@ -67,10 +69,10 @@ CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
 
-%-ds.c %-ds.h: datastructures
+%-ds.c %-ds.h: $(DATASTRUCTURES_FILE)
 	$(shell python $(SDDS_TOPDIR)/generate_ds.py $<)
 
-%_sdds_impl.c %_sdds_impl.h: %-dds-roles datastructures $(DATA_DEPEND_SRCS)
+%_sdds_impl.c %_sdds_impl.h: %-dds-roles $(DATASTRUCTURES_FILE) $(DATA_DEPEND_SRCS)
 	$(shell python $(SDDS_TOPDIR)/generate_sdds.py $(<:-dds-roles=))
 
 all:

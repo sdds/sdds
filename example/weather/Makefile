@@ -30,6 +30,7 @@ ifeq ($(BUILD),linux)
   endif
 
   SDDS_CONSTANTS_FILE := ./linux_constants.h
+  DATASTRUCTURES_FILE := datastructures
 else
 
   ifeq ($(BUILD),sensor_board)
@@ -78,6 +79,7 @@ else
   endif
 
   SDDS_CONSTANTS_FILE := ./atmega_constants.h
+  DATASTRUCTURES_FILE := datastructures
 endif
 
 include $(SDDS_TOPDIR)/sdds.mk
@@ -107,10 +109,10 @@ CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
 
-%-ds.c %-ds.h: datastructures
+%-ds.c %-ds.h: $(DATASTRUCTURES_FILE)
 	$(shell python $(SDDS_TOPDIR)/generate_ds.py $<)
 
-%_sdds_impl.c %_sdds_impl.h: %-dds-roles datastructures $(DATA_DEPEND_SRCS)
+%_sdds_impl.c %_sdds_impl.h: %-dds-roles $(DATASTRUCTURES_FILE) $(DATA_DEPEND_SRCS)
 	$(shell python $(SDDS_TOPDIR)/generate_sdds.py $(<:-dds-roles=))
 
 all:
