@@ -1,24 +1,28 @@
 #include "atmega_sdds_impl.h"
-#include <avr/io.h>
-#include <stdio.h>
-#include <string.h>
-#include <avr/pgmspace.h>
 
 #include <sdds/DataSink.h>
 #include <sdds/DataSource.h>
 #include <sdds/Log.h>
+#include <sdds/sdds_types.h>
+#include <os-ssal/NodeConfig.h>
+#include "SDDS_Application.h"
 
 #include <contiki.h>
 #include <contiki-net.h>
 
-#include "AMN31112.h"
-#include "TSL2561.h"
+#include <avr/eeprom.h>
+
 #include "ATMEGA_LED.h"
 #include "LED.h"
-#include "twi.h"
+
+// workaround to prevent contiki to overwrite the mac adress in eeprom
+char atmega128rfa1_macadress[8]       EEMEM;
+
 
 
 #define PRINTF(FORMAT,args...) printf_P(PSTR(FORMAT),##args)
+
+
 
 PROCESS(periodicPublishProcess, "Periodic sdds publish process");
 
@@ -36,7 +40,6 @@ static LED statusled;
 
 void _publishTemperatureSensor();
 void _publishTemperatureAndHumiditySensor();
-void _publishLightSensor();
 
 void _checkMovement();
 void _checkDoor();
@@ -57,20 +60,6 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	sDDS_init();
 	Log_setLvl(0);
 	
-	// init temperatur sensor
-	// todo temp sensor treiber impl.
-	// init luftfeuchtigkeitssensor
-	// todo luftfeuchtigkeitssensor impl.
-
-	// init light sensor
-	twi_activateInternalPullUp();
-	ret = TSL2561_init();
-	if (ret != SDDS_RT_OK) {
-		Log_error("can't init tsl2561 ret %d\n", ret);
-	}
-	uint8_t id = 0;
-	ret = TSL2561_readID(&id);
-	Log_debug("TSL2561: id 0x%x, ret %d\n", id, ret);
 
 	// init PIR Sensor
 	ret = AMN31112_init();
@@ -111,8 +100,7 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 			_publishTemperatureSensor();
 			// publish temperature and humidity value
 			_publishTemperatureAndHumiditySensor();
-			// publish light value
-			_publishLightSensor();
+
 
 		} while(0);
 
@@ -181,22 +169,4 @@ void _publishTemperatureAndHumiditySensor()
 {
 	// todo impl humidity sensor
 }
-void _publishLightSensor()
-{
-	rc_t ret;
 
-	uint16_t ch0, ch1;
-	ret = TSL2561_getChannels(&ch0, &ch1);
-
-	if (ret != SDDS_RT_OK) {
-		Log_error("cant read channels of tsl2561 ret %d\n", ret);
-		return;
-	}
-	Log_debug("tsl2561: channel 0 %u channel 1 %u \n", ch0, ch1);
-
-	uint32_t lux = 0;
-	ret = TSL2561_calculateLux(ch0, ch1, &lux);
-
-	Log_debug("tsl2561: lux %u 0x%x \n", lux, lux);
-
-}

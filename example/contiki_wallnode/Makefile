@@ -18,19 +18,13 @@ DATASTRUCTURES_FILE := datastructures
 
 # Object files of the generateted dds data types
 #DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/power_cur-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/DoorSensor-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/LightSensor-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/MovementSensor-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/OnOffSwitch-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/TemperatureAndHumiditySensor-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/TemperatureSensor-ds.o
+# ausgelargert in Dependency.mk
 
 # object files depending on driver for sensors
 #  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-adc.o
-DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-AMN31112.o
-DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-TSL2561.o
-DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-twi.o
-DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
+# ausgelargert in Dependency.mk
+
+include Dependency.mk
 
 
 # object files of the generates implementation code file of sdds
@@ -44,6 +38,7 @@ ALL_OBJS += $(DRIVER_DEPEND_OBJS)
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
 ALL_OBJS += $(SDDS_OBJDIR)/$(APPLICATION_NAME).o
 ALL_OBJS += $(DATA_DEPEND_OBJS)
+ALL_OBJS += $(APP_DEPEND_OBJS)
 
 ifneq ($(SDDS_CONTIKI_PORT),)
   CFLAGS += -DSDDS_CONTIKIPORT=$(SDDS_CONTIKI_PORT)
@@ -94,11 +89,11 @@ CFLAGS += -I.
 $(SDDS_OBJDIR)/%.o: %.c
 	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
 
-$(APPLICATION_NAME).c: $(APPLICATION_NAME).c $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
+$(APPLICATION_NAME).c: $(APPLICATION_NAME).c $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS) $(APP_DEPEND_OBJS)
 	$(CC) $(CFLAGS) -MM -MF$(SDDS_OBJDIR)/$(APPLICATION_NAME).d -MT$@ $^
 
 
-$(APPLICATION_NAME).elf: $(APPLICATION_NAME).co $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS) $(DRIVER_DEPEND_OBJS) contiki-$(TARGET).a
+$(APPLICATION_NAME).elf: $(APPLICATION_NAME).co $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS) $(DRIVER_DEPEND_OBJS) $(APP_DEPEND_OBJS) contiki-$(TARGET).a
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $^ $(LIBC)
 
 %.hex: %.elf
