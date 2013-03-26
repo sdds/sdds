@@ -3,6 +3,8 @@
 
 #include <os-ssal/NodeConfig.h>
 
+#include "Wiedas_sensor_apps.h"
+
 extern SSW_NodeID_t nodeID;
 
 rc_t SDDS_Application_init() {
@@ -19,6 +21,10 @@ rc_t SDDS_Application_init() {
 
 	ret = Wiedas_SensorApp_Temperature_init();
 
+	// init movement sensor
+
+	ret = Wiedas_SensorApp_Movement_init();
+
 	return SDDS_RT_OK;
 }
 
@@ -30,6 +36,8 @@ rc_t SDDS_Application_doWork(){
 	ret = Wiedas_SensorApp_Light_dowork();
 
 	ret = Wiedas_SensorApp_Temperature_dowork();
+
+	ret = Wiedas_SensorApp_Movement_dowork();
 
 	return SDDS_RT_OK;
 }
