@@ -39,6 +39,21 @@ rc_t sDDS_init(void)
 }
 """
 
+impl_setListener = r"""
+DDS_ReturnCode_t DDS_DataReader_set_listener(
+	DDS_DataReader _this,
+	const struct DDS_DataReaderListener* a_listener,
+	const DDS_StatusMask mask
+)
+{
+	rc_t ret = DataSink_set_on_data_avail_listener((DataReader) _this, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
+	if (ret == SDDS_RT_OK)
+		return DDS_RETCODE_OK;
+
+	return DDS_RETCODE_ERROR;
+}
+"""
+
 def get_decl(f, impl_name, datastructures):
 	f.write(r"""
 #ifndef %(up_name)s_SDDS_IMPL_H_INC
@@ -74,6 +89,8 @@ def get_impl(f, impl_name, datastructures):
 """[1:-1] % {'name': impl_name})
 
 	f.write(impl_headers + '\n')
+	
+	f.write(impl_setListener + '\n')
 
 	def_string = ''
 

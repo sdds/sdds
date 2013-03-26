@@ -128,8 +128,8 @@ DDS_ReturnCode_t DDS_%(cap_name)sDataReader_take_next_sample(
 
 	return DDS_RETCODE_ERROR;
 }
-
-DDS_ReturnCode_t DDS_DataReader_set_listener(
+/*
+DDS_ReturnCode_t DDS_%(cap_name)sDataReader_set_listener(
 %(indent)sDDS_DataReader _this,
 %(indent)sconst struct DDS_DataReaderListener* a_listener,
 %(indent)sconst DDS_StatusMask mask
@@ -141,6 +141,7 @@ DDS_ReturnCode_t DDS_DataReader_set_listener(
 
 	return DDS_RETCODE_ERROR;
 }
+*/
 #endif
 
 #ifdef sDDS_TOPIC_HAS_SUB
