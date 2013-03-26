@@ -229,6 +229,6 @@ rc_t Network_createLocator(Locator* locator)
 
 	*locator = (Locator) contiki_locator;
 
-	return Network_setAddressToLocator(contiki_locator, SDDS_CONTIKI_SEND_ADDRESS);
+	return Network_setAddressToLocator(*locator, SDDS_CONTIKI_SEND_ADDRESS);
 
 }
