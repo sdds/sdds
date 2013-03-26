@@ -48,8 +48,8 @@ rc_t Wiedas_SensorApp_Battery_start();
 rc_t Wiedas_SensorApp_Battery_dowork();
 
 rc_t Wiedas_SensorApp_SimpleLight_init();
-rc_t Wiedas_SensorApp_SimplteLight_start();
-rc_t Wiedas_SensorApp_SimplteLight_dowork();
+rc_t Wiedas_SensorApp_SimpleLight_start();
+rc_t Wiedas_SensorApp_SimpleLight_dowork();
 
 rc_t Wiedas_SensorApp_OnOffOutput_init();
 rc_t Wiedas_SensorApp_OnOffOutput_start();
