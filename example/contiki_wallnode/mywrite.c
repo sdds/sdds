@@ -18,6 +18,7 @@
 // workaround to prevent contiki to overwrite the mac adress in eeprom
 char atmega128rfa1_macadress[8]       EEMEM;
 
+SSW_NodeID_t nodeID = 0;
 
 
 #define PRINTF(FORMAT,args...) printf_P(PSTR(FORMAT),##args)
@@ -60,6 +61,14 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	sDDS_init();
 	Log_setLvl(0);
 	
+	nodeID = NodeConfig_getNodeID();
+
+	// init sdds application
+	ret = SDDS_Application_init();
+
+	// starten der ggf. vorhanden eigenen threads der application
+
+	ret = SDDS_Application_start();
 
 	// init PIR Sensor
 	ret = AMN31112_init();
@@ -96,6 +105,11 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	{
 		do
 		{
+
+			// dowork mehtode der sdds application
+
+			ret = SDDS_Application_doWork();
+
 			// publish temperatur value
 			_publishTemperatureSensor();
 			// publish temperature and humidity value
