@@ -1,8 +1,5 @@
 endian: little
 
-[TemperatureAndHumiditySensor]
-publisher
-
 [TemperatureSensor]
 publisher
 
@@ -16,4 +13,25 @@ publisher
 publisher
 
 [OnOffSwitch]
+publisher
+
+[SimpleLamp]
+publisher
+
+[HumiditySensor]
+publisher
+
+[WindowSensor]
+publisher
+
+[OnOffFunctionality]
+subscriber
+
+[ToggleFunctionality]
+subscriber
+
+[LightRegulationFunctionality]
+subscriber
+
+[DimmableLight]
 publisher
