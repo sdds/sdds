@@ -25,6 +25,10 @@ rc_t SDDS_Application_init() {
 
 	ret = Wiedas_SensorApp_Movement_init();
 
+	// init humidity sensor
+
+	ret = Wiedas_SensorApp_Humidity_init();
+
 	return SDDS_RT_OK;
 }
 
@@ -38,6 +42,8 @@ rc_t SDDS_Application_doWork(){
 	ret = Wiedas_SensorApp_Temperature_dowork();
 
 	ret = Wiedas_SensorApp_Movement_dowork();
+
+	ret = Wiedas_SensorApp_Humidity_dowork();
 
 	return SDDS_RT_OK;
 }
