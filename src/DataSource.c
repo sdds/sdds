@@ -49,7 +49,7 @@ struct DataSource{
 #if defined(__GNUC__) && __GNUC_MINOR__ < 6
 #pragma GCC diagnostic error "-Woverflow"
 #endif
-    unsigned int remaining_datawriter 	: 3;
+    unsigned int remaining_datawriter 	: 4;
 };
 
 static DataSource_t dsStruct;
