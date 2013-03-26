@@ -394,6 +394,17 @@ fconstants.write(r"""
 #define ONEWIRE_PORT B
 #define ONEWIRE_PIN 6
 
+/* Settings for LEDS
+*/
+
+#define DRV_LED_DIMMING 1
+
+#define DRV_LED_DIMMING_GAMMACORRECTION
+/* value is the bit length of the pwm register */
+#define DRV_LED_DIMMING_GAMMACORRECTION_10BIT
+/*#define DRV_LED_DIMMING_GAMMACORRECTION_16BIT*/
+/*#define DRV_LED_DIMMING_GAMMACORRECTION_8BIT */
+
 #endif
 """[1:] % \
 { \
