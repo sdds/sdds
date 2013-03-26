@@ -178,11 +178,9 @@ DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, S
 rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info)
 {
     Msg msg = NULL;
-    Msg tmp = NULL;
-    Msg tmppool = NULL;
 
     Topic topic = _this->topic;
-    (DataInfo)info;
+    (void)info;
 
     rc_t ret = Topic_getNextMsg(topic, &msg);
 
