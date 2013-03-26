@@ -15,7 +15,9 @@ rc_t SDDS_Application_init() {
 
 	ret = Wiedas_SensorApp_Light_init();
 
-	// imit temperature sensor
+	// init temperature sensor
+
+	ret = Wiedas_SensorApp_Temperature_init();
 
 	return SDDS_RT_OK;
 }
@@ -26,6 +28,8 @@ rc_t SDDS_Application_doWork(){
 	//durchreichen der process loop
 
 	ret = Wiedas_SensorApp_Light_dowork();
+
+	ret = Wiedas_SensorApp_Temperature_dowork();
 
 	return SDDS_RT_OK;
 }

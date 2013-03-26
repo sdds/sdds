@@ -27,7 +27,7 @@ SSW_NodeID_t nodeID = 0;
 
 PROCESS(periodicPublishProcess, "Periodic sdds publish process");
 
-PROCESS(changeRecognitionProcess, "sdds process to recognise changes");
+//PROCESS(changeRecognitionProcess, "sdds process to recognise changes");
 
 AUTOSTART_PROCESSES(&periodicPublishProcess);
 
@@ -39,8 +39,6 @@ static struct etimer g_changeReco_timer;
 
 static LED statusled;
 
-void _publishTemperatureSensor();
-void _publishTemperatureAndHumiditySensor();
 
 void _checkMovement();
 void _checkDoor();
@@ -71,7 +69,7 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	ret = SDDS_Application_start();
 
 	// init PIR Sensor
-	ret = AMN31112_init();
+//	ret = AMN31112_init();
 
 	// init door sensors?
 	// todo impl switch sensor driver
@@ -82,10 +80,8 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	// init status led
 	// create and init instance
 	static struct LED_t statusled_stc = {
-			.port = &PORTB,
-			.ddr = &DDRB,
-			.pin = &PINB,
-			.p = PB7,
+			.bank = LED_CONF_BANK_D,
+			.pin = LED_CONF_PIN_7,
 			.sourceing = false
 	};
 	// file scope var pointer
@@ -98,7 +94,7 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	// init something to recognise change in door, switch, and movement
 
 	// start recognise process
-	process_start(&changeRecognitionProcess, NULL);
+//	process_start(&changeRecognitionProcess, NULL);
 
 
 	while (true)
@@ -110,11 +106,6 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 
 			ret = SDDS_Application_doWork();
 
-			// publish temperatur value
-			_publishTemperatureSensor();
-			// publish temperature and humidity value
-			_publishTemperatureAndHumiditySensor();
-
 
 		} while(0);
 
@@ -124,7 +115,7 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 
 	PROCESS_END();
 }
-
+/*
 PROCESS_THREAD(changeRecognitionProcess, ev, data)
 {
 	PROCESS_BEGIN();
@@ -174,13 +165,4 @@ void _checkSwitch()
 {
 
 }
-
-void _publishTemperatureSensor()
-{
-	// todo impl tempsensor
-}
-void _publishTemperatureAndHumiditySensor()
-{
-	// todo impl humidity sensor
-}
-
+*/
