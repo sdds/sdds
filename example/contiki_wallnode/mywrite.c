@@ -35,7 +35,7 @@ AUTOSTART_PROCESSES(&periodicPublishProcess);
 static struct etimer g_wait_timer;
 
 // timer for change recofnition process
-static struct etimer g_changeReco_timer;
+//static struct etimer g_changeReco_timer;
 
 static LED statusled;
 
