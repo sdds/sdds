@@ -63,17 +63,17 @@ rc_t Wiedas_SensorApp_DimmerLamp_init(){
 	DDS_ReturnCode_t ddsret;
 
 	struct DDS_DataReaderListener listStruct = {
-			.on_data_available = sdds_DR_handler_LightRegulationFunctionality
+			.on_data_available = &sdds_DR_handler_LightRegulationFunctionality
 	};
 
 	ddsret = DDS_DataReader_set_listener((DDS_DataReader) g_LightRegulationFunctionality_reader,
 			 &listStruct, NULL);
 
-	listStruct.on_data_available = sdds_DR_handler_OnOffFunctionality;
+	listStruct.on_data_available = &sdds_DR_handler_OnOffFunctionality;
 	ddsret = DDS_DataReader_set_listener((DDS_DataReader) g_OnOffFunctionality_reader,
 				 &listStruct, NULL);
 
-	listStruct.on_data_available = sdds_DR_handler_ToggleFunctionality;
+	listStruct.on_data_available = &sdds_DR_handler_ToggleFunctionality;
 	ddsret = DDS_DataReader_set_listener((DDS_DataReader) g_ToggleFunctionality_reader,
 				 &listStruct, NULL);
 
