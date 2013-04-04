@@ -11,7 +11,11 @@ DATASTRUCTURES_FILE := datastructures
 
 # Object files of the generateted dds data types
 #DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/power_cur-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/test-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/DimmableLight-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/LightRegulationFunctionality-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/OnOffFunctionality-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/SimpleLamp-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/ToggleFunctionality-ds.o
 
 # object files depending on driver for sensors
 #  SENSORIO_DEPEND_OBJS += $(SDDS_OBJDIR)/weather-drivers.o

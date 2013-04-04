@@ -1,5 +1,16 @@
 endian: little
 
+[SimpleLamp]
+subscriber	
 
-[test]
-subscriber
+[OnOffFunctionality]
+publisher fe80::250:c2ff:ff18:88aa
+
+[ToggleFunctionality]
+publisher fe80::250:c2ff:ff18:88aa
+
+[LightRegulationFunctionality]
+publisher fe80::250:c2ff:ff18:88aa
+
+[DimmableLight]
+subscriber 
