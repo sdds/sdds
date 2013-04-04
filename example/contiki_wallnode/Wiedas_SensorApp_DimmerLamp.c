@@ -14,9 +14,12 @@
 #include "LED.h"
 #include "ATMEGA_LED.h"
 
+#include <avr/io.h>
+
 extern SSW_NodeID_t nodeID;
 
 static LED lampled;
+static LED fan4led;
 
 #define ONOFF_ON 1
 #define ONOFF_OFF 0
@@ -52,15 +55,34 @@ rc_t Wiedas_SensorApp_DimmerLamp_init(){
 			.pin = LED_CONF_PIN_5,
 			.sourceing = true,
 			.resolution = LED_CONF_DIM_RESOLUTION_10BIT,
-			.mode = LED_CONF_DIM_MODE_FAST_PWM
+			.mode = (LED_CONF_DIM_MODE_FAST_PWM | LED_CONF_DIM_ACTIVATE),
+			.dimValue = 0
 
 	};
 	lampled = &lamp_stc;
 	ret = LED_init(lampled);
 
+
+	// switch of the lamp
+	LED_switchOff(lampled);
+
+	// init led fan (as an led ...)
+	static struct LED_t fan_stc = {
+			.bank = LED_CONF_BANK_B,
+			.pin = LED_CONF_PIN_4,
+			.sourceing = true,
+			.mode = 0
+	};
+	fan4led = &fan_stc;
+	ret = LED_init(fan4led);
+
+	LED_switchOff(fan4led);
+
+
 	// register callbacks for topics
 
 	DDS_ReturnCode_t ddsret;
+
 
 	struct DDS_DataReaderListener listStruct = {
 			.on_data_available = &sdds_DR_handler_LightRegulationFunctionality
@@ -123,13 +145,14 @@ void sdds_DR_handler_LightRegulationFunctionality(DDS_DataReader reader) {
 	ddsret = DDS_LightRegulationFunctionalityDataReader_take_next_sample(
 			reader,	&data_ptr, NULL);
 
+
 	if (ddsret == DDS_RETCODE_NO_DATA) {
 		Log_info("No data available, but called by callback?\n ");
 		return;
 	}
 	if (ddsret != DDS_RETCODE_OK) {
 		Log_error("Error receiving data from LightRegulationFunctionality topic\n");
-		return;
+		return	;
 	}
 
 	// check if msg is for this node
@@ -142,6 +165,12 @@ void sdds_DR_handler_LightRegulationFunctionality(DDS_DataReader reader) {
 	uint8_t value = data.setValue;
 
 	LED_dim(lampled, value);
+
+	if (value > 0) {
+		LED_switchOn(fan4led);
+	} else {
+		LED_switchOff(fan4led);
+	}
 
 	return;
 }
@@ -172,8 +201,11 @@ void sdds_DR_handler_OnOffFunctionality(DDS_DataReader reader) {
 
 	if (data.command == ONOFF_ON) {
 		LED_switchOn(lampled);
+		// switch on the fan as well
+		LED_switchOn(fan4led);
 	} else if (data.command == ONOFF_OFF) {
 		LED_switchOff(lampled);
+		LED_switchOff(fan4led);
 	}
 
 	return;
@@ -189,7 +221,7 @@ void sdds_DR_handler_ToggleFunctionality(DDS_DataReader reader) {
 	ddsret = DDS_ToggleFunctionalityDataReader_take_next_sample(reader, &data_ptr, NULL);
 
 	if (ddsret == DDS_RETCODE_NO_DATA) {
-		Log_info("No data available, but called by callback?\n ");
+	//	Log_info("No data available, but called by callback?\n ");
 		return;
 	}
 	if (ddsret != DDS_RETCODE_OK) {
@@ -207,6 +239,16 @@ void sdds_DR_handler_ToggleFunctionality(DDS_DataReader reader) {
 	if (data.command == TOGGLE_TOGGLE) {
 		LED_toggle(lampled);
 	}
+	bool_t ledstate;
+	LED_getState(lampled, &ledstate);
+	if (ledstate == true) {
+		// lamp is on, switch on the fan
+		LED_switchOn(fan4led);
+	} else {
+		// switch off the fan
+		LED_switchOff(fan4led);
+	}
 
 	return;
 }
+

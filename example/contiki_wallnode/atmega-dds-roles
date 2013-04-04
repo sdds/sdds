@@ -1,28 +1,7 @@
 endian: little
 
-[TemperatureSensor]
-publisher
-
-[MovementSensor]
-publisher
-
-[DoorSensor]
-publisher
-
-[LightSensor]
-publisher
-
-[OnOffSwitch]
-publisher
-
 [SimpleLamp]
-publisher
-
-[HumiditySensor]
-publisher
-
-[WindowSensor]
-publisher
+publisher fe80::12:13ff:fe14:1516	
 
 [OnOffFunctionality]
 subscriber
@@ -34,4 +13,4 @@ subscriber
 subscriber
 
 [DimmableLight]
-publisher
+publisher fe80::12:13ff:fe14:1516

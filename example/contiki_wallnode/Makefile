@@ -19,12 +19,45 @@ DATASTRUCTURES_FILE := datastructures
 # Object files of the generateted dds data types
 #DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/power_cur-ds.o
 # ausgelargert in Dependency.mk
+#DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/DoorSensor-ds.o
+#DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/LightSensor-ds.o
+#DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/MovementSensor-ds.o
+#DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/OnOffSwitch-ds.o
+#DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/HumiditySensor-ds.o
+#DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/TemperatureSensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/DimmableLight-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/LightRegulationFunctionality-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/OnOffFunctionality-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/SimpleLamp-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/ToggleFunctionality-ds.o
+#DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/WindowSensor-ds.o
 
 # object files depending on driver for sensors
 #  DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-adc.o
 # ausgelargert in Dependency.mk
 
-include Dependency.mk
+
+#DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-AMN31112.o
+#DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-TSL2561.o
+#DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-twi.o
+DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
+#DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-ds18x20.o
+#DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-crc8.o
+#DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-ow.o
+#DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-AMN31112.o
+DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-GammaCorrection.o
+#DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-GPIO_Input.o
+
+
+
+APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_WallnodeApp.o
+#APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Light.o
+#APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Temperature.o
+#APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Movement.o
+#APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Humidity.o
+APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_DimmerLamp.o
+
+#include Dependency.mk
 
 
 # object files of the generates implementation code file of sdds
@@ -88,7 +121,7 @@ CFLAGS += -I.
 #CFLAGS += -Wno-error=unused-variable  
 
 $(SDDS_OBJDIR)/%.o: %.c
-	$(COMPILE.c) $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
+	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
 
 $(APPLICATION_NAME).c: $(APPLICATION_NAME).c $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS) $(APP_DEPEND_OBJS)
 	$(CC) $(CFLAGS) -MM -MF$(SDDS_OBJDIR)/$(APPLICATION_NAME).d -MT$@ $^

@@ -57,6 +57,8 @@ rc_t Wiedas_SensorApp_Movement_init() {
 	// init the callback handler process
 
 
+
+
 	return SDDS_RT_OK;
 }
 rc_t Wiedas_SensorApp_Movement_start() {
@@ -105,7 +107,7 @@ void PIR_CallBack_handler( GPIO_Input _this, bool_t state) {
 
 	uint8_t event = MOVEMENT_EVENT_MOVEING;
 
-	process_post(wiedas_movement_callback_handler, event, (void*) _this);
+	process_post(&wiedas_movement_callback_handler, event, (void*) _this);
 
 }
 
