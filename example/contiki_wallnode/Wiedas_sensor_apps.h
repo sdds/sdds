@@ -10,7 +10,7 @@
 
 #include <sdds/sdds_types.h>
 
-rc_t Wiedas_SensorApp_Temperature_init();
+rc_t Wiedas_SensorApp_Temperature_init(); //ok
 rc_t Wiedas_SensorApp_Temperature_start();
 rc_t Wiedas_SensorApp_Temperature_dowork();
 rc_t Wiedas_SensorApp_Temperature_process();
@@ -20,7 +20,7 @@ rc_t Wiedas_SensorApp_Light_start();
 rc_t Wiedas_SensorApp_Light_dowork();
 rc_t Wiedas_SensorApp_Light_process();
 
-rc_t Wiedas_SensorApp_Movement_init();
+rc_t Wiedas_SensorApp_Movement_init(); // ok
 rc_t Wiedas_SensorApp_Movement_start();
 rc_t Wiedas_SensorApp_Movement_dowork();
 rc_t Wiedas_SensorApp_Movement_process();
@@ -31,15 +31,15 @@ rc_t Wiedas_SensorApp_Humidity_start();
 rc_t Wiedas_SensorApp_Humidity_dowork();
 rc_t Wiedas_SensorApp_Humidity_process();
 
-rc_t Wiedas_SensorApp_Door_init(uint8_t number);
+rc_t Wiedas_SensorApp_Door_init(uint8_t number); // ok
 rc_t Wiedas_SensorApp_Door_start(uint8_t number);
 rc_t Wiedas_SensorApp_Door_dowork(uint8_t number);
 
-rc_t Wiedas_SensorApp_Window_init(uint8_t number);
+rc_t Wiedas_SensorApp_Window_init(uint8_t number); // ok
 rc_t Wiedas_SensorApp_Window_start(uint8_t number);
 rc_t Wiedas_SensorApp_Window_dowork(uint8_t number);
 
-rc_t Wiedas_SensorApp_Switch_init(uint8_t number);
+rc_t Wiedas_SensorApp_Switch_init(uint8_t number); // ok
 rc_t Wiedas_SensorApp_Switch_start(uint8_t number);
 rc_t Wiedas_SensorApp_Switch_dowork(uint8_t number);
 
@@ -59,7 +59,7 @@ rc_t Wiedas_SensorApp_PowerMeter_init();
 rc_t Wiedas_SensorApp_PowerMeter_start();
 rc_t Wiedas_SensorApp_PowerMeter_dowork();
 
-rc_t Wiedas_SensorApp_DimmerLamp_init();
+rc_t Wiedas_SensorApp_DimmerLamp_init(); // ok
 rc_t Wiedas_SensorApp_DimmerLamp_start();
 rc_t Wiedas_SensorApp_DimmerLamp_dowork();
 
