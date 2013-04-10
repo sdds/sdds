@@ -72,18 +72,18 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 
 		uint8_t byte1 = eeprom_read_byte((uint8_t*) myAddr);
 
-
+/*
 		if (byte1 == 0xff) {
-			eeprom_write_byte((uint8_t*)myAddr, 0x00);
-			eeprom_write_byte((uint8_t*)myAddr+1, 0x50);
-			eeprom_write_byte((uint8_t*)myAddr+2, 0xC2);
-			eeprom_write_byte((uint8_t*)myAddr+3, 0xFF);
+			eeprom_write_byte((uint8_t*)myAddr+7, 0x00);
+			eeprom_write_byte((uint8_t*)myAddr+6, 0x21);
+			eeprom_write_byte((uint8_t*)myAddr+5, 0x2E);
 			eeprom_write_byte((uint8_t*)myAddr+4, 0xFF);
-			eeprom_write_byte((uint8_t*)myAddr+5, 0x18);
-			eeprom_write_byte((uint8_t*)myAddr+6, 0x88);
-			eeprom_write_byte((uint8_t*)myAddr+7, 0xAA);
+			eeprom_write_byte((uint8_t*)myAddr+3, 0xFF);
+			eeprom_write_byte((uint8_t*)myAddr+2, 0x00);
+			eeprom_write_byte((uint8_t*)myAddr+1, 0x22);
+			eeprom_write_byte((uint8_t*)myAddr, 0xE3);
 		}
-
+*/
 
 		for (uint8_t i = 0; i < 8; i++) {
 			uint8_t byte = eeprom_read_byte((uint8_t*) myAddr+i);
@@ -111,7 +111,7 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 
 	// init status led
 	// create and init instance
-	/*
+
 	static struct LED_t statusled_stc = {
 			.bank = LED_CONF_BANK_D,
 			.pin = LED_CONF_PIN_7,
@@ -121,7 +121,9 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	// file scope var pointer
 	statusled = &statusled_stc;
 	ret = LED_init(statusled);
-*/
+
+	LED_switchOn(statusled);
+
 	// init RGB LED
 	// todo impl RGB LED driver
 
@@ -130,6 +132,9 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	// start recognise process
 //	process_start(&changeRecognitionProcess, NULL);
 
+	// start application processes
+
+	ret = SDDS_Application_start();
 
 	while (true)
 	{
@@ -140,7 +145,7 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 
 			ret = SDDS_Application_doWork();
 
-			//Log_debug("foo\n");
+			Log_debug("foo\n");
 
 		} while(0);
 
