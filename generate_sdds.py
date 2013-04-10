@@ -403,7 +403,7 @@ fconstants.write(r"""
 /* settings for the TSL2561 light sensor
 */
 
-#define TSL2561_TWI_ADDRESS (0x39<<1)
+#define TSL2561_TWI_ADDRESS (0x29<<1)
 
 /*
  * Settings for the one wire bus
