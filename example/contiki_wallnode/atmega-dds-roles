@@ -1,16 +1,17 @@
 endian: little
 
-[SimpleLamp]
-publisher fe80::12:13ff:fe14:1516	
+[MovementSensor]
+publisher fe80::12:13ff:fe14:1516
 
-[OnOffFunctionality]
-subscriber
+[DoorSensor]
+publisher fe80::12:13ff:fe14:1516
 
-[ToggleFunctionality]
-subscriber
+[LightSensor]
+publisher fe80::12:13ff:fe14:1516
 
-[LightRegulationFunctionality]
-subscriber
+[OnOffSwitch]
+publisher fe80::12:13ff:fe14:1516
 
-[DimmableLight]
+
+[WindowSensor]
 publisher fe80::12:13ff:fe14:1516
