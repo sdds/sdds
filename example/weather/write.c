@@ -19,6 +19,9 @@
 #include <contiki.h>
 #include <contiki-net.h>
 
+// workaround to prevent contiki to overwrite the mac adress in eeprom
+char atmega128rfa1_macadress[8]       EEMEM;
+
 PROCESS(write_process, "sDDS");
 PROCESS(anemometer_process, "anemometer");
 PROCESS(raingauge_process, "raingauge");
