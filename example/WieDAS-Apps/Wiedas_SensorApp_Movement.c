@@ -32,7 +32,7 @@ static GPIO_Input g_gpio_PIR;
 
 void PIR_CallBack_handler( GPIO_Input _this, bool_t state);
 
-void _publishMovement(bool_t value);
+rc_t _publishMovement(bool_t value);
 
 rc_t Wiedas_SensorApp_Movement_init() {
 
