@@ -18,3 +18,6 @@ debug:
 
 clean:
 	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board clean
+
+test:
+	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board test

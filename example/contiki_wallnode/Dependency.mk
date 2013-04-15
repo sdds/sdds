@@ -11,14 +11,14 @@ DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/SimpleLamp-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/ToggleFunctionality-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/WindowSensor-ds.o
 
-
-APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_WallnodeApp.o
-APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Light.o
-APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Temperature.o
-APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Movement.o
-APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Humidity.o
-APP_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_DimmerLamp.o
-
+APPLICATION_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Light.o
+APPLICATION_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Temperature.o
+APPLICATION_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Movement.o
+APPLICATION_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Humidity.o
+APPLICATION_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_DimmerLamp.o
+APPLICATION_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Door.o
+APPLICATION_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Switch.o
+APPLICATION_DEPEND_OBJS += $(SDDS_OBJDIR)/Wiedas_SensorApp_Window.o
 
 DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-AMN31112.o
 DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-TSL2561.o

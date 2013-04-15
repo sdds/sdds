@@ -15,3 +15,28 @@ publisher fe80::12:13ff:fe14:1516
 
 [WindowSensor]
 publisher fe80::12:13ff:fe14:1516
+
+[OnOffSwitch]
+publisher fe80::12:13ff:fe14:1516
+
+
+[SimpleLamp]
+publisher fe80::12:13ff:fe14:1516
+
+[TemperatureSensor]
+publisher fe80::12:13ff:fe14:1516
+
+[HumiditySensor]
+publisher fe80::12:13ff:fe14:1516
+
+[OnOffFunctionality]
+subscriber
+
+[ToggleFunctionality]
+subscriber
+
+[LightRegulationFunctionality]
+subscriber
+
+[DimmableLight]
+publisher fe80::12:13ff:fe14:1516
