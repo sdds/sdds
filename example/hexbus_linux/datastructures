@@ -9,37 +9,73 @@ topic: e
 DDS_unsigned_short id 
 DDS_unsigned_short watt
 
-[PowerMeterAverage]
-
-/* Anzeige de Leistungsverbrauchs von Geräte über verschiedene Zeitintervalle. */
-
+[OnOffSwitch]
 domain: 0
-topic: f
-/* da die generierung keine typedefs kann, datentyp direkt angegeben */
-DDS_unsigned_short id 
-/* Durchschnittsverbrauch in der letzten Minute */
-DDS_unsigned_short watt_minute 
-/* Durchschnittsverbrauch in der letzten Stunde */
-DDS_unsigned_short watt_hour
-/* Durchschnittsverbrauch seit einem Tag */ 
-DDS_unsigned_short watt_day 
-/* Durchschnittsverbrauch seit einer Woche */
-DDS_unsigned_short watt_week 
-/* Durchschnittsverbrauch seit einem Monat */
-DDS_unsigned_short watt_month
-/* Durchschnittsverbrauch seit einem Jahr */ 
-DDS_unsigned_short watt_year 
+topic: 4
 
-/* [Energy_summation] */
-/* Anzeige des Energieverbrauchs in Kilowatt/Stunde seit dem Stichtag */
-/*
-/* domain: 0 */
-/* topic: 3 */
-*/
+DDS_unsigned_short id
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
-/*DDS_unsigned_short id */
-/* Energieverbrauch in kW/h */
-/*DDS_unsigned_long energy */
+/* Status der Lampe: enum emulierung: {off, on, transit, dimming, defect}*/
+DDS_octet state
+
+[SimpleLamp]
+domain: 0
+topic: 5
+
+/* da die generierung keine typedefs kann, datentyp direkt angegeben */
+DDS_unsigned_short id
+/* Status der Lampe: enum emulierung: {off, on, transit, dimming, defect}*/
+DDS_octet state
+DDS_octet dummy
+
+[TemperatureSensor]
+domain: 0
+topic: 6
+
+DDS_unsigned_short id
+DDS_short temperature
+
+
+[HumiditySensor]
+domain: 0
+topic: b
+
+DDS_unsigned_short id
+DDS_unsigned_short humidity
+
+
+[MovementSensor]
+domain: 0
+topic: 7
+
+DDS_unsigned_short id
+/* enum MovementState { isMoving, notMoving }*/
+DDS_octet state
+
+
+[DoorSensor]
+domain: 0
+topic: 9
+
+DDS_unsigned_short id
+/* enum OpenCloseState { open, closed }*/
+DDS_octet state
+
+[WindowSensor]
+domain: 0
+topic: a
+
+DDS_unsigned_short id
+/* enum OpenCloseState { open, closed }*/
+DDS_octet state
+
+
+[LightSensor]
+domain: 0
+topic: 8
+
+DDS_unsigned_short id
+DDS_unsigned_short lux
 
 [OnOffOutput]
 domain: 0
@@ -53,7 +89,7 @@ DDS_octet dummy
 
 [OnOffFunctionality]
 domain: 0
-topic: b
+topic: c
 
 /* da die generierung keine typedefs kann, datentyp direkt angegeben */
 DDS_unsigned_short id
@@ -61,22 +97,28 @@ DDS_unsigned_short id
 DDS_octet command 
 DDS_octet dummy
 
-[SimpleLamp]
-domain: 0
-topic: 5
-
-/* da die generierung keine typedefs kann, datentyp direkt angegeben */
-DDS_unsigned_short id
-/* Status der Lampe: enum emulierung: {off, on, transit, dimming, defect}*/
-DDS_octet state
-DDS_octet dummy
-
 [ToggleFunctionality]
 domain: 0
-topic: c
+topic: d
 
 DDS_unsigned_short id
+/* enum ToggleCommand { toggle }; */
 DDS_octet command 
 DDS_octet dummy
 
+[LightRegulationFunctionality]
+domain: 0
+topic: f
+
+DDS_unsigned_short id
+DDS_octet setValue
+
+[DimmableLight]
+domain: 0
+topic: e
+
+DDS_unsigned_short id
+DDS_octet lightIntensityState
+/* Status der Lampe: enum emulierung: {off, on, transit, dimming, defect}*/
+DDS_octet onOffState
 

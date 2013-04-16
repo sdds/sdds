@@ -22,7 +22,7 @@
 #define COM_HELP 6
 #define COM_LAMP_ST 7
 
-#define RECEIVER_ID 0x81a5
+#define RECEIVER_ID 0x242c
 
 char* commands[] = {"read watt\n", "switch on\n", "switch off\n",
 		"switch toggle\n", "switch state\n", "quit\n", "help\n", "lamp state\n", NULL};

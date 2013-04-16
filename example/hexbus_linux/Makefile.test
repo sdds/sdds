@@ -1,5 +1,5 @@
 JACKDAW = fe80::50:c4ff:fe04:2e3
-BOARD = fe80::50:c4ff:fe04:81a5
+BOARD = fe80::50:c4ff:fe04:842c
 #CONTIKI = $(shell echo $$HOME)/es-projekt/contiki
 CONTIKI = ../../../platform/contiki
 
@@ -8,7 +8,9 @@ APPLICATION_NAME := mywrite
 all:
 	$(MAKE) -f Makefile BUILD=linux $(APPLICATION_NAME) $(MAKEOPTS) \
 	                    SDDS_LINUX_LISTEN_ADDRESS="$(JACKDAW)%usb0" \
-	                    SDDS_LINUX_SEND_ADDRESS="$(BOARD)%usb0"
+	                    SDDS_LINUX_SEND_ADDRESS="$(BOARD)%usb0" \
+                            SDDS_LINUX_PROTOCOL=AF_INET6
+
 
 
 clean:

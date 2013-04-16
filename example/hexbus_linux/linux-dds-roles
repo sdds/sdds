@@ -4,17 +4,14 @@ endian: little
 [PowerMeter]
 subscriber
 
-[PowerMeterAverage]
-subscriber
-
 [OnOffOutput]
 subscriber
 
 [OnOffFunctionality]
-publisher fe80::50:c4ff:fe04:81a5
+publisher fe80::50:c4ff:fe04:842c
 
 [SimpleLamp]
 subscriber
 
 [ToggleFunctionality]
-publisher fe80::50:c4ff:fe04:81a5
+publisher fe80::50:c4ff:fe04:842c

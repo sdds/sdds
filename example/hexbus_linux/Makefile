@@ -12,7 +12,6 @@ DATASTRUCTURES_FILE := datastructures
 # Object files of the generateted dds data types
 #DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/power_cur-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/PowerMeter-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/PowerMeterAverage-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/OnOffOutput-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/OnOffFunctionality-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/SimpleLamp-ds.o
