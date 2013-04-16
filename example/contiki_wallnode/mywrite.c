@@ -43,11 +43,6 @@ static struct etimer g_wait_timer;
 static LED statusled;
 
 
-void _checkMovement();
-void _checkDoor();
-void _checkSwitch();
-
-
 
 PROCESS_THREAD(periodicPublishProcess, ev, data)
 {
@@ -96,18 +91,8 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	// init sdds application
 	ret = SDDS_Application_init();
 
-	// starten der ggf. vorhanden eigenen threads der application
 
-	ret = SDDS_Application_start();
 
-	// init PIR Sensor
-//	ret = AMN31112_init();
-
-	// init door sensors?
-	// todo impl switch sensor driver
-
-	// init switch sensors
-	// todo impl switch sensor driver
 
 	// init status led
 	// create and init instance
@@ -124,15 +109,7 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 
 	LED_switchOn(statusled);
 
-	// init RGB LED
-	// todo impl RGB LED driver
-
-	// init something to recognise change in door, switch, and movement
-
-	// start recognise process
-//	process_start(&changeRecognitionProcess, NULL);
-
-	// start application processes
+	// starten der ggf. vorhanden eigenen threads der application
 
 	ret = SDDS_Application_start();
 
@@ -155,54 +132,4 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 
 	PROCESS_END();
 }
-/*
-PROCESS_THREAD(changeRecognitionProcess, ev, data)
-{
-	PROCESS_BEGIN();
 
-	// make gcc happy
-	(void)ev;
-	(void)data;
-
-	while (true)
-	{
-		do
-		{
-			_checkMovement();
-			_checkDoor();
-			_checkSwitch();
-
-		}while(0);
-
-		etimer_set(&g_changeReco_timer, CLOCK_SECOND);
-		PROCESS_YIELD_UNTIL(etimer_expired(&g_changeReco_timer));
-	}
-
-	PROCESS_END();
-}
-
-void _checkMovement()
-{
-
-	bool_t movement;
-
-	AMN31112_readMovement(&movement);
-	printf("checked movement: %d \n", movement);
-
-	if (movement)
-	{
-		LED_switchOn(statusled);
-	} else {
-		LED_switchOff(statusled);
-	}
-}
-
-void _checkDoor()
-{
-
-}
-void _checkSwitch()
-{
-
-}
-*/
