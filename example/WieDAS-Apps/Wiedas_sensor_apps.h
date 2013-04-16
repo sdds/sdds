@@ -15,7 +15,7 @@ rc_t Wiedas_SensorApp_Temperature_start();
 rc_t Wiedas_SensorApp_Temperature_dowork();
 rc_t Wiedas_SensorApp_Temperature_process();
 
-rc_t Wiedas_SensorApp_Light_init();
+rc_t Wiedas_SensorApp_Light_init(); // ok
 rc_t Wiedas_SensorApp_Light_start();
 rc_t Wiedas_SensorApp_Light_dowork();
 rc_t Wiedas_SensorApp_Light_process();
@@ -47,9 +47,9 @@ rc_t Wiedas_SensorApp_Battery_init();
 rc_t Wiedas_SensorApp_Battery_start();
 rc_t Wiedas_SensorApp_Battery_dowork();
 
-rc_t Wiedas_SensorApp_SimpleLight_init();
-rc_t Wiedas_SensorApp_SimpleLight_start();
-rc_t Wiedas_SensorApp_SimpleLight_dowork();
+rc_t Wiedas_SensorApp_SimpleLamp_init();
+rc_t Wiedas_SensorApp_SimpleLamp_start();
+rc_t Wiedas_SensorApp_SimpleLamp_dowork();
 
 rc_t Wiedas_SensorApp_OnOffOutput_init();
 rc_t Wiedas_SensorApp_OnOffOutput_start();
