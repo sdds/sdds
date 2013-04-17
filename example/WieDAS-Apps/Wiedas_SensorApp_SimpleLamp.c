@@ -48,7 +48,7 @@ void sdds_DR_handler_ToggleFunctionality(DDS_DataReader reader);
 rc_t Wiedas_SensorApp_SimpleLamp_init() {
 
 	// default : off
-	relay_off();
+	relay_on();
 
 	// register callbacks for topics
 
@@ -77,7 +77,7 @@ rc_t Wiedas_SensorApp_SimpleLamp_dowork() {
 		SimpleLamp sw;
 		sw.id = nodeID;
 
-		if (state == 1) {
+		if (state == 0) {
 			sw.state = ONOFF_ON;
 		} else {
 			sw.state = ONOFF_OFF;
@@ -124,9 +124,9 @@ void sdds_DR_handler_OnOffFunctionality(DDS_DataReader reader) {
 	Log_debug("Got OnOffFunctionality command: %s \n", (data.command ? "ON" : "OFF"));
 
 	if (data.command == ONOFF_ON) {
-		relay_on();
-	} else if (data.command == ONOFF_OFF) {
 		relay_off();
+	} else if (data.command == ONOFF_OFF) {
+		relay_on();
 	}
 
 	return;
