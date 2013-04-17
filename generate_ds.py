@@ -211,7 +211,7 @@ rc_t TopicMarshalling_%(cap_name)s_encode(byte_t* buffer, Data data, size_t* siz
 rc_t TopicMarshalling_%(cap_name)s_decode(byte_t* buffer, Data data, size_t* size)
 {
 	if (*size != %(size)s)
-		fprintf(stderr, "size mismatch\n");
+		fprintf(stderr, "%%s : size mismatch is %%d should be %%d \n",__FUNCTION__, *size, %(size)s);
 
 	*size = 0;
 
