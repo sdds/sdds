@@ -100,8 +100,10 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	static struct LED_t statusled_stc = {
 			.bank = LED_CONF_BANK_D,
 			.pin = LED_CONF_PIN_7,
-			.sourceing = false,
-			.mode = 0
+			.sourceing = false
+#ifdef DRV_LED_DIMMING			    
+			,.mode = 0
+#endif
 	};
 	// file scope var pointer
 	statusled = &statusled_stc;
