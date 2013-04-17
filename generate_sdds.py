@@ -305,6 +305,8 @@ fconstants.write(r"""
 #ifndef %(up_name)s_CONSTANTS_H_INCLUDED
 #define %(up_name)s_CONSTANTS_H_INCLUDED
 
+#include "local_constants.h"
+
 #define sDDS_LOCAL_BYTEORDER_%(byte_order)s_ENDIAN
 #define sDDS_NET_VERSION 0x01
 #define sDDS_MAX_DATA_WRITERS %(data_writers)s
@@ -414,11 +416,11 @@ fconstants.write(r"""
 /* Settings for LEDS
 */
 
-#define DRV_LED_DIMMING 1
+//#define DRV_LED_DIMMING 1
 
-#define DRV_LED_DIMMING_GAMMACORRECTION
+//#define DRV_LED_DIMMING_GAMMACORRECTION
 /* value is the bit length of the pwm register */
-#define DRV_LED_DIMMING_GAMMACORRECTION_10BIT
+//#define DRV_LED_DIMMING_GAMMACORRECTION_10BIT
 /*#define DRV_LED_DIMMING_GAMMACORRECTION_16BIT*/
 /*#define DRV_LED_DIMMING_GAMMACORRECTION_8BIT */
 
