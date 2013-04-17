@@ -30,7 +30,7 @@
 
 struct DataReader {
     Topic topic;
-    unsigned int id : 3;
+    unsigned int id : 4;
     On_Data_Avail_Listener on_data_avail_listener;
 };
 
@@ -40,7 +40,7 @@ struct DataSink_t {
 #if defined(__GNUC__) && __GNUC_MINOR__ < 6
 #pragma GCC diagnostic error "-Woverflow"
 #endif
-    unsigned int remaining_datareader : 3;
+    unsigned int remaining_datareader : 4;
 };
 
 static Msg msg;
