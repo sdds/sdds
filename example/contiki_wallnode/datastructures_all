@@ -87,14 +87,14 @@ DDS_octet dummy
 
 [LightRegulationFunctionality]
 domain: 0
-topic: f
+topic: 10
 
 DDS_unsigned_short id
 DDS_octet setValue
 
 [DimmableLight]
 domain: 0
-topic: e
+topic: f
 
 DDS_unsigned_short id
 DDS_octet lightIntensityState
