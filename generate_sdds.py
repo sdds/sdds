@@ -410,7 +410,7 @@ fconstants.write(r"""
 /*
  * Settings for the one wire bus
  */
-#define ONEWIRE_PORT B
+#define ONEWIRE_PORT E
 #define ONEWIRE_PIN 6
 
 /* Settings for LEDS
