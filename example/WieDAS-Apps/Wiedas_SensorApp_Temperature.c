@@ -28,6 +28,26 @@ rc_t Wiedas_SensorApp_Temperature_dowork() {
 
 	int16_t tem;
 	rc_t ret;
+	static bool_t meas_state = true;
+
+	// interleaving start measurement and send value
+	
+	if (meas_state == true) {
+		// first start messurement
+	
+		ret = DS18X20_start_meassurement();
+
+		if (ret != SDDS_RT_OK) {
+			Log_error("Can't start measurement of temperature sensor\n");
+			return SDDS_RT_FAIL;
+		}
+		Log_debug("Started temp measurement\n");
+
+		meas_state = false;
+		return SDDS_RT_OK;
+	}
+
+	// else get data an publish it
 
 	ret = DS18X20_read_celsius(&tem);
 
@@ -50,6 +70,8 @@ rc_t Wiedas_SensorApp_Temperature_dowork() {
 		return SDDS_RT_FAIL;
 	}
 
+	// start next meassure cycle
+	meas_state = true;
 	return SDDS_RT_OK;
 }
 rc_t Wiedas_SensorApp_Temperature_process() {
