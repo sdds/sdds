@@ -40,7 +40,7 @@ static struct etimer g_wait_timer;
 // timer for change recofnition process
 //static struct etimer g_changeReco_timer;
 
-static LED statusled;
+LED g_statusled;
 
 
 
@@ -86,7 +86,7 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 		}
 
 	nodeID = NodeConfig_getNodeID();
-	Log_debug("device id : 0x%X : %d", nodeID, nodeID);
+	Log_debug("device id : 0x%X : %d \n", nodeID, nodeID);
 
 	// init sdds application
 	ret = SDDS_Application_init();
@@ -106,10 +106,10 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 #endif
 	};
 	// file scope var pointer
-	statusled = &statusled_stc;
-	ret = LED_init(statusled);
+	g_statusled = &statusled_stc;
+	ret = LED_init(g_statusled);
 
-	LED_switchOn(statusled);
+	LED_switchOn(g_statusled);
 
 	// starten der ggf. vorhanden eigenen threads der application
 
