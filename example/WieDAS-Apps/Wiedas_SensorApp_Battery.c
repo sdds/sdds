@@ -24,7 +24,8 @@
 
 #include "contiki.h"
 
-#define BATTERY_INA_COUNT 1
+#define BATTERY_INA_COUNT 60
+
 extern SSW_NodeID_t nodeID;
 extern LED g_statusled;
 /*  
@@ -70,6 +71,16 @@ rc_t Wiedas_SensorApp_Battery_dowork() {
 
 	static	bool_t lowBattery = false;
 	static uint8_t inactiveCount = 0;
+	static uint8_t statusLedCount = 0;
+
+	statusLedCount++;
+
+	if (lowBattery == false && statusLedCount == 5) {
+	    LED_switchOn(g_statusled);
+	} else if (lowBattery == false && statusLedCount == 6) {
+	    LED_switchOff(g_statusled);
+	    statusLedCount = 0;
+	}
 
 
 	// check only all BATTERY_INA_COUNT seconds
@@ -82,6 +93,8 @@ rc_t Wiedas_SensorApp_Battery_dowork() {
 		inactiveCount = 0;
 	}
 
+
+//	activate ADC TODO
 
 	uint16_t sum = 0;
 
@@ -134,6 +147,6 @@ rc_t Wiedas_SensorApp_Battery_dowork() {
 
 	}
 
-
+// deactivate ADC TODO
 	return SDDS_RT_OK;
 }
