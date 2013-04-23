@@ -21,7 +21,7 @@ rc_t Wiedas_SensorApp_Light_init() {
 
 	// init light sensor driver
 	rc_t ret;
-	twi_activateInternalPullUp();
+//	twi_activateInternalPullUp();
 	ret = TSL2561_init();
 	if (ret != SDDS_RT_OK) {
 		Log_error("can't init tsl2561 ret %d\n", ret);
