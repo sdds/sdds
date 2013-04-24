@@ -25,10 +25,11 @@ rc_t sDDS_init(void)
 	rc_t ret;
 	
 	Memory_init();
-	Network_init();
 	LocatorDB_init();
 	DataSource_init();
 	DataSink_init();
+	Network_init();
+	
     int log_level = 3;
 
 	Log_setLvl(log_level);
