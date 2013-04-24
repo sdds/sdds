@@ -13,7 +13,10 @@
 
 #include "AMN31112.h"
 #include "GPIO_Input.h"
+#include "LED.h"
+#include "ATMEGA_LED.h"
 
+#define WIEDAS_MOVEMENT_LED
 
 #define MOVEMENT_isMoving 0
 #define MOVEMENT_notMoving 1
@@ -29,6 +32,7 @@ PROCESS(wiedas_movement_callback_handler, "WieDAS Movement IRQ handler");
 extern SSW_NodeID_t nodeID;
 
 static GPIO_Input g_gpio_PIR;
+static LED g_move_LED;
 
 void PIR_CallBack_handler( GPIO_Input _this, bool_t state);
 
@@ -38,6 +42,25 @@ rc_t Wiedas_SensorApp_Movement_init() {
 
 	rc_t ret;
 
+	// init led green for movement indicator
+#ifdef WIEDAS_MOVEMENT_LED
+
+	static struct LED_t led_stc = {
+			.bank = LED_CONF_BANK_B,
+			.pin = LED_CONF_PIN_6,
+			.sourceing = false,
+			.resolution = LED_CONF_DIM_RESOLUTION_10BIT,
+			.mode = (LED_CONF_DIM_MODE_FAST_PWM | LED_CONF_DIM_ACTIVATE),
+			.dimValue = 90
+
+	};
+	g_move_LED = &led_stc;
+	ret = LED_init(g_move_LED);
+
+	LED_switchOff(g_move_LED);
+	LED_dim(g_move_LED, 90);
+
+#endif
 	//ret = AMN31112_init();
 
 	// use gpio input as driver
@@ -83,8 +106,16 @@ rc_t _publishMovement(bool_t value) {
 		data.id = nodeID;
 		if (value == true) {
 			data.state = MOVEMENT_isMoving;
+
+#ifdef WIEDAS_MOVEMENT_LED
+			LED_switchOn(g_move_LED);
+#endif
 		} else {
 			data.state = MOVEMENT_notMoving;
+
+#ifdef WIEDAS_MOVEMENT_LED
+			LED_switchOff(g_move_LED);
+#endif		
 		}
 
 		DDS_ReturnCode_t ddsret;
