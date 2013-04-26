@@ -312,14 +312,28 @@ fconstants.write(r"""
 #define sDDS_NET_VERSION 0x01
 #define sDDS_MAX_DATA_WRITERS %(data_writers)s
 #define sDDS_MAX_DATA_READERS %(data_readers)s
+
+#ifndef sDDS_NET_MAX_OUT_QUEUE
 #define sDDS_NET_MAX_OUT_QUEUE 2
+#endif /*sDDS_NET_MAX_OUT_QUEUE */
+
+#ifndef sDDS_NET_MAX_BUF_SIZE
 #define sDDS_NET_MAX_BUF_SIZE 30
+#endif /* sDDS_NET_MAX_BUF_SIZE */
+
+#ifndef sDDS_NET_MAX_LOCATOR_COUNT
 #define sDDS_NET_MAX_LOCATOR_COUNT 20
+#endif /* sDDS_NET_MAX_LOCATOR_COUNT */
+
 #define sDDS_QOS_DW1_LATBUD 100
 #define sDDS_QOS_DW2_LATBUD 500
 %(any_subscriptions)s
 %(any_publications)s
+
+#ifndef sDDS_TOPIC_APP_MSG_COUNT
 #define sDDS_TOPIC_APP_MSG_COUNT 5
+#endif /* sDDS_TOPIC_APP_MSG_COUNT */
+
 #define sDDS_TOPIC_MAX_COUNT %(max_topics)d
 #define sDDS_MNG_WORKER_CYCLE_TIME 10000
 #define sDDS_MNG_BUILTINT_PUBCYCLE_PRESCALER 2
