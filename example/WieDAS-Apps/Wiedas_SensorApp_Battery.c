@@ -24,7 +24,6 @@
 
 #include "contiki.h"
 
-#define BATTERY_INA_COUNT 60
 
 extern SSW_NodeID_t nodeID;
 extern LED g_statusled;
@@ -85,7 +84,7 @@ rc_t Wiedas_SensorApp_Battery_dowork() {
 
 	// check only all BATTERY_INA_COUNT seconds
 	// or if the battery is low, than do it every second
-	if (lowBattery == false && inactiveCount < BATTERY_INA_COUNT) {
+	if (lowBattery == false && inactiveCount < WIEDAS_SENSORAPP_BATTERY_INTERVALL) {
 		inactiveCount++;
 
 		return SDDS_RT_OK;

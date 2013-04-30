@@ -35,6 +35,17 @@ rc_t Wiedas_SensorApp_PowerMeter_start() {
 }
 rc_t Wiedas_SensorApp_PowerMeter_dowork() {
 
+
+	static waitCount = 0;
+
+	if (waitCount < WIEDAS_SENSORAPP_POWERMETER_INTERVALL) {
+		waitCount++;
+		return SDDS_RT_OK;
+	} else {
+		waitCount = 0;
+	}
+
+
 	uint16_t power;
 	PowerMeter p;
 

@@ -72,28 +72,37 @@ rc_t Wiedas_SensorApp_SimpleLamp_start() {
 }
 rc_t Wiedas_SensorApp_SimpleLamp_dowork() {
 
+	static waitCount = 0;
+
+	if (waitCount < WIEDAS_SENSORAPP_SIMPLELAMP_INTERVALL) {
+		waitCount++;
+		return SDDS_RT_OK;
+	} else {
+		waitCount = 0;
+	}
+
+
 	bool_t state = relay_get_state();
 
-		SimpleLamp sw;
-		sw.id = nodeID;
+	SimpleLamp sw;
+	sw.id = nodeID;
 
-		if (state == 0) {
-			sw.state = ONOFF_ON;
-		} else {
-			sw.state = ONOFF_OFF;
-		}
+	if (state == 0) {
+		sw.state = ONOFF_ON;
+	} else {
+		sw.state = ONOFF_OFF;
+	}
 
 
-		Log_debug("Publish SimpleLamp state: %d\n", sw.state);
+	Log_debug("Publish SimpleLamp state: %d\n", sw.state);
 
-		DDS_ReturnCode_t ret = DDS_SimpleLampDataWriter_write(g_SimpleLamp_writer,
-				&sw, NULL );
-		if (ret != DDS_RETCODE_OK) {
-			Log_error("Can't publish SimpleLamp \n");
-			return SDDS_RT_FAIL;
-		}
+	DDS_ReturnCode_t ret = DDS_SimpleLampDataWriter_write(g_SimpleLamp_writer,
+			&sw, NULL );
+	if (ret != DDS_RETCODE_OK) {
+		Log_error("Can't publish SimpleLamp \n");
+		return SDDS_RT_FAIL;
+	}
 
-		return SDDS_RT_OK;
 
 	return SDDS_RT_OK;
 }

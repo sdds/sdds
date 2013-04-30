@@ -33,6 +33,8 @@ extern SSW_NodeID_t nodeID;
 
 // es gibt mehrere tür sensoren, aber maximal 3
 static struct GPIO_Input_t inputs[3];
+// hack to reference the device id, array index is the same as the inputs ...
+static uint16_t devIDArray[3];
 
 PROCESS(wiedas_switch_callback_handler, "WieDAS Switch IRQ handler");
 static struct etimer switch_detection_timer;
@@ -40,7 +42,7 @@ static struct etimer switch_detection_timer;
 
 void Switch_CallBack_handler( GPIO_Input _this, bool_t state);
 
-static rc_t _publishSwitchState(uint8_t number, bool_t value);
+static rc_t _publishSwitchState(uint16_t deviceID, bool_t value);
 
 
 void Switch_CallBack_handler( GPIO_Input _this, bool_t state) {
@@ -51,38 +53,41 @@ void Switch_CallBack_handler( GPIO_Input _this, bool_t state) {
 }
 
 
-rc_t Wiedas_SensorApp_Switch_init(uint8_t number) {
+rc_t Wiedas_SensorApp_Switch_init(uint8_t hwPort, uint16_t deviceID) {
 
-	if (number == 0) {
+
+	devIDArray[hwPort] = deviceID;
+
+	if (hwPort == 0) {
 		// PE7 INT7
-		inputs[number].bank = GPIO_INPUT_ATMEGA_BANK_E;
-		inputs[number].pin = 7;
-		inputs[number].mode = (GPIO_INPUT_MODE_INTERUPT_ENABLE
+		inputs[hwPort].bank = GPIO_INPUT_ATMEGA_BANK_E;
+		inputs[hwPort].pin = 7;
+		inputs[hwPort].mode = (GPIO_INPUT_MODE_INTERUPT_ENABLE
 							| GPIO_INPUT_MODE_CALLBACK_LEVEL_TRIGGER
 							| GPIO_INPUT_MODE_PULLUP_ACTIVATE);
 
-		GPIO_Input_init(&inputs[number]);
-		GPIO_Input_setCallback(&inputs[number], &Switch_CallBack_handler);
-	} else if (number == 1) {
+		GPIO_Input_init(&inputs[hwPort]);
+		GPIO_Input_setCallback(&inputs[hwPort], &Switch_CallBack_handler);
+	} else if (hwPort == 1) {
 		//PE5 INT5
-		inputs[number].bank = GPIO_INPUT_ATMEGA_BANK_E;
-		inputs[number].pin = 5;
-		inputs[number].mode = (GPIO_INPUT_MODE_INTERUPT_ENABLE
+		inputs[hwPort].bank = GPIO_INPUT_ATMEGA_BANK_E;
+		inputs[hwPort].pin = 5;
+		inputs[hwPort].mode = (GPIO_INPUT_MODE_INTERUPT_ENABLE
 							| GPIO_INPUT_MODE_CALLBACK_LEVEL_TRIGGER
 							| GPIO_INPUT_MODE_PULLUP_ACTIVATE);
 
-		GPIO_Input_init(&inputs[number]);
-		GPIO_Input_setCallback(&inputs[number], &Switch_CallBack_handler);
-	} else if (number == 2) {
+		GPIO_Input_init(&inputs[hwPort]);
+		GPIO_Input_setCallback(&inputs[hwPort], &Switch_CallBack_handler);
+	} else if (hwPort == 2) {
 		// PE4 INT4
-		inputs[number].bank = GPIO_INPUT_ATMEGA_BANK_E;
-		inputs[number].pin = 4;
-		inputs[number].mode = (GPIO_INPUT_MODE_INTERUPT_ENABLE
+		inputs[hwPort].bank = GPIO_INPUT_ATMEGA_BANK_E;
+		inputs[hwPort].pin = 4;
+		inputs[hwPort].mode = (GPIO_INPUT_MODE_INTERUPT_ENABLE
 							| GPIO_INPUT_MODE_CALLBACK_LEVEL_TRIGGER
 							| GPIO_INPUT_MODE_PULLUP_ACTIVATE);
 
-		GPIO_Input_init(&inputs[number]);
-		GPIO_Input_setCallback(&(inputs[number]), &Switch_CallBack_handler);
+		GPIO_Input_init(&inputs[hwPort]);
+		GPIO_Input_setCallback(&(inputs[hwPort]), &Switch_CallBack_handler);
 	} else {
 		return SDDS_RT_BAD_PARAMETER;
 	}
@@ -92,17 +97,25 @@ rc_t Wiedas_SensorApp_Switch_init(uint8_t number) {
 
 	return SDDS_RT_OK;
 }
-rc_t Wiedas_SensorApp_Switch_start(uint8_t number) {
+rc_t Wiedas_SensorApp_Switch_start(uint8_t hwPort, uint16_t deviceID) {
 	return SDDS_RT_OK;
 }
-rc_t Wiedas_SensorApp_Switch_dowork(uint8_t number) {
+rc_t Wiedas_SensorApp_Switch_dowork(uint8_t hwPort, uint16_t deviceID) {
 
+	static waitCount = 0;
+
+	if (waitCount < WIEDAS_SENSORAPP_SWITCH_INTERVALL) {
+		waitCount++;
+		return SDDS_RT_OK;
+	} else {
+		waitCount = 0;
+	}
 
 	// get right state
 	bool_t value;
-	GPIO_Input_getState(&inputs[number], &value);
+	GPIO_Input_getState(&inputs[hwPort], &value);
 
-	_publishSwitchState(number, value);
+	_publishSwitchState(deviceID, value);
 
 
 	return SDDS_RT_OK;
@@ -150,10 +163,10 @@ PROCESS_THREAD(wiedas_switch_callback_handler, ev, data)
     	// todo muss ggf hier angepasst werden, abhängig, ob die reedkontakte öffnend oder schließend sind
     	if (prevalue == value2) {
     		//Log_debug("Switch %d state changed to %s\n", number, prevalue ? "open" : "closed");
-    		_publishSwitchState(number, prevalue);
+    		_publishSwitchState(devIDArray[number], prevalue);
     	} else { //
     		//Log_debug("Switch %d state changed to %s\n", number, prevalue ? "open" : "closed");
-    		_publishSwitchState(number, prevalue);
+    		_publishSwitchState(devIDArray[number], prevalue);
     	}
 
 
@@ -167,13 +180,12 @@ PROCESS_THREAD(wiedas_switch_callback_handler, ev, data)
   PROCESS_END();
 }
 
-rc_t _publishSwitchState(uint8_t number, bool_t value) {
+rc_t _publishSwitchState(uint16_t deviceID, bool_t value) {
 
 	OnOffSwitch data;
-
 	// hack to support more than one switchsensor on one node
 	// first switch sensor have to have number 0 ;)
-	data.id = nodeID + number;
+	data.id = deviceID;
 	// depends if open or close is true or false ...
 	// todo sollte hardcoded confed werden, HIER
 	if (value == true) {
@@ -182,7 +194,7 @@ rc_t _publishSwitchState(uint8_t number, bool_t value) {
 		data.state = OpenCloseState_closed;
 	}
 
-	Log_debug("Switch %d state %s\n", number, value ? "open" : "closed");
+	Log_debug("Switch 0x%X state %s\n", deviceID, value ? "open" : "closed");
 
 	DDS_ReturnCode_t ddsret;
 

@@ -31,17 +31,17 @@ rc_t Wiedas_SensorApp_Humidity_start();
 rc_t Wiedas_SensorApp_Humidity_dowork();
 rc_t Wiedas_SensorApp_Humidity_process();
 
-rc_t Wiedas_SensorApp_Door_init(uint8_t number); // ok
-rc_t Wiedas_SensorApp_Door_start(uint8_t number);
-rc_t Wiedas_SensorApp_Door_dowork(uint8_t number);
+rc_t Wiedas_SensorApp_Door_init(uint8_t hwPort, uint16_t deviceID); // ok
+rc_t Wiedas_SensorApp_Door_start(uint8_t hwPort, uint16_t deviceID);
+rc_t Wiedas_SensorApp_Door_dowork(uint8_t hwPort, uint16_t deviceID);
 
-rc_t Wiedas_SensorApp_Window_init(uint8_t number); // ok
-rc_t Wiedas_SensorApp_Window_start(uint8_t number);
-rc_t Wiedas_SensorApp_Window_dowork(uint8_t number);
+rc_t Wiedas_SensorApp_Window_init(uint8_t hwPort, uint16_t deviceID); // ok
+rc_t Wiedas_SensorApp_Window_start(uint8_t hwPort, uint16_t deviceID);
+rc_t Wiedas_SensorApp_Window_dowork(uint8_t hwPort, uint16_t deviceID);
 
-rc_t Wiedas_SensorApp_Switch_init(uint8_t number); // ok
-rc_t Wiedas_SensorApp_Switch_start(uint8_t number);
-rc_t Wiedas_SensorApp_Switch_dowork(uint8_t number);
+rc_t Wiedas_SensorApp_Switch_init(uint8_t hwPort, uint16_t deviceID); // ok
+rc_t Wiedas_SensorApp_Switch_start(uint8_t hwPort, uint16_t deviceID);
+rc_t Wiedas_SensorApp_Switch_dowork(uint8_t number, uint16_t deviceID);
 
 rc_t Wiedas_SensorApp_Battery_init();
 rc_t Wiedas_SensorApp_Battery_start();

@@ -42,39 +42,49 @@ rc_t Wiedas_SensorApp_Light_start(){
 }
 rc_t Wiedas_SensorApp_Light_dowork(){
 
+
+	static uint8_t waitCount = 0;
+
+	if (waitCount < WIEDAS_SENSORAPP_LIGHT_INTERVALL) {
+		waitCount++;
+		return SDDS_RT_OK;
+	} else {
+		waitCount = 0;
+	}
+
 	// get light data
 
 	rc_t ret;
 
-		uint16_t ch0, ch1;
-		ret = TSL2561_getChannels(&ch0, &ch1);
+	uint16_t ch0, ch1;
+	ret = TSL2561_getChannels(&ch0, &ch1);
 
-		if (ret != SDDS_RT_OK) {
-			Log_error("cant read channels of tsl2561 ret %d\n", ret);
-			return ret;
-		}
-		Log_debug("tsl2561: channel 0 %u channel 1 %u \n", ch0, ch1);
+	if (ret != SDDS_RT_OK) {
+		Log_error("cant read channels of tsl2561 ret %d\n", ret);
+		return ret;
+	}
+	Log_debug("tsl2561: channel 0 %u channel 1 %u \n", ch0, ch1);
 
-		uint32_t lux = 0;
-		ret = TSL2561_calculateLux(ch0, ch1, &lux);
-		// cant go wrong
+	uint32_t lux = 0;
+	ret = TSL2561_calculateLux(ch0, ch1, &lux);
+	// cant go wrong
 
-		Log_debug("tsl2561: lux %u 0x%x \n", lux, lux);
+	Log_debug("tsl2561: lux %u 0x%x \n", lux, lux);
 
 
 	// publish light data
-		LightSensor data;
+	LightSensor data;
 
-		data.id = nodeID;
-		data.lux = (uint16_t) lux;
+	data.id = nodeID;
+	data.lux = (uint16_t) lux;
 
-		DDS_ReturnCode_t ddsret;
+	DDS_ReturnCode_t ddsret;
 
-		ddsret = DDS_LightSensorDataWriter_write(g_LightSensor_writer, &data, NULL);
+	ddsret = DDS_LightSensorDataWriter_write(g_LightSensor_writer, &data, NULL);
 
-		if (ddsret != DDS_RETCODE_OK) {
-			return SDDS_RT_FAIL;
-		}
+	if (ddsret != DDS_RETCODE_OK) {
+		return SDDS_RT_FAIL;
+	}
 
 	return SDDS_RT_OK;
 }

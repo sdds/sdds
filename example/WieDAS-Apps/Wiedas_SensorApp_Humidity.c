@@ -20,6 +20,16 @@ rc_t Wiedas_SensorApp_Humidity_start(){
 	return SDDS_RT_OK;
 }
 rc_t Wiedas_SensorApp_Humidity_dowork(){
+
+	static uint8_t waitCount = 0;
+
+	if (waitCount < WIEDAS_SENSORAPP_HUMIDITY_INTERVALL) {
+		waitCount++;
+		return SDDS_RT_OK;
+	} else {
+		waitCount = 0;
+	}
+
 	return SDDS_RT_OK;
 }
 rc_t Wiedas_SensorApp_Humidity_process(){

@@ -131,10 +131,18 @@ rc_t _publishMovement(bool_t value) {
 rc_t Wiedas_SensorApp_Movement_dowork() {
 
 
+	static uint8_t waitCount = 0;
+
+	if (waitCount < WIEDAS_SENSORAPP_MOVEMENT_INTERVALL) {
+		waitCount++;
+		return SDDS_RT_OK;
+	} else {
+		waitCount = 0;
+	}
+
 	// read sensor
 	bool_t movement = 0;
 
-	//AMN31112_readMovement(&movement);
 
 	rc_t ret;
 

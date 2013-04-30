@@ -30,9 +30,11 @@ rc_t Wiedas_SensorApp_Temperature_dowork() {
 	rc_t ret;
 	static bool_t meas_state = true;
 
+	static waitCount = 0;
+
 	// interleaving start measurement and send value
 	
-	if (meas_state == true) {
+	if ( waitCount + 1 ==  WIEDAS_SENSORAPP_TEMPERATUR_INTERVALL) {
 		// first start messurement
 	
 		ret = DS18X20_start_meassurement();
@@ -42,10 +44,18 @@ rc_t Wiedas_SensorApp_Temperature_dowork() {
 			return SDDS_RT_FAIL;
 		}
 		Log_debug("Started temp measurement\n");
-
-		meas_state = false;
-		return SDDS_RT_OK;
 	}
+
+
+
+
+	if (waitCount < WIEDAS_SENSORAPP_TEMPERATUR_INTERVALL) {
+		waitCount++;
+		return SDDS_RT_OK;
+	} else {
+		waitCount = 0;
+	}
+
 
 	// else get data an publish it
 

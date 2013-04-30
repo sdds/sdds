@@ -77,6 +77,17 @@ rc_t Wiedas_SensorApp_OnOffOutput_start() {
 }
 rc_t Wiedas_SensorApp_OnOffOutput_dowork() {
 
+
+	static waitCount = 0;
+
+	if (waitCount < WIEDAS_SENSORAPP_ONOFFOUTPUT_INTERVALL) {
+		waitCount++;
+		return SDDS_RT_OK;
+	} else {
+		waitCount = 0;
+	}
+
+
 	bool_t state = relay_get_state();
 
 	OnOffOutput sw;

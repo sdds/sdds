@@ -106,6 +106,15 @@ rc_t Wiedas_SensorApp_DimmerLamp_start(){
 }
 rc_t Wiedas_SensorApp_DimmerLamp_dowork(){
 
+
+	static waitCount = 0;
+
+	if (waitCount < WIEDAS_SENSORAPP_DIMMERLAMP_INTERVALL) {
+		waitCount++;
+		return SDDS_RT_OK;
+	} else {
+		waitCount = 0;
+	}
 	// get status of lamp an dimm value
 
 	bool_t state;
