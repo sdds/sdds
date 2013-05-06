@@ -107,7 +107,7 @@ rc_t Wiedas_SensorApp_DimmerLamp_start(){
 rc_t Wiedas_SensorApp_DimmerLamp_dowork(){
 
 
-	static waitCount = 0;
+	static uint8_t waitCount = 0;
 
 	if (waitCount < WIEDAS_SENSORAPP_DIMMERLAMP_INTERVALL) {
 		waitCount++;

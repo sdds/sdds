@@ -38,6 +38,8 @@ static uint16_t devIDArray[3];
 
 PROCESS(wiedas_switch_callback_handler, "WieDAS Switch IRQ handler");
 static struct etimer switch_detection_timer;
+static struct etimer switch_event_resend_timer;
+
 
 
 void Switch_CallBack_handler( GPIO_Input _this, bool_t state);
@@ -168,6 +170,11 @@ PROCESS_THREAD(wiedas_switch_callback_handler, ev, data)
     		//Log_debug("Switch %d state changed to %s\n", number, prevalue ? "open" : "closed");
     		_publishSwitchState(devIDArray[number], prevalue);
     	}
+
+		// hack to resend the message after 50ms for the case of a lost frame
+		etimer_set(&switch_event_resend_timer, CLOCK_SECOND/20);
+		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&switch_event_resend_timer));
+    	_publishSwitchState(devIDArray[number], prevalue);
 
 
     	GPIO_Input_activateInterrupt(&inputs[number]);
