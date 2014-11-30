@@ -2,7 +2,8 @@
  * BuiltinTopic.h
  *
  *  Created on: Jul 19, 2010
- *      Author: kai
+ *      Author: Kai Beckmann
+ *      Author: Kevin Sapper
  */
 
 #ifndef BUILTINTOPIC_H_
@@ -10,38 +11,37 @@
 
 #include "sdds_types.h"
 #include "Locator.h"
+#include "LocatorDB.h"
 #include "dds/DDS_DCPS.h"
 #include "NetBuffRef.h"
+#include "DataSink.h"
+#include "Network.h"
 
-// should be defined in the plattform specific network impl
-extern Locator builtinTopicNetAddress;
+/* The last character is used for the terminating \0 */
+#define TOPIC_NAME_SIZE 26
+#define TOPIC_TYPE_SIZE 26
 
-/**
- * Data for the builtintopics:
- *
- * There should be information about the qos as well
- *
- * DomainParticipant:
- * 	Non
- *
- * Topic:
- * 	DomainID (size?)
- * 	TopicID  (size?)
- *
- * DataWriter:
- * 	DomainID
- * 	TopicID
- *
- * DataReader:
- * 	DomainID
- * 	TopicID
- *
- */
+extern DDS_DataReader g_DCPSParticipant_reader;
+extern DDS_DataWriter g_DCPSParticipant_writer;
+extern DDS_Topic g_DCPSParticipant_topic;
+//extern DCPSParticipant_data_t g_DCPSParticipant_pool[sDDS_TOPIC_APP_MSG_COUNT];
 
+extern DDS_DataReader g_DCPSTopic_reader;
+extern DDS_DataWriter g_DCPSTopic_writer;
+extern DDS_Topic g_DCPSTopic_topic;
+//extern DCPSTopic_data_t g_DCPSTopic_pool[sDDS_TOPIC_APP_MSG_COUNT];
 
-// IF APP IFACE + BUILTINTOPIC?
+extern DDS_DataReader g_DCPSPublication_reader;
+extern DDS_DataWriter g_DCPSPublication_writer;
+extern DDS_Topic g_DCPSPublication_topic;
+//extern DCPSPublication_data_t g_DCPSPublication_pool[sDDS_TOPIC_APP_MSG_COUNT];
 
-typedef  uint8_t BuiltinTopicKey_t;
+extern DDS_DataReader g_DCPSSubscription_reader;
+extern DDS_DataWriter g_DCPSSubscription_writer;
+extern DDS_Topic g_DCPSSubscription_topic;
+//extern DCPSSubscription_data_t g_DCPSSubscription_pool[sDDS_TOPIC_APP_MSG_COUNT];
+
+typedef uint8_t BuiltinTopicKey_t;
 
 struct DDS_DCPSParticipant_t {
     BuiltinTopicKey_t key;
@@ -50,72 +50,97 @@ struct DDS_DCPSParticipant_t {
     // ENDIF
 };
 typedef struct DDS_DCPSParticipant_t DDS_DCPSParticipant;
-/*
+
 DDS_ReturnCode_t DDS_DCPSParticipantDataReader_take_next_sample (
 	    DDS_DataReader _this,
 	    DDS_DCPSParticipant** data_values,
 	    DDS_SampleInfo *sample_info);
-*/
+
+DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
+	DDS_DataWriter _this,
+	const DDS_DCPSParticipant* instance_data,
+	const DDS_InstanceHandle_t handle
+);
+
 struct DDS_DCPSTopic_t {
     BuiltinTopicKey_t key;
-    DDS_string name;
-    DDS_string type_name;
+    DDS_char name[TOPIC_NAME_SIZE];
+    DDS_char type_name[TOPIC_TYPE_SIZE];
     // IF QOS AND Foo
     // TODO
     // ENDIF
 };
 typedef struct DDS_DCPSTopic_t DDS_DCPSTopic;
-/*
+
 DDS_ReturnCode_t DDS_DCPSTopicDataReader_take_next_sample (
 	    DDS_DataReader _this,
 	    DDS_DCPSTopic** data_values,
 	    DDS_SampleInfo *sample_info);
-*/
+
+DDS_ReturnCode_t DDS_DCPSTopicDataWriter_write(
+	DDS_DataWriter _this,
+	const DDS_DCPSTopic* instance_data,
+	const DDS_InstanceHandle_t handle
+);
+
+
 struct DDS_DCPSPublication_t {
     BuiltinTopicKey_t key;
     BuiltinTopicKey_t participant_key;
-    DDS_string topic_name;
-    DDS_string type_name;
+    DDS_char topic_name[TOPIC_NAME_SIZE];
+    DDS_char type_name[TOPIC_TYPE_SIZE];
     // IF QOS AND FOO
     // TODO
     // ENDIF
 };
 typedef struct DDS_DCPSPublication_t  DDS_DCPSPublication;
 
-/*
+
 DDS_ReturnCode_t DDS_DCPSPublicationDataReader_take_next_sample (
 	    DDS_DataReader _this,
 	    DDS_DCPSPublication** data_values,
 	    DDS_SampleInfo *sample_info);
-*/
+
+DDS_ReturnCode_t DDS_DCPSPublicationDataWriter_write(
+	DDS_DataWriter _this,
+	const DDS_DCPSPublication* instance_data,
+	const DDS_InstanceHandle_t handle
+);
+
 
 struct DDS_DCPSSubscription_t {
     BuiltinTopicKey_t key;
     BuiltinTopicKey_t participant_key;
-    DDS_string topic_name;
-    DDS_string type_name;
+    DDS_char topic_name[TOPIC_NAME_SIZE];
+    DDS_char type_name[TOPIC_TYPE_SIZE];
     // IF QOS AND FOO
     // TODO
     // ENDIF
 };
 typedef struct DDS_DCPSSubscription_t DDS_DCPSSubscription;
 
-/*
+
 DDS_ReturnCode_t DDS_DCPSSubscriptionDataReader_take_next_sample (
 	    DDS_DataReader _this,
 	    DDS_DCPSSubscription** data_values,
 	    DDS_SampleInfo *sample_info);
-*/
+
+DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
+	DDS_DataWriter _this,
+	const DDS_DCPSSubscription* instance_data,
+	const DDS_InstanceHandle_t handle
+);
 
 // ENDIF APP + BUILTINTOPIC
 
-
-#define SDDS_BUILTINTOPIC_PARTICIPANT_TOPIC_ID 	0x01
-#define SDDS_BUILTINTOPIC_TOPIC_TOPIC_ID	0x02
-#define SDDS_BUILTINTOPIC_PUBLICATION_TOPIC_ID	0x03
-#define SDDS_BUILTINTOPIC_SUBSCRIPTION_TOPIC_ID	0x04
-
-
+#define DCPS_PARTICIPANT_DOMAIN 0x0
+#define DCPS_PARTICIPANT_TOPIC 0x01
+#define DCPS_TOPIC_DOMAIN 0x0
+#define DCPS_TOPIC_TOPIC 0x02
+#define DCPS_PUBLICATION_DOMAIN 0x0
+#define DCPS_PUBLICATION_TOPIC 0x03
+#define DCPS_SUBSCRIPTION_DOMAIN 0x0
+#define DCPS_SUBSCRIPTION_TOPIC 0x04
 
 
 rc_t BuiltinTopic_init(void);

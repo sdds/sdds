@@ -51,7 +51,7 @@ CFLAGS += -std=c99
 CFLAGS += -D_BSD_SOURCE
 
 CFLAGS += -pthread
-LDLIBS += -lrt
+LDLIBS += -lrt -lpthread
 endif
 
 ifeq ($(SDDS_PLATFORM),contiki)

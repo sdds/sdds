@@ -1,0 +1,3 @@
+#define _MULTICAST
+#define _DEBUG
+#define sDDS_BUILTIN_TOPICS_ENABLED

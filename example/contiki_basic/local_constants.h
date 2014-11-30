@@ -1,0 +1,1 @@
+#define sDDS_TOPIC_HAS_PUB

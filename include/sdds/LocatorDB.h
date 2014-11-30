@@ -46,6 +46,7 @@ rc_t LocatorDB_newLocator(Locator* loc);
 rc_t LocatorDB_findLocator(Locator toFind, Locator* loc);
 rc_t LocatorDB_freeLocator(Locator loc);
 rc_t LocatorDB_isUsedLocator(Locator loc);
+rc_t LocatorDB_newMultiLocator(Locator* loc);
 
 
 

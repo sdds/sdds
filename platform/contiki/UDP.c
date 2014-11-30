@@ -232,3 +232,9 @@ rc_t Network_createLocator(Locator* locator)
 	return Network_setAddressToLocator(*locator, SDDS_CONTIKI_SEND_ADDRESS);
 
 }
+
+rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr) 
+{
+  // TODO
+  return SDDS_RT_OK;  
+}

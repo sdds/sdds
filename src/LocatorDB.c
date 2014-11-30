@@ -43,7 +43,7 @@ rc_t LocatorDB_init() {
 // TODO this should be mutexed!
 // or is only the network able to create new locators?
 rc_t LocatorDB_newLocator(Locator* loc) {
-	if (db.freeLoc == 0) {
+    if (db.freeLoc == 0) {
 		return SDDS_LOCATORDB_RT_NOFREELOCATORS;
 	}
 	db.freeLoc--;
@@ -58,6 +58,29 @@ rc_t LocatorDB_newLocator(Locator* loc) {
 			break;
 		}
 	}
+    (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
+	(*loc)->next = NULL;
+
+	return SDDS_RT_OK;
+}
+
+rc_t LocatorDB_newMultiLocator(Locator* loc) {
+    if (db.freeLoc == 0) {
+		return SDDS_LOCATORDB_RT_NOFREELOCATORS;
+	}
+	db.freeLoc--;
+	// set is NULL so can use it to mark if we found one
+	*loc = NULL;
+	// search for locator witch is not referenced somewhere
+	// could also be an empty one
+	for (int i = 0; i < sDDS_NET_MAX_LOCATOR_COUNT; i++) {
+		// check if ref counter is zero
+		if (db.pool[i]->refCount == 0) {
+			*loc = db.pool[i];
+			break;
+		}
+	}
+    (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
 	(*loc)->next = NULL;
 
 	return SDDS_RT_OK;

@@ -278,7 +278,7 @@ rc_t checkTopic(NetBuffRef buff, topicid_t topic)
 
 rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef buf)
 {
-    SNPS_writeTopic(buf, SDDS_BUILTINTOPIC_SUBSCRIPTION_TOPIC_ID);
+    SNPS_writeTopic(buf, DCPS_SUBSCRIPTION_TOPIC);
     for (uint8_t i = 0; i < sDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i ++){
     	SNPS_writeData(buf, BuiltinTopicDataReader_encode, (Data) &(dataSink->readers[i]));
     }

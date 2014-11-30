@@ -29,6 +29,7 @@ rc_t Marshalling_enc_int16(byte_t* buff, int16_t* d);
 rc_t Marshalling_enc_uint16(byte_t* buff, uint16_t* d);
 rc_t Marshalling_enc_int32(byte_t* buff, int32_t* d);
 rc_t Marshalling_enc_uint32(byte_t* buff, uint32_t* d);
+rc_t Marshalling_enc_string(byte_t* buff, uint8_t* d, int size);
 //rc_t Marshalling_enc_int64(byte_t* buff, int64_t* d);
 //rc_t Marshalling_enc_uint64(byte_t* buff, uint64_t* d);
 
@@ -39,6 +40,7 @@ rc_t Marshalling_dec_int16(byte_t* buff, int16_t* d);
 rc_t Marshalling_dec_uint16(byte_t* buff, uint16_t* d);
 rc_t Marshalling_dec_int32(byte_t* buff, int32_t* d);
 rc_t Marshalling_dec_uint32(byte_t* buff, uint32_t* d);
+rc_t Marshalling_dec_string(byte_t* buff, uint8_t* d, int size);
 //rc_t Marshalling_dec_int64(byte_t* buff, int64_t* d);
 //rc_t Marshalling_dec_uint64(byte_t* buff, uint64_t* d);
 

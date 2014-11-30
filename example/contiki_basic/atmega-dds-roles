@@ -2,4 +2,7 @@ endian: little
 
 
 [test]
-publisher fe80::12:13ff:fe14:2323
+publisher ff02::1514
+
+[beta]
+publisher fe80::12:13ff:fe16:1514

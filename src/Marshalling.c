@@ -43,6 +43,18 @@ rc_t Marshalling_enc_bool(byte_t* buff, bool_t* d)
     encode(buff, (byte_t*)d, sizeof(bool_t));
     return SDDS_RT_OK;
 }
+rc_t Marshalling_enc_string(byte_t* buff, uint8_t* d, int size)
+{
+    int i;
+    rc_t ret;
+
+    for(i = 0; i < size; i++) {
+        ret = Marshalling_enc_uint8(buff + i, d + i);
+        if(ret != SDDS_RT_OK)
+            return SDDS_RT_FAIL;
+    }
+    return SDDS_RT_OK;
+}
 rc_t Marshalling_enc_int8(byte_t* buff, int8_t* d)
 {
     encode(buff, (byte_t*)d, sizeof(int8_t));
@@ -97,6 +109,20 @@ rc_t Marshalling_enc_uint64(byte_t* buff, uint64_t* d)
 rc_t Marshalling_dec_bool(byte_t* buff, bool_t* d)
 {
     decode(buff, (byte_t*) d, sizeof(bool_t));
+    return SDDS_RT_OK;
+}
+rc_t Marshalling_dec_string(byte_t* buff, uint8_t* d, int size) {
+    int i;
+    rc_t ret;
+
+    for(i = 0; i < size; i++) {
+        ret = Marshalling_dec_uint8(buff + i, d + i);
+        if(ret == SDDS_RT_FAIL)
+            return SDDS_RT_FAIL;
+
+    }
+    d[i + 1] = '\0';
+
     return SDDS_RT_OK;
 }
 rc_t Marshalling_dec_int8(byte_t* buff, int8_t* d)

@@ -35,7 +35,7 @@ typedef float64_t	DDS_double;
 typedef char_t		DDS_char;
 typedef uint8_t		DDS_octet;
 typedef bool_t		DDS_boolean;
-typedef DDS_char*	DDS_string;
+typedef char_t  	DDS_string;
 
 typedef int16_t		DDS_ReturnCode_t;
 

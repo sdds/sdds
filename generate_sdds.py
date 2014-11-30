@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 
 decl_headers = r"""
@@ -29,6 +30,7 @@ rc_t sDDS_init(void)
 	DataSource_init();
 	DataSink_init();
 	Network_init();
+	BuiltinTopic_init();
 	
     int log_level = 3;
 
@@ -310,8 +312,13 @@ fconstants.write(r"""
 
 #define sDDS_LOCAL_BYTEORDER_%(byte_order)s_ENDIAN
 #define sDDS_NET_VERSION 0x01
+#ifdef sDDS_BUILTIN_TOPICS_ENABLED
+#define sDDS_MAX_DATA_WRITERS %(data_writers_builtin)s
+#define sDDS_MAX_DATA_READERS %(data_readers_builtin)s
+#else
 #define sDDS_MAX_DATA_WRITERS %(data_writers)s
 #define sDDS_MAX_DATA_READERS %(data_readers)s
+#endif
 
 #ifndef sDDS_NET_MAX_OUT_QUEUE
 #define sDDS_NET_MAX_OUT_QUEUE 2
@@ -334,7 +341,12 @@ fconstants.write(r"""
 #define sDDS_TOPIC_APP_MSG_COUNT 5
 #endif /* sDDS_TOPIC_APP_MSG_COUNT */
 
+#ifdef sDDS_BUILTIN_TOPICS_ENABLED
+#define sDDS_TOPIC_MAX_COUNT %(max_topics_builtin)d
+#else
 #define sDDS_TOPIC_MAX_COUNT %(max_topics)d
+#endif
+
 #define sDDS_MNG_WORKER_CYCLE_TIME 10000
 #define sDDS_MNG_BUILTINT_PUBCYCLE_PRESCALER 2
 
@@ -460,8 +472,8 @@ fconstants.write(r"""
 #endif
 """[1:] % \
 { \
-	'byte_order': byte_order.upper(), 'data_writers': data_writers, \
-	'data_readers': data_readers, 'any_subscriptions': any_subscriptions, \
+	'byte_order': byte_order.upper(), 'data_writers': data_writers, 'data_writers_builtin': data_writers + 4, \
+	'data_readers': data_readers, 'data_readers_builtin': data_readers + 4, 'any_subscriptions': any_subscriptions, \
 	'any_publications': any_publications, 'up_name': impl_name.upper(), \
-	'max_topics': len(datastructures), 'extended_topic_support' : extended_topic_support \
+	'max_topics': len(datastructures), 'max_topics_builtin': len(datastructures) + 4, 'extended_topic_support' : extended_topic_support \
 })

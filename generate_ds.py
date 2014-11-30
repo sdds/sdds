@@ -16,7 +16,7 @@ valid_types = [ \
 	('DDS_char', 1, 'int8'),
 	('DDS_octet', 1, 'uint8'),
 	('DDS_boolean', 1, 'bool'),
-	('DDS_string', 4, None)
+	('DDS_string', 0, 'string')
 ]
 
 valid_typenames = []
@@ -231,6 +231,8 @@ rc_t TopicMarshalling_%(cap_name)s_decode(byte_t* buffer, Data data, size_t* siz
 
 def generate_marshalling(encdec, data):
 	string = ''
+        ampersand = '&'
+        sizeparam = ''
 
 	type__ = None
 
@@ -246,11 +248,15 @@ def generate_marshalling(encdec, data):
 		print 'no decoder or encoder for %s' % type__[0]
 		sys.exit(1)
 
+	if type__[0] == 'DDS_string':
+                ampersand = ''
+                sizeparam = r""", %(size)s""" % {'size': data[2]}
+
 	string = r"""
-	Marshalling_%(encdec)s_%(decoder)s(buffer + *size, &real_data->%(varname)s);
+	Marshalling_%(encdec)s_%(decoder)s(buffer + *size, %(ampersand)sreal_data->%(varname)s%(size)s);
 	*size += sizeof(real_data->%(varname)s);
 
-""" % {'decoder': type__[2], 'encdec': encdec, 'varname': data[1]}
+""" % {'decoder': type__[2], 'encdec': encdec, 'ampersand': ampersand, 'varname': data[1], 'size': sizeparam}
 
 	return string[1:]
 
@@ -270,7 +276,8 @@ def make_data(data, datastructure, datastructures, finalize = True):
 	empty_data = {
 		'type': None,
 		'variable': None,
-		'comments': []
+		'comments': [],
+                'arraysize': None
 	}
 
 	if data:
@@ -297,8 +304,13 @@ def make_data(data, datastructure, datastructures, finalize = True):
 					if type_[0] == data['type']:
 						datastructure['size'] += type_[1]
 
-				datastructure['struct_data'] += '	%s %s;\n' % (data['type'], data['variable'])
-				marshalling_data = [ data['type'], data['variable'] ]
+                                if data['arraysize'] and data['type'] == 'DDS_string':
+                                        datastructure['struct_data'] += '	%s %s[%s];\n' % ('DDS_char', data['variable'], int(data['arraysize'])+1)
+					datastructure['size'] += int(data['arraysize'])
+				else:
+                                        datastructure['struct_data'] += '	%s %s;\n' % (data['type'], data['variable'])
+
+				marshalling_data = [ data['type'], data['variable'], data['arraysize'] ]
 
 				datastructure['marshalling']['enc'] += generate_marshalling('enc', marshalling_data)
 				datastructure['marshalling']['dec'] += generate_marshalling('dec', marshalling_data)
@@ -395,8 +407,8 @@ def generate_datastructures(filename):
 			array_end = data['variable'].find(']')
 
 			if array_begin != -1 and array_end != -1 and array_end > array_begin:
-				print "%s is an array and not supported yet" % data['variable']
-				sys.exit(1)
+                                data['arraysize'] = data['variable'][array_begin+1:array_end]
+                                data['variable'] = data['variable'][0:array_begin]
 
 			(data, datastructure) = make_data(data, datastructure, datastructures, False)
 

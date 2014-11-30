@@ -77,7 +77,7 @@ bool_t TopicDB_checkTopic(topicid_t topic)
 // Impl for the BuiltinTopic
 rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef buf)
 {
-    SNPS_writeTopic(buf, SDDS_BUILTINTOPIC_TOPIC_TOPIC_ID);
+    SNPS_writeTopic(buf, DCPS_TOPIC_TOPIC);
 
     for (uint8_t i = 0; i < topicdb.topicCount; i++){
 	SNPS_writeData(buf, BuiltinTopicTopic_encode, (Data) &(topicdb.db[i]));

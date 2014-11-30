@@ -19,6 +19,8 @@
 #ifndef  SDDS_TYPES_H_INC
 #define  SDDS_TYPES_H_INC
 
+#define  SDDS_STRING_BYTES 10
+
 #ifdef _ECLIPSE_DEV_
 #include "CONSTANTS.h"
 #endif // _ECLIPSE_DEV_

@@ -3,3 +3,10 @@ domain: 0
 topic: 1
 
 DDS_short testvalue
+DDS_short testvalue2
+
+[beta]
+domain: 0
+topic: 8 
+
+DDS_short testvalue

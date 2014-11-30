@@ -112,5 +112,6 @@ rc_t Topic_addRemoteDataSource(Topic _this, Locator addr);
 rc_t Topic_removeRemoteDataSink(Topic _this, Locator addr);
 #endif
 
+//rc_t Topic_addRemoteDataSink(Topic _this, Locator addr);
 
 #endif   /* ----- #ifndef TOPIC_H_INC  ----- */
