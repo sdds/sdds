@@ -47,7 +47,7 @@ struct %(cap_name)s
 
 typedef struct %(cap_name)s %(cap_name)s;
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 DDS_ReturnCode_t DDS_%(cap_name)sDataReader_take_next_sample(
 %(indent)sDDS_DataReader _this,
 %(indent)s%(cap_name)s** values,
@@ -56,7 +56,7 @@ DDS_ReturnCode_t DDS_%(cap_name)sDataReader_take_next_sample(
 
 #endif
 
-#ifdef sDDS_TOPIC_HAS_SUB
+#ifdef SDDS_TOPIC_HAS_SUB
 DDS_ReturnCode_t DDS_%(cap_name)sDataWriter_write(
 %(indent)sDDS_DataWriter _this,
 %(indent)sconst %(cap_name)s* instance_data,
@@ -102,13 +102,13 @@ extern "C"
 }
 #endif
 
-#define sDDS_DOMAIN %(sdds_domain)s
-#define sDDS_TOPIC %(sdds_topic)s
+#define SDDS_DOMAIN %(sdds_domain)s
+#define SDDS_TOPIC %(sdds_topic)s
 
 
 rc_t TopicMarshalling_%(cap_name)s_cpy(Data dest, Data source);
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 
 rc_t TopicMarshalling_%(cap_name)s_decode(byte_t* buffer, Data data, size_t* size);
 
@@ -144,7 +144,7 @@ DDS_ReturnCode_t DDS_%(cap_name)sDataReader_set_listener(
 */
 #endif
 
-#ifdef sDDS_TOPIC_HAS_SUB
+#ifdef SDDS_TOPIC_HAS_SUB
 
 rc_t TopicMarshalling_%(cap_name)s_encode(byte_t* buffer, Data data, size_t* size);
 
@@ -173,17 +173,17 @@ Topic sDDS_%(cap_name)sTopic_create(%(cap_name)s* pool, int count)
 	for (int i = 0; i < count; i++)
 		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
 
-#ifdef sDDS_TOPIC_HAS_SUB
+#ifdef SDDS_TOPIC_HAS_SUB
 	topic->Data_encode = TopicMarshalling_%(cap_name)s_encode;
 	//topic->dsinks.list = locator;
 #endif
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 	topic->Data_decode = TopicMarshalling_%(cap_name)s_decode;
 #endif
 
-	topic->domain = sDDS_DOMAIN;
-	topic->id = sDDS_TOPIC;
+	topic->domain = SDDS_DOMAIN;
+	topic->id = SDDS_TOPIC;
 	topic->Data_cpy = TopicMarshalling_%(cap_name)s_cpy;
 
 	return topic;

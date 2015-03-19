@@ -35,31 +35,31 @@
 #include <unistd.h>
 
 // taking into account ipv4 tunneling features
-#define IPV6_MAX_CHAR_LEN 45
+#define PLATFORM_LINUX_IPV6_MAX_CHAR_LEN 45
 
-#ifndef SDDS_LINUX_PORT
-#define SDDS_LINUX_PORT 23234
+#ifndef PLATFORM_LINUX_SDDS_PORT
+#define PLATFORM_LINUX_SDDS_PORT 23234
 #endif
 
-#ifndef SDDS_LINUX_PROTOCOL
+#ifndef PLATFORM_LINUX_SDDS_PROTOCOL
 // only use AF_INET or AF_INET6
-#define SDDS_LINUX_PROTOCOL AF_INET6
+#define PLATFORM_LINUX_SDDS_PROTOCOL AF_INET6
 #endif
 
-#ifndef SDDS_BUILTIN_MULTICAST_ADDRESS
+#ifndef PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS
 // use default link local ipv6 address
-#define SDDS_BUILTIN_MULTICAST_ADDRESS "ff02::01:10"
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS "ff02::01:10"
 #endif
 
-#define SDDS_BUILTIN_MULTICAST_PORT_OFF 50
-#define MULTICAST_SO_RCVBUF 1200000
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF 50
+#define PLATFORM_LINUX_MULTICAST_SO_RCVBUF 1200000
 
-#ifndef SDDS_LINUX_LISTEN_ADDRESS
-#define SDDS_LINUX_LISTEN_ADDRESS "::"
+#ifndef PLATFORM_LINUX_SDDS_LISTEN_ADDRESS
+#define PLATFORM_LINUX_SDDS_LISTEN_ADDRESS "::"
 #endif
 
-#ifndef SDDS_LINUX_SEND_ADDRESS
-#define SDDS_LINUX_SEND_ADDRESS "::1"
+#ifndef PLATFORM_LINUX_SDDS_SEND_ADDRESS
+#define PLATFORM_LINUX_SDDS_SEND_ADDRESS "::1"
 #endif
 
 struct Network_t {
@@ -109,17 +109,17 @@ rc_t Multicast_out_init(void)
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags    = AI_NUMERICHOST;
 
-  int multicastPort = net.port + SDDS_BUILTIN_MULTICAST_PORT_OFF;
-  char* service = calloc(IPV6_MAX_CHAR_LEN, sizeof(char));
+  int multicastPort = net.port + PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF;
+  char* service = calloc(PLATFORM_LINUX_IPV6_MAX_CHAR_LEN, sizeof(char));
   sprintf(service, "%d", multicastPort);
 
-  if (getaddrinfo(SDDS_BUILTIN_MULTICAST_ADDRESS, service, &hints, &multicastAddr) != 0)
+  if (getaddrinfo(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS, service, &hints, &multicastAddr) != 0)
   {
     Log_error("mcastout getaddrinfo() failed"); 
     return SDDS_RT_FAIL;
   }
 
-  #ifdef _DEBUG
+  #ifdef UTILS_DEBUG
     Log_debug("Using %s\n", multicastAddr->ai_family == PF_INET6 ? "IPv6" : "IPv4");
   #endif
 
@@ -158,7 +158,7 @@ rc_t Multicast_in_init(void)
   hints.ai_family = PF_UNSPEC;
   hints.ai_flags  = AI_NUMERICHOST;
   int status;
-  if ( getaddrinfo(SDDS_BUILTIN_MULTICAST_ADDRESS, NULL, &hints, &multicastAddr) != 0 )
+  if ( getaddrinfo(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS, NULL, &hints, &multicastAddr) != 0 )
   {
     Log_error("mcastin getaddrinfo() failed");
     return SDDS_RT_FAIL;
@@ -170,8 +170,8 @@ rc_t Multicast_in_init(void)
   hints.ai_family   = multicastAddr->ai_family;
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags    = AI_PASSIVE; /* Return an address we can bind to */
-  int multicastPort = net.port + SDDS_BUILTIN_MULTICAST_PORT_OFF;
-  char* service = calloc(IPV6_MAX_CHAR_LEN, sizeof(char));
+  int multicastPort = net.port + PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF;
+  char* service = calloc(PLATFORM_LINUX_IPV6_MAX_CHAR_LEN, sizeof(char));
   sprintf(service, "%d", multicastPort);
   if ( getaddrinfo(NULL, service, &hints, &localAddr) != 0 ) 
   {
@@ -210,7 +210,7 @@ rc_t Multicast_in_init(void)
     return SDDS_RT_FAIL;
   }
   dfltrcvbuf = optval;
-  optval = MULTICAST_SO_RCVBUF;
+  optval = PLATFORM_LINUX_MULTICAST_SO_RCVBUF;
   if( setsockopt(net.fd_multi_socket_in, SOL_SOCKET, SO_RCVBUF, (char*) &optval, sizeof(optval)) != 0 ) 
   {
     Log_error("mcastin setsockopt");
@@ -222,7 +222,7 @@ rc_t Multicast_in_init(void)
     return SDDS_RT_FAIL;
   }
   Log_debug("tried to set socket receive buffer from %d to %d, got %d\n",
-	  dfltrcvbuf, MULTICAST_SO_RCVBUF, optval);
+	  dfltrcvbuf, PLATFORM_LINUX_MULTICAST_SO_RCVBUF, optval);
 
   /* Join the multicast group. 
    * We do this seperately depending on whether we are using IPv4 or IPv6. 
@@ -304,7 +304,7 @@ rc_t Network_init(void)
 	struct addrinfo hints;
 	char port_buffer[6];
 
-	net.port = SDDS_LINUX_PORT;
+	net.port = PLATFORM_LINUX_SDDS_PORT;
 
 	// clear hints, no dangling fields
 	memset(&hints, 0, sizeof hints);
@@ -314,10 +314,10 @@ rc_t Network_init(void)
 
 	// returned addresses will be used to create datagram sockets
 	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_family = SDDS_LINUX_PROTOCOL;
+	hints.ai_family = PLATFORM_LINUX_SDDS_PROTOCOL;
 	hints.ai_flags = AI_PASSIVE;
 
-	int gai_ret = getaddrinfo(SDDS_LINUX_SEND_ADDRESS, port_buffer, &hints, &address);
+	int gai_ret = getaddrinfo(PLATFORM_LINUX_SDDS_SEND_ADDRESS, port_buffer, &hints, &address);
 	if (gai_ret != 0)
 	{
 		Log_error("can't obtain suitable addresses for listening\n");
@@ -362,12 +362,12 @@ rc_t Network_init(void)
 	l->loc.next = NULL;
 
 	// save broadcast address for ipv4 or multicast for ipv6
-#if SDDS_LINUX_PROTOCOL == AF_INET
+#if PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET
 	struct sockaddr_in *addr = (struct sockaddr_in *)&l->addr_storage;
 
 	inet_aton("255.255.255.255", &addr->sin_addr);
 	addr->sin_port = htons(net.port);
-#elif SDDS_LINUX_PROTOCOL == AF_INET6
+#elif PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET6
 	struct sockaddr_in6 *addr = (struct sockaddr_in6 *)&l->addr_storage;
 
 	addr->sin6_family = AF_INET6;
@@ -399,9 +399,9 @@ static int create_socket(struct addrinfo *address)
 		return -1;
 	}
 
-	assert(address->ai_family == SDDS_LINUX_PROTOCOL);
+	assert(address->ai_family == PLATFORM_LINUX_SDDS_PROTOCOL);
 
-#if SDDS_LINUX_PROTOCOL == AF_INET
+#if PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET
 	// IF NET AND BROADCAST
 	int broadcast_permission = 1;
 
@@ -412,7 +412,7 @@ static int create_socket(struct addrinfo *address)
 		return -1;
 	}
 	// ENDIF
-#elif SDDS_LINUX_PROTOCOL == AF_INET6
+#elif PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET6
 	// IPv6 doesn't support broadcasting, use multicast when sending packets
 #else
 #error "Only AF_INET and AF_INET6 are understood linux protocols."
@@ -425,7 +425,7 @@ static int create_socket(struct addrinfo *address)
 		return -1;
 	}
 
-#ifdef _DEBUG
+#ifdef UTILS_DEBUG
 	// show which address was assigned
 	{
 		char address_buffer[NI_MAXHOST];
@@ -617,7 +617,7 @@ void Network_recvFrameHandler(Network _this)
 
 rc_t Network_getFrameBuff(NetFrameBuff* buff)
 {
-	size_t size = sDDS_NET_MAX_BUF_SIZE * sizeof(byte_t);
+	size_t size = SDDS_NET_MAX_BUF_SIZE * sizeof(byte_t);
 	size += sizeof(struct NetFrameBuff_t);
 
 	*buff = Memory_alloc(size);
@@ -627,7 +627,7 @@ rc_t Network_getFrameBuff(NetFrameBuff* buff)
     }
     memset(*buff, 0, size);
 
-    (*buff)->size = sDDS_NET_MAX_BUF_SIZE;
+    (*buff)->size = SDDS_NET_MAX_BUF_SIZE;
     return SDDS_RT_OK;
 }
 
@@ -667,7 +667,7 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr)
 
 	// returned addresses will be used to create datagram sockets
 	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_family = SDDS_LINUX_PROTOCOL;
+	hints.ai_family = PLATFORM_LINUX_SDDS_PROTOCOL;
 
 	int gai_ret = getaddrinfo(addr, port_buffer, &hints, &address);
 
@@ -679,7 +679,7 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr)
 	}
 
 
-#ifdef _DEBUG
+#ifdef UTILS_DEBUG
 	// show which address was assigned
 	{
 		char address_buffer[NI_MAXHOST];
@@ -730,11 +730,11 @@ rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr)
 	memset(&hints, 0, sizeof hints);
 
 	// getaddrinfo wants its port parameter in string form
-	sprintf(port_buffer, "%u", net.port + SDDS_BUILTIN_MULTICAST_PORT_OFF);
+	sprintf(port_buffer, "%u", net.port + PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF);
 
 	// returned addresses will be used to create datagram sockets
 	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_family = SDDS_LINUX_PROTOCOL;
+	hints.ai_family = PLATFORM_LINUX_SDDS_PROTOCOL;
 
 	int gai_ret = getaddrinfo(addr, port_buffer, &hints, &address);
 
@@ -746,7 +746,7 @@ rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr)
 	}
 
 
-#ifdef _DEBUG
+#ifdef UTILS_DEBUG
 	// show which address was assigned
 	{
 		char address_buffer[NI_MAXHOST];
@@ -794,7 +794,7 @@ rc_t Network_createLocator(Locator* loc)
     // set type for recvLoop
 	(*loc)->type = SDDS_LOCATOR_TYPE_UNI;
 
-    return Network_setAddressToLocator(*loc, SDDS_LINUX_SEND_ADDRESS);
+    return Network_setAddressToLocator(*loc, PLATFORM_LINUX_SDDS_SEND_ADDRESS);
 }
 
 rc_t Network_createMulticastLocator(Locator* loc) 
@@ -810,14 +810,14 @@ rc_t Network_createMulticastLocator(Locator* loc)
     // set type for recvLoop
 	(*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
     
-    return Network_setMulticastAddressToLocator(*loc, SDDS_BUILTIN_MULTICAST_ADDRESS);
+    return Network_setMulticastAddressToLocator(*loc, PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS);
 }
 
 bool_t Locator_isEqual(Locator l1, Locator l2)
 {
 	struct UDPLocator_t *a = (struct UDPLocator_t *)l1;
 	struct UDPLocator_t *b = (struct UDPLocator_t *)l2;
-#if SDDS_LINUX_PROTOCOL == AF_INET
+#if PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET
 	struct sockaddr_in *addr[2];
 
 	addr[0] = (struct sockaddr_in *)&a->addr_storage;
@@ -829,7 +829,7 @@ bool_t Locator_isEqual(Locator l1, Locator l2)
 	} else {
 		return false;
 	}
-#elif SDDS_LINUX_PROTOCOL == AF_INET6
+#elif PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET6
 
 	struct sockaddr_in6 *addr[2];
 

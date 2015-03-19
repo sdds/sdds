@@ -20,7 +20,7 @@
 #include "Network.h"
 #include "NetFrameBuff.h"
 
-#ifdef _DEBUG
+#ifdef UTILS_DEBUG
 #include <stdio.h>
 #endif
 
@@ -54,7 +54,7 @@ rc_t NetBuffRef_renew(NetBuffRef _this)
     return SDDS_RT_OK;
 }
 
-#ifdef _DEBUG
+#ifdef UTILS_DEBUG
 void NetBuffRef_print(NetBuffRef _this)
 {
     printf("NetRefBuf Print:\n");

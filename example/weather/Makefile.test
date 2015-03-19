@@ -5,11 +5,11 @@ CONTIKI = ../../../platform/contiki
 
 all:
 	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board avr-atmega128rfa1-write.hex $(MAKEOPTS) \
-	                    USE_DERFMEGA128=1 \
-	                    SDDS_CONTIKI_SEND_ADDRESS="$(JACKDAW)"
+	                    CONFIG_USE_DERFMEGA128=1 \
+	                    PLATFORM_CONTIKI_SDDS_SEND_ADDRESSS="$(JACKDAW)"
 	$(MAKE) -f Makefile BUILD=linux test-write $(MAKEOPTS) \
-	                    SDDS_LINUX_LISTEN_ADDRESS="$(JACKDAW)%usb0" \
-	                    SDDS_LINUX_SEND_ADDRESS="$(BOARD)%usb0"
+	                    PLATFORM_LINUX_SDDS_LISTEN_ADDRESS="$(JACKDAW)%usb0" \
+	                    PLATFORM_LINUX_SDDS_SEND_ADDRESS="$(BOARD)%usb0"
 
 flash:
 	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board flash $(MAKEOPTS)

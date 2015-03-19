@@ -36,12 +36,12 @@ struct datasinks{
 };
 struct Topic_t {
 
-#ifdef sDDS_TOPIC_HAS_SUB
+#ifdef SDDS_TOPIC_HAS_SUB
     struct datasinks dsinks;
     rc_t (*Data_encode)(byte_t* buff, Data data, size_t* size);
 #endif
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
     struct datasources dsources;
 #endif
 
@@ -57,13 +57,13 @@ struct Topic_t {
 typedef struct Topic_t* Topic;
 
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 rc_t Topic_getFreeMsg(Topic _this, Msg* msg);
 rc_t Topic_getNextMsg(Topic _this, Msg* msg);
 rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count);
 #endif
 
-#ifdef sDDS_TOPIC_HAS_SUB
+#ifdef SDDS_TOPIC_HAS_SUB
 /**
  * Add the address/locator object of a remote node as a Data sink,
  * aka receiver of data samples of this, to the topic.
@@ -75,7 +75,7 @@ rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count);
 rc_t Topic_addRemoteDataSink(Topic _this, Locator addr);
 #endif
 
-#if defined (sDDS_TOPIC_HAS_PUB) && (sDDS_TOPIC_DYNAMIC)
+#if defined (SDDS_TOPIC_HAS_PUB) && (SDDS_TOPIC_DYNAMIC)
 /**
  * Remove the address/locator object of a data sink remote node
  * from this topic. The remote datareader wont get any data samples
@@ -88,7 +88,7 @@ rc_t Topic_addRemoteDataSink(Topic _this, Locator addr);
 rc_t Topic_removeRemoteDataSink(Topic _this, Locator addr);
 #endif
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 /**
  * Add a address/locator object of a remote data source node
  * aka. sender/publisher of data samples for this topic, to the
@@ -100,7 +100,7 @@ rc_t Topic_removeRemoteDataSink(Topic _this, Locator addr);
 rc_t Topic_addRemoteDataSource(Topic _this, Locator addr);
 #endif
 
-#if defined (sDDS_TOPIC_HAS_SUB) && (sDDS_TOPIC_DYNAMIC)
+#if defined (SDDS_TOPIC_HAS_SUB) && (SDDS_TOPIC_DYNAMIC)
 /**
  * Remove the address/locator object of a remote data source node
  * from this topic.

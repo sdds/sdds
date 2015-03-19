@@ -25,7 +25,7 @@ int main (int argv, char** argc) {
     time_t curT = time(NULL);
     printf("init: %s\n", ctime(&curT));
 
-    rc = Task_start(t, 5, 0, SSW_TaskMode_single);
+    rc = Task_start(t, 5, 0, SDDS_SSW_TaskMode_single);
     curT = time(NULL);
     printf("started: %s\n", ctime(&curT));
 

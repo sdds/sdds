@@ -7,8 +7,8 @@ APPLICATION_NAME := mywrite
 
 all:
 	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board $(APPLICATION_NAME).hex $(MAKEOPTS) \
-	                    USE_DERFMEGA128=1 \
-	                    SDDS_CONTIKI_SEND_ADDRESS="$(JACKDAW)" \
+	                    CONFIG_USE_DERFMEGA128=1 \
+	                    PLATFORM_CONTIKI_SDDS_SEND_ADDRESSS="$(JACKDAW)" \
 			    UIP_CONF_RPL=0
 
 flash:

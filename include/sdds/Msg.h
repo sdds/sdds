@@ -39,7 +39,7 @@ struct Msg_t {
 };
 
 struct MsgPool{
-    struct Msg_t pool[sDDS_TOPIC_APP_MSG_COUNT];
+    struct Msg_t pool[SDDS_TOPIC_APP_MSG_COUNT];
     uint8_t start; // TODO generate datatype
     uint8_t count;   // TODO generate datatype
 };
@@ -50,7 +50,7 @@ rc_t Msg_getData(Msg _this, Data* data);
 // abstract -> impl in generated file
 size_t Msg_getSize(Msg _this);
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg* msg);
 rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg* msg);
 rc_t MsgPool_getUnreadMsgCount(struct MsgPool* _this, uint8_t* count);

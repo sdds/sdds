@@ -35,7 +35,7 @@ struct DataReader {
 };
 
 struct DataSink_t {
-    DataReader_t readers[sDDS_MAX_DATA_READERS];
+    DataReader_t readers[SDDS_MAX_DATA_READERS];
 
 #if defined(__GNUC__) && __GNUC_MINOR__ < 6
 #pragma GCC diagnostic error "-Woverflow"
@@ -80,7 +80,7 @@ rc_t DataSink_processFrame(NetBuffRef buff)
 	subMsg_t type;
 	SNPS_evalSubMsg(buff, &type);
 	switch (type){
-	    case (SNPS_T_DOMAIN) :
+	    case (SDDS_SNPS_T_DOMAIN) :
 		// check data
 		submitData();
 		domainid_t domain;
@@ -88,15 +88,15 @@ rc_t DataSink_processFrame(NetBuffRef buff)
 		// check domain
 		checkDomain(buff, domain);
 		break;
-	    case (SNPS_T_TOPIC) :
+	    case (SDDS_SNPS_T_TOPIC) :
 		// check data
 		submitData();
 		SNPS_readTopic(buff, &topic);
 		// check topic
 		checkTopic(buff, topic);
 		break;
-	    case (SNPS_T_DATA) :
-#ifdef sDDS_TOPIC_HAS_PUB
+	    case (SDDS_SNPS_T_DATA) :
+#ifdef SDDS_TOPIC_HAS_PUB
 		// check data
 		submitData();
 		ret = parseData(buff);
@@ -104,9 +104,9 @@ rc_t DataSink_processFrame(NetBuffRef buff)
 		    return SDDS_RT_FAIL;
 #endif
 		break;
-//	    case (SNPS_T_TSSIMPLE) :
+//	    case (SDDS_SNPS_T_TSSIMPLE) :
 //		break;
-//	    case (SNPS_T_STATUS) :
+//	    case (SDDS_SNPS_T_STATUS) :
 //		break;
 	    default:
 		// go to next submsg
@@ -123,7 +123,7 @@ rc_t DataSink_processFrame(NetBuffRef buff)
 
     // ggf send events to the applications
 
-    for (uint8_t i = 0; i < sDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i ++){
+    for (uint8_t i = 0; i < SDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i ++){
     	DataReader dr = &(dataSink->readers[i]);
     	int tpc = dr->topic->id;
 		if((topic == tpc) && dr->on_data_avail_listener){
@@ -141,7 +141,7 @@ rc_t DataSink_init(void)
 #pragma GCC diagnostic error "-Woverflow"
 #endif
 
-    dataSink->remaining_datareader = sDDS_MAX_DATA_READERS;
+    dataSink->remaining_datareader = SDDS_MAX_DATA_READERS;
 
 #if defined(__GNUC__) && __GNUC_MINOR__ >= 6
 #pragma GCC diagnostic pop
@@ -149,7 +149,7 @@ rc_t DataSink_init(void)
 
     return SDDS_RT_OK;
 }
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm)
 {
 
@@ -162,8 +162,8 @@ DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, S
     	return NULL;
     }
 
-    dr = &(dataSink->readers[sDDS_MAX_DATA_READERS - dataSink->remaining_datareader]);
-    dr->id = sDDS_MAX_DATA_READERS - dataSink->remaining_datareader;
+    dr = &(dataSink->readers[SDDS_MAX_DATA_READERS - dataSink->remaining_datareader]);
+    dr->id = SDDS_MAX_DATA_READERS - dataSink->remaining_datareader;
 
     dataSink->remaining_datareader--;
 
@@ -174,7 +174,7 @@ DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, S
 }
 #endif
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info)
 {
     Msg msg = NULL;
@@ -226,7 +226,7 @@ rc_t submitData(void)
     return SDDS_RT_OK;
 }
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 rc_t parseData(NetBuffRef buff) {
 	Topic topic;
 	// check if there is a topic provided (should be)
@@ -256,7 +256,7 @@ rc_t parseData(NetBuffRef buff) {
 rc_t checkDomain(NetBuffRef buff, domainid_t domain)
 {
     if (TopicDB_checkDomain(domain) == false ) {
-	SNPS_gotoNextSubMsg(buff, SNPS_T_DOMAIN);
+	SNPS_gotoNextSubMsg(buff, SDDS_SNPS_T_DOMAIN);
     } else {
 	buff->curDomain = domain;
     }
@@ -268,7 +268,7 @@ rc_t checkTopic(NetBuffRef buff, topicid_t topic)
 {
     Topic t_ptr = TopicDB_getTopic(topic);
     if (t_ptr == NULL ) {
-	SNPS_gotoNextSubMsg(buff, SNPS_T_TOPIC);
+	SNPS_gotoNextSubMsg(buff, SDDS_SNPS_T_TOPIC);
     } else {
 	buff->curTopic = t_ptr;
     }
@@ -278,8 +278,8 @@ rc_t checkTopic(NetBuffRef buff, topicid_t topic)
 
 rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef buf)
 {
-    SNPS_writeTopic(buf, DCPS_SUBSCRIPTION_TOPIC);
-    for (uint8_t i = 0; i < sDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i ++){
+    SNPS_writeTopic(buf, DDS_DCPS_SUBSCRIPTION_TOPIC);
+    for (uint8_t i = 0; i < SDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i ++){
     	SNPS_writeData(buf, BuiltinTopicDataReader_encode, (Data) &(dataSink->readers[i]));
     }
 

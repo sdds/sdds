@@ -9,7 +9,7 @@ APPLICATION_NAME := mywrite
 
 all:
 	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board $(APPLICATION_NAME).hex $(MAKEOPTS) \
-	                    SDDS_CONTIKI_SEND_ADDRESS="$(JACKDAW)"
+	                    PLATFORM_CONTIKI_SDDS_SEND_ADDRESSS="$(JACKDAW)"
 
 flash:
 	$(MAKE) -f Makefile CONTIKI=$(CONTIKI) BUILD=sensor_board flash $(MAKEOPTS)

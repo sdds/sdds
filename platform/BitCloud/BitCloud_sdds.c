@@ -42,7 +42,7 @@ struct NetFrameBuff_Wrapper_t {
 
 // declaration of a pool for the network frame buffer
 struct BitCloud_NetworkFramePool_t {
-    struct NetFrameBuff_Wrapper_t pool[1 + sDDS_NET_MAX_OUT_QUEUE];
+    struct NetFrameBuff_Wrapper_t pool[1 + SDDS_NET_MAX_OUT_QUEUE];
     uint8_t max : 4;
     uint8_t size : 4;
 };
@@ -50,13 +50,13 @@ struct BitCloud_NetworkFramePool_t {
 // definition of a static space for the frame pool
 static struct BitCloud_NetworkFramePool_t netFramePool =
 {
-    .max = 1 + sDDS_NET_MAX_OUT_QUEUE,
+    .max = 1 + SDDS_NET_MAX_OUT_QUEUE,
     .size = 0
 };
 
 // declaration of a locator obj pool
 struct BitCloud_LocatorPool_t {
-    struct ZigBeeLocator_t pool[sDDS_NET_MAX_LOCATOR_COUNT+1]; //FIXME
+    struct ZigBeeLocator_t pool[SDDS_NET_MAX_LOCATOR_COUNT+1]; //FIXME
     uint8_t max;
     uint8_t size;
 };
@@ -65,7 +65,7 @@ struct BitCloud_LocatorPool_t {
 
 static struct BitCloud_LocatorPool_t locatorPool =
 {
-	.max = sDDS_NET_MAX_LOCATOR_COUNT,
+	.max = SDDS_NET_MAX_LOCATOR_COUNT,
 	.size = 0
 };
 
@@ -169,7 +169,7 @@ rc_t Network_getFrameBuff(NetFrameBuff* buff)
 
 	struct NetFrameBuff_Wrapper_t* tmp = &(netFramePool.pool[netFramePool.size++]);
 
-	tmp->buf.size = sDDS_NET_MAX_BUF_SIZE;
+	tmp->buf.size = SDDS_NET_MAX_BUF_SIZE;
 
 	*buff = &(tmp->buf);
 

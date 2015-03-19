@@ -30,7 +30,7 @@
 
 struct InstandSender{
     struct NetBuffRef_t highPrio;
-    struct NetBuffRef_t out[sDDS_NET_MAX_OUT_QUEUE];
+    struct NetBuffRef_t out[SDDS_NET_MAX_OUT_QUEUE];
 };
 typedef struct InstandSender InstandSender_t;
 
@@ -41,8 +41,8 @@ struct DataWriter {
 };
 
 struct DataSource{
-#if sDDS_MAX_DATA_WRITERS > 0
-    DataWriter_t writers[sDDS_MAX_DATA_WRITERS];
+#if SDDS_MAX_DATA_WRITERS > 0
+    DataWriter_t writers[SDDS_MAX_DATA_WRITERS];
 #endif
     InstandSender_t sender;
 
@@ -71,7 +71,7 @@ rc_t DataSource_init(void)
 #pragma GCC diagnostic error "-Woverflow"
 #endif
 
-    dataSource->remaining_datawriter = sDDS_MAX_DATA_WRITERS;
+    dataSource->remaining_datawriter = SDDS_MAX_DATA_WRITERS;
 
 #if defined(__GNUC__) && __GNUC_MINOR__ >= 6
 #pragma GCC diagnostic pop
@@ -87,7 +87,7 @@ rc_t DataSource_init(void)
     return SDDS_RT_OK;
 }
 
-#if sDDS_MAX_DATA_WRITERS > 0
+#if SDDS_MAX_DATA_WRITERS > 0
 DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask)
 {
     qos=qos;
@@ -99,28 +99,28 @@ DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, Sta
     if (dataSource->remaining_datawriter == 0){
     	return NULL;
     }
-    dw = &(dataSource->writers[sDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter]);
+    dw = &(dataSource->writers[SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter]);
 
 
     dw->topic = topic;
-    dw->id = (sDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
+    dw->id = (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
     dataSource->remaining_datawriter--;
 
     if (dw->id == 1)
-	    dw->qos.latBudDuration = sDDS_QOS_DW1_LATBUD;
+	    dw->qos.latBudDuration = SDDS_QOS_DW1_LATBUD;
     if (dw->id == 2)
-	    dw->qos.latBudDuration = sDDS_QOS_DW2_LATBUD;
+	    dw->qos.latBudDuration = SDDS_QOS_DW2_LATBUD;
 
     return dw;
 }
-#endif // sDDS_MAX_DATA_WRITERS
+#endif // SDDS_MAX_DATA_WRITERS
 
 NetBuffRef findFreeFrame(Locator dest)
 {
     NetBuffRef buffRef = NULL;
 
     bool_t sameAddr = false;
-    for (int i = 0; i < sDDS_NET_MAX_OUT_QUEUE; i++){
+    for (int i = 0; i < SDDS_NET_MAX_OUT_QUEUE; i++){
 	Locator try = dataSource->sender.out[i].addr;
 	if (dest != NULL && try != NULL && Locator_isEqual(dest, try)){
 	    buffRef = &(dataSource->sender.out[i]);
@@ -129,7 +129,7 @@ NetBuffRef findFreeFrame(Locator dest)
 	}
     }
     if (buffRef == NULL){
-	for (int i = 0; i < sDDS_NET_MAX_OUT_QUEUE; i++){
+	for (int i = 0; i < SDDS_NET_MAX_OUT_QUEUE; i++){
 	    if (dataSource->sender.out[i].curPos == 0){
 		buffRef = &(dataSource->sender.out[i]);
 		break;
@@ -168,7 +168,7 @@ rc_t checkSending(NetBuffRef buf)
         }
     return SDDS_RT_OK;
 }
-#ifdef sDDS_TOPIC_HAS_SUB
+#ifdef SDDS_TOPIC_HAS_SUB
 rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 {
     waste = waste;
@@ -197,7 +197,7 @@ rc_t DataSource_write(DataWriter _this, Data data, void* waste)
    // return 0;
    return checkSending(buffRef);
 }
-#endif // sDDS_TOPIC_HAS_SUB
+#endif // SDDS_TOPIC_HAS_SUB
 
 /*
 // impl for BuiltinTopic
@@ -254,7 +254,7 @@ rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef buf)
     SNPS_writeTopic(buf, SDDS_BUILTINTOPIC_PUBLICATION_TOPIC_ID);
     // datasample for earch datawriter
     for (uint8_t i = 0;
-    	i < (sDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
+    	i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
     	i++)
     {
 		SNPS_writeData(buf, BuiltinTopicDataWriter_encode, (Data) &(dataSource->writers[i]));

@@ -23,7 +23,7 @@
 #define START (ref->buff_start + ref->curPos)
 
 rc_t _writeBasicTopic(NetBuffRef ref, topicid_t topic);
-#ifdef sDDS_EXTENDED_TOPIC_SUPPORT
+#ifdef SDDS_EXTENDED_TOPIC_SUPPORT
 rc_t _writeExtTopic(NetBuffRef ref, topicid_t topic);
 #endif
 
@@ -44,29 +44,29 @@ rc_t SNPS_evalSubMsg(NetBuffRef ref, subMsg_t* type)
     // it is an extended submessage
     // eval the next 4 bits
     switch ((read >> 4) & 0x0f){
-	case (SNPS_EXTSUBMSG_ACK):
-	    *type = SNPS_T_ACK;
+	case (SDDS_SNPS_EXTSUBMSG_ACK):
+	    *type = SDDS_SNPS_T_ACK;
 	    break;
-	case (SNPS_EXTSUBMSG_NACK):
-	    *type = SNPS_T_NACK;
+	case (SDDS_SNPS_EXTSUBMSG_NACK):
+	    *type = SDDS_SNPS_T_NACK;
 	    break;
-	case (SNPS_EXTSUBMSG_SEP):
-	    *type = SNPS_T_SEP;
+	case (SDDS_SNPS_EXTSUBMSG_SEP):
+	    *type = SDDS_SNPS_T_SEP;
 	    break;
-	case (SNPS_EXTSUBMSG_TSDDS):
-	    *type = SNPS_T_TSDDS;
+	case (SDDS_SNPS_EXTSUBMSG_TSDDS):
+	    *type = SDDS_SNPS_T_TSDDS;
 	    break;
-	case (SNPS_EXTSUBMSG_TOPIC):
+	case (SDDS_SNPS_EXTSUBMSG_TOPIC):
 			// its an topic ...
-		*type = SNPS_T_TOPIC;
+		*type = SDDS_SNPS_T_TOPIC;
 		break;
-	case (SNPS_EXTSUBMSG_EXTENDED):
+	case (SDDS_SNPS_EXTSUBMSG_EXTENDED):
 	    // read the next byte etc
 	    // TODO
-	    *type = SNPS_T_UNKNOWN;
+	    *type = SDDS_SNPS_T_UNKNOWN;
 	    break;
 	default:
-	    *type = SNPS_T_UNKNOWN;
+	    *type = SDDS_SNPS_T_UNKNOWN;
 	    break;
     }
    
@@ -86,16 +86,16 @@ rc_t SNPS_discardSubMsg(NetBuffRef ref)
 
     switch ((read & 0x0f)){
 	// data field. pos counter + lenght and submsg
-	case (SNPS_SUBMSG_DATA):
+	case (SDDS_SNPS_SUBMSG_DATA):
 	    ref->curPos += ((read >> 4) & 0x0f);
 	    return SDDS_RT_OK;
 	    // simple timestamp pos counter + 2 byte and submsg
-	case (SNPS_SUBMSG_TS):
+	case (SDDS_SNPS_SUBMSG_TS):
 	    ref->curPos += 2;
 	    return SDDS_RT_OK;
 
 	    // extended submsg eval later
-	case (SNPS_SUBMSG_EXTENDED):
+	case (SDDS_SNPS_SUBMSG_EXTENDED):
 	    break;
 
 	    // normale submsg with the size of 8 bit
@@ -109,18 +109,18 @@ rc_t SNPS_discardSubMsg(NetBuffRef ref)
     // eval the next 4 bits
     switch ((read >> 4) & 0x0f){
 	// 1 byte extsubmsg
-	case (SNPS_EXTSUBMSG_ACK):
-	case (SNPS_EXTSUBMSG_NACK):
-	case (SNPS_EXTSUBMSG_SEP):
+	case (SDDS_SNPS_EXTSUBMSG_ACK):
+	case (SDDS_SNPS_EXTSUBMSG_NACK):
+	case (SDDS_SNPS_EXTSUBMSG_SEP):
 	    break;
-	case (SNPS_EXTSUBMSG_TOPIC): // ext topic has 2 bytes
+	case (SDDS_SNPS_EXTSUBMSG_TOPIC): // ext topic has 2 bytes
 		ref->curPos += 2;
 		break;
-	case (SNPS_EXTSUBMSG_TSDDS):
+	case (SDDS_SNPS_EXTSUBMSG_TSDDS):
 	    // 1 byte header + 2 x 4 byte sec and nanosec
 	    ref->curPos += 8;
 	    break;
-	case (SNPS_EXTSUBMSG_EXTENDED):
+	case (SDDS_SNPS_EXTSUBMSG_EXTENDED):
 	    // TODO
 	    return SDDS_RT_FAIL;
 	    break;
@@ -152,7 +152,7 @@ rc_t SNPS_gotoNextSubMsg(NetBuffRef buff, subMsg_t type)
 rc_t SNPS_initFrame(NetBuffRef ref)
 {
     // write header
-    version_t v = sDDS_NET_VERSION;
+    version_t v = SDDS_NET_VERSION;
     Marshalling_enc_uint8(ref->buff_start, &v);
     ref->curPos += sizeof(version_t);
     // place holder
@@ -166,7 +166,7 @@ rc_t SNPS_readHeader(NetBuffRef ref)
     version_t v;
     Marshalling_dec_uint8(ref->buff_start, &v);
     ref->curPos += sizeof(version_t);
-    if (v != sDDS_NET_VERSION){
+    if (v != SDDS_NET_VERSION){
 	return SDDS_RT_FAIL;
     }
     Marshalling_dec_uint8(START, &(ref->subMsgCount));
@@ -184,7 +184,7 @@ rc_t SNPS_updateHeader(NetBuffRef ref)
 
 rc_t SNPS_writeDomain(NetBuffRef ref, domainid_t domain)
 {
-    Marshalling_enc_SubMsg(START, SNPS_SUBMSG_DOMAIN, (uint8_t)domain);
+    Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_DOMAIN, (uint8_t)domain);
     ref->curPos += 1;
     ref->subMsgCount +=1;
 
@@ -192,7 +192,7 @@ rc_t SNPS_writeDomain(NetBuffRef ref, domainid_t domain)
 }
 rc_t SNPS_readDomain(NetBuffRef ref, domainid_t* domain)
 {
-    Marshalling_dec_SubMsg(START, SNPS_SUBMSG_DOMAIN, (uint8_t*)domain);
+    Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_DOMAIN, (uint8_t*)domain);
     ref->curPos += 1;
     ref->subMsgCount -=1;
 
@@ -201,7 +201,7 @@ rc_t SNPS_readDomain(NetBuffRef ref, domainid_t* domain)
 
 rc_t SNPS_writeTopic(NetBuffRef ref, topicid_t topic)
 {
-#ifdef sDDS_EXTENDED_TOPIC_SUPPORT
+#ifdef SDDS_EXTENDED_TOPIC_SUPPORT
 	if (topic > 15) {
 		return _writeExtTopic(ref, topic);
 	}
@@ -211,17 +211,17 @@ rc_t SNPS_writeTopic(NetBuffRef ref, topicid_t topic)
 }
 rc_t _writeBasicTopic(NetBuffRef ref, topicid_t topic)
 {
-    Marshalling_enc_SubMsg(START, SNPS_SUBMSG_TOPIC, (uint8_t)topic);
+    Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_TOPIC, (uint8_t)topic);
     ref->curPos +=1;
     ref->subMsgCount +=1;
 
 	return SDDS_RT_OK;
 }
-#ifdef sDDS_EXTENDED_TOPIC_SUPPORT
+#ifdef SDDS_EXTENDED_TOPIC_SUPPORT
 rc_t _writeExtTopic(NetBuffRef ref, topicid_t topic)
 {
 	// write the header of an extended submessage of the type topic
-	Marshalling_enc_SubMsg(START, SNPS_SUBMSG_EXTENDED, SNPS_EXTSUBMSG_TOPIC);
+	Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_EXTENDED, SDDS_SNPS_EXTSUBMSG_TOPIC);
 	ref->curPos +=1;
 	Marshalling_enc_uint16(START, &topic);
 	ref->curPos += 2;
@@ -234,16 +234,16 @@ rc_t _writeExtTopic(NetBuffRef ref, topicid_t topic)
 rc_t SNPS_readTopic(NetBuffRef ref, topicid_t* topic)
 {
 	rc_t ret;
-	ret = Marshalling_dec_SubMsg(START, SNPS_SUBMSG_TOPIC, (uint8_t*)topic);
-#ifdef sDDS_EXTENDED_TOPIC_SUPPORT
+	ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_TOPIC, (uint8_t*)topic);
+#ifdef SDDS_EXTENDED_TOPIC_SUPPORT
 	if (ret == SDDS_RT_FAIL) {
 		// might be an extended topic
 		subMsg_t type;
-		ret = Marshalling_dec_SubMsg(START, SNPS_SUBMSG_EXTENDED, &type);
+		ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_EXTENDED, &type);
 		if (ret != SDDS_RT_OK) {
 			return SDDS_RT_FAIL;
 		}
-		if (type != SNPS_EXTSUBMSG_TOPIC) {
+		if (type != SDDS_SNPS_EXTSUBMSG_TOPIC) {
 			Log_error("Submessage is not an extended topic\n");
 			return SDDS_RT_FAIL;
 		}
@@ -271,7 +271,7 @@ rc_t SNPS_writeData(NetBuffRef ref, rc_t (*TopicMarshalling_encode)(byte_t* buff
     if ((*TopicMarshalling_encode)(s, d, &writtenBytes) != SDDS_RT_OK)
     	return SDDS_RT_FAIL;
 
-    Marshalling_enc_SubMsg(START, SNPS_SUBMSG_DATA, (uint8_t) writtenBytes);
+    Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t) writtenBytes);
 
     // data header
     ref->curPos += 1;
@@ -286,7 +286,7 @@ rc_t SNPS_readData(NetBuffRef ref, rc_t (*TopicMarshalling_decode)(byte_t* buff,
 {
 
 	size_t size = 0;
-	Marshalling_dec_SubMsg(START, SNPS_SUBMSG_DATA, (uint8_t*) &size);
+	Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t*) &size);
 	ref->curPos += 1;
 
 
@@ -303,7 +303,7 @@ rc_t SNPS_readData(NetBuffRef ref, rc_t (*TopicMarshalling_decode)(byte_t* buff,
 /*
 rc_t SNPS_writeTSsimple(NetBuffRef ref, TimeStampSimple_t* ts)
 {
-    Marshalling_enc_SubMsg(START, SNPS_SUBMSG_TS, ts->firstField);
+    Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_TS, ts->firstField);
     ref->curPos += 1;
     Marshalling_enc_uint8(START, &(ts->secondField));
     ref->curPos += 1;

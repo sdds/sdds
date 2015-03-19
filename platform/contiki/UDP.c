@@ -16,16 +16,16 @@
 #define UIP_IP_BUF ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define UIP_UDP_BUF ((struct uip_udp_hdr *)&uip_buf[uip_l2_l3_hdr_len])
 
-#ifndef SDDS_CONTIKI_PORT
-#define SDDS_CONTIKI_PORT 23234
+#ifndef PLATFORM_CONTIKI_SDDS_PORT
+#define PLATFORM_CONTIKI_SDDS_PORT 23234
 #endif
 
-#ifndef SDDS_CONTIKI_LISTEN_ADDRESS
-#define SDDS_CONTIKI_LISTEN_ADDRESS "::"
+#ifndef PLATFORM_CONTIKI_SDDS_LISTEN_ADDRESS
+#define PLATFORM_CONTIKI_SDDS_LISTEN_ADDRESS "::"
 #endif
 
-#ifndef SDDS_CONTIKI_SEND_ADDRESS
-#define SDDS_CONTIKI_SEND_ADDRESS "::1"
+#ifndef PLATFORM_CONTIKI_SDDS_SEND_ADDRESSS
+#define PLATFORM_CONTIKI_SDDS_SEND_ADDRESSS "::1"
 #endif
 
 // IF BUILTIN
@@ -55,11 +55,11 @@ rc_t Network_init(void)
 {
 	uip_ipaddr_t address;
 
-	uiplib_ipaddrconv(SDDS_CONTIKI_LISTEN_ADDRESS, &address);
+	uiplib_ipaddrconv(PLATFORM_CONTIKI_SDDS_LISTEN_ADDRESS, &address);
 
 	NetBuffRef_init(&g_incoming_buffer);
 
-	if (simple_udp_register(&g_connection, SDDS_CONTIKI_PORT, NULL, 0, receive) != 1)
+	if (simple_udp_register(&g_connection, PLATFORM_CONTIKI_SDDS_PORT, NULL, 0, receive) != 1)
 		return 1;
 
 	return SDDS_RT_OK;
@@ -127,7 +127,7 @@ void receive(struct simple_udp_connection *connection,
 
 	Log_debug("\n");
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 	// process the frame
 	DataSink_processFrame(&g_incoming_buffer);
 #endif
@@ -152,7 +152,7 @@ rc_t Network_send(NetBuffRef buffer) {
 				buffer->curPos, locator->address.u8[15], buffer);
 
 		uip_udp_packet_sendto(g_connection.udp_conn, buffer->buff_start,
-				buffer->curPos, &address, UIP_HTONS(SDDS_CONTIKI_PORT));
+				buffer->curPos, &address, UIP_HTONS(PLATFORM_CONTIKI_SDDS_PORT));
 
 		loc = loc->next;
 	}
@@ -177,7 +177,7 @@ rc_t Network_getFrameBuff(NetFrameBuff* buffer)
 {
 	size_t size;
 
-	size = sDDS_NET_MAX_BUF_SIZE * sizeof(byte_t);
+	size = SDDS_NET_MAX_BUF_SIZE * sizeof(byte_t);
 	size += sizeof(struct NetFrameBuff_t);
 
 	*buffer = Memory_alloc(size);
@@ -189,7 +189,7 @@ rc_t Network_getFrameBuff(NetFrameBuff* buffer)
 	}
 
 	memset(*buffer, 0, size);
-	(*buffer)->size = sDDS_NET_MAX_BUF_SIZE;
+	(*buffer)->size = SDDS_NET_MAX_BUF_SIZE;
 
 	return SDDS_RT_OK;
 }
@@ -209,7 +209,7 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr) {
 	Contiki_Locator l = (Contiki_Locator) loc;
 
 	uiplib_ipaddrconv(addr, &l->address);
-	l->port = UIP_HTONS(SDDS_CONTIKI_PORT);
+	l->port = UIP_HTONS(PLATFORM_CONTIKI_SDDS_PORT);
 
 	return SDDS_RT_OK;
 }
@@ -229,7 +229,7 @@ rc_t Network_createLocator(Locator* locator)
 
 	*locator = (Locator) contiki_locator;
 
-	return Network_setAddressToLocator(*locator, SDDS_CONTIKI_SEND_ADDRESS);
+	return Network_setAddressToLocator(*locator, PLATFORM_CONTIKI_SDDS_SEND_ADDRESSS);
 
 }
 

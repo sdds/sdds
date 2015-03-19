@@ -74,7 +74,7 @@ def get_decl(f, impl_name, datastructures):
 extern DDS_DataReader g_%(name)s_reader;
 extern DDS_DataWriter g_%(name)s_writer;
 extern DDS_Topic g_%(name)s_topic;
-//extern %(name)s_data_t g_%(name)s_pool[sDDS_TOPIC_APP_MSG_COUNT];
+//extern %(name)s_data_t g_%(name)s_pool[SDDS_TOPIC_APP_MSG_COUNT];
 """[1:] % {'name': ds['name'][0].capitalize() + ds['name'][1:]})
 
 		f.write('\n')
@@ -100,7 +100,7 @@ def get_impl(f, impl_name, datastructures):
 	for ds in datastructures:
 		if ds['subscriber'] or ds['publisher']:
 			def_string += 'DDS_Topic g_%s_topic;\n' % (ds['name'][0].capitalize() + ds['name'][1:])
-			def_string += '%(name)s g_%(name)s_pool[sDDS_TOPIC_APP_MSG_COUNT];\n' % {'name': ds['name'][0].capitalize() + ds['name'][1:]}
+			def_string += '%(name)s g_%(name)s_pool[SDDS_TOPIC_APP_MSG_COUNT];\n' % {'name': ds['name'][0].capitalize() + ds['name'][1:]}
 
 		if ds['subscriber']:
 			def_string += 'DDS_DataReader g_%s_reader;\n' % (ds['name'][0].capitalize() + ds['name'][1:])
@@ -117,7 +117,7 @@ def get_impl(f, impl_name, datastructures):
 
 	for ds in datastructures:
 		if ds['subscriber'] or ds['publisher']:
-			impl_string += '\tg_%(name)s_topic = sDDS_%(name)sTopic_create(g_%(name)s_pool, sDDS_TOPIC_APP_MSG_COUNT);\n' % {'name': ds['name'][0].capitalize() + ds['name'][1:]}
+			impl_string += '\tg_%(name)s_topic = sDDS_%(name)sTopic_create(g_%(name)s_pool, SDDS_TOPIC_APP_MSG_COUNT);\n' % {'name': ds['name'][0].capitalize() + ds['name'][1:]}
 
 		if ds['subscriber']:
 			impl_string += '\tg_%(name)s_reader = DataSink_create_datareader(g_%(name)s_topic, NULL, NULL /*&sdds_listener*/, NULL);\n' % {'name': ds['name'][0].capitalize() + ds['name'][1:]}
@@ -259,7 +259,7 @@ extended_topic_support = ''
 for ds in datastructures:
 	topicID = int(ds['topic'],16)
 	if topicID > 15:
-		extended_topic_support = "#define sDDS_EXTENDED_TOPIC_SUPPORT"
+		extended_topic_support = "#define SDDS_EXTENDED_TOPIC_SUPPORT"
 	
 
 impl_name = sys.argv[1]
@@ -292,10 +292,10 @@ any_subscriptions = ''
 any_publications = ''
 
 if data_readers > 0:
-	any_subscriptions = '#define sDDS_TOPIC_HAS_PUB'
+	any_subscriptions = '#define SDDS_TOPIC_HAS_PUB'
 
 if data_writers > 0:
-	any_publications = '#define sDDS_TOPIC_HAS_SUB'
+	any_publications = '#define SDDS_TOPIC_HAS_SUB'
 
 fdecl = open('%s_sdds_impl.h' % impl_name, 'w')
 fimpl = open('%s_sdds_impl.c' % impl_name, 'w')
@@ -310,146 +310,146 @@ fconstants.write(r"""
 
 #include "local_constants.h"
 
-#define sDDS_LOCAL_BYTEORDER_%(byte_order)s_ENDIAN
-#define sDDS_NET_VERSION 0x01
-#ifdef sDDS_BUILTIN_TOPICS_ENABLED
-#define sDDS_MAX_DATA_WRITERS %(data_writers_builtin)s
-#define sDDS_MAX_DATA_READERS %(data_readers_builtin)s
+#define SDDS_LOCAL_BYTEORDER_%(byte_order)s_ENDIAN
+#define SDDS_NET_VERSION 0x01
+#ifdef SDDS_BUILTIN_TOPICS_ENABLED
+#define SDDS_MAX_DATA_WRITERS %(data_writers_builtin)s
+#define SDDS_MAX_DATA_READERS %(data_readers_builtin)s
 #else
-#define sDDS_MAX_DATA_WRITERS %(data_writers)s
-#define sDDS_MAX_DATA_READERS %(data_readers)s
+#define SDDS_MAX_DATA_WRITERS %(data_writers)s
+#define SDDS_MAX_DATA_READERS %(data_readers)s
 #endif
 
-#ifndef sDDS_NET_MAX_OUT_QUEUE
-#define sDDS_NET_MAX_OUT_QUEUE 2
-#endif /*sDDS_NET_MAX_OUT_QUEUE */
+#ifndef SDDS_NET_MAX_OUT_QUEUE
+#define SDDS_NET_MAX_OUT_QUEUE 2
+#endif /*SDDS_NET_MAX_OUT_QUEUE */
 
-#ifndef sDDS_NET_MAX_BUF_SIZE
-#define sDDS_NET_MAX_BUF_SIZE 30
-#endif /* sDDS_NET_MAX_BUF_SIZE */
+#ifndef SDDS_NET_MAX_BUF_SIZE
+#define SDDS_NET_MAX_BUF_SIZE 30
+#endif /* SDDS_NET_MAX_BUF_SIZE */
 
-#ifndef sDDS_NET_MAX_LOCATOR_COUNT
-#define sDDS_NET_MAX_LOCATOR_COUNT 20
-#endif /* sDDS_NET_MAX_LOCATOR_COUNT */
+#ifndef SDDS_NET_MAX_LOCATOR_COUNT
+#define SDDS_NET_MAX_LOCATOR_COUNT 20
+#endif /* SDDS_NET_MAX_LOCATOR_COUNT */
 
-#define sDDS_QOS_DW1_LATBUD 100
-#define sDDS_QOS_DW2_LATBUD 500
+#define SDDS_QOS_DW1_LATBUD 100
+#define SDDS_QOS_DW2_LATBUD 500
 %(any_subscriptions)s
 %(any_publications)s
 
-#ifndef sDDS_TOPIC_APP_MSG_COUNT
-#define sDDS_TOPIC_APP_MSG_COUNT 5
-#endif /* sDDS_TOPIC_APP_MSG_COUNT */
+#ifndef SDDS_TOPIC_APP_MSG_COUNT
+#define SDDS_TOPIC_APP_MSG_COUNT 5
+#endif /* SDDS_TOPIC_APP_MSG_COUNT */
 
-#ifdef sDDS_BUILTIN_TOPICS_ENABLED
-#define sDDS_TOPIC_MAX_COUNT %(max_topics_builtin)d
+#ifdef SDDS_BUILTIN_TOPICS_ENABLED
+#define SDDS_TOPIC_MAX_COUNT %(max_topics_builtin)d
 #else
-#define sDDS_TOPIC_MAX_COUNT %(max_topics)d
+#define SDDS_TOPIC_MAX_COUNT %(max_topics)d
 #endif
 
-#define sDDS_MNG_WORKER_CYCLE_TIME 10000
-#define sDDS_MNG_BUILTINT_PUBCYCLE_PRESCALER 2
+#define SDDS_MNG_WORKER_CYCLE_TIME 10000
+#define SDDS_MNG_BUILTINT_PUBCYCLE_PRESCALER 2
 
 %(extended_topic_support)s
 
 /* TWI bus speed in Hz */
-#define TWI_BUS_SPEED 10000UL // 10kh to use internal pull ups
-//#define TWI_BUS_SPEED 100000UL
+#define DRIVER_TWI_BUS_SPEED 10000UL // 10kh to use internal pull ups
+//#define DRIVER_TWI_BUS_SPEED 100000UL
 
 /* TWI data and clock pin and port */
-#define TWI_CLOCK_PORT D
-#define TWI_DATA_PORT D
-#define TWI_CLOCK_PIN 0
-#define TWI_DATA_PIN 1
+#define DRIVER_TWI_CLOCK_PORT D
+#define DRIVER_TWI_DATA_PORT D
+#define DRIVER_TWI_CLOCK_PIN 0
+#define DRIVER_TWI_DATA_PIN 1
 
 
 /* adc reference voltage, see adc.h */
-#define WIND_VANE_ADC_REFERENCE ADC_USE_AVCC
+#define DRIVER_WIND_VANE_ADC_REFERENCE ADC_USE_AVCC
 
 /* adc channel for the wind vane */
-#define WIND_VANE_ADC_CHANNEL 0
+#define DRIVER_WIND_VANE_ADC_CHANNEL 0
 
 /* resistor used as voltage divider */
-#define WIND_VANE_DIVIDER_RESISTOR 5.4f
+#define DRIVER_WIND_VANE_DIVIDER_RESISTOR 5.4f
 
 /* internal = 10bit resoluti0on, pcf8591 = 8bit */
-#define WIND_VANE_POSSIBLE_VALUES (1 << 10)
+#define DRIVER_WIND_VANE_POSSIBLE_VALUES (1 << 10)
 
 /* define port and pin for the anemometer interrupt */
-#define ANEMOMETER_PORT E
-#define ANEMOMETER_PIN 5
+#define DRIVER_ANEMOMETER_PORT E
+#define DRIVER_ANEMOMETER_PIN 5
 
 /* which interrupt is used for the anemometer (5 == PE5) */
-#define ANEMOMETER_INTERRUPT 5
+#define DRIVER_ANEMOMETER_INTERRUPT 5
 
 /* the external interrupt control register for this interrupt */
-#define ANEMOMETER_EICR EICRB
+#define DRIVER_ANEMOMETER_EICR EICRB
 
 /* how often is the callback called (in seconds) */
-#define ANEMOMETER_CALLBACK_PERIOD 1
+#define DRIVER_ANEMOMETER_CALLBACK_PERIOD 1
 
 /* define port and pin for the rain gauge interrupt */
-#define RAINGAUGE_PORT E
-#define RAINGAUGE_PIN 4
+#define DRIVER_RAINGAUGE_PORT E
+#define DRIVER_RAINGAUGE_PIN 4
 
 /* which interrupt is used for the rain gauge (4 == PE4) */
-#define RAINGAUGE_INTERRUPT 4
+#define DRIVER_RAINGAUGE_INTERRUPT 4
 
 /* the external interrupt control register for this interrupt */
-#define RAINGAUGE_EICR EICRB
+#define DRIVER_RAINGAUGE_EICR EICRB
 
 /* how often is the callback called (in seconds) */
-#define RAINGAUGE_CALLBACK_PERIOD 1
+#define DRIVER_RAINGAUGE_CALLBACK_PERIOD 1
 
 /* SHT15 bus speed in Hz */
-#define SHT15_BUS_SPEED 100000
+#define DRIVER_SHT15_BUS_SPEED 100000
 
 /* SHT15 data and clock pin and port */
-#define SHT15_CLOCK_PORT D
-#define SHT15_DATA_PORT D
-#define SHT15_CLOCK_PIN 7
-#define SHT15_DATA_PIN 5
+#define DRIVER_SHT15_CLOCK_PORT D
+#define DRIVER_SHT15_DATA_PORT D
+#define DRIVER_SHT15_CLOCK_PIN 7
+#define DRIVER_SHT15_DATA_PIN 5
 
 /*
  * SHT15 temperature coefficients
  * 5V = -4010, 4V = -3980, 3.5V = -3970, 3V = -3960, 2.5V = -3940
  */
-#define SHT15_TEMPERATURE_COEFFICIENT -3960
+#define DRIVER_SHT15_TEMPERATURE_COEFFICIENT -3960
 
 /*
  * SHT15 measurement resolution
  * can be 14bit temperature/12bit humidity
  * or 12bit temperature/8bit humidity
  */
-#define SHT15_HIGH_RESOLUTION
+#define DRIVER_SHT15_HIGH_RESOLUTION
 
 /* settings for the AMN31112 PIR Sensor
  */
 
-#define AMN31112_PORT B
-#define AMN31112_PIN 5
+#define DRIVER_AMN31112_PORT B
+#define DRIVER_AMN31112_PIN 5
 
 /* settings for the TSL2561 light sensor
 */
 
-#define TSL2561_TWI_ADDRESS (0x29<<1)
+#define DRIVER_TSL2561_TWI_ADDRESS (0x29<<1)
 
 /*
  * Settings for the one wire bus
  */
-#define ONEWIRE_PORT E
-#define ONEWIRE_PIN 6
+#define DRIVER_ONEWIRE_PORT E
+#define DRIVER_ONEWIRE_PIN 6
 
 /* Settings for LEDS
 */
 
-//#define DRV_LED_DIMMING 1
+//#define DRIVER_LED_DIMMING 1
 
-//#define DRV_LED_DIMMING_GAMMACORRECTION
+//#define DRIVER_LED_DIMMING_GAMMACORRECTION
 /* value is the bit length of the pwm register */
-//#define DRV_LED_DIMMING_GAMMACORRECTION_10BIT
-/*#define DRV_LED_DIMMING_GAMMACORRECTION_16BIT*/
-/*#define DRV_LED_DIMMING_GAMMACORRECTION_8BIT */
+//#define DRIVER_LED_DIMMING_GAMMACORRECTION_10BIT
+/*#define DRIVER_LED_DIMMING_GAMMACORRECTION_16BIT*/
+/*#define DRIVER_LED_DIMMING_GAMMACORRECTION_8BIT */
 
 /*
  * Settings for WieDAS

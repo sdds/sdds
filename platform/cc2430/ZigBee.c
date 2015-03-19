@@ -20,21 +20,21 @@
 
 // This list should be filled with Application specific Cluster IDs.
 #if 1
-const cId_t GenericApp_ClusterList[GENERICAPP_MAX_CLUSTERS] =
+const cId_t GenericApp_ClusterList[PLATFORM_CC2430_GENERICAPP_MAX_CLUSTERS] =
 {
-  GENERICAPP_CLUSTERID
+  PLATFORM_CC2430_GENERICAPP_CLUSTERID
 };
 
 const SimpleDescriptionFormat_t GenericApp_SimpleDesc =
 {
-  GENERICAPP_ENDPOINT,              //  int Endpoint;
-  GENERICAPP_PROFID,                //  uint16 AppProfId[2];
-  GENERICAPP_DEVICEID,              //  uint16 AppDeviceId[2];
-  GENERICAPP_DEVICE_VERSION,        //  int   AppDevVer:4;
-  GENERICAPP_FLAGS,                 //  int   AppFlags:4;
-  GENERICAPP_MAX_CLUSTERS,          //  byte  AppNumInClusters;
+  PLATFORM_CC2430_GENERICAPP_ENDPOINT,              //  int Endpoint;
+  PLATFORM_CC2430_GENERICAPP_PROFID,                //  uint16 AppProfId[2];
+  PLATFORM_CC2430_GENERICAPP_DEVICEID,              //  uint16 AppDeviceId[2];
+  PLATFORM_CC2430_GENERICAPP_DEVICE_VERSION,        //  int   AppDevVer:4;
+  PLATFORM_CC2430_GENERICAPP_FLAGS,                 //  int   AppFlags:4;
+  PLATFORM_CC2430_GENERICAPP_MAX_CLUSTERS,          //  byte  AppNumInClusters;
   (cId_t *)GenericApp_ClusterList,  //  byte *pAppInClusterList;
-  GENERICAPP_MAX_CLUSTERS,          //  byte  AppNumInClusters;
+  PLATFORM_CC2430_GENERICAPP_MAX_CLUSTERS,          //  byte  AppNumInClusters;
   (cId_t *)GenericApp_ClusterList   //  byte *pAppInClusterList;
 };
 
@@ -125,8 +125,8 @@ UINT16 ZigBee_ProcessEvent( byte task_id, UINT16 events )
           {
             // Start sending "the" message in a regular interval.
           //  osal_start_timerEx( net.taskID,
-          //                      GENERICAPP_SEND_MSG_EVT,
-          //                      GENERICAPP_SEND_MSG_TIMEOUT );
+          //                      PLATFORM_CC2430_GENERICAPP_SEND_MSG_EVT,
+          //                      PLATFORM_CC2430_GENERICAPP_SEND_MSG_TIMEOUT );
           }
           break;
 
@@ -161,7 +161,7 @@ void ZigBee_init( byte task_id )
     net.transID = 0;
     
     // Fill out the endpoint description.
-  net.epDesc.endPoint = GENERICAPP_ENDPOINT;
+  net.epDesc.endPoint = PLATFORM_CC2430_GENERICAPP_ENDPOINT;
   net.epDesc.task_id = &(net.taskID);
   
   net.epDesc.simpleDesc
@@ -175,7 +175,7 @@ void ZigBee_init( byte task_id )
   // set up the dds group 
   net.ddsGroup.ID = 0x0001;
   osal_memcpy( net.ddsGroup.name, "DDS", 3);
-  aps_AddGroup( GENERICAPP_ENDPOINT, &(net.ddsGroup) );
+  aps_AddGroup( PLATFORM_CC2430_GENERICAPP_ENDPOINT, &(net.ddsGroup) );
   // TODO?
  //   ZDO_RegisterForZDOMsg( net.taskID, End_Device_Bind_rsp );
  //   ZDO_RegisterForZDOMsg( net.taskID, Match_Desc_rsp );
@@ -261,7 +261,7 @@ void GenericApp_ProcessZDOMsgs( zdoIncomingMsg_t *inMsg )
 void IncomingFrame (afIncomingMSGPacket_t* msg)
 {
           NetBuffRef buff = (NetBuffRef) &inBuff;
-          if (msg->clusterId == GENERICAPP_CLUSTERID) {
+          if (msg->clusterId == PLATFORM_CC2430_GENERICAPP_CLUSTERID) {
         
     	NetBuffRef_renew(buff);
         buff->buff_start = msg->cmd.Data;
@@ -297,7 +297,7 @@ void GenericApp_MessageMSGCB( afIncomingMSGPacket_t *pkt )
 {
   switch ( pkt->clusterId )
   {
-    case GENERICAPP_CLUSTERID:
+    case PLATFORM_CC2430_GENERICAPP_CLUSTERID:
       // "the" message
 #if defined( LCD_SUPPORTED )
       HalLcdWriteScreen( (char*)pkt->cmd.Data, "rcvd" );
@@ -313,7 +313,7 @@ rc_t Network_send(NetBuffRef buff) {
     afAddrType_t* dest = (afAddrType_t*) &(((struct ZigBeeLocator_t*) buff->addr)->addr);
     
     if ( AF_DataRequest( dest, &(net.epDesc),
-                       GENERICAPP_CLUSTERID,
+                       PLATFORM_CC2430_GENERICAPP_CLUSTERID,
                        (byte)buff->curPos,
                        (byte *)buff->buff_start,
                        &(net.transID),
@@ -336,7 +336,7 @@ rc_t Network_getFrameBuff(NetFrameBuff* buff)
     if (ret != SDDS_RT_OK)
 	return SDDS_RT_NOMEM;
 
-    (*buff)->size = sDDS_NET_MAX_BUF_SIZE;
+    (*buff)->size = SDDS_NET_MAX_BUF_SIZE;
     return SDDS_RT_OK;
 }
 
@@ -375,7 +375,7 @@ rc_t Network_createLocator(Locator* loc)
     
     l->addr.addrMode = (afAddrMode_t) AddrBroadcast;
 //    l->addr.endPoint = 0;
-    l->addr.endPoint = GENERICAPP_ENDPOINT;
+    l->addr.endPoint = PLATFORM_CC2430_GENERICAPP_ENDPOINT;
     l->addr.addr.shortAddr = 0xffff;
     
     return SDDS_RT_OK;

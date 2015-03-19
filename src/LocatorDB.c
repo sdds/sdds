@@ -23,16 +23,16 @@
 struct LocatorDB_t {
 
 	// remember this sould be a pointer!
-	Locator pool[sDDS_NET_MAX_LOCATOR_COUNT];
+	Locator pool[SDDS_NET_MAX_LOCATOR_COUNT];
 	uint8_t freeLoc;
 };
 
 static struct LocatorDB_t db;
 
 rc_t LocatorDB_init() {
-	db.freeLoc = sDDS_NET_MAX_LOCATOR_COUNT;
+	db.freeLoc = SDDS_NET_MAX_LOCATOR_COUNT;
 
-	for (int i = 0; i < sDDS_NET_MAX_LOCATOR_COUNT; i++) {
+	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
 		Network_createLocator(&(db.pool[i]));
 		Locator_init(db.pool[i]);
 	}
@@ -51,7 +51,7 @@ rc_t LocatorDB_newLocator(Locator* loc) {
 	*loc = NULL;
 	// search for locator witch is not referenced somewhere
 	// could also be an empty one
-	for (int i = 0; i < sDDS_NET_MAX_LOCATOR_COUNT; i++) {
+	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
 		// check if ref counter is zero
 		if (db.pool[i]->refCount == 0) {
 			*loc = db.pool[i];
@@ -73,7 +73,7 @@ rc_t LocatorDB_newMultiLocator(Locator* loc) {
 	*loc = NULL;
 	// search for locator witch is not referenced somewhere
 	// could also be an empty one
-	for (int i = 0; i < sDDS_NET_MAX_LOCATOR_COUNT; i++) {
+	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
 		// check if ref counter is zero
 		if (db.pool[i]->refCount == 0) {
 			*loc = db.pool[i];
@@ -110,7 +110,7 @@ rc_t LocatorDB_isUsedLocator(Locator loc) {
 }
 
 rc_t LocatorDB_findLocator(Locator toFind, Locator* result) {
-	for (int i = 0; i < sDDS_NET_MAX_LOCATOR_COUNT; i++) {
+	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
 		if (Locator_isEqual(toFind, db.pool[i]) == true) {
 			*result = db.pool[i];
 			return SDDS_RT_OK;

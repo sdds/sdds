@@ -51,11 +51,11 @@ rc_t Wiedas_SensorApp_DimmerLamp_init(){
 
 	// init led with dimming
 	static struct LED_t lamp_stc = {
-			.bank = LED_CONF_BANK_B,
-			.pin = LED_CONF_PIN_5,
+			.bank = HAL_LED_BANK_B,
+			.pin = HAL_LED_PIN_5,
 			.sourceing = true,
-			.resolution = LED_CONF_DIM_RESOLUTION_10BIT,
-			.mode = (LED_CONF_DIM_MODE_FAST_PWM | LED_CONF_DIM_ACTIVATE),
+			.resolution = HAL_LED_DIM_RESOLUTION_10BIT,
+			.mode = (HAL_LED_DIM_MODE_FAST_PWM | HAL_LED_DIM_ACTIVATE),
 			.dimValue = 0
 
 	};
@@ -68,8 +68,8 @@ rc_t Wiedas_SensorApp_DimmerLamp_init(){
 
 	// init led fan (as an led ...)
 	static struct LED_t fan_stc = {
-			.bank = LED_CONF_BANK_B,
-			.pin = LED_CONF_PIN_4,
+			.bank = HAL_LED_BANK_B,
+			.pin = HAL_LED_PIN_4,
 			.sourceing = true,
 			.mode = 0
 	};

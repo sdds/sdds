@@ -7,9 +7,9 @@ APPLICATION_NAME := mywrite
 
 all:
 	$(MAKE) -f Makefile BUILD=linux $(APPLICATION_NAME) $(MAKEOPTS) \
-	                    SDDS_LINUX_LISTEN_ADDRESS="$(JACKDAW)%usb0" \
-	                    SDDS_LINUX_SEND_ADDRESS="$(BOARD)%usb0"\
-			    SDDS_LINUX_PROTOCOL=AF_INET6
+	                    PLATFORM_LINUX_SDDS_LISTEN_ADDRESS="$(JACKDAW)%usb0" \
+	                    PLATFORM_LINUX_SDDS_SEND_ADDRESS="$(BOARD)%usb0"\
+			    PLATFORM_LINUX_SDDS_PROTOCOL=AF_INET6
 
 
 clean:

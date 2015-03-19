@@ -48,7 +48,7 @@ typedef struct NetBuffRef_t* NetBuffRef;
 rc_t NetBuffRef_init(NetBuffRef _this);
 rc_t NetBuffRef_renew(NetBuffRef _this);
 
-#ifdef _DEBUG
+#ifdef UTILS_DEBUG
 void NetBuffRef_print(NetBuffRef _this);
 #endif
 #endif   /* ----- #ifndef NETBUFFREF_H_INC  ----- */

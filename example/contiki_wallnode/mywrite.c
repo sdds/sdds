@@ -98,10 +98,10 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 	// create and init instance
 
 	static struct LED_t statusled_stc = {
-			.bank = LED_CONF_BANK_D,
-			.pin = LED_CONF_PIN_7,
+			.bank = HAL_LED_BANK_D,
+			.pin = HAL_LED_PIN_7,
 			.sourceing = false
-#ifdef DRV_LED_DIMMING			    
+#ifdef DRIVER_LED_DIMMING			    
 			,.mode = 0
 #endif
 	};

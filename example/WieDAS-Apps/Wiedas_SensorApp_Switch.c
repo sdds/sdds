@@ -62,31 +62,31 @@ rc_t Wiedas_SensorApp_Switch_init(uint8_t hwPort, uint16_t deviceID) {
 
 	if (hwPort == 0) {
 		// PE7 INT7
-		inputs[hwPort].bank = GPIO_INPUT_ATMEGA_BANK_E;
+		inputs[hwPort].bank = DRIVER_GPIO_INPUT_ATMEGA_BANK_E;
 		inputs[hwPort].pin = 7;
-		inputs[hwPort].mode = (GPIO_INPUT_MODE_INTERUPT_ENABLE
-							| GPIO_INPUT_MODE_CALLBACK_LEVEL_TRIGGER
-							| GPIO_INPUT_MODE_PULLUP_ACTIVATE);
+		inputs[hwPort].mode = (DRIVER_GPIO_INPUT_MODE_INTERUPT_ENABLE
+							| DRIVER_GPIO_INPUT_MODE_CALLBACK_LEVEL_TRIGGER
+							| DRIVER_GPIO_INPUT_MODE_PULLUP_ACTIVATE);
 
 		GPIO_Input_init(&inputs[hwPort]);
 		GPIO_Input_setCallback(&inputs[hwPort], &Switch_CallBack_handler);
 	} else if (hwPort == 1) {
 		//PE5 INT5
-		inputs[hwPort].bank = GPIO_INPUT_ATMEGA_BANK_E;
+		inputs[hwPort].bank = DRIVER_GPIO_INPUT_ATMEGA_BANK_E;
 		inputs[hwPort].pin = 5;
-		inputs[hwPort].mode = (GPIO_INPUT_MODE_INTERUPT_ENABLE
-							| GPIO_INPUT_MODE_CALLBACK_LEVEL_TRIGGER
-							| GPIO_INPUT_MODE_PULLUP_ACTIVATE);
+		inputs[hwPort].mode = (DRIVER_GPIO_INPUT_MODE_INTERUPT_ENABLE
+							| DRIVER_GPIO_INPUT_MODE_CALLBACK_LEVEL_TRIGGER
+							| DRIVER_GPIO_INPUT_MODE_PULLUP_ACTIVATE);
 
 		GPIO_Input_init(&inputs[hwPort]);
 		GPIO_Input_setCallback(&inputs[hwPort], &Switch_CallBack_handler);
 	} else if (hwPort == 2) {
 		// PE4 INT4
-		inputs[hwPort].bank = GPIO_INPUT_ATMEGA_BANK_E;
+		inputs[hwPort].bank = DRIVER_GPIO_INPUT_ATMEGA_BANK_E;
 		inputs[hwPort].pin = 4;
-		inputs[hwPort].mode = (GPIO_INPUT_MODE_INTERUPT_ENABLE
-							| GPIO_INPUT_MODE_CALLBACK_LEVEL_TRIGGER
-							| GPIO_INPUT_MODE_PULLUP_ACTIVATE);
+		inputs[hwPort].mode = (DRIVER_GPIO_INPUT_MODE_INTERUPT_ENABLE
+							| DRIVER_GPIO_INPUT_MODE_CALLBACK_LEVEL_TRIGGER
+							| DRIVER_GPIO_INPUT_MODE_PULLUP_ACTIVATE);
 
 		GPIO_Input_init(&inputs[hwPort]);
 		GPIO_Input_setCallback(&(inputs[hwPort]), &Switch_CallBack_handler);

@@ -36,7 +36,7 @@ void Log_setLvl(int lvl)
 {
     logLvl = lvl;
 }
-#ifndef NO_LOGGING
+#ifndef UTILS_NO_LOGGING
 void _log_debug(const char* fnk, ...)
 {
     if (logLvl < 1 ) {

@@ -18,28 +18,28 @@
 #include "Network.h"
 
 /* The last character is used for the terminating \0 */
-#define TOPIC_NAME_SIZE 26
-#define TOPIC_TYPE_SIZE 26
+#define DDS_TOPIC_NAME_SIZE 26
+#define DDS_TOPIC_TYPE_SIZE 26
 
 extern DDS_DataReader g_DCPSParticipant_reader;
 extern DDS_DataWriter g_DCPSParticipant_writer;
 extern DDS_Topic g_DCPSParticipant_topic;
-//extern DCPSParticipant_data_t g_DCPSParticipant_pool[sDDS_TOPIC_APP_MSG_COUNT];
+//extern DCPSParticipant_data_t g_DCPSParticipant_pool[SDDS_TOPIC_APP_MSG_COUNT];
 
 extern DDS_DataReader g_DCPSTopic_reader;
 extern DDS_DataWriter g_DCPSTopic_writer;
 extern DDS_Topic g_DCPSTopic_topic;
-//extern DCPSTopic_data_t g_DCPSTopic_pool[sDDS_TOPIC_APP_MSG_COUNT];
+//extern DCPSTopic_data_t g_DCPSTopic_pool[SDDS_TOPIC_APP_MSG_COUNT];
 
 extern DDS_DataReader g_DCPSPublication_reader;
 extern DDS_DataWriter g_DCPSPublication_writer;
 extern DDS_Topic g_DCPSPublication_topic;
-//extern DCPSPublication_data_t g_DCPSPublication_pool[sDDS_TOPIC_APP_MSG_COUNT];
+//extern DCPSPublication_data_t g_DCPSPublication_pool[SDDS_TOPIC_APP_MSG_COUNT];
 
 extern DDS_DataReader g_DCPSSubscription_reader;
 extern DDS_DataWriter g_DCPSSubscription_writer;
 extern DDS_Topic g_DCPSSubscription_topic;
-//extern DCPSSubscription_data_t g_DCPSSubscription_pool[sDDS_TOPIC_APP_MSG_COUNT];
+//extern DCPSSubscription_data_t g_DCPSSubscription_pool[SDDS_TOPIC_APP_MSG_COUNT];
 
 typedef uint8_t BuiltinTopicKey_t;
 
@@ -64,8 +64,8 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 
 struct DDS_DCPSTopic_t {
     BuiltinTopicKey_t key;
-    DDS_char name[TOPIC_NAME_SIZE];
-    DDS_char type_name[TOPIC_TYPE_SIZE];
+    DDS_char name[DDS_TOPIC_NAME_SIZE];
+    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
     // IF QOS AND Foo
     // TODO
     // ENDIF
@@ -87,8 +87,8 @@ DDS_ReturnCode_t DDS_DCPSTopicDataWriter_write(
 struct DDS_DCPSPublication_t {
     BuiltinTopicKey_t key;
     BuiltinTopicKey_t participant_key;
-    DDS_char topic_name[TOPIC_NAME_SIZE];
-    DDS_char type_name[TOPIC_TYPE_SIZE];
+    DDS_char topic_name[DDS_TOPIC_NAME_SIZE];
+    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
     // IF QOS AND FOO
     // TODO
     // ENDIF
@@ -111,8 +111,8 @@ DDS_ReturnCode_t DDS_DCPSPublicationDataWriter_write(
 struct DDS_DCPSSubscription_t {
     BuiltinTopicKey_t key;
     BuiltinTopicKey_t participant_key;
-    DDS_char topic_name[TOPIC_NAME_SIZE];
-    DDS_char type_name[TOPIC_TYPE_SIZE];
+    DDS_char topic_name[DDS_TOPIC_NAME_SIZE];
+    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
     // IF QOS AND FOO
     // TODO
     // ENDIF
@@ -133,14 +133,14 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 
 // ENDIF APP + BUILTINTOPIC
 
-#define DCPS_PARTICIPANT_DOMAIN 0x0
-#define DCPS_PARTICIPANT_TOPIC 0x01
-#define DCPS_TOPIC_DOMAIN 0x0
-#define DCPS_TOPIC_TOPIC 0x02
-#define DCPS_PUBLICATION_DOMAIN 0x0
-#define DCPS_PUBLICATION_TOPIC 0x03
-#define DCPS_SUBSCRIPTION_DOMAIN 0x0
-#define DCPS_SUBSCRIPTION_TOPIC 0x04
+#define DDS_DCPS_PARTICIPANT_DOMAIN 0x0
+#define DDS_DCPS_PARTICIPANT_TOPIC 0x01
+#define DDS_DCPS_TOPIC_DOMAIN 0x0
+#define DDS_DCPS_TOPIC_TOPIC 0x02
+#define DDS_DCPS_PUBLICATION_DOMAIN 0x0
+#define DDS_DCPS_PUBLICATION_TOPIC 0x03
+#define DDS_DCPS_SUBSCRIPTION_DOMAIN 0x0
+#define DDS_DCPS_SUBSCRIPTION_TOPIC 0x04
 
 
 rc_t BuiltinTopic_init(void);

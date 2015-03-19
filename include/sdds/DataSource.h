@@ -25,7 +25,7 @@
 #include "NetBuffRef.h"
 
 
-#define DATASOURCE_OK 0
+#define SDDS_DATASOURCE_OK 0
 
 
 struct DataWriter;
@@ -44,9 +44,9 @@ rc_t DataSource_init(void);
 //DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask);
 
 
-#ifdef sDDS_TOPIC_HAS_SUB
+#ifdef SDDS_TOPIC_HAS_SUB
 rc_t DataSource_write(DataWriter _this, Data data, void* waste);
-#endif// sDDS_TOPIC_HAS_SUB
+#endif// SDDS_TOPIC_HAS_SUB
 
 
 

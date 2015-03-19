@@ -12,8 +12,8 @@
 #include "sdds_types.h"
 
 typedef uint8_t SSW_TaskMode_t;
-#define SSW_TaskMode_single 0
-#define SSW_TaskMode_repeat 1
+#define SDDS_SSW_TaskMode_single 0
+#define SDDS_SSW_TaskMode_repeat 1
 
 struct Task_struct;
 typedef struct Task_struct* Task;

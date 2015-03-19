@@ -36,26 +36,26 @@ rc_t Msg_init(Msg _this, Data dataBuffer)
     return SDDS_RT_OK;
 } 
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg* msg) {
 
-	uint8_t end = (_this->start + _this->count) % sDDS_TOPIC_APP_MSG_COUNT;
+	uint8_t end = (_this->start + _this->count) % SDDS_TOPIC_APP_MSG_COUNT;
 
 	*msg = &(_this->pool[end]);
 
-	if (_this->count < sDDS_TOPIC_APP_MSG_COUNT) {
+	if (_this->count < SDDS_TOPIC_APP_MSG_COUNT) {
 		_this->count++;
 
 	} else {
 		// ring buffer full, discard oldest element
-		_this->start = (_this->start + 1) % sDDS_TOPIC_APP_MSG_COUNT;
+		_this->start = (_this->start + 1) % SDDS_TOPIC_APP_MSG_COUNT;
 	}
 
 	return SDDS_RT_OK;
 }
 #endif
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg* msg) {
 
 	if (_this->count == 0) {
@@ -64,7 +64,7 @@ rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg* msg) {
 
 	*msg = &(_this->pool[_this->start]);
 
-	_this->start = (_this->start + 1) % sDDS_TOPIC_APP_MSG_COUNT;
+	_this->start = (_this->start + 1) % SDDS_TOPIC_APP_MSG_COUNT;
 
 	_this->count--;
 
@@ -72,7 +72,7 @@ rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg* msg) {
 }
 #endif
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 rc_t MsgPool_getUnreadMsgCount(struct MsgPool* _this, uint8_t* count) {
 
 	*count = _this->count;

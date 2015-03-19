@@ -1,1 +1,1 @@
-#define sDDS_TOPIC_HAS_PUB
+#define SDDS_TOPIC_HAS_PUB

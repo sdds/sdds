@@ -29,7 +29,7 @@ rc_t Memory_init(void)
 
 rc_t Memory_allocNetFrame(NetFrameBuff* buff)
 {
-    size_t size = sDDS_NET_MAX_BUF_SIZE * sizeof(byte_t);
+    size_t size = SDDS_NET_MAX_BUF_SIZE * sizeof(byte_t);
     size += sizeof(struct NetFrameBuff_t);
 
 //    *buff = malloc(size);

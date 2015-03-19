@@ -91,10 +91,10 @@ ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mo
     struct timespec intv = {0,0};
     struct timespec value = {0,0};
 
-    if (mode == SSW_TaskMode_single){
+    if (mode == SDDS_SSW_TaskMode_single){
 	value.tv_nsec = usec *1000;
 	value.tv_sec = sec;
-    } else if (mode == SSW_TaskMode_repeat){
+    } else if (mode == SDDS_SSW_TaskMode_repeat){
 	intv.tv_nsec = usec *1000;
 	intv.tv_sec = sec;
     } else {

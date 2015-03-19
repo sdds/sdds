@@ -155,10 +155,10 @@ void BitCloud_State_initSystem(void)
     // TODO
 #endif
 
-    net.localDesc.endpoint = SDDS_ZIGBEE_APP_ENDPOINT_ID;
-    net.localDesc.AppProfileId = SDDS_ZIGBEE_APP_PROFILE_ID;
-    net.localDesc.AppDeviceId = SDDS_ZIGBEE_APP_DEVICE_ID;
-    net.localDesc.AppDeviceVersion = SDDS_ZIGBEE_APP_DEVICE_VERSION;
+    net.localDesc.endpoint = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_ENDPOINT_ID;
+    net.localDesc.AppProfileId = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_PROFILE_ID;
+    net.localDesc.AppDeviceId = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_DEVICE_ID;
+    net.localDesc.AppDeviceVersion = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_DEVICE_VERSION;
     net.localDesc.AppInClustersCount = 0;
     net.localDesc.AppInClustersList = NULL;
     net.localDesc.AppOutClustersCount = 0;
@@ -235,12 +235,12 @@ void BitCloud_State_initSystem(void)
 
 
     // init default zigbee data request
-    net.dataRequest.profileId 		    = SDDS_ZIGBEE_APP_PROFILE_ID;
+    net.dataRequest.profileId 		    = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_PROFILE_ID;
     net.dataRequest.dstAddrMode             = APS_SHORT_ADDRESS;
     net.dataRequest.dstAddress.shortAddress = CPU_TO_LE16(0);
-    net.dataRequest.dstEndpoint             = SDDS_ZIGBEE_APP_ENDPOINT_ID;
-    net.dataRequest.clusterId               = CPU_TO_LE16(SDDS_ZIGBEE_APP_CLUSTER_ID);
-    net.dataRequest.srcEndpoint             = SDDS_ZIGBEE_APP_ENDPOINT_ID;
+    net.dataRequest.dstEndpoint             = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_ENDPOINT_ID;
+    net.dataRequest.clusterId               = CPU_TO_LE16(PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_CLUSTER_ID);
+    net.dataRequest.srcEndpoint             = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_ENDPOINT_ID;
 //    net.dataRequest.asduLength              = sizeof(dirtyAppMessage.data);
 //    net.dataRequest.asdu                    = (uint8_t *)(&dirtyAppMessage.data);
 //    net.dataRequest.txOptions.acknowledgedTransmission = 1;
@@ -378,8 +378,8 @@ void APS_DataIncoming(APS_DataInd_t *indData)
     }
 
     // check sdds msg
-    if (indData->clusterId != SDDS_ZIGBEE_APP_CLUSTER_ID ||
-	    indData->profileId != SDDS_ZIGBEE_APP_PROFILE_ID){
+    if (indData->clusterId != PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_CLUSTER_ID ||
+	    indData->profileId != PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_PROFILE_ID){
 	return ;
     }
 

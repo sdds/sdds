@@ -171,7 +171,7 @@ rc_t Marshalling_dec_uint64(byte_t* buff, uint64_t* d)
 void decode(byte_t* buff, byte_t* d, size_t size)
 {
 
-#ifdef sDDS_LOCAL_BYTEORDER_LITTLE_ENDIAN
+#ifdef SDDS_LOCAL_BYTEORDER_LITTLE_ENDIAN
     d += size;
     for (size_t i = 0; i < size; i++){
 	*(--d) = *(buff++);
@@ -185,7 +185,7 @@ void decode(byte_t* buff, byte_t* d, size_t size)
 }
 void encode(byte_t* buff, byte_t* datum, size_t size)
 {
-#ifdef sDDS_LOCAL_BYTEORDER_LITTLE_ENDIAN
+#ifdef SDDS_LOCAL_BYTEORDER_LITTLE_ENDIAN
 
     datum += size;
     for (size_t i = 0; i < size; i++){

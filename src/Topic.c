@@ -20,7 +20,7 @@
 #include "Msg.h"
 
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 rc_t Topic_getFreeMsg(Topic _this, Msg* msg) {
 	return MsgPool_getFreeMsg(&(_this->msg), msg);
 }
@@ -37,7 +37,7 @@ rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count) {
 #if 0
 rc_t Topic_getFreeMsg(Topic _this, Msg* msg)
 {
-    for (int i = 0; i < sDDS_TOPIC_APP_MSG_COUNT; i++){
+    for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++){
 	if (_this->msg.pool[i].isEmpty == true){
 	    // found one
 	    _this->msg.pool[i].isEmpty = false;
@@ -47,7 +47,7 @@ rc_t Topic_getFreeMsg(Topic _this, Msg* msg)
     }
     // nothing found yet?
     // use a allready read data
-    for (int i = 0; i < sDDS_TOPIC_APP_MSG_COUNT; i++){
+    for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++){
 	if (_this->msg.pool[i].isRead == true && _this->msg.pool[i].isLoaned == false){
 	    // empty it
 	    Msg_init(&(_this->msg.pool[i]), NULL);
@@ -63,7 +63,7 @@ rc_t Topic_getFreeMsg(Topic _this, Msg* msg)
 #endif
 
 
-#ifdef sDDS_TOPIC_HAS_SUB
+#ifdef SDDS_TOPIC_HAS_SUB
 rc_t Topic_addRemoteDataSink(Topic _this, Locator addr)
 {
 	if (_this == NULL || addr == NULL){
@@ -81,7 +81,7 @@ rc_t Topic_addRemoteDataSink(Topic _this, Locator addr)
 }
 #endif
 
-#ifdef sDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB
 rc_t Topic_addRemoteDataSource(Topic _this, Locator addr)
 {
 	if (_this == NULL || addr == NULL){

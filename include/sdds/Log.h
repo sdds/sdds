@@ -20,7 +20,7 @@
 #ifndef  LOG_H_INC
 #define  LOG_H_INC
 
-#ifdef NO_LOGGING
+#ifdef UTILS_NO_LOGGING
 #define Log_debug(args...)
 #define Log_info(args...)
 #define Log_warn(args...)
@@ -29,7 +29,7 @@
 #endif
 
 
-#ifndef NO_LOGGING
+#ifndef UTILS_NO_LOGGING
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>

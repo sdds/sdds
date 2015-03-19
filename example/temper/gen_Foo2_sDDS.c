@@ -38,7 +38,7 @@ DDS_FooDataReader fooDataReader;
 DDS_Topic fooTopic;
 
 // data buffer for the msg
-Foo fooBufferPool[sDDS_TOPIC_APP_MSG_COUNT];
+Foo fooBufferPool[SDDS_TOPIC_APP_MSG_COUNT];
 
 Topic FooTopic_create(void);
 
@@ -97,7 +97,7 @@ Topic FooTopic_create(void)
     topic->Data_cpy = Data_cpy;
 
     // init the msg pool
-    for (int i = 0; i < sDDS_TOPIC_APP_MSG_COUNT; i++){
+    for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++){
 	Msg_init(&(topic->msg.pool[i]), (Data) &(fooBufferPool[i]));
     }
 

@@ -46,11 +46,11 @@ rc_t Wiedas_SensorApp_Movement_init() {
 #ifdef WIEDAS_MOVEMENT_LED
 
 	static struct LED_t led_stc = {
-			.bank = LED_CONF_BANK_B,
-			.pin = LED_CONF_PIN_6,
+			.bank = HAL_LED_BANK_B,
+			.pin = HAL_LED_PIN_6,
 			.sourceing = false,
-			.resolution = LED_CONF_DIM_RESOLUTION_10BIT,
-			.mode = (LED_CONF_DIM_MODE_FAST_PWM | LED_CONF_DIM_ACTIVATE),
+			.resolution = HAL_LED_DIM_RESOLUTION_10BIT,
+			.mode = (HAL_LED_DIM_MODE_FAST_PWM | HAL_LED_DIM_ACTIVATE),
 			.dimValue = 90
 
 	};
@@ -66,8 +66,8 @@ rc_t Wiedas_SensorApp_Movement_init() {
 	// use gpio input as driver
 	static struct GPIO_Input_t pir_input = {
 		.pin = 0,
-		.bank = GPIO_INPUT_ATMEGA_BANK_B,
-		.mode = GPIO_INPUT_MODE_INTERUPT_ENABLE
+		.bank = DRIVER_GPIO_INPUT_ATMEGA_BANK_B,
+		.mode = DRIVER_GPIO_INPUT_MODE_INTERUPT_ENABLE
 	};
 	g_gpio_PIR = &pir_input;
 
