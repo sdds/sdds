@@ -24,6 +24,8 @@ extern "C"
 }
 #endif
 
+#ifdef FEATURE_BUILTIN_TOPIC
+
 DDS_Topic g_DCPSParticipant_topic;
 DDS_DCPSParticipant g_DCPSParticipant_pool[SDDS_TOPIC_APP_MSG_COUNT];
 DDS_DataReader g_DCPSParticipant_reader;
@@ -657,3 +659,5 @@ rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t*
 
 	return SDDS_RT_OK;
 }
+
+#endif

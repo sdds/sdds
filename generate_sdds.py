@@ -30,8 +30,10 @@ rc_t sDDS_init(void)
 	DataSource_init();
 	DataSink_init();
 	Network_init();
+#ifdef FEATURE_BUILTIN_TOPIC
 	BuiltinTopic_init();
-	
+#endif
+
     int log_level = 3;
 
 	Log_setLvl(log_level);
