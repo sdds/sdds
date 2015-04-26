@@ -49,16 +49,19 @@ rc_t Wiedas_SensorApp_Movement_init() {
 			.bank = HAL_LED_BANK_B,
 			.pin = HAL_LED_PIN_6,
 			.sourceing = false,
+#ifdef DRIVER_LED_DIMMING
 			.resolution = HAL_LED_DIM_RESOLUTION_10BIT,
 			.mode = (HAL_LED_DIM_MODE_FAST_PWM | HAL_LED_DIM_ACTIVATE),
 			.dimValue = 90
-
+#endif 
 	};
 	g_move_LED = &led_stc;
 	ret = LED_init(g_move_LED);
 
 	LED_switchOff(g_move_LED);
+#ifdef DRIVER_LED_DIMMING
 	LED_dim(g_move_LED, 90);
+#endif
 
 #endif
 	//ret = AMN31112_init();

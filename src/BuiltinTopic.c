@@ -24,7 +24,7 @@ extern "C"
 }
 #endif
 
-#ifdef FEATURE_BUILTIN_TOPIC
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 
 DDS_Topic g_DCPSParticipant_topic;
 DDS_DCPSParticipant g_DCPSParticipant_pool[SDDS_TOPIC_APP_MSG_COUNT];

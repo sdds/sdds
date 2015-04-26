@@ -1,6 +1,14 @@
+PLATFORM_LINUX_SDDS_SEND_ADDRESS=fe80::10%tap0
+PLATFORM_LINUX_SDDS_PROTOCOL=AF_INET6
+
+APPLICATION_NAME = sdds
+
+export APPLICATION_NAME
+export PLATFORM_LINUX_SDDS_SEND_ADDRESS 
+export PLATFORM_LINUX_SDDS_PROTOCOL 
+
 all:
-	$(MAKE) -f Makefile.include sdds $(MAKEOPTS) \
-	            PLATFORM_LINUX_SDDS_SEND_ADDRESS="fe80::10%tap0" \
-			    PLATFORM_LINUX_SDDS_PROTOCOL=AF_INET6
+	$(MAKE) -f Makefile_2nd_lvl.mk $(APPLICATION_NAME) $(MAKEOPTS) # PLATFORM_LINUX_SDDS_SEND_ADDRESS="fe80::10%tap0" 
+
 clean:
-	$(MAKE) -f Makefile.include clean
+	$(MAKE) -f Makefile_2nd_lvl.mk clean

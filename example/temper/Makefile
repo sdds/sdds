@@ -14,9 +14,15 @@ SDDS_OBJDIR := ./objs
 
 all: $(SDDS_PLATFORM)-app $(SDDS_PLATFORM)-app2
 
+$(SDDS_OBJDIR):
+	mkdir $(SDDS_OBJDIR)
+
+$(LOCAL_CONSTANTS):
+	touch $(LOCAL_CONSTANTS)
+
 include $(SDDS_TOPDIR)/sdds.mk
 
-$(SDDS_OBJDIR)/%.o: %.c
+$(SDDS_OBJDIR)/%.o: %.c $(SDDS_OBJDIR) $(LOCAL_CONSTANTS) 
 	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
 
 $(SDDS_OBJDIR)/temper.o: temper.c
@@ -37,5 +43,6 @@ clean:
 	$(RM) $(SDDS_OBJDIR)/App.o $(SDDS_OBJDIR)/App2.o
 	$(RM) $(SDDS_OBJDIR)/gen_Foo_sDDS.o $(SDDS_OBJDIR)/gen_Foo2_sDDS.o
 	$(RM) $(SDDS_OBJDIR)/bbiic.o $(SDDS_OBJDIR)/temper.o
+	$(RM) -rf $(SDDS_OBJDIR)
 
 -include $(SDDS_OBJDIR)/bbiic.d $(SDDS_OBJDIR)/temper.d

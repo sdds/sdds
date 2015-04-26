@@ -54,10 +54,11 @@ rc_t Wiedas_SensorApp_DimmerLamp_init(){
 			.bank = HAL_LED_BANK_B,
 			.pin = HAL_LED_PIN_5,
 			.sourceing = true,
+#ifdef DRIVER_LED_DIMMING
 			.resolution = HAL_LED_DIM_RESOLUTION_10BIT,
 			.mode = (HAL_LED_DIM_MODE_FAST_PWM | HAL_LED_DIM_ACTIVATE),
 			.dimValue = 0
-
+#endif
 	};
 	lampled = &lamp_stc;
 	ret = LED_init(lampled);
@@ -71,7 +72,9 @@ rc_t Wiedas_SensorApp_DimmerLamp_init(){
 			.bank = HAL_LED_BANK_B,
 			.pin = HAL_LED_PIN_4,
 			.sourceing = true,
+#ifdef DRIVER_LED_DIMMING
 			.mode = 0
+#endif
 	};
 	fan4led = &fan_stc;
 	ret = LED_init(fan4led);
@@ -123,7 +126,9 @@ rc_t Wiedas_SensorApp_DimmerLamp_dowork(){
 
 	uint8_t dimValue;
 
+#ifdef DRIVER_LED_DIMMING
 	LED_getDimValue(lampled, &dimValue);
+#endif
 
 	DimmableLight data;
 
@@ -172,8 +177,6 @@ void sdds_DR_handler_LightRegulationFunctionality(DDS_DataReader reader) {
 	Log_debug("Got LightRegulationFunctionality command value: %d \n", data.setValue);
 
 	uint8_t value = data.setValue;
-
-	LED_dim(lampled, value);
 
 	if (value > 0) {
 		LED_switchOn(fan4led);

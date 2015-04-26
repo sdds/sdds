@@ -314,7 +314,7 @@ fconstants.write(r"""
 
 #define SDDS_LOCAL_BYTEORDER_%(byte_order)s_ENDIAN
 #define SDDS_NET_VERSION 0x01
-#ifdef SDDS_BUILTIN_TOPICS_ENABLED
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 #define SDDS_MAX_DATA_WRITERS %(data_writers_builtin)s
 #define SDDS_MAX_DATA_READERS %(data_readers_builtin)s
 #else
@@ -343,7 +343,7 @@ fconstants.write(r"""
 #define SDDS_TOPIC_APP_MSG_COUNT 5
 #endif /* SDDS_TOPIC_APP_MSG_COUNT */
 
-#ifdef SDDS_BUILTIN_TOPICS_ENABLED
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 #define SDDS_TOPIC_MAX_COUNT %(max_topics_builtin)d
 #else
 #define SDDS_TOPIC_MAX_COUNT %(max_topics)d
