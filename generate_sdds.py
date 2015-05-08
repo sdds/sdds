@@ -30,7 +30,7 @@ rc_t sDDS_init(void)
 	DataSource_init();
 	DataSink_init();
 	Network_init();
-#ifdef FEATURE_BUILTIN_TOPIC
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 	BuiltinTopic_init();
 #endif
 
