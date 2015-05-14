@@ -34,7 +34,7 @@ int main()
     }
     else
     { 
-        printf("Received (participant):[%c]\n", p_data_used.key);
+        printf("Received (participant):[%u]\n", p_data_used.key);
     }
 
 
@@ -45,20 +45,20 @@ int main()
     }
     else
     { 
-        printf("Received (topic):[%c] topic:%s; type:%s\n", t_data_used.key, t_data_used.name, t_data_used.type_name);
+        printf("Received (topic):[%u] topic:%s type:%s\n", t_data_used.key, t_data_used.name, t_data_used.type_name);
     }
 
-        ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader, &beta_data_used_ptr, NULL);
-      	if (ret == DDS_RETCODE_NO_DATA)
-		{
-            printf("no data beta\n");
-		}
-		else
-		{ 
-			printf("Received (beta):[%c] %s %s\n", beta_data_used.value, beta_data_used.value2, beta_data_used.value3);
-	    }
-    
-        sleep(10);
+	ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader, &beta_data_used_ptr, NULL);
+	if (ret == DDS_RETCODE_NO_DATA)
+	{
+		printf("no data beta\n");
+	}
+	else
+	{
+		printf("Received (beta):[%c] %s %s\n", beta_data_used.value, beta_data_used.value2, beta_data_used.value3);
+	}
+
+	sleep(10);
 
     }
 }
