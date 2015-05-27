@@ -31,9 +31,43 @@ int main()
             t.name[5] = '2';
             t.name[6] = '3';
             t.name[7] = '\0';
-            t.type_name[0] = '4';
-            t.type_name[1] = '5';
+            t.type_name[0] = 'A';
+            t.type_name[1] = 'A';
             t.type_name[2] = '\0';
+
+            DDS_DCPSPublication pt;
+            memset(pt.topic_name, 0, DDS_TOPIC_NAME_SIZE);
+            memset(pt.type_name, 0, DDS_TOPIC_TYPE_SIZE);
+            pt.key = 55;
+            pt.participant_key = 123;
+            pt.topic_name[0] = 'T';
+            pt.topic_name[1] = 'e';
+            pt.topic_name[2] = 'm';
+            pt.topic_name[3] = 'p';
+            pt.topic_name[4] = '1';
+            pt.topic_name[5] = '2';
+            pt.topic_name[6] = '3';
+            pt.topic_name[7] = '\0';
+            pt.type_name[0] = 'B';
+            pt.type_name[1] = 'B';
+            pt.type_name[2] = '\0';
+
+            DDS_DCPSSubscription st;
+            memset(st.topic_name, 0, DDS_TOPIC_NAME_SIZE);
+            memset(st.type_name, 0, DDS_TOPIC_TYPE_SIZE);
+            st.key = 55;
+            st.participant_key = 123;
+            st.topic_name[0] = 'T';
+            st.topic_name[1] = 'e';
+            st.topic_name[2] = 'm';
+            st.topic_name[3] = 'p';
+            st.topic_name[4] = '1';
+            st.topic_name[5] = '2';
+            st.topic_name[6] = '3';
+            st.topic_name[7] = '\0';
+            st.type_name[0] = 'C';
+            st.type_name[1] = 'C';
+            st.type_name[2] = '\0';
 
             Beta b;
             b.value = 44;
@@ -56,6 +90,14 @@ int main()
 				//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
 			}
             if (DDS_DCPSTopicDataWriter_write(g_DCPSTopic_writer, &t, NULL) != DDS_RETCODE_OK) {
+                // handle error
+            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
+            }
+            if (DDS_DCPSPublicationDataWriter_write(g_DCPSPublication_writer, &pt, NULL) != DDS_RETCODE_OK) {
+                // handle error
+            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
+            }
+            if (DDS_DCPSSubscriptionDataWriter_write(g_DCPSSubscription_writer, &st, NULL) != DDS_RETCODE_OK) {
                 // handle error
             	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
             }

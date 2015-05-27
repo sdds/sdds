@@ -24,6 +24,12 @@ int main()
     DDS_DCPSTopic t_data_used;
     DDS_DCPSTopic* t_data_used_ptr = &t_data_used;
 
+    DDS_DCPSPublication pt_data_used;
+    DDS_DCPSPublication* pt_data_used_ptr = &pt_data_used;
+
+    DDS_DCPSSubscription st_data_used;
+    DDS_DCPSSubscription* st_data_used_ptr = &st_data_used;
+
 	for (;;)
 	{
 
@@ -46,6 +52,26 @@ int main()
     else
     { 
         printf("Received (topic):[%u] topic:%s type:%s\n", t_data_used.key, t_data_used.name, t_data_used.type_name);
+    }
+
+    ret = DDS_DCPSPublicationDataReader_take_next_sample(g_DCPSPublication_reader, &pt_data_used_ptr, NULL);
+    if (ret == DDS_RETCODE_NO_DATA)
+    {
+        printf("no data publication\n");
+    }
+    else
+    {
+        printf("Received (publication):[%u][%u] topic:%s type:%s\n", pt_data_used.key, pt_data_used.participant_key, pt_data_used.topic_name, pt_data_used.type_name);
+    }
+
+    ret = DDS_DCPSSubscriptionDataReader_take_next_sample(g_DCPSSubscription_reader, &st_data_used_ptr, NULL);
+    if (ret == DDS_RETCODE_NO_DATA)
+    {
+        printf("no data subscription\n");
+    }
+    else
+    {
+        printf("Received (subscription):[%u][%u] topic:%s type:%s\n", st_data_used.key, st_data_used.participant_key, st_data_used.topic_name, st_data_used.type_name);
     }
 
 	ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader, &beta_data_used_ptr, NULL);

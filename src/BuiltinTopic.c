@@ -646,7 +646,6 @@ rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t*
 {
     int expectedSize = 2 + DDS_TOPIC_NAME_SIZE + DDS_TOPIC_TYPE_SIZE;
 	if (*size != expectedSize)
-		fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, expectedSize);
 
 	*size = 0;
 
@@ -664,7 +663,7 @@ rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t*
 
 	Marshalling_dec_string(buffer + *size, real_data->type_name, DDS_TOPIC_TYPE_SIZE);
 	//*size += sizeof(real_data->type_name);
-	*size += DDS_TOPIC_TYPE_SIZE;
+	*size = DDS_TOPIC_TYPE_SIZE;
 
 	return SDDS_RT_OK;
 }
