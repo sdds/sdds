@@ -99,6 +99,7 @@ clean:
 	$(RM) $(CLEAN)
 	$(RM) $(SDDS_OBJS) $(SDDS_OBJS_DEPEND)
 	$(RM) -rf $(SDDS_OBJDIR)
+	$(RM) -rf local_constants.h
 
 
 -include $(patsubst %.o,%.d,$(ALL_OBJS))
