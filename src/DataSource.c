@@ -194,10 +194,46 @@ rc_t DataSource_write(DataWriter _this, Data data, void* waste)
     }
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
-   // return 0;
+    // return 0;
+
    return checkSending(buffRef);
 }
 #endif // SDDS_TOPIC_HAS_SUB
+
+
+// BuildIn Topic
+rc_t DataSource_writeAddress(DataWriter _this)
+{
+    NetBuffRef buffRef = NULL;
+    Topic topic = _this->topic;
+    domainid_t domain = topic->domain;
+    Locator dest = topic->dsinks.list;
+
+    buffRef = findFreeFrame(dest);
+    buffRef->addr = dest;
+
+    if(buffRef->curDomain != domain){
+        SNPS_writeDomain(buffRef, domain);
+        buffRef->curDomain = domain;
+    }
+    if(buffRef->curTopic != topic){
+        SNPS_writeTopic(buffRef, topic->id);
+        buffRef->curTopic = topic;
+    }
+
+	// Test ob's geht
+	printf("====== Test writeAddress ======\n");
+    if (SNPS_writeAddress(buffRef) != SDDS_RT_OK){
+    	// something went wrong oO
+    	return SDDS_RT_FAIL;
+    }
+    //END
+
+    Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
+    // return 0;
+
+   return checkSending(buffRef);
+}
 
 /*
 // impl for BuiltinTopic

@@ -47,6 +47,10 @@ static Msg msg;
 static struct DataSink_t dsStruct;
 DataSink dataSink = &dsStruct;
 
+char addr[16];
+castType_t addrCast;
+addrType_t addrType;
+
 rc_t parseData(NetBuffRef buff);
 rc_t submitData(void);
 rc_t checkDomain(NetBuffRef buff, domainid_t domain);
@@ -103,6 +107,16 @@ rc_t DataSink_processFrame(NetBuffRef buff)
 		if (ret != SDDS_RT_OK)
 		    return SDDS_RT_FAIL;
 #endif
+		break;
+	    case (SDDS_SNPS_T_ADDRESS) :
+	    memset(addr, 0, 16);
+		SNPS_readAddress(buff, &addrCast, &addrType, addr);
+
+		printf("======= receive Address ===========\n");
+		printf("castType: %u\n", addrCast);
+		printf("addrType: %u\n", addrType);
+		printf("addr: %s\n", addr);
+
 		break;
 //	    case (SDDS_SNPS_T_TSSIMPLE) :
 //		break;

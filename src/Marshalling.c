@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 #include "Marshalling.h"
+#include "SNPS.h"
+#include <stdio.h>
 
 void encode(byte_t* buff, byte_t* d, size_t size);
 void decode(byte_t* buff, byte_t* d, size_t size);
@@ -121,7 +123,7 @@ rc_t Marshalling_dec_string(byte_t* buff, uint8_t* d, int size) {
             return SDDS_RT_FAIL;
 
     }
-    d[i + 1] = '\0';
+    d[i] = '\0';
 
     return SDDS_RT_OK;
 }

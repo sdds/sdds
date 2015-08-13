@@ -81,7 +81,7 @@ int main()
 	}
 	else
 	{
-		printf("Received (beta):[%c] %s %s\n", beta_data_used.value, beta_data_used.value2, beta_data_used.value3);
+		printf("Received (beta):[%d] %s %s\n", beta_data_used.value, beta_data_used.value2, beta_data_used.value3);
 	}
 
 	sleep(10);

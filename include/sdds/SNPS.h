@@ -25,6 +25,15 @@
 #include "NetBuffRef.h"
 
 typedef uint8_t subMsg_t;
+typedef uint8_t addrType_t;
+typedef uint8_t castType_t;
+
+#define SDDS_SNPS_CAST_UNICAST 		0
+#define SDDS_SNPS_CAST_MULTICAST	1
+#define SDDS_SNPS_CAST_BROADCAST	2
+
+#define SDDS_SNPS_ADDR_IPV4		0
+#define SDDS_SNPS_ADDR_IPV6		1
 
 #define SDDS_SNPS_T_DOMAIN		 0
 #define SDDS_SNPS_T_TOPIC		 1
@@ -34,6 +43,7 @@ typedef uint8_t subMsg_t;
 #define SDDS_SDDS_SNPS_T_ACKSEQ		 5
 #define SDDS_SDDS_SNPS_T_NACKSEQ		 6
 #define SDDS_SNPS_T_STATUS		 7
+#define SDDS_SNPS_T_ADDRESS		8
 
 #define SDDS_SNPS_T_ACK			17
 #define SDDS_SNPS_T_NACK			18
@@ -44,7 +54,6 @@ typedef uint8_t subMsg_t;
 #define SDDS_SNPS_T_SEQNRBIG		35
 #define SDDS_SNPS_T_SEQNRSMALL	36
 #define SDDS_SNPS_T_SEQNRHUGE	37
-#define SDDS_SNPS_T_ADDRESS		38
 
 #define SDDS_SNPS_T_UNKNOWN		0xff
 
@@ -55,8 +64,9 @@ typedef uint8_t subMsg_t;
 #define SDDS_SNPS_SUBMSG_SEQNR		0x03
 #define SDDS_SNPS_SUBMSG_TS			0x04
 #define SDDS_SNPS_SUBMSG_ACKSEQ		0x05
-#define SDDS_SNPS_SUBMSG_NACKSEQ		0x06
+#define SDDS_SNPS_SUBMSG_NACKSEQ	0x06
 #define SDDS_SNPS_SUBMSG_STATUS		0x07
+#define SDDS_SNPS_SUBMGS_ADDR		0x08
 
 #define SDDS_SNPS_SUBMSG_EXTENDED	0x0f
 
@@ -96,6 +106,8 @@ rc_t SNPS_writeSeqNrHUGE(NetBuffRef ref);
 rc_t SNPS_writeTSDDS(NetBuffRef ref);
 rc_t SNPS_writeSep(NetBuffRef ref);
 rc_t SNPS_writeAddress(NetBuffRef ref);
+
+rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t addrLen, uint8_t *addr);
 
 
 rc_t SNPS_readHeader(NetBuffRef ref);

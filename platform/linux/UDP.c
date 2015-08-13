@@ -62,6 +62,8 @@
 #define PLATFORM_LINUX_SDDS_SEND_ADDRESS "::1"
 #endif
 
+//#define PRINT_RECVBUF
+
 struct Network_t {
     int fd_uni_socket;
     int fd_multi_socket_in;
@@ -453,14 +455,13 @@ static int create_socket(struct addrinfo *address)
 	return fd;
 }
 
-
-
 void *recvLoop(void *netBuff)
 {
     NetBuffRef buff = (NetBuffRef)netBuff;
     int sock; // receive socket
     unsigned int sock_type; // broad or multicast
 
+    int count = 0;
 
     // Check the dummy locator for uni or multicast socket
     struct Locator_t *l = (struct Locator_t *) buff->addr;
@@ -479,7 +480,12 @@ void *recvLoop(void *netBuff)
 
     while (true)
     {
-		//reset the buffer
+
+//        printf("========== receive NetBuff #%d ==========\n", count++);
+//        NetBuffRef_print(buff);
+//        printf("========== END NetBuff =======\n");
+
+    	//reset the buffer
 		NetBuffRef_renew(buff);
 
 		// spare address field?
@@ -543,7 +549,7 @@ void *recvLoop(void *netBuff)
             inBuff.addr = loc;
 
 
-#if PRINT_RECVBUF
+#ifdef PRINT_RECVBUF
 	printf("recvBuffer: \n");
 	for (int i =0; i< recv_size; i++){
 
@@ -553,6 +559,7 @@ void *recvLoop(void *netBuff)
 		}
 
 		printf("\n");
+	}
 #endif
 
     //pthread_mutex_lock(&recv_mutex);
@@ -572,7 +579,7 @@ void *recvLoop(void *netBuff)
 rc_t Network_send(NetBuffRef buff) {
     int sock;
     unsigned int sock_type;
-    
+
     // Check the locator for uni or multicast socket
     struct Locator_t *l = (struct Locator_t *) buff->addr;
     sock_type = l->type;
@@ -583,6 +590,10 @@ rc_t Network_send(NetBuffRef buff) {
         sock = net.fd_uni_socket;
 
 	Locator loc = buff->addr;
+
+    printf("========== send NetBuff ==========\n");
+    NetBuffRef_print(buff);
+    printf("========== END NetBuff =======\n");
 
 	while (loc != NULL ) {
 

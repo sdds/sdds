@@ -38,6 +38,9 @@ rc_t SNPS_evalSubMsg(NetBuffRef ref, subMsg_t* type)
     // if id == 15 => extended
     if ((read & 0x0f) < 15){
     	*type = (read & 0x0f);
+
+    	printf("********* SDDS SUBMSG TYPE: %d ***********\n", *type);
+
     	return SDDS_RT_OK;
     } 
 
@@ -172,6 +175,10 @@ rc_t SNPS_readHeader(NetBuffRef ref)
     Marshalling_dec_uint8(START, &(ref->subMsgCount));
     ref->curPos += sizeof(uint8_t);
 
+    // DEBUG
+    printf("%s: %s\n", __FUNCTION__, ref->buff_start);
+    // DEBUG
+
     return SDDS_RT_OK;
 }
 
@@ -300,6 +307,77 @@ rc_t SNPS_readData(NetBuffRef ref, rc_t (*TopicMarshalling_decode)(byte_t* buff,
 
 	return SDDS_RT_OK;
 }
+
+rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t addrLen, uint8_t *addr) {
+	Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMGS_ADDR, addrLen);
+	ref->curPos += 1;
+	ref->subMsgCount += 1;
+
+	uint8_t addrSpecs = (castType | (addrType << 4));
+	Marshalling_enc_int8(START, (uint8_t *) &addrSpecs);
+	ref->curPos += 1;
+
+	Marshalling_enc_string(START, addr, addrLen);
+	ref->curPos += addrLen;
+
+	return SDDS_RT_OK;
+}
+
+rc_t SNPS_writeAddress(NetBuffRef ref) {
+
+	uint8_t addr[15];
+	uint8_t addrLen = 8;
+
+	addr[0] = 'f';
+	addr[1] = 'e';
+	addr[2] = '8';
+	addr[3] = '0';
+	addr[4] = ':';
+	addr[5] = ':';
+	addr[6] = '1';
+	addr[7] = '0';
+	addr[8] = 0;
+	addr[9] = 0;
+	addr[10] = 0;
+	addr[11] = 0;
+	addr[12] = 0;
+	addr[13] = 0;
+	addr[14] = 0;
+	addr[15] = 0;
+
+	return SNPS_writeAddr(ref, SDDS_SNPS_CAST_BROADCAST, SDDS_SNPS_ADDR_IPV6, addrLen, addr);
+}
+
+rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType, char *addr)
+{
+	rc_t ret;
+	uint8_t addrLen;
+	ret = Marshalling_dec_uint8(START, &addrLen);
+	addrLen = (addrLen >> 4);
+    ref->curPos +=1;
+
+    printf("~~~~~~~~~~ readAddress ~~~~~~~~~~\n");
+    printf("addrLen: %d\n", addrLen);
+
+    uint8_t addrInfo;
+    ret = Marshalling_dec_uint8(START, &addrInfo);
+    addrCast = (addrInfo & 0x0f);
+    addrType = ((addrInfo >> 4) & 0x0f);
+    ref->curPos +=1;
+    printf("addrInfo: %x\n", addrInfo);
+    printf("addrCast: %x\n", addrCast);
+    printf("addrType: %x\n", addrType);
+
+    ret = Marshalling_dec_string(START, addr, addrLen);
+    ref->curPos +=addrLen;
+
+    printf("addr: %s\n", addr);
+
+    ref->subMsgCount -=1;
+
+    return SDDS_RT_OK;
+}
+
 /*
 rc_t SNPS_writeTSsimple(NetBuffRef ref, TimeStampSimple_t* ts)
 {
