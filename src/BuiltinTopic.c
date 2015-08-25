@@ -66,12 +66,14 @@ rc_t BuiltinTopic_init(void)
 	g_DCPSParticipant_writer = DataSource_create_datawriter(g_DCPSParticipant_topic, NULL, NULL, NULL);
 
 	ret = LocatorDB_newMultiLocator(&l);
+//	ret = LocatorDB_newBroadLocator(&l);
 	if (ret != SDDS_RT_OK)
 	return ret;
 
 	Locator_upRef(l);
 
 	ret = Network_setMulticastAddressToLocator(l, "ff02::01:10");
+//	ret = Network_setBroadcastAddressToLocator(l, "ff02::01:10");
 	if (ret != SDDS_RT_OK) {
 		return ret;
 	}

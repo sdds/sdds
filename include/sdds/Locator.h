@@ -35,7 +35,7 @@ struct Locator_t{
     // TODO state reicht nicht ref counter?
     // wie geht das mit den bitmaps?
     // 4 bit refconter?
-    unsigned int type		: 2;
+    unsigned int type	: 2;
     _Bool isEmpty		: 1;
     _Bool isDest		: 1;
     _Bool isSender		: 1;

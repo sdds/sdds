@@ -38,9 +38,6 @@ rc_t SNPS_evalSubMsg(NetBuffRef ref, subMsg_t* type)
     // if id == 15 => extended
     if ((read & 0x0f) < 15){
     	*type = (read & 0x0f);
-
-    	printf("********* SDDS SUBMSG TYPE: %d ***********\n", *type);
-
     	return SDDS_RT_OK;
     } 
 
@@ -174,10 +171,6 @@ rc_t SNPS_readHeader(NetBuffRef ref)
     }
     Marshalling_dec_uint8(START, &(ref->subMsgCount));
     ref->curPos += sizeof(uint8_t);
-
-    // DEBUG
-    printf("%s: %s\n", __FUNCTION__, ref->buff_start);
-    // DEBUG
 
     return SDDS_RT_OK;
 }
@@ -356,22 +349,14 @@ rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType
 	addrLen = (addrLen >> 4);
     ref->curPos +=1;
 
-    printf("~~~~~~~~~~ readAddress ~~~~~~~~~~\n");
-    printf("addrLen: %d\n", addrLen);
-
     uint8_t addrInfo;
     ret = Marshalling_dec_uint8(START, &addrInfo);
-    addrCast = (addrInfo & 0x0f);
-    addrType = ((addrInfo >> 4) & 0x0f);
+    *addrCast = (addrInfo & 0x0f);
+    *addrType = ((addrInfo >> 4) & 0x0f);
     ref->curPos +=1;
-    printf("addrInfo: %x\n", addrInfo);
-    printf("addrCast: %x\n", addrCast);
-    printf("addrType: %x\n", addrType);
 
     ret = Marshalling_dec_string(START, addr, addrLen);
     ref->curPos +=addrLen;
-
-    printf("addr: %s\n", addr);
 
     ref->subMsgCount -=1;
 

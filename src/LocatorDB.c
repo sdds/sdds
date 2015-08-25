@@ -86,6 +86,28 @@ rc_t LocatorDB_newMultiLocator(Locator* loc) {
 	return SDDS_RT_OK;
 }
 
+rc_t LocatorDB_newBroadLocator(Locator* loc) {
+    if (db.freeLoc == 0) {
+		return SDDS_LOCATORDB_RT_NOFREELOCATORS;
+	}
+	db.freeLoc--;
+	// set is NULL so can use it to mark if we found one
+	*loc = NULL;
+	// search for locator witch is not referenced somewhere
+	// could also be an empty one
+	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
+		// check if ref counter is zero
+		if (db.pool[i]->refCount == 0) {
+			*loc = db.pool[i];
+			break;
+		}
+	}
+    (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
+	(*loc)->next = NULL;
+
+	return SDDS_RT_OK;
+}
+
 rc_t LocatorDB_freeLocator(Locator loc) {
 	// decrem refcounter if bigger than zero
 	if (loc->refCount > 0) {

@@ -120,6 +120,7 @@ typedef uint8_t rc_t;
 #define SDDS_RT_NOMEM 2
 #define SDDS_RT_NODATA 3
 #define SDDS_RT_BAD_PARAMETER 4
+#define SDDS_RT_KNOWN 5
 
 
 //abstract definistion for Data

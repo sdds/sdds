@@ -5,6 +5,9 @@
 #include "linux_sdds_impl.h"
 #include "beta-ds.h"
 #include "BuiltinTopic.h"
+#include "Discovery.h"
+
+void printRC(rc_t ret);
 
 int main()
 {
@@ -12,6 +15,7 @@ int main()
 
 	sDDS_init();
     Log_setLvl(0);
+    Discovery_init();
 
     DDS_ReturnCode_t ret;
 
@@ -41,6 +45,19 @@ int main()
     else
     { 
         printf("Received (participant):[%u]\n", p_data_used.key);
+        //DataSink_printAddr();
+        Discovery_address_t addr;
+        ret = DataSink_getAddr(&addr);
+
+    	printf("======= receive Address =======\n");
+    	printf("castType: %u\n", addr.addrCast);
+    	printf("addrType: %u\n", addr.addrType);
+    	printf("addr: %s\n", addr.addr);
+
+    	ret = Discovery_addParticipant(p_data_used.key);
+    	printf("======= add participant =======\n");
+    	printRC(ret);
+
     }
 
 
@@ -87,4 +104,21 @@ int main()
 	sleep(10);
 
     }
+}
+
+void printRC(rc_t ret) {
+	switch (ret) {
+	case SDDS_RT_OK:
+		printf("OK\n");
+		break;
+	case SDDS_RT_KNOWN:
+		printf("KNOWN\n");
+		break;
+	case SDDS_RT_FAIL:
+		printf("FAIL\n");
+		break;
+	default:
+		printf("Unknown value %u\n", ret);
+		break;
+	}
 }

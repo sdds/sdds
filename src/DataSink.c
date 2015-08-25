@@ -25,6 +25,7 @@
 #include "BuiltinTopic.h"
 #include "Marshalling.h"
 #include "sdds_types.h"
+#include "Discovery.h"
 
 #include "Log.h"
 
@@ -47,9 +48,7 @@ static Msg msg;
 static struct DataSink_t dsStruct;
 DataSink dataSink = &dsStruct;
 
-char addr[16];
-castType_t addrCast;
-addrType_t addrType;
+static Discovery_address_t addr;
 
 rc_t parseData(NetBuffRef buff);
 rc_t submitData(void);
@@ -57,6 +56,13 @@ rc_t checkDomain(NetBuffRef buff, domainid_t domain);
 rc_t checkTopic(NetBuffRef buff, topicid_t topic);
 
 rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size);
+
+rc_t DataSink_getAddr(Discovery_address_t *address) {
+	address->addrType = addr.addrType;
+	address->addrCast = addr.addrCast;
+	memcpy(address->addr, addr.addr, SDDS_DISCOVERY_ADDR_SIZE);
+	return SDDS_RT_OK;
+}
 
 rc_t DataSink_processFrame(NetBuffRef buff)
 {
@@ -109,13 +115,10 @@ rc_t DataSink_processFrame(NetBuffRef buff)
 #endif
 		break;
 	    case (SDDS_SNPS_T_ADDRESS) :
-	    memset(addr, 0, 16);
-		SNPS_readAddress(buff, &addrCast, &addrType, addr);
-
-		printf("======= receive Address ===========\n");
-		printf("castType: %u\n", addrCast);
-		printf("addrType: %u\n", addrType);
-		printf("addr: %s\n", addr);
+	    memset(addr.addr, 0, 16);
+	    addr.addrType = 0;
+	    addr.addrCast = 0;
+		SNPS_readAddress(buff, &addr.addrCast, &addr.addrType, addr.addr);
 
 		break;
 //	    case (SDDS_SNPS_T_TSSIMPLE) :

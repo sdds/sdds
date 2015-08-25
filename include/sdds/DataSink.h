@@ -44,5 +44,6 @@ rc_t DataSink_set_on_data_avail_listener (
 		On_Data_Avail_Listener listener,
 		const StatusMask sm);
 
+rc_t DataSink_printAddr();
 
 #endif   /* ----- #ifndef DATASINK_H_INC  ----- */

@@ -49,9 +49,11 @@
 #ifndef PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS
 // use default link local ipv6 address
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS "ff02::01:10"
+#define PLATFORM_LINUX_SDDS_BUILTIN_BROADCAST_ADDRESS "ff02::00:10"
 #endif
 
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF 50
+#define PLATFORM_LINUX_SDDS_BUILTIN_BROADCAST_PORT_OFF 50
 #define PLATFORM_LINUX_MULTICAST_SO_RCVBUF 1200000
 
 #ifndef PLATFORM_LINUX_SDDS_LISTEN_ADDRESS
@@ -792,6 +794,75 @@ rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr)
   return SDDS_RT_OK;  
 }
 
+rc_t Network_setBroadcastAddressToLocator(Locator loc, char* addr)
+{
+
+	if (loc == NULL || addr == NULL)
+    {
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+	struct UDPLocator_t* l = (struct UDPLocator_t*) loc;
+
+	struct addrinfo *address;
+	struct addrinfo hints;
+	char port_buffer[6];
+
+	// clear hints, no dangling fields
+	memset(&hints, 0, sizeof hints);
+
+	// getaddrinfo wants its port parameter in string form
+	sprintf(port_buffer, "%u", net.port + PLATFORM_LINUX_SDDS_BUILTIN_BROADCAST_PORT_OFF);
+
+	// returned addresses will be used to create datagram sockets
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_family = PLATFORM_LINUX_SDDS_PROTOCOL;
+
+	int gai_ret = getaddrinfo(addr, port_buffer, &hints, &address);
+
+	if (gai_ret != 0)
+	{
+		Log_error("can't obtain suitable addresses %s for setting UDP locator\n", addr);
+
+		return SDDS_RT_FAIL;
+	}
+
+
+#ifdef UTILS_DEBUG
+	// show which address was assigned
+	{
+		char address_buffer[NI_MAXHOST];
+
+		if (
+			getnameinfo(
+				address->ai_addr,
+				address->ai_addrlen,
+				address_buffer,
+				NI_MAXHOST,
+				NULL,
+				0,
+				NI_NUMERICHOST
+			) != 0)
+		{
+			// ignore getnameinfo errors, just for debugging anyway
+		}
+		else
+		{
+			Log_debug("created a locator for [%s]:%u\n", address_buffer, net.port);
+		}
+	}
+#endif
+
+	memcpy(&l->addr_storage, address->ai_addr, address->ai_addrlen);
+
+	// free up address
+	freeaddrinfo(address);
+
+
+
+  return SDDS_RT_OK;
+}
+
 rc_t Network_createLocator(Locator* loc)
 {
 
@@ -822,6 +893,22 @@ rc_t Network_createMulticastLocator(Locator* loc)
 	(*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
     
     return Network_setMulticastAddressToLocator(*loc, PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS);
+}
+
+rc_t Network_createBroadcastLocator(Locator* loc)
+{
+
+    *loc = Memory_alloc(sizeof(struct UDPLocator_t));
+
+    if(*loc == NULL)
+    {
+        return SDDS_RT_NOMEM;
+    }
+
+    // set type for recvLoop
+	(*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
+
+    return Network_setBroadcastAddressToLocator(*loc, PLATFORM_LINUX_SDDS_BUILTIN_BROADCAST_ADDRESS);
 }
 
 bool_t Locator_isEqual(Locator l1, Locator l2)
