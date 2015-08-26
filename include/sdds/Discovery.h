@@ -4,15 +4,15 @@
 #include "SNPS.h"
 #include "sdds_types.h"
 
-#define SDDS_DISCOVERY_ADDR_SIZE	16
-
-typedef struct Discovery_address {
-	char addr[SDDS_DISCOVERY_ADDR_SIZE];
+typedef struct Discovery_Address {
+	char addr[SDDS_SNPS_ADDR_SIZE+1];
 	castType_t addrCast;
 	addrType_t addrType;
-} Discovery_address_t;
+} Discovery_Address_t;
 
 rc_t Discovery_init();
 rc_t Discovery_addParticipant(int participantID);
+rc_t Discovery_handleParticipant(int participantID);
+rc_t Discovery_addRemoteDataSink(char *addr, DDS_DataReader dataReader);
 
 #endif	/* __DISCOVERY_H__ */

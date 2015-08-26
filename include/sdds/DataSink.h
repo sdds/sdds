@@ -22,6 +22,7 @@
 
 #include "sdds_types.h"
 #include "NetBuffRef.h"
+#include "Discovery.h"
 
 struct DataReader;
 typedef struct DataReader DataReader_t;
@@ -45,5 +46,6 @@ rc_t DataSink_set_on_data_avail_listener (
 		const StatusMask sm);
 
 rc_t DataSink_printAddr();
+rc_t DataSink_getAddr(Discovery_Address_t *address);
 
 #endif   /* ----- #ifndef DATASINK_H_INC  ----- */

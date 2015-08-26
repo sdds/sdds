@@ -16,6 +16,7 @@
 #include "NetBuffRef.h"
 #include "DataSink.h"
 #include "Network.h"
+#include "Discovery.h"
 
 /* The last character is used for the terminating \0 */
 #define DDS_TOPIC_NAME_SIZE 26
@@ -157,6 +158,8 @@ rc_t BuiltinTopic_writeDomainParticipant2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef buf);
+
+rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(Discovery_Address_t addr);
 
 
 #endif /* BUILTINTOPIC_H_ */

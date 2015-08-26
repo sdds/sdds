@@ -71,7 +71,7 @@ typedef uint8_t castType_t;
 #define SDDS_SNPS_SUBMSG_EXTENDED	0x0f
 
 #define SDDS_SNPS_EXTSUBMSG_ACK		0x00
-#define SDDS_SNPS_EXTSUBMSG_NACK		0x01
+#define SDDS_SNPS_EXTSUBMSG_NACK	0x01
 #define SDDS_SNPS_EXTSUBMSG_SEP		0x02
 #define SDDS_SNPS_EXTSUBMSG_TSDDS	0x03
 #define SDDS_SNPS_EXTSUBMSG_ADDR16	0x04
@@ -79,6 +79,8 @@ typedef uint8_t castType_t;
 #define SDDS_SNPS_EXTSUBMSG_TOPIC	0x06
 
 #define SDDS_SNPS_EXTSUBMSG_EXTENDED		0x0f
+
+#define SDDS_SNPS_ADDR_SIZE	15
 
 
 rc_t SNPS_evalSubMsg(NetBuffRef ref, subMsg_t* type);
@@ -108,7 +110,7 @@ rc_t SNPS_writeSep(NetBuffRef ref);
 rc_t SNPS_writeAddress(NetBuffRef ref);
 
 rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t addrLen, uint8_t *addr);
-
+rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType, char *addr);
 
 rc_t SNPS_readHeader(NetBuffRef ref);
 rc_t SNPS_readDomain(NetBuffRef ref, domainid_t* domain);

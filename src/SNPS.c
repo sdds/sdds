@@ -18,7 +18,10 @@
 #include "SNPS.h"
 #include "Marshalling.h"
 #include "Log.h"
+#include "Network.h"
 
+#include <string.h>
+#include <netdb.h>
 
 #define START (ref->buff_start + ref->curPos)
 
@@ -319,7 +322,6 @@ rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, ui
 rc_t SNPS_writeAddress(NetBuffRef ref) {
 
 	uint8_t addr[15];
-	uint8_t addrLen = 8;
 
 	addr[0] = 'f';
 	addr[1] = 'e';
@@ -329,8 +331,8 @@ rc_t SNPS_writeAddress(NetBuffRef ref) {
 	addr[5] = ':';
 	addr[6] = '1';
 	addr[7] = '0';
-	addr[8] = 0;
-	addr[9] = 0;
+	addr[8] =  0;
+	addr[9] =  0;
 	addr[10] = 0;
 	addr[11] = 0;
 	addr[12] = 0;
@@ -338,7 +340,9 @@ rc_t SNPS_writeAddress(NetBuffRef ref) {
 	addr[14] = 0;
 	addr[15] = 0;
 
-	return SNPS_writeAddr(ref, SDDS_SNPS_CAST_BROADCAST, SDDS_SNPS_ADDR_IPV6, addrLen, addr);
+	uint8_t addrLen = strlen(addr);
+
+	return SNPS_writeAddr(ref, SDDS_SNPS_CAST_UNICAST, SDDS_SNPS_ADDR_IPV6, addrLen, addr);
 }
 
 rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType, char *addr)
@@ -359,6 +363,13 @@ rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType
     ref->curPos +=addrLen;
 
     ref->subMsgCount -=1;
+
+    if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
+    	char srcAddr[NI_MAXHOST];
+    	char srcPort[NI_MAXSERV];
+
+    	ret = Network_getSrcAddr(addr, SDDS_SNPS_ADDR_SIZE, srcPort, NI_MAXSERV);
+    }
 
     return SDDS_RT_OK;
 }

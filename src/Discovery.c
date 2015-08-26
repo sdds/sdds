@@ -6,6 +6,8 @@ extern "C"
 #include "BuiltinTopic.h"
 #include "DataSource.h"
 #include "Discovery.h"
+#include "Debug.h"
+#include "DataSink.h"
 
 #include <os-ssal/Memory.h>
 
@@ -30,6 +32,10 @@ extern "C"
 
 static int participants[SDDS_DISCOVERY_MAX_PARTICIPANTS];
 
+// ******************* TEST ***********************
+extern DDS_DataReader g_Beta_reader;
+// ******************* TEST ***********************
+
 rc_t Discovery_init() {
 	memset(participants, 0, SDDS_DISCOVERY_MAX_PARTICIPANTS);
 }
@@ -52,5 +58,48 @@ rc_t Discovery_addParticipant(int participantID) {
 	}
 
 	return SDDS_RT_FAIL;
+}
 
+rc_t Discovery_handleParticipant(int participantID) {
+	rc_t ret;
+	Discovery_Address_t addr;
+
+	ret = DataSink_getAddr(&addr);
+
+	printf("======= receive Address =======\n");
+	printf("castType: %u\n", addr.addrCast);
+	printf("addrType: %u\n", addr.addrType);
+	printf("addr: %s\n", addr.addr);
+
+	ret = Discovery_addParticipant(participantID);
+	printf("======= add participant =======\n");
+	printRC(ret);
+	if (ret == SDDS_RT_OK) {
+		//ret = BuiltinTopic_addRemoteDataSinkToPubTopic(addr);
+		ret = Discovery_addRemoteDataSink(addr.addr, g_Beta_reader);
+	}
+
+	return ret;
+}
+
+rc_t Discovery_addRemoteDataSink(char *addr, DDS_DataReader dataReader) {
+	Locator l;
+	rc_t ret;
+
+	ret = LocatorDB_newLocator(&l);
+	if (ret != SDDS_RT_OK)
+		return ret;
+
+	Locator_upRef(l);
+
+	ret = Network_setAddressToLocator(l, addr);
+	if (ret != SDDS_RT_OK)
+		return ret;
+
+	ret = Topic_addRemoteDataSink(dataReader, l);
+	if (ret != SDDS_RT_OK)
+		return ret;
+	Locator_downRef(l);
+
+	return ret;
 }
