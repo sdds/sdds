@@ -25,6 +25,8 @@ extern "C"
 }
 #endif
 
+
+
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 
 DDS_Topic g_DCPSParticipant_topic;
@@ -71,7 +73,7 @@ rc_t BuiltinTopic_init(void)
 
 	Locator_upRef(l);
 
-	ret = Network_setMulticastAddressToLocator(l, "ff02::01:10");
+	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_PARTICIPANT_ADDRESS);
 //	ret = Network_setMulticastAddressToLocator(l, "ff02::05:50");
 	if (ret != SDDS_RT_OK) {
 		return ret;
@@ -92,7 +94,7 @@ rc_t BuiltinTopic_init(void)
 
 	Locator_upRef(l);
 
-	ret = Network_setMulticastAddressToLocator(l, "ff02::01:10");
+	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_TOPIC_ADDRESS);
 //	ret = Network_setMulticastAddressToLocator(l, "ff02::05:50");
 	if (ret != SDDS_RT_OK)
 	return ret;
@@ -112,7 +114,7 @@ rc_t BuiltinTopic_init(void)
 
 	Locator_upRef(l);
 
-	ret = Network_setMulticastAddressToLocator(l, "ff02::01:10");
+	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_PUBLICATION_ADDRESS);
 //	ret = Network_setMulticastAddressToLocator(l, "ff02::05:50");
 	if (ret != SDDS_RT_OK)
 	return ret;
@@ -132,7 +134,7 @@ rc_t BuiltinTopic_init(void)
 
 	Locator_upRef(l);
 
-	ret = Network_setMulticastAddressToLocator(l, "ff02::01:10");
+	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUBSCRIPTION_ADDRESS);
 //	ret = Network_setMulticastAddressToLocator(l, "ff02::05:50");
 	if (ret != SDDS_RT_OK)
 	return ret;
@@ -658,23 +660,12 @@ rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(Discovery_Address_t addr) {
 		ret = LocatorDB_newLocator(&l);
 		if (ret != SDDS_RT_OK)
 		return ret;
-
-		Locator_upRef(l);
-
-		ret = Network_setAddressToLocator(l, addr.addr);
-		if (ret != SDDS_RT_OK)
-		return ret;
-
-		ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, l);
-		if (ret != SDDS_RT_OK)
-		return ret;
-		Locator_downRef(l);
 	}
 	else if (addr.addrCast == SDDS_SNPS_CAST_MULTICAST) {
 		ret = LocatorDB_newMultiLocator(&l);
 		if (ret != SDDS_RT_OK)
 		return ret;
-
+	}
 		Locator_upRef(l);
 
 		ret = Network_setMulticastAddressToLocator(l, addr.addr);
@@ -685,10 +676,34 @@ rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(Discovery_Address_t addr) {
 		if (ret != SDDS_RT_OK)
 		return ret;
 		Locator_downRef(l);
+
+	return SDDS_RT_OK;
+}
+
+rc_t BuiltinTopic_addRemoteDataSinkToSubTopic(Discovery_Address_t addr) {
+	int ret;
+	Locator l;
+
+	if (addr.addrCast == SDDS_SNPS_CAST_UNICAST) {
+		ret = LocatorDB_newLocator(&l);
+		if (ret != SDDS_RT_OK)
+		return ret;
 	}
-	else if (addr.addrCast == SDDS_SNPS_CAST_BROADCAST) {
-		// To Do
+	else if (addr.addrCast == SDDS_SNPS_CAST_MULTICAST) {
+		ret = LocatorDB_newMultiLocator(&l);
+		if (ret != SDDS_RT_OK)
+		return ret;
 	}
+		Locator_upRef(l);
+
+		ret = Network_setMulticastAddressToLocator(l, addr.addr);
+		if (ret != SDDS_RT_OK)
+		return ret;
+
+		ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, l);
+		if (ret != SDDS_RT_OK)
+		return ret;
+		Locator_downRef(l);
 
 	return SDDS_RT_OK;
 }

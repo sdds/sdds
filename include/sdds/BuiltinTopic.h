@@ -18,6 +18,14 @@
 #include "Network.h"
 #include "Discovery.h"
 
+
+typedef struct Discovery_Address Discovery_Address_t;
+
+#define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::01:10"
+#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::01:20"
+#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::01:30"
+#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::01:40"
+
 /* The last character is used for the terminating \0 */
 #define DDS_TOPIC_NAME_SIZE 26
 #define DDS_TOPIC_TYPE_SIZE 26
@@ -159,7 +167,8 @@ rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef buf);
 
-rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(struct Discovery_Address addr);
+rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(Discovery_Address_t addr);
+rc_t BuiltinTopic_addRemoteDataSinkToSubTopic(Discovery_Address_t addr);
 
 
 #endif /* BUILTINTOPIC_H_ */

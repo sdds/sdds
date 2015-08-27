@@ -34,10 +34,6 @@ static int participants[SDDS_DISCOVERY_MAX_PARTICIPANTS];
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 
-// ******************* TEST ***********************
-extern DDS_DataReader g_Beta_reader;
-// ******************* TEST ***********************
-
 rc_t Discovery_init() {
 	memset(participants, 0, SDDS_DISCOVERY_MAX_PARTICIPANTS);
 }
@@ -77,8 +73,13 @@ rc_t Discovery_handleParticipant(int participantID) {
 	printf("======= add participant =======\n");
 	printRC(ret);
 	if (ret == SDDS_RT_OK) {
-		//ret = BuiltinTopic_addRemoteDataSinkToPubTopic(addr);
-		ret = Discovery_addRemoteDataSink(addr.addr, g_Beta_reader);
+#ifdef SDDS_TOPIC_HAS_PUB
+		ret = BuiltinTopic_addRemoteDataSinkToPubTopic(addr);
+#endif
+
+#ifdef SDDS_TOPIC_HAS_SUB
+		ret = BuiltinTopic_addRemoteDataSinkToSubTopic(addr);
+#endif
 	}
 
 	return ret;

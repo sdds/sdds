@@ -23,6 +23,7 @@
 #include "NetBuffRef.h"
 #include "DataSink.h"
 #include "sdds_types.h"
+#include "BuiltinTopic.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -48,12 +49,15 @@
 
 #ifndef PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS
 // use default link local ipv6 address
-#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS "ff02::01:10"
-#define PLATFORM_LINUX_SDDS_BUILTIN_BROADCAST_ADDRESS "ff02::00:10"
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS 	"ff02::01:10"
+
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS 	SDDS_BUILTIN_PARTICIPANT_ADDRESS
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS 		SDDS_BUILTIN_TOPIC_ADDRESS
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PUBLICATION_ADDRESS 	SDDS_BUILTIN_PUBLICATION_ADDRESS
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUBSCRIPTION_ADDRESS 	SDDS_BUILTIN_SUBSCRIPTION_ADDRESS
 #endif
 
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF 50
-#define PLATFORM_LINUX_SDDS_BUILTIN_BROADCAST_PORT_OFF 50
 #define PLATFORM_LINUX_MULTICAST_SO_RCVBUF 1200000
 
 #ifndef PLATFORM_LINUX_SDDS_LISTEN_ADDRESS
@@ -111,7 +115,7 @@ rc_t Network_getSrcAddr(char *addr, int addr_len, char *port,
 	return SDDS_RT_OK;
 }
 
-rc_t Multicast_out_init(void) {
+rc_t Multicast_out_init(char *addr) {
 	struct addrinfo *multicastAddr; /* Multicast address */
 
 	struct addrinfo hints = { 0 }; /* Hints for name lookup */
@@ -125,7 +129,7 @@ rc_t Multicast_out_init(void) {
 	char* service = calloc(PLATFORM_LINUX_IPV6_MAX_CHAR_LEN, sizeof(char));
 	sprintf(service, "%d", multicastPort);
 
-	if (getaddrinfo(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS, service,
+	if (getaddrinfo(addr, service,
 			&hints, &multicastAddr) != 0) {
 		Log_error("mcastout getaddrinfo() failed");
 		return SDDS_RT_FAIL;
@@ -158,7 +162,7 @@ rc_t Multicast_out_init(void) {
 	return SDDS_RT_OK;
 }
 
-rc_t Multicast_in_init(void) {
+rc_t Multicast_in_init(char *addr) {
 
 	struct addrinfo* multicastAddr; /* Multicast Address */
 	struct addrinfo* localAddr; /* Local address to bind to */
@@ -169,7 +173,7 @@ rc_t Multicast_in_init(void) {
 	hints.ai_family = PF_UNSPEC;
 	hints.ai_flags = AI_NUMERICHOST;
 	int status;
-	if (getaddrinfo(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS, NULL, &hints,
+	if (getaddrinfo(addr, NULL, &hints,
 			&multicastAddr) != 0) {
 		Log_error("mcastin getaddrinfo() failed");
 		return SDDS_RT_FAIL;
@@ -381,8 +385,17 @@ rc_t Network_init(void) {
 	// ENDIF
 
 #ifdef _MULTICAST
-	Multicast_out_init();
-	Multicast_in_init();
+	Multicast_out_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
+	Multicast_in_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
+
+//	Multicast_out_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
+//	Multicast_in_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
+//
+//	Multicast_out_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PUBLICATION_ADDRESS);
+//	Multicast_in_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PUBLICATION_ADDRESS);
+//
+//	Multicast_out_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUBSCRIPTION_ADDRESS);
+//	Multicast_in_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUBSCRIPTION_ADDRESS);
 #endif
 
 	return SDDS_RT_OK;
@@ -469,11 +482,6 @@ void *recvLoop(void *netBuff) {
 	}
 
 	while (true) {
-
-//        printf("========== receive NetBuff #%d ==========\n", count++);
-//        NetBuffRef_print(buff);
-//        printf("========== END NetBuff =======\n");
-
 		//reset the buffer
 		NetBuffRef_renew(buff);
 
@@ -497,6 +505,8 @@ void *recvLoop(void *netBuff) {
 		int rc = getnameinfo((struct sockaddr *) &buff->addr,
 				sizeof(struct sockaddr_storage), srcAddr, NI_MAXHOST, srcPort,
 				NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+
+		printf("Connection from %s\n", srcAddr);
 
 
 		// implicit call of the network receive handler
@@ -770,72 +780,6 @@ rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr) {
 	return SDDS_RT_OK;
 }
 
-rc_t Network_setBroadcastAddressToLocator(Locator loc, char* addr) {
-
-	if (loc == NULL || addr == NULL) {
-		return SDDS_RT_BAD_PARAMETER;
-	}
-
-	struct UDPLocator_t* l = (struct UDPLocator_t*) loc;
-
-	struct addrinfo *address;
-	struct addrinfo hints;
-	char port_buffer[6];
-
-	// clear hints, no dangling fields
-	memset(&hints, 0, sizeof hints);
-
-	// getaddrinfo wants its port parameter in string form
-	sprintf(port_buffer, "%u",
-			net.port + PLATFORM_LINUX_SDDS_BUILTIN_BROADCAST_PORT_OFF);
-
-	// returned addresses will be used to create datagram sockets
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_family = PLATFORM_LINUX_SDDS_PROTOCOL;
-
-	int gai_ret = getaddrinfo(addr, port_buffer, &hints, &address);
-
-	if (gai_ret != 0) {
-		Log_error(
-				"can't obtain suitable addresses %s for setting UDP locator\n",
-				addr);
-
-		return SDDS_RT_FAIL;
-	}
-
-#ifdef UTILS_DEBUG
-	// show which address was assigned
-	{
-		char address_buffer[NI_MAXHOST];
-
-		if (
-				getnameinfo(
-						address->ai_addr,
-						address->ai_addrlen,
-						address_buffer,
-						NI_MAXHOST,
-						NULL,
-						0,
-						NI_NUMERICHOST
-				) != 0)
-		{
-			// ignore getnameinfo errors, just for debugging anyway
-		}
-		else
-		{
-			Log_debug("created a locator for [%s]:%u\n", address_buffer, net.port);
-		}
-	}
-#endif
-
-	memcpy(&l->addr_storage, address->ai_addr, address->ai_addrlen);
-
-	// free up address
-	freeaddrinfo(address);
-
-	return SDDS_RT_OK;
-}
-
 rc_t Network_createLocator(Locator* loc) {
 
 	*loc = Memory_alloc(sizeof(struct UDPLocator_t));
@@ -863,21 +807,6 @@ rc_t Network_createMulticastLocator(Locator* loc) {
 
 	return Network_setMulticastAddressToLocator(*loc,
 			PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS);
-}
-
-rc_t Network_createBroadcastLocator(Locator* loc) {
-
-	*loc = Memory_alloc(sizeof(struct UDPLocator_t));
-
-	if (*loc == NULL) {
-		return SDDS_RT_NOMEM;
-	}
-
-	// set type for recvLoop
-	(*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
-
-	return Network_setBroadcastAddressToLocator(*loc,
-			PLATFORM_LINUX_SDDS_BUILTIN_BROADCAST_ADDRESS);
 }
 
 bool_t Locator_isEqual(Locator l1, Locator l2) {

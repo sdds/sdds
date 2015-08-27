@@ -120,8 +120,6 @@ rc_t DataSink_processFrame(NetBuffRef buff)
 	    addr.addrType = 0;
 	    addr.addrCast = 0;
 		SNPS_readAddress(buff, &addr.addrCast, &addr.addrType, addr.addr);
-		printf("Connection from %s\n", addr.addr);
-
 		break;
 //	    case (SDDS_SNPS_T_TSSIMPLE) :
 //		break;

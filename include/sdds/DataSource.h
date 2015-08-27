@@ -41,7 +41,8 @@ extern DataSource dataSource;
 
 rc_t DataSource_init(void);
 
-//DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask);
+DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask);
+rc_t DataSource_writeAddress(DataWriter _this);
 
 
 #ifdef SDDS_TOPIC_HAS_SUB

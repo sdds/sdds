@@ -38,7 +38,7 @@ int main()
 		{
 			//static uint8_t foo = 67;
             DDS_DCPSParticipant p;
-            p.key = 22;
+            p.key = 10;
            
             DDS_DCPSTopic t;
             memset(t.name, 0, DDS_TOPIC_NAME_SIZE);
@@ -110,22 +110,24 @@ int main()
 				// handle error
 				//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
 			}
-            if (DDS_DCPSTopicDataWriter_write(g_DCPSTopic_writer, &t, NULL) != DDS_RETCODE_OK) {
-                // handle error
-            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
-            }
-            if (DDS_DCPSPublicationDataWriter_write(g_DCPSPublication_writer, &pt, NULL) != DDS_RETCODE_OK) {
-                // handle error
-            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
-            }
-            if (DDS_DCPSSubscriptionDataWriter_write(g_DCPSSubscription_writer, &st, NULL) != DDS_RETCODE_OK) {
-                // handle error
-            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
-            }
-            if (DDS_BetaDataWriter_write(g_Beta_writer, &b, NULL) != DDS_RETCODE_OK) {
-                // handle error
-            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
-            }
+
+//            if (DDS_DCPSTopicDataWriter_write(g_DCPSTopic_writer, &t, NULL) != DDS_RETCODE_OK) {
+//                // handle error
+//            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
+//            }
+//            if (DDS_DCPSPublicationDataWriter_write(g_DCPSPublication_writer, &pt, NULL) != DDS_RETCODE_OK) {
+//                // handle error
+//            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
+//            }
+//            if (DDS_DCPSSubscriptionDataWriter_write(g_DCPSSubscription_writer, &st, NULL) != DDS_RETCODE_OK) {
+//                // handle error
+//            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
+//            }
+//            if (DDS_BetaDataWriter_write(g_Beta_writer, &b, NULL) != DDS_RETCODE_OK) {
+//                // handle error
+//            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
+//            }
+
 
     		ret = DDS_DCPSParticipantDataReader_take_next_sample(
     				g_DCPSParticipant_reader, &p_data_used_ptr, NULL);

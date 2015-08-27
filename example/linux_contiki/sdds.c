@@ -35,6 +35,14 @@ int main() {
 
 	for (;;) {
 
+        DDS_DCPSParticipant p;
+        p.key = 20;
+
+		if (DDS_DCPSParticipantDataWriter_write(g_DCPSParticipant_writer, &p, NULL) != DDS_RETCODE_OK) {
+			// handle error
+			//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
+		}
+
 		ret = DDS_DCPSParticipantDataReader_take_next_sample(
 				g_DCPSParticipant_reader, &p_data_used_ptr, NULL);
 		if (ret == DDS_RETCODE_NO_DATA) {
