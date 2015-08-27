@@ -32,6 +32,8 @@ extern "C"
 
 static int participants[SDDS_DISCOVERY_MAX_PARTICIPANTS];
 
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+
 // ******************* TEST ***********************
 extern DDS_DataReader g_Beta_reader;
 // ******************* TEST ***********************
@@ -103,3 +105,5 @@ rc_t Discovery_addRemoteDataSink(char *addr, DDS_DataReader dataReader) {
 
 	return ret;
 }
+
+#endif

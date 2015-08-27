@@ -3,6 +3,7 @@
 
 #include "SNPS.h"
 #include "sdds_types.h"
+#include "BuiltinTopic.h"
 
 typedef struct Discovery_Address {
 	char addr[SDDS_SNPS_ADDR_SIZE+1];

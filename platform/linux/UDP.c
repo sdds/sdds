@@ -582,7 +582,7 @@ rc_t Network_send(NetBuffRef buff) {
 	Locator loc = buff->addr;
 
 	printf("========== send NetBuff ==========\n");
-	NetBuffRef_print(buff);
+	//NetBuffRef_print(buff);
 	printf("========== END NetBuff =======\n");
 
 	while (loc != NULL) {

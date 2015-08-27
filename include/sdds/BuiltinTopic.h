@@ -159,7 +159,7 @@ rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef buf);
 
-rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(Discovery_Address_t addr);
+rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(struct Discovery_Address addr);
 
 
 #endif /* BUILTINTOPIC_H_ */
