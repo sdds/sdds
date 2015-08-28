@@ -23,7 +23,7 @@
 #include "sDDS.h"
 #include "SourceQos.h"
 #include "NetBuffRef.h"
-
+#include "BuiltinTopic.h"
 
 #define SDDS_DATASOURCE_OK 0
 
@@ -43,6 +43,8 @@ rc_t DataSource_init(void);
 
 DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask);
 rc_t DataSource_writeAddress(DataWriter _this);
+
+rc_t DaraSource_getDataWrites(DDS_DCPSPublication *pt, int *len);
 
 
 #ifdef SDDS_TOPIC_HAS_SUB

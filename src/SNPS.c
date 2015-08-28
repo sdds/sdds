@@ -324,15 +324,15 @@ rc_t SNPS_writeAddress(NetBuffRef ref) {
 	uint8_t addr[15];
 
 	addr[0] = 'f';
-	addr[1] = 'e';
-	addr[2] = '8';
-	addr[3] = '0';
+	addr[1] = 'f';
+	addr[2] = '0';
+	addr[3] = '2';
 	addr[4] = ':';
 	addr[5] = ':';
 	addr[6] = '1';
-	addr[7] = '0';
-	addr[8] =  0;
-	addr[9] =  0;
+	addr[7] = ':';
+	addr[8] =  '1';
+	addr[9] =  '0';
 	addr[10] = 0;
 	addr[11] = 0;
 	addr[12] = 0;
@@ -367,6 +367,8 @@ rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType
     if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
     	char srcAddr[NI_MAXHOST];
     	char srcPort[NI_MAXSERV];
+
+    	printf("overwrite addr: %s\n", addr);
 
     	ret = Network_getSrcAddr(addr, SDDS_SNPS_ADDR_SIZE, srcPort, NI_MAXSERV);
     }

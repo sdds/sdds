@@ -40,55 +40,66 @@ int main() {
 
 		if (DDS_DCPSParticipantDataWriter_write(g_DCPSParticipant_writer, &p, NULL) != DDS_RETCODE_OK) {
 			// handle error
-			//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
 		}
 
-		ret = DDS_DCPSParticipantDataReader_take_next_sample(
-				g_DCPSParticipant_reader, &p_data_used_ptr, NULL);
-		if (ret == DDS_RETCODE_NO_DATA) {
-			printf("no data participant\n");
-		} else {
-			printf("Received (participant):[%u]\n", p_data_used.key);
-			ret = Discovery_handleParticipant(p_data_used.key);
-		}
+		do {
+			ret = DDS_DCPSParticipantDataReader_take_next_sample(
+					g_DCPSParticipant_reader, &p_data_used_ptr, NULL);
+			if (ret == DDS_RETCODE_NO_DATA) {
+				printf("no data participant\n");
+			} else {
+				printf("Received (participant):[%u]\n", p_data_used.key);
+				ret = Discovery_handleParticipant(p_data_used.key);
+			}
+		} while (ret != DDS_RETCODE_NO_DATA);
 
-		ret = DDS_DCPSTopicDataReader_take_next_sample(g_DCPSTopic_reader,
-				&t_data_used_ptr, NULL);
-		if (ret == DDS_RETCODE_NO_DATA) {
-			printf("no data topic\n");
-		} else {
-			printf("Received (topic):[%u] topic:%s type:%s\n", t_data_used.key,
-					t_data_used.name, t_data_used.type_name);
-		}
+		do {
+			ret = DDS_DCPSTopicDataReader_take_next_sample(
+					g_DCPSTopic_reader, &t_data_used_ptr, NULL);
+			if (ret == DDS_RETCODE_NO_DATA) {
+				printf("no data topic\n");
+			} else {
+				printf("Received (topic):[%u] topic:%s type:%s\n",
+						t_data_used.key, t_data_used.name,
+						t_data_used.type_name);
+			}
+		} while (ret != DDS_RETCODE_NO_DATA);
 
-		ret = DDS_DCPSPublicationDataReader_take_next_sample(
-				g_DCPSPublication_reader, &pt_data_used_ptr, NULL);
-		if (ret == DDS_RETCODE_NO_DATA) {
-			printf("no data publication\n");
-		} else {
-			printf("Received (publication):[%u][%u] topic:%s type:%s\n",
-					pt_data_used.key, pt_data_used.participant_key,
-					pt_data_used.topic_name, pt_data_used.type_name);
-		}
+		do {
+			ret = DDS_DCPSPublicationDataReader_take_next_sample(
+					g_DCPSPublication_reader, &pt_data_used_ptr, NULL);
+			if (ret == DDS_RETCODE_NO_DATA) {
+				printf("no data publication\n");
+			} else {
+				printf("Received (publication):[%u][%u] topic:%s type:%s\n",
+						pt_data_used.key, pt_data_used.participant_key,
+						pt_data_used.topic_name, pt_data_used.type_name);
+			}
+		} while (ret != DDS_RETCODE_NO_DATA);
 
-		ret = DDS_DCPSSubscriptionDataReader_take_next_sample(
-				g_DCPSSubscription_reader, &st_data_used_ptr, NULL);
-		if (ret == DDS_RETCODE_NO_DATA) {
-			printf("no data subscription\n");
-		} else {
-			printf("Received (subscription):[%u][%u] topic:%s type:%s\n",
-					st_data_used.key, st_data_used.participant_key,
-					st_data_used.topic_name, st_data_used.type_name);
-		}
+		do {
+			ret = DDS_DCPSSubscriptionDataReader_take_next_sample(
+					g_DCPSSubscription_reader, &st_data_used_ptr, NULL);
+			if (ret == DDS_RETCODE_NO_DATA) {
+				printf("no data subscription\n");
+			} else {
+				printf(
+						"Received (subscription):[%u][%u] topic:%s type:%s\n",
+						st_data_used.key, st_data_used.participant_key,
+						st_data_used.topic_name, st_data_used.type_name);
+			}
+		} while (ret != DDS_RETCODE_NO_DATA);
 
-		ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,
-				&beta_data_used_ptr, NULL);
-		if (ret == DDS_RETCODE_NO_DATA) {
-			printf("no data beta\n");
-		} else {
-			printf("Received (beta):[%d] %s %s\n", beta_data_used.value,
-					beta_data_used.value2, beta_data_used.value3);
-		}
+		do {
+			ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,
+					&beta_data_used_ptr, NULL);
+			if (ret == DDS_RETCODE_NO_DATA) {
+				printf("no data beta\n");
+			} else {
+				printf("Received (beta):[%d] %s %s\n", beta_data_used.value,
+						beta_data_used.value2, beta_data_used.value3);
+			}
+		} while (ret != DDS_RETCODE_NO_DATA);
 
 		sleep(10);
 
