@@ -238,6 +238,7 @@ rc_t SNPS_readTopic(NetBuffRef ref, topicid_t* topic)
 {
 	rc_t ret;
 	ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_TOPIC, (uint8_t*)topic);
+
 #ifdef SDDS_EXTENDED_TOPIC_SUPPORT
 	if (ret == SDDS_RT_FAIL) {
 		// might be an extended topic

@@ -34,6 +34,7 @@
 #include <netdb.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <errno.h>
 
 // taking into account ipv4 tunneling features
 #define PLATFORM_LINUX_IPV6_MAX_CHAR_LEN 45
@@ -49,7 +50,14 @@
 
 #ifndef PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS
 // use default link local ipv6 address
+
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS 	"ff02::01:10"
+
+//#ifdef TAP0
+//#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS 	"ff02::01:10%tap0"
+//#else
+//#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS 	"ff02::01:10%tap1"
+//#endif
 
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS 	SDDS_BUILTIN_PARTICIPANT_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS 		SDDS_BUILTIN_TOPIC_ADDRESS
@@ -146,7 +154,7 @@ rc_t Multicast_out_init(char *addr) {
 	}
 
 	/* Set TTL of multicast packet */
-	int multicastTTL = 1;
+	int multicastTTL = 100;
 	if (setsockopt(net.fd_multi_socket_out,
 			multicastAddr->ai_family == PF_INET6 ? IPPROTO_IPV6 : IPPROTO_IP,
 			multicastAddr->ai_family == PF_INET6 ?
@@ -156,13 +164,93 @@ rc_t Multicast_out_init(char *addr) {
 		return SDDS_RT_FAIL;
 	}
 
+		struct addrinfo *address;
+		struct addrinfo srcHints;
+		memset(&srcHints, 0, sizeof(srcHints));
+		srcHints.ai_socktype = SOCK_DGRAM;
+		srcHints.ai_family = AF_INET6;
+
+		// PORT?
+		int gai_ret = getaddrinfo(PLATFORM_LINUX_SDDS_SEND_ADDRESS, "23235", &srcHints, &address);
+		if (bind(net.fd_multi_socket_out, address->ai_addr, address->ai_addrlen) != 0) {
+			printf("error: %s\n", strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+
 	freeaddrinfo(multicastAddr);
 	free(service);
 
 	return SDDS_RT_OK;
 }
 
-rc_t Multicast_in_init(char *addr) {
+rc_t Multicast_joinMulticastGroup(char *group) {
+	struct addrinfo* multicastAddr; /* Multicast Address */
+	struct addrinfo hints = { 0 }; /* Hints for name lookup */
+
+	/* Resolve the multicast group address */
+	hints.ai_family = PF_UNSPEC;
+	hints.ai_flags = AI_NUMERICHOST;
+	int status;
+	if (getaddrinfo(group, NULL, &hints,
+			&multicastAddr) != 0) {
+		Log_error("mcastin getaddrinfo() failed");
+		return SDDS_RT_FAIL;
+	}
+
+	/* Join the multicast group.
+		 * We do this seperately depending on whether we are using IPv4 or IPv6.
+		 */
+		if (multicastAddr->ai_family == PF_INET
+				&& multicastAddr->ai_addrlen == sizeof(struct sockaddr_in)) /* IPv4 */
+				{
+			struct ip_mreq multicastRequest; /* Multicast address join structure */
+
+			/* Specify the multicast group */
+			memcpy(&multicastRequest.imr_multiaddr,
+					&((struct sockaddr_in*) (multicastAddr->ai_addr))->sin_addr,
+					sizeof(multicastRequest.imr_multiaddr));
+
+			/* Accept multicast from any interface */
+			multicastRequest.imr_interface.s_addr = htonl(INADDR_ANY);
+
+			/* Join the multicast address */
+			if (setsockopt(net.fd_multi_socket_in,
+			IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*) &multicastRequest,
+					sizeof(multicastRequest)) != 0) {
+				Log_error("mcastin setsockopt() failed");
+				return SDDS_RT_FAIL;
+			}
+		} else if (multicastAddr->ai_family == PF_INET6
+				&& multicastAddr->ai_addrlen == sizeof(struct sockaddr_in6)) /* IPv6 */
+				{
+			struct ipv6_mreq multicastRequest; /* Multicast address join structure */
+
+			/* Specify the multicast group */
+			memcpy(&multicastRequest.ipv6mr_multiaddr,
+					&((struct sockaddr_in6*) (multicastAddr->ai_addr))->sin6_addr,
+					sizeof(multicastRequest.ipv6mr_multiaddr));
+
+			/* Accept multicast from any interface */
+			multicastRequest.ipv6mr_interface = 0;
+
+			/* Join the multicast address */
+			if (setsockopt(net.fd_multi_socket_in,
+			IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, (char*) &multicastRequest,
+					sizeof(multicastRequest)) != 0) {
+				Log_error("mcastin setsockopt() failed");
+				return SDDS_RT_FAIL;
+			}
+		} else {
+			Log_error("mcastin Neither IPv4 or IPv6");
+			return SDDS_RT_FAIL;
+		}
+
+		freeaddrinfo(multicastAddr);
+
+		return SDDS_RT_OK;
+}
+
+rc_t Multicast_in_init() {
 
 	struct addrinfo* multicastAddr; /* Multicast Address */
 	struct addrinfo* localAddr; /* Local address to bind to */
@@ -173,7 +261,7 @@ rc_t Multicast_in_init(char *addr) {
 	hints.ai_family = PF_UNSPEC;
 	hints.ai_flags = AI_NUMERICHOST;
 	int status;
-	if (getaddrinfo(addr, NULL, &hints,
+	if (getaddrinfo(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS, NULL, &hints,
 			&multicastAddr) != 0) {
 		Log_error("mcastin getaddrinfo() failed");
 		return SDDS_RT_FAIL;
@@ -240,53 +328,7 @@ rc_t Multicast_in_init(char *addr) {
 	Log_debug("tried to set socket receive buffer from %d to %d, got %d\n",
 			dfltrcvbuf, PLATFORM_LINUX_MULTICAST_SO_RCVBUF, optval);
 
-	/* Join the multicast group.
-	 * We do this seperately depending on whether we are using IPv4 or IPv6.
-	 */
-	if (multicastAddr->ai_family == PF_INET
-			&& multicastAddr->ai_addrlen == sizeof(struct sockaddr_in)) /* IPv4 */
-			{
-		struct ip_mreq multicastRequest; /* Multicast address join structure */
-
-		/* Specify the multicast group */
-		memcpy(&multicastRequest.imr_multiaddr,
-				&((struct sockaddr_in*) (multicastAddr->ai_addr))->sin_addr,
-				sizeof(multicastRequest.imr_multiaddr));
-
-		/* Accept multicast from any interface */
-		multicastRequest.imr_interface.s_addr = htonl(INADDR_ANY);
-
-		/* Join the multicast address */
-		if (setsockopt(net.fd_multi_socket_in,
-		IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*) &multicastRequest,
-				sizeof(multicastRequest)) != 0) {
-			Log_error("mcastin setsockopt() failed");
-			return SDDS_RT_FAIL;
-		}
-	} else if (multicastAddr->ai_family == PF_INET6
-			&& multicastAddr->ai_addrlen == sizeof(struct sockaddr_in6)) /* IPv6 */
-			{
-		struct ipv6_mreq multicastRequest; /* Multicast address join structure */
-
-		/* Specify the multicast group */
-		memcpy(&multicastRequest.ipv6mr_multiaddr,
-				&((struct sockaddr_in6*) (multicastAddr->ai_addr))->sin6_addr,
-				sizeof(multicastRequest.ipv6mr_multiaddr));
-
-		/* Accept multicast from any interface */
-		multicastRequest.ipv6mr_interface = 0;
-
-		/* Join the multicast address */
-		if (setsockopt(net.fd_multi_socket_in,
-		IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP, (char*) &multicastRequest,
-				sizeof(multicastRequest)) != 0) {
-			Log_error("mcastin setsockopt() failed");
-			return SDDS_RT_FAIL;
-		}
-	} else {
-		Log_error("mcastin Neither IPv4 or IPv6");
-		return SDDS_RT_FAIL;
-	}
+	Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS);
 
 	freeaddrinfo(localAddr);
 	freeaddrinfo(multicastAddr);
@@ -386,16 +428,12 @@ rc_t Network_init(void) {
 
 #ifdef _MULTICAST
 	Multicast_out_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
-	Multicast_in_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
+	Multicast_in_init();
 
-//	Multicast_out_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
-//	Multicast_in_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
-//
-//	Multicast_out_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PUBLICATION_ADDRESS);
-//	Multicast_in_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PUBLICATION_ADDRESS);
-//
-//	Multicast_out_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUBSCRIPTION_ADDRESS);
-//	Multicast_in_init(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUBSCRIPTION_ADDRESS);
+	Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
+	Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
+	Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PUBLICATION_ADDRESS);
+	Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUBSCRIPTION_ADDRESS);
 #endif
 
 	return SDDS_RT_OK;
@@ -591,9 +629,9 @@ rc_t Network_send(NetBuffRef buff) {
 
 	Locator loc = buff->addr;
 
-	printf("========== send NetBuff ==========\n");
-	//NetBuffRef_print(buff);
-	printf("========== END NetBuff =======\n");
+//	printf("========== send NetBuff ==========\n");
+//	NetBuffRef_print(buff);
+//	printf("========== END NetBuff =======\n");
 
 	while (loc != NULL) {
 

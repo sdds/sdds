@@ -327,7 +327,7 @@ fconstants.write(r"""
 #endif /*SDDS_NET_MAX_OUT_QUEUE */
 
 #ifndef SDDS_NET_MAX_BUF_SIZE
-#define SDDS_NET_MAX_BUF_SIZE 60
+#define SDDS_NET_MAX_BUF_SIZE 128
 #endif /* SDDS_NET_MAX_BUF_SIZE */
 
 #ifndef SDDS_NET_MAX_LOCATOR_COUNT

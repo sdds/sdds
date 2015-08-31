@@ -9,6 +9,8 @@ extern "C"
 #include "Debug.h"
 #include "DataSink.h"
 
+#include "os-ssal/NodeConfig.h"
+
 #include <os-ssal/Memory.h>
 
 #include <sdds/DataSink.h>
@@ -41,6 +43,13 @@ rc_t Discovery_init() {
 rc_t Discovery_addParticipant(int participantID) {
 	int i;
 	int freePos = -1;
+
+//	printf("me: %d\n", NodeConfig_getNodeID());
+
+	if (BuiltinTopic_participantID == participantID) {
+		return SDDS_RT_KNOWN;
+	}
+
 	for (i = 0; i < SDDS_DISCOVERY_MAX_PARTICIPANTS; i++) {
 		if (participants[i] == participantID) {
 			return SDDS_RT_KNOWN;
@@ -63,14 +72,9 @@ rc_t Discovery_handleParticipant(int participantID) {
 	Discovery_Address_t addr;
 
 	ret = DataSink_getAddr(&addr);
-
-	printf("======= receive Address =======\n");
-	printf("castType: %u\n", addr.addrCast);
-	printf("addrType: %u\n", addr.addrType);
-	printf("addr: %s\n", addr.addr);
-
 	ret = Discovery_addParticipant(participantID);
-	printf("======= add participant =======\n");
+
+	if (ret == SDDS_RT_OK) printf( "add: %s\n", addr.addr);
 	printRC(ret);
 	if (ret == SDDS_RT_OK) {
 #ifdef SDDS_TOPIC_HAS_PUB

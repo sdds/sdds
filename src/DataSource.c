@@ -85,7 +85,7 @@ rc_t DaraSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
     	    memset(pt[i].type_name, 0, DDS_TOPIC_TYPE_SIZE);
 
     	    pt[i].key = dataSource->writers[i].id;
-    	    pt[i].participant_key = 123;
+    	    pt[i].participant_key = BuiltinTopic_participantID;
     	    sprintf(pt[i].topic_name, "%i", dataSource->writers[i].topic->id);
     	    sprintf(pt[i].type_name, "%i", dataSource->writers[i].topic->domain);
     }
@@ -244,8 +244,6 @@ rc_t DataSource_writeAddress(DataWriter _this) {
 		buffRef->curTopic = topic;
 	}
 
-	// Test ob's geht
-	printf("====== Test writeAddress ======\n");
 	if (SNPS_writeAddress(buffRef) != SDDS_RT_OK) {
 		// something went wrong oO
 		return SDDS_RT_FAIL;

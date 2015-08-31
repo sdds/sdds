@@ -7,6 +7,8 @@
 #include "BuiltinTopic.h"
 #include "Discovery.h"
 
+#include "os-ssal/NodeConfig.h"
+
 void printRC(rc_t ret);
 
 int main() {
@@ -36,7 +38,7 @@ int main() {
 	for (;;) {
 
         DDS_DCPSParticipant p;
-        p.key = 20;
+        p.key = BuiltinTopic_participantID;
 
 		if (DDS_DCPSParticipantDataWriter_write(g_DCPSParticipant_writer, &p, NULL) != DDS_RETCODE_OK) {
 			// handle error

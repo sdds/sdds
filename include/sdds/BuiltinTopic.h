@@ -17,14 +17,27 @@
 #include "DataSink.h"
 #include "Network.h"
 #include "Discovery.h"
+#include "os-ssal/NodeConfig.h"
 
 
 typedef struct Discovery_Address Discovery_Address_t;
 
 #define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::01:10"
-#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::01:20"
-#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::01:30"
-#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::01:40"
+#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::01:20"
+#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::01:30"
+#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::01:40"
+
+//#ifdef TAP0
+//#define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::01:10%tap0"
+//#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::01:20%tap0"
+//#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::01:30%tap0"
+//#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::01:40%tap0"
+//#else
+//#define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::01:10%tap1"
+//#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::01:20%tap1"
+//#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::01:30%tap1"
+//#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::01:40%tap1"
+//#endif
 
 /* The last character is used for the terminating \0 */
 #define DDS_TOPIC_NAME_SIZE 26
@@ -50,7 +63,9 @@ extern DDS_DataWriter g_DCPSSubscription_writer;
 extern DDS_Topic g_DCPSSubscription_topic;
 //extern DCPSSubscription_data_t g_DCPSSubscription_pool[SDDS_TOPIC_APP_MSG_COUNT];
 
-typedef uint8_t BuiltinTopicKey_t;
+SSW_NodeID_t BuiltinTopic_participantID;
+
+typedef uint16_t BuiltinTopicKey_t;
 
 struct DDS_DCPSParticipant_t {
     BuiltinTopicKey_t key;
