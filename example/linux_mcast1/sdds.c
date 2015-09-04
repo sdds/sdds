@@ -70,7 +70,9 @@ int main() {
 	int pCount = 0;
 
 	for (;;) {
-		do {
+
+		BuiltinTopic_printSubPool();
+//		do {
 
 			if (DDS_DCPSParticipantDataWriter_write(g_DCPSParticipant_writer,
 					&p, NULL) != DDS_RETCODE_OK) {
@@ -92,11 +94,11 @@ int main() {
 			}
 
 
-//			b.value = b_val++;
-//			if (DDS_BetaDataWriter_write(g_Beta_writer, &b,
-//					NULL) != DDS_RETCODE_OK) {
-//				// handle error
-//			}
+			b.value = b_val++;
+			if (DDS_BetaDataWriter_write(g_Beta_writer, &b,
+					NULL) != DDS_RETCODE_OK) {
+				// handle error
+			}
 
 			do {
 				ret = DDS_DCPSParticipantDataReader_take_next_sample(
@@ -147,8 +149,6 @@ int main() {
 				} else {
 					printf("-------------> st_data_used.addr (1) %p\n", st_data_used.addr);
 
-					BuiltinTopic_printSubPool();
-
 					printf("Read Subscription [%d]\n", pCount++);
 					printf("Received (subscription):[%u][%x] topic:%u\n",
 							st_data_used.data.key, st_data_used.data.participant_key,
@@ -172,20 +172,20 @@ int main() {
 				}
 			} while (ret != DDS_RETCODE_NO_DATA);
 
-//			do {
-//				ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,
-//						&beta_data_used_ptr, NULL);
-//				if (ret == DDS_RETCODE_NO_DATA) {
-//					printf("no data beta\n");
-//				} else {
-//					printf("Received (beta):[%d] %s %s\n", beta_data_used.value,
-//							beta_data_used.value2, beta_data_used.value3);
-//				}
-//			} while (ret != DDS_RETCODE_NO_DATA);
+			do {
+				ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,
+						&beta_data_used_ptr, NULL);
+				if (ret == DDS_RETCODE_NO_DATA) {
+					printf("no data beta\n");
+				} else {
+					printf("Received (beta):[%d] %s %s\n", beta_data_used.value,
+							beta_data_used.value2, beta_data_used.value3);
+				}
+			} while (ret != DDS_RETCODE_NO_DATA);
 
 			sleep(10);
 
-		} while (0);
+//		} while (0);
 
 	}
 

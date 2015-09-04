@@ -59,7 +59,7 @@ Topic sDDS_DCPSSubscriptionTopic_create(DDS_DCPSSubscription* pool, int count);
 
 void BuiltinTopic_printSubPool() {
 	for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++) {
-		printf("-----------------------> TEST.key %d\n", g_DCPSSubscription_pool[i].data.key);
+		printf("-----------------------> TEST.topic_id %d\n", g_DCPSSubscription_pool[i].data.topic_id);
 		printf("-----------------------> TEST.addr %p\n", g_DCPSSubscription_pool[i].	addr);
 	}
 }
@@ -575,8 +575,14 @@ Topic sDDS_DCPSSubscriptionTopic_create(DDS_DCPSSubscription* pool, int count)
 {
 	Topic topic = TopicDB_createTopic();
 
-	for (int i = 0; i < count; i++)
-	Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
+	for (int i = 0; i < count; i++) {
+		printf("~~~~~~~~~~~ &pool[%d] %p\n", i, &pool[i]);
+		printf("~~~~~~~~~~~ &g_DCPSSubscription_pool[%d] %p\n", i, &g_DCPSSubscription_pool[i]);
+		printf("~~~~~~~~~~~ &sizeof(pool[%d]) = %d\n", i, sizeof(pool[i]));
+		printf("~~~~~~~~~~~ &sizeof(g_DCPSSubscription_pool[%d]) = %d\n", i, sizeof(g_DCPSSubscription_pool[i]));
+//		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
+		Msg_init(&(topic->msg.pool[i]), (Data) &(g_DCPSSubscription_pool[i]));
+	}
 
 	topic->Data_encode = TopicMarshalling_DCPSSubscription_encode;
 
@@ -623,6 +629,13 @@ rc_t TopicMarshalling_DCPSSubscription_encode(byte_t* buffer, Data data, size_t*
 rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t* size)
 {
 	DDS_DCPSSubscription* real_data = (DDS_DCPSSubscription*) data;
+
+	printf("~~~~~~~~~~~~~~ data %p\n", data);
+	for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++) {
+			if(data == &g_DCPSSubscription_pool[i]) {
+				printf("~~~~~~~~~~~~~~ &g_DCPSSubscription_pool[%d] %p\n", i, &g_DCPSSubscription_pool[i]);
+			}
+	}
 
 	int expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
 	if (*size != expectedSize)
