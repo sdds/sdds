@@ -6,54 +6,30 @@
 #include <netinet/in.h>
 #include <string.h>
 
+#ifndef PLATFORM_LINUX_SDDS_IFACE
+#define PLATFORM_LINUX_SDDS_IFACE "tap0"
+#endif
+
 SSW_NodeID_t NodeConfig_getNodeID(void) {
 	SSW_NodeID_t nodeID = 0;
-
+	int fd;
 	struct ifreq ifr;
-	struct ifconf ifc;
-	char buf[1024];
-	int success = 0;
+	unsigned char *mac;
 
-	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-	if (sock == -1) {
-		/* handle error*/
-	};
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
 
-	ifc.ifc_len = sizeof(buf);
-	ifc.ifc_buf = buf;
-	if (ioctl(sock, SIOCGIFCONF, &ifc) == -1) {
-		/* handle error */
-	}
+	ifr.ifr_addr.sa_family = AF_INET;
+	strncpy(ifr.ifr_name, PLATFORM_LINUX_SDDS_IFACE, IFNAMSIZ - 1);
 
-	struct ifreq* it = ifc.ifc_req;
-	const struct ifreq* const end = it + (ifc.ifc_len / sizeof(struct ifreq));
+	ioctl(fd, SIOCGIFHWADDR, &ifr);
 
-	for (; it != end; ++it) {
-		strcpy(ifr.ifr_name, it->ifr_name);
-		if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0) {
-			if (!(ifr.ifr_flags & IFF_LOOPBACK)) { // don't count loopback
-				if (ioctl(sock, SIOCGIFHWADDR, &ifr) == 0) {
-					success = 1;
-					break;
-				}
-			}
-		} else { /* handle error */
-		}
-	}
+	close(fd);
 
-	unsigned char mac_address[6];
+	mac = (unsigned char *) ifr.ifr_hwaddr.sa_data;
+	nodeID = mac[5] | (mac[4] << 8);
 
-	if (success) {
-		memcpy(mac_address, ifr.ifr_hwaddr.sa_data, 6);
-		nodeID = mac_address[5] | (mac_address[4] << 8);
-	}
-
-//	int i;
-//	printf("MAC: ");
-//	for (i = 0; i < 6; i++) {
-//		printf("[%x]", mac_address[i]);
-//	}
-//	printf(" nodeID: %x\n", nodeID);
+	//	printf("\nMac : %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	//	printf("nodeID: %x\n", nodeID);
 
 	return nodeID;
 }

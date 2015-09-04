@@ -6,6 +6,9 @@
 #include "linux_sdds_impl.h"
 #include "beta-ds.h"
 #include "BuiltinTopic.h"
+#include "Log.h"
+#include "DataSource.h"
+#include "DataSink.h"
 
 #include "os-ssal/NodeConfig.h"
 
@@ -30,15 +33,14 @@ int main() {
 	DDS_DCPSPublication pt_data_used;
 	DDS_DCPSPublication* pt_data_used_ptr = &pt_data_used;
 
-	DDS_DCPSSubscription st_data_used;
-	DDS_DCPSSubscription* st_data_used_ptr = &st_data_used;
+	SDDS_DCPSSubscription st_data_used;
+	SDDS_DCPSSubscription* st_data_used_ptr = &st_data_used;
 
 	DDS_DCPSParticipant p;
 	p.key = BuiltinTopic_participantID;
 
 	DDS_DCPSTopic t;
 	memset(t.name, 0, DDS_TOPIC_NAME_SIZE);
-	memset(t.type_name, 0, DDS_TOPIC_TYPE_SIZE);
 	t.key = 33;
 	t.name[0] = 'T';
 	t.name[1] = 'e';
@@ -48,43 +50,6 @@ int main() {
 	t.name[5] = '2';
 	t.name[6] = '3';
 	t.name[7] = '\0';
-	t.type_name[0] = 'A';
-	t.type_name[1] = 'A';
-	t.type_name[2] = '\0';
-
-	DDS_DCPSPublication pt;
-	memset(pt.topic_name, 0, DDS_TOPIC_NAME_SIZE);
-	memset(pt.type_name, 0, DDS_TOPIC_TYPE_SIZE);
-	pt.key = 55;
-	pt.participant_key = BuiltinTopic_participantID;
-	pt.topic_name[0] = 'T';
-	pt.topic_name[1] = 'e';
-	pt.topic_name[2] = 'm';
-	pt.topic_name[3] = 'p';
-	pt.topic_name[4] = '1';
-	pt.topic_name[5] = '2';
-	pt.topic_name[6] = '3';
-	pt.topic_name[7] = '\0';
-	pt.type_name[0] = 'B';
-	pt.type_name[1] = 'B';
-	pt.type_name[2] = '\0';
-
-	DDS_DCPSSubscription st;
-	memset(st.topic_name, 0, DDS_TOPIC_NAME_SIZE);
-	memset(st.type_name, 0, DDS_TOPIC_TYPE_SIZE);
-	st.key = 55;
-	st.participant_key = BuiltinTopic_participantID;
-	st.topic_name[0] = 'T';
-	st.topic_name[1] = 'e';
-	st.topic_name[2] = 'm';
-	st.topic_name[3] = 'p';
-	st.topic_name[4] = '1';
-	st.topic_name[5] = '2';
-	st.topic_name[6] = '3';
-	st.topic_name[7] = '\0';
-	st.type_name[0] = 'C';
-	st.type_name[1] = 'C';
-	st.type_name[2] = '\0';
 
 	Beta b;
 	b.value = 44;
@@ -101,8 +66,8 @@ int main() {
 	b.value3[4] = '!';
 	b.value3[5] = '\0';
 
-	int st_key = 0;
 	int b_val = 0;
+	int pCount = 0;
 
 	for (;;) {
 		do {
@@ -112,11 +77,6 @@ int main() {
 				// handle error
 				//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
 			}
-
-//            if (DDS_DCPSTopicDataWriter_write(g_DCPSTopic_writer, &t, NULL) != DDS_RETCODE_OK) {
-//                // handle error
-//            	//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
-//            }
 
 			DDS_DCPSPublication pubT[20];
 			int len = 0;
@@ -131,35 +91,21 @@ int main() {
 				}
 			}
 
-//			st.key = st_key++;
-//            if (DDS_DCPSSubscriptionDataWriter_write(g_DCPSSubscription_writer, &st, NULL) != DDS_RETCODE_OK) {
-//                // handle error
-//            }
 
-//            b.value = b_val++;
-//            if (DDS_BetaDataWriter_write(g_Beta_writer, &b, NULL) != DDS_RETCODE_OK) {
-//                // handle error
-//            }
+//			b.value = b_val++;
+//			if (DDS_BetaDataWriter_write(g_Beta_writer, &b,
+//					NULL) != DDS_RETCODE_OK) {
+//				// handle error
+//			}
+
 			do {
 				ret = DDS_DCPSParticipantDataReader_take_next_sample(
 						g_DCPSParticipant_reader, &p_data_used_ptr, NULL);
 				if (ret == DDS_RETCODE_NO_DATA) {
 					printf("no data participant\n");
 				} else {
-					printf("Received (participant):[%u] ", p_data_used.key);
+					printf("Received (participant):[%x] ", p_data_used.key);
 					ret = Discovery_handleParticipant(p_data_used.key);
-				}
-			} while (ret != DDS_RETCODE_NO_DATA);
-
-			do {
-				ret = DDS_DCPSTopicDataReader_take_next_sample(
-						g_DCPSTopic_reader, &t_data_used_ptr, NULL);
-				if (ret == DDS_RETCODE_NO_DATA) {
-					printf("no data topic\n");
-				} else {
-					printf("Received (topic):[%u] topic:%s type:%s\n",
-							t_data_used.key, t_data_used.name,
-							t_data_used.type_name);
 				}
 			} while (ret != DDS_RETCODE_NO_DATA);
 
@@ -169,35 +115,73 @@ int main() {
 				if (ret == DDS_RETCODE_NO_DATA) {
 					printf("no data publication\n");
 				} else {
-					printf("Received (publication):[%u][%u] topic:%s type:%s\n",
+					printf("Received (publication):[%u][%x] topic:%u\n",
 							pt_data_used.key, pt_data_used.participant_key,
-							pt_data_used.topic_name, pt_data_used.type_name);
+							pt_data_used.topic_id);
+
+					ret = DataSink_getTopic((struct DDS_DCPSSubscription *) &st_data_used, pt_data_used.topic_id, NULL);
+					if (ret == SDDS_RT_OK) {
+						if (DDS_DCPSSubscriptionDataWriter_write(g_DCPSSubscription_writer, (struct DDS_DCPSSubscription *) &st_data_used, 	NULL) != DDS_RETCODE_OK) {
+							// handle error
+						}
+					}
 				}
 			} while (ret != DDS_RETCODE_NO_DATA);
 
+//			do {
+//				ret = DDS_DCPSTopicDataReader_take_next_sample(
+//						g_DCPSTopic_reader, &t_data_used_ptr, NULL);
+//				if (ret == DDS_RETCODE_NO_DATA) {
+//					printf("no data topic\n");
+//				} else {
+//					printf("Received (topic):[%x] topic:%s\n", t_data_used.key,
+//							t_data_used.name);
+//				}
+//			} while (ret != DDS_RETCODE_NO_DATA);
+//
 			do {
 				ret = DDS_DCPSSubscriptionDataReader_take_next_sample(
 						g_DCPSSubscription_reader, &st_data_used_ptr, NULL);
 				if (ret == DDS_RETCODE_NO_DATA) {
 					printf("no data subscription\n");
 				} else {
-					printf(
-							"Received (subscription):[%u][%u] topic:%s type:%s\n",
-							st_data_used.key, st_data_used.participant_key,
-							st_data_used.topic_name, st_data_used.type_name);
+					printf("-------------> st_data_used.addr (1) %p\n", st_data_used.addr);
+
+					BuiltinTopic_printSubPool();
+
+					printf("Read Subscription [%d]\n", pCount++);
+					printf("Received (subscription):[%u][%x] topic:%u\n",
+							st_data_used.data.key, st_data_used.data.participant_key,
+							st_data_used.data.topic_id);
+
+					Topic topic = NULL;
+//					Discovery_Address_t address;
+//
+//					ret = DataSink_getAddr(&address);
+					ret = DataSink_getTopic(NULL, st_data_used.data.topic_id, &topic);
+					if (ret == SDDS_RT_OK) {
+						char  srcAddr[1024];
+						Locator_getAddress(st_data_used.addr, srcAddr);
+						printf("===================== add new DataSink ==========================\n");
+						printf("addr: %s\n", srcAddr);
+						printf("=================================================================\n	");
+//						ret = Topic_addRemoteDataSink(topic, sdds_data->addr);
+						ret = Discovery_addRemoteDataSinkLoc(st_data_used.addr, topic);
+//						ret = Discovery_addRemoteDataSink(srcAddr, topic);
+					}
 				}
 			} while (ret != DDS_RETCODE_NO_DATA);
 
-			do {
-				ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,
-						&beta_data_used_ptr, NULL);
-				if (ret == DDS_RETCODE_NO_DATA) {
-					printf("no data beta\n");
-				} else {
-					printf("Received (beta):[%d] %s %s\n", beta_data_used.value,
-							beta_data_used.value2, beta_data_used.value3);
-				}
-			} while (ret != DDS_RETCODE_NO_DATA);
+//			do {
+//				ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,
+//						&beta_data_used_ptr, NULL);
+//				if (ret == DDS_RETCODE_NO_DATA) {
+//					printf("no data beta\n");
+//				} else {
+//					printf("Received (beta):[%d] %s %s\n", beta_data_used.value,
+//							beta_data_used.value2, beta_data_used.value3);
+//				}
+//			} while (ret != DDS_RETCODE_NO_DATA);
 
 			sleep(10);
 

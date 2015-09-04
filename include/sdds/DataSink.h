@@ -20,21 +20,29 @@
 #ifndef  DATASINK_H_INC
 #define  DATASINK_H_INC
 
+#include "BuiltinTopic.h"
 #include "sdds_types.h"
 #include "NetBuffRef.h"
-#include "Discovery.h"
+//#include "Discovery.h"
 
-struct DataReader;
-typedef struct DataReader DataReader_t;
-typedef struct DataReader* DataReader;
+struct Discovery_Address;
 
 
 struct DataSink_t;
 typedef struct DataSink_t* DataSink;
-
 extern DataSink dataSink;
 
+typedef struct DDS_DCPSSubscription_t DDS_DCPSSubscription;
+
 typedef void (*On_Data_Avail_Listener)(DataReader);
+
+struct DataReader {
+	Topic topic;
+	unsigned int id :4;
+	On_Data_Avail_Listener on_data_avail_listener;
+};
+typedef struct DataReader DataReader_t;
+typedef struct DataReader* DataReader;
 
 rc_t DataSink_init(void);
 DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm);
@@ -46,6 +54,8 @@ rc_t DataSink_set_on_data_avail_listener (
 		const StatusMask sm);
 
 rc_t DataSink_printAddr();
-rc_t DataSink_getAddr(Discovery_Address_t *address);
+rc_t DataSink_getAddr(struct Discovery_Address *address);
+
+rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic);
 
 #endif   /* ----- #ifndef DATASINK_H_INC  ----- */

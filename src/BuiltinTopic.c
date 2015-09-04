@@ -5,6 +5,7 @@ extern "C"
 
 #include "BuiltinTopic.h"
 #include "DataSource.h"
+#include "DataSink.h"
 
 #include <os-ssal/Memory.h>
 
@@ -25,12 +26,10 @@ extern "C"
 }
 #endif
 
-
-
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 
 DDS_Topic g_DCPSParticipant_topic;
-DDS_DCPSParticipant g_DCPSParticipant_pool[SDDS_TOPIC_APP_MSG_COUNT];
+SDDS_DCPSParticipant g_DCPSParticipant_pool[SDDS_TOPIC_APP_MSG_COUNT];
 DDS_DataReader g_DCPSParticipant_reader;
 DDS_DataWriter g_DCPSParticipant_writer;
 
@@ -45,7 +44,7 @@ DDS_DataReader g_DCPSPublication_reader;
 DDS_DataWriter g_DCPSPublication_writer;
 
 DDS_Topic g_DCPSSubscription_topic;
-DDS_DCPSSubscription g_DCPSSubscription_pool[SDDS_TOPIC_APP_MSG_COUNT];
+SDDS_DCPSSubscription g_DCPSSubscription_pool[SDDS_TOPIC_APP_MSG_COUNT];
 DDS_DataReader g_DCPSSubscription_reader;
 DDS_DataWriter g_DCPSSubscription_writer;
 
@@ -57,6 +56,13 @@ Topic sDDS_DCPSSubscriptionTopic_create(DDS_DCPSSubscription* pool, int count);
 /**************
  * Initialize *
  **************/
+
+void BuiltinTopic_printSubPool() {
+	for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++) {
+		printf("-----------------------> TEST.key %d\n", g_DCPSSubscription_pool[i].data.key);
+		printf("-----------------------> TEST.addr %p\n", g_DCPSSubscription_pool[i].	addr);
+	}
+}
 
 rc_t BuiltinTopic_init(void)
 {
@@ -197,7 +203,8 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 )
 {
 
-	rc_t ret = DataSource_writeAddress((DataWriter) _this);
+	rc_t ret;
+	ret = DataSource_writeAddress((DataWriter) _this, "");
 	ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
 	if (ret == SDDS_RT_OK) {
 		return DDS_RETCODE_OK;
@@ -229,7 +236,7 @@ Topic sDDS_DCPSParticipantTopic_create(DDS_DCPSParticipant* pool, int count)
 
 rc_t TopicMarshalling_DCPSParticipant_cpy(Data dest, Data source)
 {
-	memcpy(dest, source, sizeof(DDS_DCPSParticipant));
+	memcpy(dest, source, sizeof(SDDS_DCPSParticipant));
 
 	return SDDS_RT_OK;
 }
@@ -248,12 +255,13 @@ rc_t TopicMarshalling_DCPSParticipant_encode(byte_t* buffer, Data data, size_t* 
 
 rc_t TopicMarshalling_DCPSParticipant_decode(byte_t* buffer, Data data, size_t* size)
 {
-	if (*size != 2)
-	fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, 2);
+	DDS_DCPSParticipant* real_data = (DDS_DCPSParticipant*) data;
+
+	int expectedSize = sizeof(real_data->key);
+	if (*size != expectedSize)
+	fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, expectedSize);
 
 	*size = 0;
-
-	DDS_DCPSParticipant* real_data = (DDS_DCPSParticipant*) data;
 
 	Marshalling_dec_uint16(buffer + *size, &real_data->key);
 	*size += sizeof(real_data->key);
@@ -351,6 +359,8 @@ rc_t TopicMarshalling_DCPSTopic_encode(byte_t* buffer, Data data, size_t* size)
 
 	DDS_DCPSTopic* real_data = (DDS_DCPSTopic*) data;
 
+	printf("%d %s\n", __LINE__, __FUNCTION__);
+
 	Marshalling_enc_uint16(buffer + *size, &real_data->key);
 	*size += sizeof(real_data->key);
 
@@ -358,32 +368,24 @@ rc_t TopicMarshalling_DCPSTopic_encode(byte_t* buffer, Data data, size_t* size)
 	//*size += sizeof(real_data->name);
 	*size += DDS_TOPIC_NAME_SIZE;
 
-	Marshalling_enc_string(buffer + *size, real_data->type_name, DDS_TOPIC_TYPE_SIZE);
-	//*size += sizeof(real_data->type_name);
-	*size += DDS_TOPIC_TYPE_SIZE;
-
 	return SDDS_RT_OK;
 }
 
 rc_t TopicMarshalling_DCPSTopic_decode(byte_t* buffer, Data data, size_t* size)
 {
-	int expectedSize = 2 + DDS_TOPIC_NAME_SIZE + DDS_TOPIC_TYPE_SIZE;
+	DDS_DCPSTopic* real_data = (DDS_DCPSTopic*) data;
+
+	int expectedSize = sizeof(real_data->key) + DDS_TOPIC_NAME_SIZE;
 	if (*size != expectedSize)
+	fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, expectedSize);
 
 	*size = 0;
-
-	DDS_DCPSTopic* real_data = (DDS_DCPSTopic*) data;
 
 	Marshalling_dec_uint16(buffer + *size, &real_data->key);
 	*size += sizeof(real_data->key);
 
 	Marshalling_dec_string(buffer + *size, real_data->name, DDS_TOPIC_NAME_SIZE);
-	//*size += sizeof(real_data->name);
 	*size += DDS_TOPIC_NAME_SIZE;
-
-	Marshalling_dec_string(buffer + *size, real_data->type_name, DDS_TOPIC_TYPE_SIZE);
-	//*size += sizeof(real_data->type_name);
-	*size += DDS_TOPIC_TYPE_SIZE;
 
 	return SDDS_RT_OK;
 }
@@ -484,25 +486,21 @@ rc_t TopicMarshalling_DCPSPublication_encode(byte_t* buffer, Data data, size_t* 
 	Marshalling_enc_uint16(buffer + *size, &real_data->participant_key);
 	*size += sizeof(real_data->participant_key);
 
-	Marshalling_enc_string(buffer + *size, real_data->topic_name, DDS_TOPIC_NAME_SIZE);
-	//*size += sizeof(real_data->topic_name);
-	*size += DDS_TOPIC_NAME_SIZE;
-
-	Marshalling_enc_string(buffer + *size, real_data->type_name, DDS_TOPIC_TYPE_SIZE);
-	//*size += sizeof(real_data->type_name);
-	*size += DDS_TOPIC_TYPE_SIZE;
+	Marshalling_enc_uint16(buffer + *size, &real_data->topic_id);
+	*size += sizeof(real_data->topic_id);
 
 	return SDDS_RT_OK;
 }
 
 rc_t TopicMarshalling_DCPSPublication_decode(byte_t* buffer, Data data, size_t* size)
 {
-	int expectedSize = 4 + DDS_TOPIC_NAME_SIZE + DDS_TOPIC_TYPE_SIZE;
+	DDS_DCPSPublication* real_data = (DDS_DCPSPublication*) data;
+
+	int expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
 	if (*size != expectedSize)
+	fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, expectedSize);
 
 	*size = 0;
-
-	DDS_DCPSPublication* real_data = (DDS_DCPSPublication*) data;
 
 	Marshalling_dec_uint16(buffer + *size, &real_data->key);
 	*size += sizeof(real_data->key);
@@ -510,13 +508,8 @@ rc_t TopicMarshalling_DCPSPublication_decode(byte_t* buffer, Data data, size_t* 
 	Marshalling_dec_uint16(buffer + *size, &real_data->participant_key);
 	*size += sizeof(real_data->participant_key);
 
-	Marshalling_dec_string(buffer + *size, real_data->topic_name, DDS_TOPIC_NAME_SIZE);
-	//*size += sizeof(real_data->topic_name);
-	*size += DDS_TOPIC_NAME_SIZE;
-
-	Marshalling_dec_string(buffer + *size, real_data->type_name, DDS_TOPIC_TYPE_SIZE);
-	//*size += sizeof(real_data->type_name);
-	*size = DDS_TOPIC_TYPE_SIZE;
+	Marshalling_dec_uint16(buffer + *size, &real_data->topic_id);
+	*size += sizeof(real_data->topic_id);
 
 	return SDDS_RT_OK;
 }
@@ -568,7 +561,9 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 		const DDS_InstanceHandle_t handle
 )
 {
-	rc_t ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
+
+	rc_t ret = DataSource_writeAddress((DataWriter) _this, "");
+	ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
 
 	if (ret == SDDS_RT_OK)
 	return DDS_RETCODE_OK;
@@ -579,15 +574,11 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 Topic sDDS_DCPSSubscriptionTopic_create(DDS_DCPSSubscription* pool, int count)
 {
 	Topic topic = TopicDB_createTopic();
-	//Locator locator;
-
-	//Network_createLocator(&locator);
 
 	for (int i = 0; i < count; i++)
 	Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
 
 	topic->Data_encode = TopicMarshalling_DCPSSubscription_encode;
-	//topic->dsinks.list = locator;
 
 	topic->Data_decode = TopicMarshalling_DCPSSubscription_decode;
 
@@ -600,7 +591,13 @@ Topic sDDS_DCPSSubscriptionTopic_create(DDS_DCPSSubscription* pool, int count)
 
 rc_t TopicMarshalling_DCPSSubscription_cpy(Data dest, Data source)
 {
-	memcpy(dest, source, sizeof(DDS_DCPSSubscription));
+	memcpy(dest, source, sizeof(SDDS_DCPSSubscription));
+
+	SDDS_DCPSSubscription *d = (SDDS_DCPSSubscription *) dest;
+	SDDS_DCPSSubscription *s = (SDDS_DCPSSubscription *) source;
+
+	printf("-------------> d->addr (3) %p\n", d->addr);
+	printf("-------------> s->addr (2) %p\n", s->addr);
 
 	return SDDS_RT_OK;
 }
@@ -617,25 +614,21 @@ rc_t TopicMarshalling_DCPSSubscription_encode(byte_t* buffer, Data data, size_t*
 	Marshalling_enc_uint16(buffer + *size, &real_data->participant_key);
 	*size += sizeof(real_data->participant_key);
 
-	Marshalling_enc_string(buffer + *size, real_data->topic_name, DDS_TOPIC_NAME_SIZE);
-	//*size += sizeof(real_data->topic_name);
-	*size += DDS_TOPIC_NAME_SIZE;
-
-	Marshalling_enc_string(buffer + *size, real_data->type_name, DDS_TOPIC_TYPE_SIZE);
-	//*size += sizeof(real_data->type_name);
-	*size += DDS_TOPIC_TYPE_SIZE;
+	Marshalling_enc_uint16(buffer + *size, &real_data->topic_id);
+	*size += sizeof(real_data->topic_id);
 
 	return SDDS_RT_OK;
 }
 
 rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t* size)
 {
-	int expectedSize = 4 + DDS_TOPIC_NAME_SIZE + DDS_TOPIC_TYPE_SIZE;
+	DDS_DCPSSubscription* real_data = (DDS_DCPSSubscription*) data;
+
+	int expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
 	if (*size != expectedSize)
+	fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, expectedSize);
 
 	*size = 0;
-
-	DDS_DCPSSubscription* real_data = (DDS_DCPSSubscription*) data;
 
 	Marshalling_dec_uint16(buffer + *size, &real_data->key);
 	*size += sizeof(real_data->key);
@@ -643,14 +636,24 @@ rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t*
 	Marshalling_dec_uint16(buffer + *size, &real_data->participant_key);
 	*size += sizeof(real_data->participant_key);
 
-	Marshalling_dec_string(buffer + *size, real_data->topic_name, DDS_TOPIC_NAME_SIZE);
-	//*size += sizeof(real_data->topic_name);
-	*size += DDS_TOPIC_NAME_SIZE;
+	Marshalling_dec_uint16(buffer + *size, &real_data->topic_id);
+	*size += sizeof(real_data->topic_id);
 
-	Marshalling_dec_string(buffer + *size, real_data->type_name, DDS_TOPIC_TYPE_SIZE);
-	//*size += sizeof(real_data->type_name);
-	*size = DDS_TOPIC_TYPE_SIZE;
+	Discovery_Address_t address;
+	rc_t ret = DataSink_getAddr(&address);
 
+	SDDS_DCPSSubscription* sdds_data = (SDDS_DCPSSubscription*) data;
+
+	if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
+		ret = LocatorDB_newLocator(&sdds_data->addr);
+	}
+	else {
+		ret = LocatorDB_newMultiLocator(&sdds_data->addr);
+	}
+
+	Locator_upRef(sdds_data->addr);
+	ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
+	printf("-------------> sdds_data->addr (0) %p\n", sdds_data->addr);
 	return SDDS_RT_OK;
 }
 
@@ -668,16 +671,16 @@ rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(Discovery_Address_t addr) {
 		if (ret != SDDS_RT_OK)
 		return ret;
 	}
-		Locator_upRef(l);
+	Locator_upRef(l);
 
-		ret = Network_setMulticastAddressToLocator(l, addr.addr);
-		if (ret != SDDS_RT_OK)
-		return ret;
+	ret = Network_setMulticastAddressToLocator(l, addr.addr);
+	if (ret != SDDS_RT_OK)
+	return ret;
 
-		ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, l);
-		if (ret != SDDS_RT_OK)
-		return ret;
-		Locator_downRef(l);
+	ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, l);
+	if (ret != SDDS_RT_OK)
+	return ret;
+	Locator_downRef(l);
 
 	return SDDS_RT_OK;
 }
@@ -696,18 +699,31 @@ rc_t BuiltinTopic_addRemoteDataSinkToSubTopic(Discovery_Address_t addr) {
 		if (ret != SDDS_RT_OK)
 		return ret;
 	}
-		Locator_upRef(l);
+	Locator_upRef(l);
 
-		ret = Network_setMulticastAddressToLocator(l, addr.addr);
-		if (ret != SDDS_RT_OK)
-		return ret;
+	ret = Network_setMulticastAddressToLocator(l, addr.addr);
+	if (ret != SDDS_RT_OK)
+	return ret;
 
-		ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, l);
-		if (ret != SDDS_RT_OK)
-		return ret;
-		Locator_downRef(l);
+	ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, l);
+	if (ret != SDDS_RT_OK)
+	return ret;
+	Locator_downRef(l);
 
 	return SDDS_RT_OK;
+}
+
+bool BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID) {
+	if (
+			(DDS_DCPS_PARTICIPANT_DOMAIN == dID) && (DDS_DCPS_PARTICIPANT_TOPIC == tID) ||
+			(DDS_DCPS_TOPIC_DOMAIN == dID) && (DDS_DCPS_TOPIC_TOPIC == tID) ||
+			(DDS_DCPS_PUBLICATION_DOMAIN == dID) && (DDS_DCPS_PUBLICATION_TOPIC == tID) ||
+			(DDS_DCPS_SUBSCRIPTION_DOMAIN == dID) && (DDS_DCPS_SUBSCRIPTION_TOPIC == tID)
+	) {
+		return true;
+	}
+
+	return false;
 }
 
 #endif

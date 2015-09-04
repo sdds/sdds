@@ -2,4 +2,4 @@ endian: little
 
 [beta]
 subscriber
-publisher fe80::10
+publisher

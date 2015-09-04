@@ -8,5 +8,7 @@ sysctl net.ipv6.conf.tap1.accept_dad=0
 ifconfig tap0 up
 ifconfig tap1 up
 ip -6 addr add fe80::10/64 dev tap0
+ip -6 addr add fe80::20/64 dev tap0
+ip -6 addr add fe80::10/64 dev tap1
 ip -6 addr add fe80::20/64 dev tap1
 

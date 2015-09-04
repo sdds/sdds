@@ -110,3 +110,23 @@ rc_t Locator_removeFromList(Locator head, Locator toDel) {
 
 	return SDDS_RT_OK;
 }
+
+rc_t Locator_contains(Locator head, Locator l) {
+
+	if (head == NULL || l == NULL) {
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+	Locator tmp = head;
+
+	while (head != NULL) {
+		// locator is allready in the list
+		if (Locator_isEqual(head, l) == true) {
+			return SDDS_RT_OK;
+		}
+		tmp = head;
+		head = head->next;
+	}
+
+	return SDDS_RT_FAIL;
+}

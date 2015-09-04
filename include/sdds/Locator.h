@@ -43,6 +43,8 @@ struct Locator_t{
 };
 typedef struct Locator_t* Locator;
 
+typedef struct NetBuffRef_t* NetBuffRef;
+
 /**
  * Initialises a Locator object
  *
@@ -108,5 +110,9 @@ rc_t Locator_addToList(Locator head, Locator newL);
  * SDDS_RT_BAD_PARAMETER if one of the parameter is NULL
  */
 rc_t Locator_removeFromList(Locator head, Locator toDel);
+
+rc_t Locator_contains(Locator head, Locator l);
+
+rc_t Locator_getAddress(Locator l, char *srcAddr);
 
 #endif   /* ----- #ifndef LOCATOR_H_INC  ----- */

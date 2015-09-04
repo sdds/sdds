@@ -77,7 +77,11 @@ rc_t Topic_addRemoteDataSink(Topic _this, Locator addr)
 
 	Locator tmp = _this->dsinks.list;
 
-	return Locator_addToList(tmp, addr);
+	if (Locator_contains(tmp, addr) != SDDS_RT_OK) {
+		return Locator_addToList(tmp, addr);
+	}
+
+	return SDDS_RT_OK;
 }
 #endif
 
@@ -96,9 +100,11 @@ rc_t Topic_addRemoteDataSource(Topic _this, Locator addr)
 	}
 	Locator tmp = _this->dsources.list;
 
+	if (Locator_contains(tmp, addr) != SDDS_RT_OK) {
+		return Locator_addToList(tmp, addr);
+	}
 
-
-	return Locator_addToList(tmp, addr);
+	return SDDS_RT_OK;
 }
 #endif
 

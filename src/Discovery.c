@@ -89,7 +89,7 @@ rc_t Discovery_handleParticipant(int participantID) {
 	return ret;
 }
 
-rc_t Discovery_addRemoteDataSink(char *addr, DDS_DataReader dataReader) {
+rc_t Discovery_addRemoteDataSink(char *addr, Topic topic) {
 	Locator l;
 	rc_t ret;
 
@@ -103,9 +103,22 @@ rc_t Discovery_addRemoteDataSink(char *addr, DDS_DataReader dataReader) {
 	if (ret != SDDS_RT_OK)
 		return ret;
 
-	ret = Topic_addRemoteDataSink(dataReader, l);
+	ret = Topic_addRemoteDataSink(topic, l);
 	if (ret != SDDS_RT_OK)
 		return ret;
+
+	Locator_downRef(l);
+
+	return ret;
+}
+
+rc_t Discovery_addRemoteDataSinkLoc(Locator l, Topic topic) {
+	rc_t ret;
+
+	ret = Topic_addRemoteDataSink(topic, l);
+	if (ret != SDDS_RT_OK)
+		return ret;
+
 	Locator_downRef(l);
 
 	return ret;

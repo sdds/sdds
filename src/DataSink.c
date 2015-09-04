@@ -26,15 +26,10 @@
 #include "Marshalling.h"
 #include "sdds_types.h"
 #include "Discovery.h"
+
 #include <string.h>
 
 #include "Log.h"
-
-struct DataReader {
-	Topic topic;
-	unsigned int id :4;
-	On_Data_Avail_Listener on_data_avail_listener;
-};
 
 struct DataSink_t {
 	DataReader_t readers[SDDS_MAX_DATA_READERS];
@@ -58,11 +53,39 @@ rc_t checkTopic(NetBuffRef buff, topicid_t topic);
 
 rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size);
 
+rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic) {
+	int i;
+	for (i = 0; i < (SDDS_MAX_DATA_READERS - dataSink->remaining_datareader);
+			i++) {
+		if ((dataSink->readers[i].topic->id == id)) {
+			if (st != NULL) {
+				st->key = dataSink->readers[i].id;
+				st->participant_key = BuiltinTopic_participantID;
+				st->topic_id = dataSink->readers[i].topic->id;
+			}
+			if (topic != NULL) {
+				*topic = dataSink->readers[i].topic;
+			}
+			return SDDS_RT_OK;
+		}
+	}
+
+	return SDDS_RT_FAIL;
+}
+
 rc_t DataSink_getAddr(Discovery_Address_t *address) {
 	address->addrType = addr.addrType;
 	address->addrCast = addr.addrCast;
-	memcpy(address->addr, addr.addr, SDDS_SNPS_ADDR_SIZE);
+	memcpy(address->addr, addr.addr, SDDS_DISCOVERY_ADDR_STR_LENGTH);
 	return SDDS_RT_OK;
+}
+
+static void getAddress(NetBuffRef buff) {
+	memset(addr.addr, 0, SDDS_DISCOVERY_ADDR_STR_LENGTH);
+	addr.addrType = 0;
+	addr.addrCast = 0;
+	SNPS_readAddress(buff, &addr.addrCast, &addr.addrType, addr.addr);
+	printf("Connection from %s\n", addr.addr);
 }
 
 rc_t DataSink_processFrame(NetBuffRef buff) {
@@ -73,10 +96,14 @@ rc_t DataSink_processFrame(NetBuffRef buff) {
 
 	// process the frame
 	// parse the header
+
 	ret = SNPS_readHeader(buff);
+
 	if (ret != SDDS_RT_OK) {
 		// done reset the buffer
+
 		NetBuffRef_renew(buff);
+
 		return SDDS_RT_FAIL;
 	}
 
@@ -87,37 +114,51 @@ rc_t DataSink_processFrame(NetBuffRef buff) {
 	while (buff->subMsgCount > 0) {
 		// get sum msg id
 		subMsg_t type;
+
 		SNPS_evalSubMsg(buff, &type);
+
 		switch (type) {
 		case (SDDS_SNPS_T_DOMAIN):
 			// check data
+
 			submitData();
+
 			domainid_t domain;
+
 			SNPS_readDomain(buff, &domain);
+
 			// check domain
 			checkDomain(buff, domain);
+
 			break;
 		case (SDDS_SNPS_T_TOPIC):
 			// check data
+
 			submitData();
+
 			SNPS_readTopic(buff, &topic);
+
 			// check topic
 			checkTopic(buff, topic);
+
 			break;
 		case (SDDS_SNPS_T_DATA):
 #ifdef SDDS_TOPIC_HAS_PUB
 			// check data
+
 			submitData();
+
 			ret = parseData(buff);
+
 			if (ret != SDDS_RT_OK)
+
 			return SDDS_RT_FAIL;
 #endif
 			break;
 		case (SDDS_SNPS_T_ADDRESS):
-			memset(addr.addr, 0, 16);
-			addr.addrType = 0;
-			addr.addrCast = 0;
-			SNPS_readAddress(buff, &addr.addrCast, &addr.addrType, addr.addr);
+
+			getAddress(buff);
+
 			break;
 //	    case (SDDS_SNPS_T_TSSIMPLE) :
 //		break;
@@ -126,13 +167,17 @@ rc_t DataSink_processFrame(NetBuffRef buff) {
 		default:
 			// go to next submsg
 			// unknown content
+
 			SNPS_discardSubMsg(buff);
+
 			break;
 		}
 
 	}
 	// submit the last decoded msg
+
 	submitData();
+
 	// done reset the buffer
 	NetBuffRef_renew(buff);
 
@@ -141,11 +186,15 @@ rc_t DataSink_processFrame(NetBuffRef buff) {
 	for (uint8_t i = 0;
 			i < SDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i++) {
 		DataReader dr = &(dataSink->readers[i]);
+
 		int tpc = dr->topic->id;
 		if ((topic == tpc) && dr->on_data_avail_listener) {
+
 			dr->on_data_avail_listener(dr);
+
 		}
 	}
+
 	return SDDS_RT_OK;
 }
 
@@ -209,6 +258,7 @@ rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info)
 		// cpy the data
 		Data newData;
 		Msg_getData(msg, &newData);
+
 		(*topic->Data_cpy)(*data, newData);
 		// free the msg
 		Msg_init(msg, NULL);
@@ -243,22 +293,31 @@ rc_t parseData(NetBuffRef buff) {
 	Topic topic;
 	// check if there is a topic provided (should be)
 	// data without topic are useless for this version!
+
 	if (buff->curTopic == NULL) {
 		// should not happen
+
 		SNPS_discardSubMsg(buff);
+
 		return SDDS_RT_FAIL;
 	} else {
+
 		topic = buff->curTopic;
 	}
 	// get msg from topic
+
 	if (Topic_getFreeMsg(topic, &msg) != SDDS_RT_OK) {
+
 		SNPS_discardSubMsg(buff);
+
 		return SDDS_RT_FAIL;
 	}
 	//msg->isEmpty = false;
 	// parse data
 	Data newData;
+
 	Msg_getData(msg, &newData);
+
 	rc_t ret = SNPS_readData(buff, topic->Data_decode, newData);
 
 	return ret;

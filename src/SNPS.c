@@ -19,6 +19,7 @@
 #include "Marshalling.h"
 #include "Log.h"
 #include "Network.h"
+#include "Discovery.h"
 
 #include <string.h>
 #include <netdb.h>
@@ -288,17 +289,20 @@ rc_t SNPS_writeData(NetBuffRef ref, rc_t (*TopicMarshalling_encode)(byte_t* buff
 
 rc_t SNPS_readData(NetBuffRef ref, rc_t (*TopicMarshalling_decode)(byte_t* buff, Data data, size_t* size), Data data)
 {
-
 	size_t size = 0;
+
 	Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t*) &size);
+
 	ref->curPos += 1;
 
 
 	byte_t* s = (ref->buff_start + ref->curPos);
 
 	if ((*TopicMarshalling_decode)(s, data, &size) != SDDS_RT_OK){
+
 		return SDDS_RT_FAIL;
 	}
+
 	ref->curPos += size;
 	ref->subMsgCount -= 1;
 
@@ -320,27 +324,7 @@ rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, ui
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeAddress(NetBuffRef ref) {
-
-	uint8_t addr[15];
-
-	addr[0] = 'f';
-	addr[1] = 'f';
-	addr[2] = '0';
-	addr[3] = '2';
-	addr[4] = ':';
-	addr[5] = ':';
-	addr[6] = '1';
-	addr[7] = ':';
-	addr[8] =  '1';
-	addr[9] =  '0';
-	addr[10] = 0;
-	addr[11] = 0;
-	addr[12] = 0;
-	addr[13] = 0;
-	addr[14] = 0;
-	addr[15] = 0;
-
+rc_t SNPS_writeAddress(NetBuffRef ref, char *addr) {
 	uint8_t addrLen = strlen(addr);
 
 	return SNPS_writeAddr(ref, SDDS_SNPS_CAST_UNICAST, SDDS_SNPS_ADDR_IPV6, addrLen, addr);
@@ -360,19 +344,15 @@ rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType
     *addrType = ((addrInfo >> 4) & 0x0f);
     ref->curPos +=1;
 
-    ret = Marshalling_dec_string(START, addr, addrLen);
-    ref->curPos +=addrLen;
+    if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
+    	ret = Locator_getAddress(ref->addr, addr);
+    }
+    else {
+        ret = Marshalling_dec_string(START, addr, addrLen);
+        ref->curPos +=addrLen;
+    }
 
     ref->subMsgCount -=1;
-
-    if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
-    	char srcAddr[NI_MAXHOST];
-    	char srcPort[NI_MAXSERV];
-
-    	printf("overwrite addr: %s\n", addr);
-
-    	ret = Network_getSrcAddr(addr, SDDS_SNPS_ADDR_SIZE, srcPort, NI_MAXSERV);
-    }
 
     return SDDS_RT_OK;
 }

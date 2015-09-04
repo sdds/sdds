@@ -17,7 +17,7 @@
  */
 #include "Msg.h"
 #include "sdds_types.h"
-
+#include "BuiltinTopic.h"
 
 rc_t Msg_init(Msg _this, Data dataBuffer)
 {

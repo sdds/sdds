@@ -107,7 +107,7 @@ rc_t SNPS_writeSeqNrSmall(NetBuffRef ref);
 rc_t SNPS_writeSeqNrHUGE(NetBuffRef ref);
 rc_t SNPS_writeTSDDS(NetBuffRef ref);
 rc_t SNPS_writeSep(NetBuffRef ref);
-rc_t SNPS_writeAddress(NetBuffRef ref);
+rc_t SNPS_writeAddress(NetBuffRef ref, char *addr);
 
 rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t addrLen, uint8_t *addr);
 rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType, char *addr);

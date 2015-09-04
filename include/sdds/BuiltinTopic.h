@@ -22,22 +22,21 @@
 
 typedef struct Discovery_Address Discovery_Address_t;
 
+#ifndef SDDS_BUILTIN_PARTICIPANT_ADDRESS
 #define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::01:10"
-#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::01:20"
-#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::01:30"
-#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::01:40"
+#endif
 
-//#ifdef TAP0
-//#define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::01:10%tap0"
-//#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::01:20%tap0"
-//#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::01:30%tap0"
-//#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::01:40%tap0"
-//#else
-//#define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::01:10%tap1"
-//#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::01:20%tap1"
-//#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::01:30%tap1"
-//#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::01:40%tap1"
-//#endif
+#ifndef SDDS_BUILTIN_TOPIC_ADDRESS
+#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::01:20"
+#endif
+
+#ifndef SDDS_BUILTIN_PUBLICATION_ADDRESS
+#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::01:30"
+#endif
+
+#ifndef SDDS_BUILTIN_SUBSCRIPTION_ADDRESS
+#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::01:40"
+#endif
 
 /* The last character is used for the terminating \0 */
 #define DDS_TOPIC_NAME_SIZE 26
@@ -75,6 +74,12 @@ struct DDS_DCPSParticipant_t {
 };
 typedef struct DDS_DCPSParticipant_t DDS_DCPSParticipant;
 
+struct SDDS_DCPSParticipant_t {
+	struct DDS_DCPSParticipant_t data;
+	Locator addr;
+};
+typedef struct SDDS_DCPSParticipant_t SDDS_DCPSParticipant;
+
 DDS_ReturnCode_t DDS_DCPSParticipantDataReader_take_next_sample (
 	    DDS_DataReader _this,
 	    DDS_DCPSParticipant** data_values,
@@ -89,7 +94,7 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 struct DDS_DCPSTopic_t {
     BuiltinTopicKey_t key;
     DDS_char name[DDS_TOPIC_NAME_SIZE];
-    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
+//    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
     // IF QOS AND Foo
     // TODO
     // ENDIF
@@ -111,8 +116,9 @@ DDS_ReturnCode_t DDS_DCPSTopicDataWriter_write(
 struct DDS_DCPSPublication_t {
     BuiltinTopicKey_t key;
     BuiltinTopicKey_t participant_key;
-    DDS_char topic_name[DDS_TOPIC_NAME_SIZE];
-    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
+    uint16_t topic_id;
+//    DDS_char topic_name[DDS_TOPIC_NAME_SIZE];
+//    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
     // IF QOS AND FOO
     // TODO
     // ENDIF
@@ -135,14 +141,20 @@ DDS_ReturnCode_t DDS_DCPSPublicationDataWriter_write(
 struct DDS_DCPSSubscription_t {
     BuiltinTopicKey_t key;
     BuiltinTopicKey_t participant_key;
-    DDS_char topic_name[DDS_TOPIC_NAME_SIZE];
-    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
+    uint16_t topic_id;
+    //    DDS_char topic_name[DDS_TOPIC_NAME_SIZE];
+//    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
     // IF QOS AND FOO
     // TODO
     // ENDIF
 };
 typedef struct DDS_DCPSSubscription_t DDS_DCPSSubscription;
 
+struct SDDS_DCPSSubscription_t {
+	struct DDS_DCPSSubscription_t data;
+	Locator addr;
+};
+typedef struct SDDS_DCPSSubscription_t SDDS_DCPSSubscription;
 
 DDS_ReturnCode_t DDS_DCPSSubscriptionDataReader_take_next_sample (
 	    DDS_DataReader _this,
@@ -157,13 +169,13 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 
 // ENDIF APP + BUILTINTOPIC
 
-#define DDS_DCPS_PARTICIPANT_DOMAIN 0x0
+#define DDS_DCPS_PARTICIPANT_DOMAIN 0x1
 #define DDS_DCPS_PARTICIPANT_TOPIC 0x01
-#define DDS_DCPS_TOPIC_DOMAIN 0x0
+#define DDS_DCPS_TOPIC_DOMAIN 0x1
 #define DDS_DCPS_TOPIC_TOPIC 0x02
-#define DDS_DCPS_PUBLICATION_DOMAIN 0x0
+#define DDS_DCPS_PUBLICATION_DOMAIN 0x1
 #define DDS_DCPS_PUBLICATION_TOPIC 0x03
-#define DDS_DCPS_SUBSCRIPTION_DOMAIN 0x0
+#define DDS_DCPS_SUBSCRIPTION_DOMAIN 0x1
 #define DDS_DCPS_SUBSCRIPTION_TOPIC 0x04
 
 
@@ -185,5 +197,8 @@ rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(Discovery_Address_t addr);
 rc_t BuiltinTopic_addRemoteDataSinkToSubTopic(Discovery_Address_t addr);
 
+bool BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID);
+
+void BuiltinTopic_printSubPool();
 
 #endif /* BUILTINTOPIC_H_ */

@@ -26,6 +26,7 @@
 #include "Marshalling.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 // IF BUILTINTOPIC
 #include "BuiltinTopic.h"
@@ -68,7 +69,8 @@ void DataSource_printDataWriter() {
 	int i = 0;
 
 	printf("========= DataWriter =========\n");
-	for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter); i++) {
+	for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
+			i++) {
 
 		printf("writer id: %d for topic: %d domain: %d\n",
 				dataSource->writers[i].id, dataSource->writers[i].topic->id,
@@ -78,19 +80,22 @@ void DataSource_printDataWriter() {
 
 rc_t DaraSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 	int i = 0;
-    *len = (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
+	*len = 0;
 
-    for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter); i++) {
-    	    memset(pt[i].topic_name, 0, DDS_TOPIC_NAME_SIZE);
-    	    memset(pt[i].type_name, 0, DDS_TOPIC_TYPE_SIZE);
+	for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
+			i++) {
+		if (!BuildinTopic_isBuiltinTopic(dataSource->writers[i].topic->id,
+				dataSource->writers[i].topic->domain)) {
 
-    	    pt[i].key = dataSource->writers[i].id;
-    	    pt[i].participant_key = BuiltinTopic_participantID;
-    	    sprintf(pt[i].topic_name, "%i", dataSource->writers[i].topic->id);
-    	    sprintf(pt[i].type_name, "%i", dataSource->writers[i].topic->domain);
-    }
+			pt[*len].key = dataSource->writers[i].id;
+			pt[*len].participant_key = BuiltinTopic_participantID;
+			pt[*len].topic_id = dataSource->writers[i].topic->id;
 
-    return SDDS_RT_OK;
+			(*len)++;
+		}
+	}
+
+	return SDDS_RT_OK;
 }
 
 rc_t DataSource_init(void) {
@@ -181,52 +186,64 @@ NetBuffRef findFreeFrame(Locator dest) {
 rc_t checkSending(NetBuffRef buf) {
 	if (true) {
 		// update header
+
 		SNPS_updateHeader(buf);
 
-		//NetBuffRef_print(buffRef);
-		if (Network_send(buf) != SDDS_RT_OK) {
-			return SDDS_RT_FAIL;
+		if (buf->addr != NULL) {
+
+			if (Network_send(buf) != SDDS_RT_OK) {
+				return SDDS_RT_FAIL;
+			}
+
 		}
+
 		// is frame is send free the buffer
-		//
 		NetBuffRef_renew(buf);
+
 	}
 	return SDDS_RT_OK;
 }
 #ifdef SDDS_TOPIC_HAS_SUB
 rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 {
+
 	waste = waste;
 	NetBuffRef buffRef = NULL;
 	Topic topic = _this->topic;
 	domainid_t domain = topic->domain;
 	Locator dest = topic->dsinks.list;
 
+
 	buffRef = findFreeFrame(dest);
 	buffRef->addr = dest;
+
 
 	if(buffRef->curDomain != domain) {
 		SNPS_writeDomain(buffRef, domain);
 		buffRef->curDomain = domain;
 	}
+
 	if(buffRef->curTopic != topic) {
 		SNPS_writeTopic(buffRef, topic->id);
 		buffRef->curTopic = topic;
 	}
+
 	if (SNPS_writeData(buffRef, topic->Data_encode, data) != SDDS_RT_OK) {
 		// something went wrong oO
 		return SDDS_RT_FAIL;
 	}
 
+
 	Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 	// return 0;
+
 
 	return checkSending(buffRef);
 }
 #endif // SDDS_TOPIC_HAS_SUB
 
 // BuildIn Topic
-rc_t DataSource_writeAddress(DataWriter _this) {
+rc_t DataSource_writeAddress(DataWriter _this, char *addr) {
 	NetBuffRef buffRef = NULL;
 	Topic topic = _this->topic;
 	domainid_t domain = topic->domain;
@@ -244,7 +261,7 @@ rc_t DataSource_writeAddress(DataWriter _this) {
 		buffRef->curTopic = topic;
 	}
 
-	if (SNPS_writeAddress(buffRef) != SDDS_RT_OK) {
+	if (SNPS_writeAddress(buffRef, addr) != SDDS_RT_OK) {
 		// something went wrong oO
 		return SDDS_RT_FAIL;
 	}
@@ -253,7 +270,8 @@ rc_t DataSource_writeAddress(DataWriter _this) {
 	Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 	// return 0;
 
-	return checkSending(buffRef);
+	return SDDS_RT_OK;
+//	return checkSending(buffRef);
 }
 
 /*
