@@ -16,11 +16,8 @@
 #include "NetBuffRef.h"
 #include "DataSink.h"
 #include "Network.h"
-#include "Discovery.h"
 #include "os-ssal/NodeConfig.h"
-
-
-typedef struct Discovery_Address Discovery_Address_t;
+#include "SNPS.h"
 
 #ifndef SDDS_BUILTIN_PARTICIPANT_ADDRESS
 #define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::01:10"
@@ -193,9 +190,6 @@ rc_t BuiltinTopic_writeDomainParticipant2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef buf);
 rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef buf);
-
-rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(Discovery_Address_t addr);
-rc_t BuiltinTopic_addRemoteDataSinkToSubTopic(Discovery_Address_t addr);
 
 bool BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID);
 

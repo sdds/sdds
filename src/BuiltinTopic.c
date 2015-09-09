@@ -6,6 +6,7 @@ extern "C"
 #include "BuiltinTopic.h"
 #include "DataSource.h"
 #include "DataSink.h"
+#include "SNPS.h"
 
 #include <os-ssal/Memory.h>
 
@@ -48,10 +49,10 @@ SDDS_DCPSSubscription g_DCPSSubscription_pool[SDDS_TOPIC_APP_MSG_COUNT];
 DDS_DataReader g_DCPSSubscription_reader;
 DDS_DataWriter g_DCPSSubscription_writer;
 
-Topic sDDS_DCPSParticipantTopic_create(DDS_DCPSParticipant* pool, int count);
+Topic sDDS_DCPSParticipantTopic_create(SDDS_DCPSParticipant* pool, int count);
 Topic sDDS_DCPSTopicTopic_create(DDS_DCPSTopic* pool, int count);
 Topic sDDS_DCPSPublicationTopic_create(DDS_DCPSPublication* pool, int count);
-Topic sDDS_DCPSSubscriptionTopic_create(DDS_DCPSSubscription* pool, int count);
+Topic sDDS_DCPSSubscriptionTopic_create(SDDS_DCPSSubscription* pool, int count);
 
 /**************
  * Initialize *
@@ -60,7 +61,7 @@ Topic sDDS_DCPSSubscriptionTopic_create(DDS_DCPSSubscription* pool, int count);
 void BuiltinTopic_printSubPool() {
 	for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++) {
 		printf("-----------------------> TEST.topic_id %d\n", g_DCPSSubscription_pool[i].data.topic_id);
-		printf("-----------------------> TEST.addr %p\n", g_DCPSSubscription_pool[i].	addr);
+		printf("-----------------------> TEST.addr %p\n", g_DCPSSubscription_pool[i].addr);
 	}
 }
 
@@ -212,15 +213,18 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 	return DDS_RETCODE_ERROR;
 }
 
-Topic sDDS_DCPSParticipantTopic_create(DDS_DCPSParticipant* pool, int count)
+Topic sDDS_DCPSParticipantTopic_create(SDDS_DCPSParticipant* pool, int count)
 {
 	Topic topic = TopicDB_createTopic();
 	//Locator locator;
 
 	//Network_createLocator(&locator);
 
-	for (int i = 0; i < count; i++)
-	Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
+	for (int i = 0; i < count; i++) {
+//		printf("~~~~~~~~~~~ &pool[%d] %p\n", i, &pool[i]);
+//		printf("~~~~~~~~~~~ &g_DCPSParticipant_pool[%d] %p\n", i, &g_DCPSParticipant_pool[i]);
+		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
+	}
 
 	topic->Data_encode = TopicMarshalling_DCPSParticipant_encode;
 	//topic->dsinks.list = locator;
@@ -265,6 +269,21 @@ rc_t TopicMarshalling_DCPSParticipant_decode(byte_t* buffer, Data data, size_t* 
 
 	Marshalling_dec_uint16(buffer + *size, &real_data->key);
 	*size += sizeof(real_data->key);
+
+	SNPS_Address_t address;
+	rc_t ret = DataSink_getAddr(&address);
+
+	SDDS_DCPSParticipant* sdds_data = (SDDS_DCPSParticipant*) data;
+
+	if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
+		ret = LocatorDB_newLocator(&sdds_data->addr);
+	}
+	else {
+		ret = LocatorDB_newMultiLocator(&sdds_data->addr);
+	}
+
+	Locator_upRef(sdds_data->addr);
+	ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
 
 	return SDDS_RT_OK;
 }
@@ -571,17 +590,12 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 	return DDS_RETCODE_ERROR;
 }
 
-Topic sDDS_DCPSSubscriptionTopic_create(DDS_DCPSSubscription* pool, int count)
+Topic sDDS_DCPSSubscriptionTopic_create(SDDS_DCPSSubscription* pool, int count)
 {
 	Topic topic = TopicDB_createTopic();
 
 	for (int i = 0; i < count; i++) {
-		printf("~~~~~~~~~~~ &pool[%d] %p\n", i, &pool[i]);
-		printf("~~~~~~~~~~~ &g_DCPSSubscription_pool[%d] %p\n", i, &g_DCPSSubscription_pool[i]);
-		printf("~~~~~~~~~~~ &sizeof(pool[%d]) = %d\n", i, sizeof(pool[i]));
-		printf("~~~~~~~~~~~ &sizeof(g_DCPSSubscription_pool[%d]) = %d\n", i, sizeof(g_DCPSSubscription_pool[i]));
-//		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
-		Msg_init(&(topic->msg.pool[i]), (Data) &(g_DCPSSubscription_pool[i]));
+		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
 	}
 
 	topic->Data_encode = TopicMarshalling_DCPSSubscription_encode;
@@ -598,13 +612,6 @@ Topic sDDS_DCPSSubscriptionTopic_create(DDS_DCPSSubscription* pool, int count)
 rc_t TopicMarshalling_DCPSSubscription_cpy(Data dest, Data source)
 {
 	memcpy(dest, source, sizeof(SDDS_DCPSSubscription));
-
-	SDDS_DCPSSubscription *d = (SDDS_DCPSSubscription *) dest;
-	SDDS_DCPSSubscription *s = (SDDS_DCPSSubscription *) source;
-
-	printf("-------------> d->addr (3) %p\n", d->addr);
-	printf("-------------> s->addr (2) %p\n", s->addr);
-
 	return SDDS_RT_OK;
 }
 
@@ -630,13 +637,6 @@ rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t*
 {
 	DDS_DCPSSubscription* real_data = (DDS_DCPSSubscription*) data;
 
-	printf("~~~~~~~~~~~~~~ data %p\n", data);
-	for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++) {
-			if(data == &g_DCPSSubscription_pool[i]) {
-				printf("~~~~~~~~~~~~~~ &g_DCPSSubscription_pool[%d] %p\n", i, &g_DCPSSubscription_pool[i]);
-			}
-	}
-
 	int expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
 	if (*size != expectedSize)
 	fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, expectedSize);
@@ -652,12 +652,13 @@ rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t*
 	Marshalling_dec_uint16(buffer + *size, &real_data->topic_id);
 	*size += sizeof(real_data->topic_id);
 
-	Discovery_Address_t address;
+	SNPS_Address_t address;
 	rc_t ret = DataSink_getAddr(&address);
 
 	SDDS_DCPSSubscription* sdds_data = (SDDS_DCPSSubscription*) data;
 
 	if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
+		printf("-------------------> &sdds_data->addr = %p\n", &sdds_data->addr);
 		ret = LocatorDB_newLocator(&sdds_data->addr);
 	}
 	else {
@@ -666,63 +667,6 @@ rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t*
 
 	Locator_upRef(sdds_data->addr);
 	ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
-	printf("-------------> sdds_data->addr (0) %p\n", sdds_data->addr);
-	return SDDS_RT_OK;
-}
-
-rc_t BuiltinTopic_addRemoteDataSinkToPubTopic(Discovery_Address_t addr) {
-	int ret;
-	Locator l;
-
-	if (addr.addrCast == SDDS_SNPS_CAST_UNICAST) {
-		ret = LocatorDB_newLocator(&l);
-		if (ret != SDDS_RT_OK)
-		return ret;
-	}
-	else if (addr.addrCast == SDDS_SNPS_CAST_MULTICAST) {
-		ret = LocatorDB_newMultiLocator(&l);
-		if (ret != SDDS_RT_OK)
-		return ret;
-	}
-	Locator_upRef(l);
-
-	ret = Network_setMulticastAddressToLocator(l, addr.addr);
-	if (ret != SDDS_RT_OK)
-	return ret;
-
-	ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, l);
-	if (ret != SDDS_RT_OK)
-	return ret;
-	Locator_downRef(l);
-
-	return SDDS_RT_OK;
-}
-
-rc_t BuiltinTopic_addRemoteDataSinkToSubTopic(Discovery_Address_t addr) {
-	int ret;
-	Locator l;
-
-	if (addr.addrCast == SDDS_SNPS_CAST_UNICAST) {
-		ret = LocatorDB_newLocator(&l);
-		if (ret != SDDS_RT_OK)
-		return ret;
-	}
-	else if (addr.addrCast == SDDS_SNPS_CAST_MULTICAST) {
-		ret = LocatorDB_newMultiLocator(&l);
-		if (ret != SDDS_RT_OK)
-		return ret;
-	}
-	Locator_upRef(l);
-
-	ret = Network_setMulticastAddressToLocator(l, addr.addr);
-	if (ret != SDDS_RT_OK)
-	return ret;
-
-	ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, l);
-	if (ret != SDDS_RT_OK)
-	return ret;
-	Locator_downRef(l);
-
 	return SDDS_RT_OK;
 }
 

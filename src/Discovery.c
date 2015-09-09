@@ -30,60 +30,66 @@ extern "C"
 }
 #endif
 
-#define SDDS_DISCOVERY_MAX_PARTICIPANTS 10
+#define SDDS_DISCOVERY_MAX_PARTICIPANTS 50
 
-static int participants[SDDS_DISCOVERY_MAX_PARTICIPANTS];
+static SDDS_DCPSParticipant participants[SDDS_DISCOVERY_MAX_PARTICIPANTS];
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 
 rc_t Discovery_init() {
-	memset(participants, 0, SDDS_DISCOVERY_MAX_PARTICIPANTS);
+	for (int i = 0; i < SDDS_DISCOVERY_MAX_PARTICIPANTS; i++) {
+		participants[i].data.key=0;
+	}
 }
 
-rc_t Discovery_addParticipant(int participantID) {
+rc_t Discovery_addParticipant(SDDS_DCPSParticipant *p) {
 	int i;
 	int freePos = -1;
 
-//	printf("me: %d\n", NodeConfig_getNodeID());
-
-	if (BuiltinTopic_participantID == participantID) {
+	if (BuiltinTopic_participantID == p->data.key) {
 		return SDDS_RT_KNOWN;
 	}
 
 	for (i = 0; i < SDDS_DISCOVERY_MAX_PARTICIPANTS; i++) {
-		if (participants[i] == participantID) {
+		if (participants[i].data.key == p->data.key) {
 			return SDDS_RT_KNOWN;
 		}
-		else if ( (participants[i] == 0) && (freePos == -1) ) {
+		else if ( (participants[i].data.key == 0) && (freePos == -1) ) {
 			freePos = i;
 		}
 	}
 
 	if (freePos != -1) {
-		participants[freePos] = participantID;
+		memcpy(&participants[freePos], p, sizeof(SDDS_DCPSParticipant));
 		return SDDS_RT_OK;
 	}
 
 	return SDDS_RT_FAIL;
 }
 
-rc_t Discovery_handleParticipant(int participantID) {
-	rc_t ret;
-	Discovery_Address_t addr;
+rc_t Discovery_handleParticipant(SDDS_DCPSParticipant p) {
+	rc_t ret = 0;
 
-	ret = DataSink_getAddr(&addr);
-	ret = Discovery_addParticipant(participantID);
+	char srcAddr[1024];
+	Locator_getAddress(p.addr, srcAddr);
 
-	if (ret == SDDS_RT_OK) printf( "add: %s\n", addr.addr);
+	ret = Discovery_addParticipant(&p);
+
+	if (ret == SDDS_RT_OK) printf( "add: %s\n", srcAddr);
 	printRC(ret);
 	if (ret == SDDS_RT_OK) {
 #ifdef SDDS_TOPIC_HAS_PUB
-		ret = BuiltinTopic_addRemoteDataSinkToPubTopic(addr);
+		ret = Discovery_addRemoteDataSinkLoc(p.addr, g_DCPSPublication_topic);
 #endif
 
 #ifdef SDDS_TOPIC_HAS_SUB
-		ret = BuiltinTopic_addRemoteDataSinkToSubTopic(addr);
+		ret = Discovery_addRemoteDataSinkLoc(p.addr, g_DCPSSubscription_topic);
 #endif
+		if (ret != SDDS_RT_OK) {
+			return ret;
+		}
+
+		Locator_downRef(p.addr);
 	}
 
 	return ret;
@@ -95,17 +101,17 @@ rc_t Discovery_addRemoteDataSink(char *addr, Topic topic) {
 
 	ret = LocatorDB_newLocator(&l);
 	if (ret != SDDS_RT_OK)
-		return ret;
+	return ret;
 
 	Locator_upRef(l);
 
 	ret = Network_setAddressToLocator(l, addr);
 	if (ret != SDDS_RT_OK)
-		return ret;
+	return ret;
 
 	ret = Topic_addRemoteDataSink(topic, l);
 	if (ret != SDDS_RT_OK)
-		return ret;
+	return ret;
 
 	Locator_downRef(l);
 
@@ -117,7 +123,7 @@ rc_t Discovery_addRemoteDataSinkLoc(Locator l, Topic topic) {
 
 	ret = Topic_addRemoteDataSink(topic, l);
 	if (ret != SDDS_RT_OK)
-		return ret;
+	return ret;
 
 	Locator_downRef(l);
 

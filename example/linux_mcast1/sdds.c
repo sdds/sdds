@@ -9,6 +9,7 @@
 #include "Log.h"
 #include "DataSource.h"
 #include "DataSink.h"
+#include "Discovery.h"
 
 #include "os-ssal/NodeConfig.h"
 
@@ -24,8 +25,8 @@ int main() {
 	Beta beta_data_used;
 	Beta* beta_data_used_ptr = &beta_data_used;
 
-	DDS_DCPSParticipant p_data_used;
-	DDS_DCPSParticipant* p_data_used_ptr = &p_data_used;
+	SDDS_DCPSParticipant p_data_used;
+	SDDS_DCPSParticipant* p_data_used_ptr = &p_data_used;
 
 	DDS_DCPSTopic t_data_used;
 	DDS_DCPSTopic* t_data_used_ptr = &t_data_used;
@@ -69,11 +70,10 @@ int main() {
 	int b_val = 0;
 	int pCount = 0;
 
+//	char test[2];
+//	printf("test = %c\n", test[2]);
+
 	for (;;) {
-
-		BuiltinTopic_printSubPool();
-//		do {
-
 			if (DDS_DCPSParticipantDataWriter_write(g_DCPSParticipant_writer,
 					&p, NULL) != DDS_RETCODE_OK) {
 				// handle error
@@ -106,8 +106,8 @@ int main() {
 				if (ret == DDS_RETCODE_NO_DATA) {
 					printf("no data participant\n");
 				} else {
-					printf("Received (participant):[%x] ", p_data_used.key);
-					ret = Discovery_handleParticipant(p_data_used.key);
+					printf("Received (participant):[%x] ", p_data_used.data.key);
+					ret = Discovery_handleParticipant(p_data_used);
 				}
 			} while (ret != DDS_RETCODE_NO_DATA);
 
@@ -147,27 +147,16 @@ int main() {
 				if (ret == DDS_RETCODE_NO_DATA) {
 					printf("no data subscription\n");
 				} else {
-					printf("-------------> st_data_used.addr (1) %p\n", st_data_used.addr);
-
-					printf("Read Subscription [%d]\n", pCount++);
 					printf("Received (subscription):[%u][%x] topic:%u\n",
 							st_data_used.data.key, st_data_used.data.participant_key,
 							st_data_used.data.topic_id);
 
 					Topic topic = NULL;
-//					Discovery_Address_t address;
-//
-//					ret = DataSink_getAddr(&address);
 					ret = DataSink_getTopic(NULL, st_data_used.data.topic_id, &topic);
 					if (ret == SDDS_RT_OK) {
-						char  srcAddr[1024];
-						Locator_getAddress(st_data_used.addr, srcAddr);
-						printf("===================== add new DataSink ==========================\n");
-						printf("addr: %s\n", srcAddr);
-						printf("=================================================================\n	");
-//						ret = Topic_addRemoteDataSink(topic, sdds_data->addr);
+//						char  srcAddr[1024];
+//						Locator_getAddress(st_data_used.addr, srcAddr);
 						ret = Discovery_addRemoteDataSinkLoc(st_data_used.addr, topic);
-//						ret = Discovery_addRemoteDataSink(srcAddr, topic);
 					}
 				}
 			} while (ret != DDS_RETCODE_NO_DATA);
@@ -184,9 +173,6 @@ int main() {
 			} while (ret != DDS_RETCODE_NO_DATA);
 
 			sleep(10);
-
-//		} while (0);
-
 	}
 
 }

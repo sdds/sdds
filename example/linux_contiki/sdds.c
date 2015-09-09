@@ -52,7 +52,7 @@ int main() {
 				printf("no data participant\n");
 			} else {
 				printf("Received (participant):[%x]\n", p_data_used.data.key);
-				ret = Discovery_handleParticipant(p_data_used.data.key);
+				ret = Discovery_handleParticipant(p_data_used);
 			}
 		} while (ret != DDS_RETCODE_NO_DATA);
 
@@ -104,9 +104,9 @@ int main() {
 					SDDS_DCPSSubscription* sdds_data = (SDDS_DCPSSubscription*) &st_data_used;
 					char  srcAddr[1024];
 					Locator_getAddress(sdds_data->addr, srcAddr);
-					printf("===================== add new DataSink ==========================\n");
-					printf("addr: %s\n", srcAddr);
-					printf("=================================================================\n	");
+//					printf("===================== add new DataSink ==========================\n");
+//					printf("addr: %s\n", srcAddr);
+//					printf("=================================================================\n	");
 					ret = Discovery_addRemoteDataSinkLoc(sdds_data->addr, topic);
 				}
 			}

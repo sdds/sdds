@@ -25,7 +25,6 @@
 #include "BuiltinTopic.h"
 #include "Marshalling.h"
 #include "sdds_types.h"
-#include "Discovery.h"
 
 #include <string.h>
 
@@ -44,7 +43,7 @@ static Msg msg;
 static struct DataSink_t dsStruct;
 DataSink dataSink = &dsStruct;
 
-static Discovery_Address_t addr;
+static SNPS_Address_t addr;
 
 rc_t parseData(NetBuffRef buff);
 rc_t submitData(void);
@@ -73,15 +72,15 @@ rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic) {
 	return SDDS_RT_FAIL;
 }
 
-rc_t DataSink_getAddr(Discovery_Address_t *address) {
+rc_t DataSink_getAddr(SNPS_Address_t *address) {
 	address->addrType = addr.addrType;
 	address->addrCast = addr.addrCast;
-	memcpy(address->addr, addr.addr, SDDS_DISCOVERY_ADDR_STR_LENGTH);
+	memcpy(address->addr, addr.addr, SDDS_SNPS_ADDR_STR_LENGTH);
 	return SDDS_RT_OK;
 }
 
 static void getAddress(NetBuffRef buff) {
-	memset(addr.addr, 0, SDDS_DISCOVERY_ADDR_STR_LENGTH);
+	memset(addr.addr, 0, SDDS_SNPS_ADDR_STR_LENGTH);
 	addr.addrType = 0;
 	addr.addrCast = 0;
 	SNPS_readAddress(buff, &addr.addrCast, &addr.addrType, addr.addr);

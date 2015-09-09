@@ -24,6 +24,8 @@
 #include "TimeMng.h"
 #include "NetBuffRef.h"
 
+#include <netdb.h>
+
 typedef uint8_t subMsg_t;
 typedef uint8_t addrType_t;
 typedef uint8_t castType_t;
@@ -82,6 +84,14 @@ typedef uint8_t castType_t;
 
 #define SDDS_SNPS_ADDR_SIZE	15
 
+#define SDDS_SNPS_ADDR_STR_LENGTH	NI_MAXHOST	//SDDS_SNPS_ADDR_SIZE
+
+struct SNPS_Address {
+	char addr[SDDS_SNPS_ADDR_STR_LENGTH+1];
+	castType_t addrCast;
+	addrType_t addrType;
+};
+typedef struct SNPS_Address SNPS_Address_t;
 
 rc_t SNPS_evalSubMsg(NetBuffRef ref, subMsg_t* type);
 rc_t SNPS_discardSubMsg(NetBuffRef ref);

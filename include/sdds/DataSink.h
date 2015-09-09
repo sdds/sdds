@@ -23,9 +23,7 @@
 #include "BuiltinTopic.h"
 #include "sdds_types.h"
 #include "NetBuffRef.h"
-//#include "Discovery.h"
-
-struct Discovery_Address;
+#include "SNPS.h"
 
 
 struct DataSink_t;
@@ -54,7 +52,7 @@ rc_t DataSink_set_on_data_avail_listener (
 		const StatusMask sm);
 
 rc_t DataSink_printAddr();
-rc_t DataSink_getAddr(struct Discovery_Address *address);
+rc_t DataSink_getAddr(struct SNPS_Address *address);
 
 rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic);
 
