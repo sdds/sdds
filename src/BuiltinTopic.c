@@ -128,7 +128,7 @@ rc_t BuiltinTopic_init(void)
 
 	Locator_upRef(l);
 
-	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_PUBLICATION_ADDRESS);
+	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUB_PUB_ADDRESS);
 	if (ret != SDDS_RT_OK)
 	return ret;
 
@@ -147,7 +147,7 @@ rc_t BuiltinTopic_init(void)
 
 	Locator_upRef(l);
 
-	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUBSCRIPTION_ADDRESS);
+	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUB_PUB_ADDRESS);
 	if (ret != SDDS_RT_OK)
 	return ret;
 
@@ -202,7 +202,7 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 
 #ifdef _MULTICAST
 		castType = SDDS_SNPS_CAST_MULTICAST;
-		addr = SDDS_BUILTIN_PUBLICATION_ADDRESS;
+		addr = SDDS_BUILTIN_SUB_PUB_ADDRESS;
 #endif
 
 	rc_t ret = DataSource_writeAddress((DataWriter) _this, castType, addrType, addr);
@@ -272,13 +272,14 @@ rc_t TopicMarshalling_DCPSParticipant_decode(byte_t* buffer, Data data, size_t* 
 
 	if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
 		ret = LocatorDB_newLocator(&sdds_data->addr);
+		Locator_upRef(sdds_data->addr);
+		ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
 	}
 	else {
 		ret = LocatorDB_newMultiLocator(&sdds_data->addr);
+		Locator_upRef(sdds_data->addr);
+		ret = Network_setMulticastAddressToLocator(sdds_data->addr, address.addr);
 	}
-
-	Locator_upRef(sdds_data->addr);
-	ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
 
 	return SDDS_RT_OK;
 }
@@ -634,13 +635,15 @@ rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t*
 
 	if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
 		ret = LocatorDB_newLocator(&sdds_data->addr);
+		Locator_upRef(sdds_data->addr);
+		ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
 	}
 	else {
 		ret = LocatorDB_newMultiLocator(&sdds_data->addr);
+		Locator_upRef(sdds_data->addr);
+		ret = Network_setMulticastAddressToLocator(sdds_data->addr, address.addr);
 	}
 
-	Locator_upRef(sdds_data->addr);
-	ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
 	return SDDS_RT_OK;
 }
 
