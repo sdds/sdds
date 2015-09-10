@@ -243,7 +243,7 @@ rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 #endif // SDDS_TOPIC_HAS_SUB
 
 // BuildIn Topic
-rc_t DataSource_writeAddress(DataWriter _this, char *addr) {
+rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t addrType, char *addr) {
 	NetBuffRef buffRef = NULL;
 	Topic topic = _this->topic;
 	domainid_t domain = topic->domain;
@@ -261,7 +261,7 @@ rc_t DataSource_writeAddress(DataWriter _this, char *addr) {
 		buffRef->curTopic = topic;
 	}
 
-	if (SNPS_writeAddress(buffRef, addr) != SDDS_RT_OK) {
+	if (SNPS_writeAddr(buffRef, castType, addrType, addr) != SDDS_RT_OK) {
 		// something went wrong oO
 		return SDDS_RT_FAIL;
 	}

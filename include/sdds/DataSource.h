@@ -42,7 +42,7 @@ extern DataSource dataSource;
 rc_t DataSource_init(void);
 
 DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask);
-rc_t DataSource_writeAddress(DataWriter _this, char *addr);
+rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t addrType, char *addr);
 
 rc_t DaraSource_getDataWrites(DDS_DCPSPublication *pt, int *len);
 

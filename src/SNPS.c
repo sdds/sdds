@@ -309,7 +309,9 @@ rc_t SNPS_readData(NetBuffRef ref, rc_t (*TopicMarshalling_decode)(byte_t* buff,
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t addrLen, uint8_t *addr) {
+rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t *addr) {
+	uint8_t addrLen = strlen(addr);
+
 	Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMGS_ADDR, addrLen);
 	ref->curPos += 1;
 	ref->subMsgCount += 1;
@@ -327,7 +329,7 @@ rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, ui
 rc_t SNPS_writeAddress(NetBuffRef ref, char *addr) {
 	uint8_t addrLen = strlen(addr);
 
-	return SNPS_writeAddr(ref, SDDS_SNPS_CAST_UNICAST, SDDS_SNPS_ADDR_IPV6, addrLen, addr);
+	return SNPS_writeAddr(ref, SDDS_SNPS_CAST_UNICAST, SDDS_SNPS_ADDR_IPV6, addr);
 }
 
 rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType, char *addr)

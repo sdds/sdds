@@ -68,15 +68,7 @@ rc_t Discovery_addParticipant(SDDS_DCPSParticipant *p) {
 }
 
 rc_t Discovery_handleParticipant(SDDS_DCPSParticipant p) {
-	rc_t ret = 0;
-
-	char srcAddr[1024];
-	Locator_getAddress(p.addr, srcAddr);
-
-	ret = Discovery_addParticipant(&p);
-
-	if (ret == SDDS_RT_OK) printf( "add: %s\n", srcAddr);
-	printRC(ret);
+	rc_t ret = Discovery_addParticipant(&p);
 	if (ret == SDDS_RT_OK) {
 #ifdef SDDS_TOPIC_HAS_PUB
 		ret = Discovery_addRemoteDataSinkLoc(p.addr, g_DCPSPublication_topic);
@@ -85,41 +77,23 @@ rc_t Discovery_handleParticipant(SDDS_DCPSParticipant p) {
 #ifdef SDDS_TOPIC_HAS_SUB
 		ret = Discovery_addRemoteDataSinkLoc(p.addr, g_DCPSSubscription_topic);
 #endif
+
 		if (ret != SDDS_RT_OK) {
 			return ret;
 		}
 
-		Locator_downRef(p.addr);
 	}
 
-	return ret;
-}
-
-rc_t Discovery_addRemoteDataSink(char *addr, Topic topic) {
-	Locator l;
-	rc_t ret;
-
-	ret = LocatorDB_newLocator(&l);
-	if (ret != SDDS_RT_OK)
-	return ret;
-
-	Locator_upRef(l);
-
-	ret = Network_setAddressToLocator(l, addr);
-	if (ret != SDDS_RT_OK)
-	return ret;
-
-	ret = Topic_addRemoteDataSink(topic, l);
-	if (ret != SDDS_RT_OK)
-	return ret;
-
-	Locator_downRef(l);
+	Locator_downRef(p.addr);
 
 	return ret;
 }
 
 rc_t Discovery_addRemoteDataSinkLoc(Locator l, Topic topic) {
 	rc_t ret;
+
+	char a[1024];
+	Locator_getAddress(l, a);
 
 	ret = Topic_addRemoteDataSink(topic, l);
 	if (ret != SDDS_RT_OK)

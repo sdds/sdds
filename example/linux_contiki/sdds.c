@@ -102,11 +102,6 @@ int main() {
 				ret = DataSink_getTopic(NULL, st_data_used.data.topic_id, &topic);
 				if (ret == SDDS_RT_OK) {
 					SDDS_DCPSSubscription* sdds_data = (SDDS_DCPSSubscription*) &st_data_used;
-					char  srcAddr[1024];
-					Locator_getAddress(sdds_data->addr, srcAddr);
-//					printf("===================== add new DataSink ==========================\n");
-//					printf("addr: %s\n", srcAddr);
-//					printf("=================================================================\n	");
 					ret = Discovery_addRemoteDataSinkLoc(sdds_data->addr, topic);
 				}
 			}

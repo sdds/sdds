@@ -20,19 +20,19 @@
 #include "SNPS.h"
 
 #ifndef SDDS_BUILTIN_PARTICIPANT_ADDRESS
-#define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::01:10"
-#endif
-
-#ifndef SDDS_BUILTIN_TOPIC_ADDRESS
-#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::01:20"
+#define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::20"
 #endif
 
 #ifndef SDDS_BUILTIN_PUBLICATION_ADDRESS
-#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::01:30"
+#define SDDS_BUILTIN_PUBLICATION_ADDRESS	"ff02::30"
 #endif
 
 #ifndef SDDS_BUILTIN_SUBSCRIPTION_ADDRESS
-#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::01:40"
+#define SDDS_BUILTIN_SUBSCRIPTION_ADDRESS	"ff02::30"
+#endif
+
+#ifndef SDDS_BUILTIN_TOPIC_ADDRESS
+#define SDDS_BUILTIN_TOPIC_ADDRESS			"ff02::50"
 #endif
 
 /* The last character is used for the terminating \0 */
@@ -194,5 +194,6 @@ rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef buf);
 bool BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID);
 
 void BuiltinTopic_printSubPool();
+void BuiltinTopic_printTopicAddr();
 
 #endif /* BUILTINTOPIC_H_ */

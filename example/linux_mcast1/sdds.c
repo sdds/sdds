@@ -106,7 +106,7 @@ int main() {
 				if (ret == DDS_RETCODE_NO_DATA) {
 					printf("no data participant\n");
 				} else {
-					printf("Received (participant):[%x] ", p_data_used.data.key);
+					printf("Received (participant):[%x]\n", p_data_used.data.key);
 					ret = Discovery_handleParticipant(p_data_used);
 				}
 			} while (ret != DDS_RETCODE_NO_DATA);
@@ -140,7 +140,7 @@ int main() {
 //							t_data_used.name);
 //				}
 //			} while (ret != DDS_RETCODE_NO_DATA);
-//
+
 			do {
 				ret = DDS_DCPSSubscriptionDataReader_take_next_sample(
 						g_DCPSSubscription_reader, &st_data_used_ptr, NULL);
@@ -154,8 +154,6 @@ int main() {
 					Topic topic = NULL;
 					ret = DataSink_getTopic(NULL, st_data_used.data.topic_id, &topic);
 					if (ret == SDDS_RT_OK) {
-//						char  srcAddr[1024];
-//						Locator_getAddress(st_data_used.addr, srcAddr);
 						ret = Discovery_addRemoteDataSinkLoc(st_data_used.addr, topic);
 					}
 				}

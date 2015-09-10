@@ -43,6 +43,12 @@ rc_t LocatorDB_init() {
 // TODO this should be mutexed!
 // or is only the network able to create new locators?
 rc_t LocatorDB_newLocator(Locator* loc) {
+//	printf(" !!!!! NEW LOC db.freeLoc = %d\n", db.freeLoc);
+//	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
+//		// check if ref counter is zero
+//		printf("------------------------> db.pool[%i]->refCount = %d\n", i, db.pool[i]->refCount);
+//	}
+
     if (db.freeLoc == 0) {
 		return SDDS_LOCATORDB_RT_NOFREELOCATORS;
 	}
@@ -51,12 +57,17 @@ rc_t LocatorDB_newLocator(Locator* loc) {
 	*loc = NULL;
 	// search for locator witch is not referenced somewhere
 	// could also be an empty one
-	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
+	int i;
+	for (i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
 		// check if ref counter is zero
 		if (db.pool[i]->refCount == 0) {
 			*loc = db.pool[i];
+//			printf(" FOUND FREE LOC\n");
 			break;
 		}
+	}
+	if (i == SDDS_NET_MAX_LOCATOR_COUNT) {
+		printf(" NOT FOUND FREE LOC\n");
 	}
     (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
 	(*loc)->next = NULL;
@@ -92,7 +103,7 @@ rc_t LocatorDB_newBroadLocator(Locator* loc) {
 	}
 	db.freeLoc--;
 	// set is NULL so can use it to mark if we found one
-	*loc = NULL;
+	//*loc = NULL;
 	// search for locator witch is not referenced somewhere
 	// could also be an empty one
 	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
@@ -114,9 +125,13 @@ rc_t LocatorDB_freeLocator(Locator loc) {
 		loc->refCount--;
 	}
 	if (loc->refCount == 0) {
-
-		db.freeLoc++;
 		Locator_init(loc);
+		db.freeLoc++;
+//		printf(" !!!!!! LOC FREED db.freeLoc = %d\n", db.freeLoc);
+//		for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
+//			// check if ref counter is zero
+//			printf("------------------------> db.pool[%i]->refCount = %d\n", i, db.pool[i]->refCount);
+//		}
 	}
 
 	return SDDS_RT_OK;

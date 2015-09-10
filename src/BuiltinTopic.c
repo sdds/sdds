@@ -65,6 +65,13 @@ void BuiltinTopic_printSubPool() {
 	}
 }
 
+void BuiltinTopic_printTopicAddr() {
+	printf("---------> g_DCPSParticipant_topic %p\n", g_DCPSParticipant_topic);
+	printf("---------> g_DCPSPublication_topic %p\n", g_DCPSPublication_topic);
+	printf("---------> g_DCPSSubscription_topic %p\n", g_DCPSSubscription_topic);
+	printf("---------> g_DCPSTopic_topic %p\n", g_DCPSTopic_topic);
+}
+
 rc_t BuiltinTopic_init(void)
 {
 	int ret;
@@ -83,7 +90,6 @@ rc_t BuiltinTopic_init(void)
 	Locator_upRef(l);
 
 	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_PARTICIPANT_ADDRESS);
-//	ret = Network_setMulticastAddressToLocator(l, "ff02::05:50");
 	if (ret != SDDS_RT_OK) {
 		return ret;
 	}
@@ -104,7 +110,6 @@ rc_t BuiltinTopic_init(void)
 	Locator_upRef(l);
 
 	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_TOPIC_ADDRESS);
-//	ret = Network_setMulticastAddressToLocator(l, "ff02::05:50");
 	if (ret != SDDS_RT_OK)
 	return ret;
 
@@ -124,7 +129,6 @@ rc_t BuiltinTopic_init(void)
 	Locator_upRef(l);
 
 	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_PUBLICATION_ADDRESS);
-//	ret = Network_setMulticastAddressToLocator(l, "ff02::05:50");
 	if (ret != SDDS_RT_OK)
 	return ret;
 
@@ -144,7 +148,6 @@ rc_t BuiltinTopic_init(void)
 	Locator_upRef(l);
 
 	ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUBSCRIPTION_ADDRESS);
-//	ret = Network_setMulticastAddressToLocator(l, "ff02::05:50");
 	if (ret != SDDS_RT_OK)
 	return ret;
 
@@ -180,20 +183,6 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataReader_take_next_sample(
 
 	return DDS_RETCODE_ERROR;
 }
-/*
- DDS_ReturnCode_t DDS_DCPSParticipantDataReader_set_listener(
- DDS_DataReader _this,
- const struct DDS_DataReaderListener* a_listener,
- const DDS_StatusMask mask
- )
- {
- rc_t ret = DataSink_set_on_data_avail_listener((DataReader) _this, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
- if (ret == SDDS_RT_OK)
- return DDS_RETCODE_OK;
-
- return DDS_RETCODE_ERROR;
- }
- */
 
 rc_t TopicMarshalling_DCPSParticipant_encode(byte_t* buffer, Data data, size_t* size);
 
@@ -203,9 +192,20 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 		const DDS_InstanceHandle_t handle
 )
 {
+	castType_t castType = SDDS_SNPS_CAST_UNICAST;
+	addrType_t addrType = SDDS_SNPS_ADDR_IPV6;
+	char *addr = "";
 
-	rc_t ret;
-	ret = DataSource_writeAddress((DataWriter) _this, "");
+#if PLATFORM_LINUX_SDDS_PROTOCOL != AF_INET6
+		addrType = SDDS_SNPS_ADDR_IPV4;
+#endif
+
+#ifdef _MULTICAST
+		castType = SDDS_SNPS_CAST_MULTICAST;
+		addr = SDDS_BUILTIN_PUBLICATION_ADDRESS;
+#endif
+
+	rc_t ret = DataSource_writeAddress((DataWriter) _this, castType, addrType, addr);
 	ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
 	if (ret == SDDS_RT_OK) {
 		return DDS_RETCODE_OK;
@@ -216,13 +216,8 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 Topic sDDS_DCPSParticipantTopic_create(SDDS_DCPSParticipant* pool, int count)
 {
 	Topic topic = TopicDB_createTopic();
-	//Locator locator;
-
-	//Network_createLocator(&locator);
 
 	for (int i = 0; i < count; i++) {
-//		printf("~~~~~~~~~~~ &pool[%d] %p\n", i, &pool[i]);
-//		printf("~~~~~~~~~~~ &g_DCPSParticipant_pool[%d] %p\n", i, &g_DCPSParticipant_pool[i]);
 		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
 	}
 
@@ -312,20 +307,6 @@ DDS_ReturnCode_t DDS_DCPSTopicDataReader_take_next_sample(
 
 	return DDS_RETCODE_ERROR;
 }
-/*
- DDS_ReturnCode_t DDS_DCPSTopicDataReader_set_listener(
- DDS_DataReader _this,
- const struct DDS_DataReaderListener* a_listener,
- const DDS_StatusMask mask
- )
- {
- rc_t ret = DataSink_set_on_data_avail_listener((DataReader) _this, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
- if (ret == SDDS_RT_OK)
- return DDS_RETCODE_OK;
-
- return DDS_RETCODE_ERROR;
- }
- */
 
 rc_t TopicMarshalling_DCPSTopic_encode(byte_t* buffer, Data data, size_t* size);
 
@@ -346,16 +327,12 @@ DDS_ReturnCode_t DDS_DCPSTopicDataWriter_write(
 Topic sDDS_DCPSTopicTopic_create(DDS_DCPSTopic* pool, int count)
 {
 	Topic topic = TopicDB_createTopic();
-	//Locator locator;
 
-	//Network_createLocator(&locator);
-
-	for (int i = 0; i < count; i++)
-	Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
+	for (int i = 0; i < count; i++) {
+		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
+	}
 
 	topic->Data_encode = TopicMarshalling_DCPSTopic_encode;
-	//topic->dsinks.list = locator;
-
 	topic->Data_decode = TopicMarshalling_DCPSTopic_decode;
 
 	topic->domain = DDS_DCPS_TOPIC_DOMAIN;
@@ -433,20 +410,6 @@ DDS_ReturnCode_t DDS_DCPSPublicationDataReader_take_next_sample(
 
 	return DDS_RETCODE_ERROR;
 }
-/*
- DDS_ReturnCode_t DDS_DCPSPublicationDataReader_set_listener(
- DDS_DataReader _this,
- const struct DDS_DataReaderListener* a_listener,
- const DDS_StatusMask mask
- )
- {
- rc_t ret = DataSink_set_on_data_avail_listener((DataReader) _this, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
- if (ret == SDDS_RT_OK)
- return DDS_RETCODE_OK;
-
- return DDS_RETCODE_ERROR;
- }
- */
 
 rc_t TopicMarshalling_DCPSPublication_encode(byte_t* buffer, Data data, size_t* size);
 
@@ -580,8 +543,20 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 		const DDS_InstanceHandle_t handle
 )
 {
+	castType_t castType = SDDS_SNPS_CAST_UNICAST;
+	addrType_t addrType = SDDS_SNPS_ADDR_IPV6;
+	char *addr = "";
 
-	rc_t ret = DataSource_writeAddress((DataWriter) _this, "");
+#if PLATFORM_LINUX_SDDS_PROTOCOL != AF_INET6
+		addrType = SDDS_SNPS_ADDR_IPV4;
+#endif
+
+#ifdef _MULTICAST
+		castType = SDDS_SNPS_CAST_MULTICAST;
+		addr = PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS;
+#endif
+
+	rc_t ret = DataSource_writeAddress((DataWriter) _this, castType, addrType, addr);
 	ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
 
 	if (ret == SDDS_RT_OK)
@@ -658,7 +633,6 @@ rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t*
 	SDDS_DCPSSubscription* sdds_data = (SDDS_DCPSSubscription*) data;
 
 	if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
-		printf("-------------------> &sdds_data->addr = %p\n", &sdds_data->addr);
 		ret = LocatorDB_newLocator(&sdds_data->addr);
 	}
 	else {
