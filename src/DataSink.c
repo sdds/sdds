@@ -84,7 +84,6 @@ static void getAddress(NetBuffRef buff) {
 	addr.addrType = 0;
 	addr.addrCast = 0;
 	SNPS_readAddress(buff, &addr.addrCast, &addr.addrType, addr.addr);
-	printf("Connection from %s\n", addr.addr);
 }
 
 rc_t DataSink_processFrame(NetBuffRef buff) {

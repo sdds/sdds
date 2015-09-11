@@ -356,6 +356,10 @@ rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType
 
     ref->subMsgCount -=1;
 
+    char a[1024];
+    ret = Locator_getAddress(ref->addr, a);
+	printf("Connection from %s\n", a);
+
     return SDDS_RT_OK;
 }
 
