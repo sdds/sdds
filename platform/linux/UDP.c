@@ -50,7 +50,7 @@
 
 #ifndef PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS
 // use default link local ipv6 address
-#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS 	"ff02::10"
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS 				SDDS_BUILTIN_MULTICAST_ADDRESS
 #endif
 
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS 	SDDS_BUILTIN_PARTICIPANT_ADDRESS
@@ -176,6 +176,7 @@ rc_t Multicast_init() {
 		return SDDS_RT_FAIL;
 	}
 
+	/* select sender interface */
 	unsigned int outif;
 	if ((outif = if_nametoindex(PLATFORM_LINUX_SDDS_IFACE)) < 0)
 	{
@@ -439,11 +440,12 @@ void *recvLoop(void *netBuff) {
 		NetBuffRef_renew(buff);
 
 		// spare address field?
-		struct sockaddr addr;
-		socklen_t addr_len ;
+		struct sockaddr_storage addr;
+		socklen_t addr_len = sizeof(addr);
 
 		ssize_t recv_size = recvfrom(sock, buff->buff_start,
-				buff->frame_start->size, 0, &addr, &addr_len);
+				buff->frame_start->size, 0,
+				(struct sockaddr *)&addr, &addr_len);
 
 		if (recv_size == -1) {
 			Log_error("Error while receiving a udp frame \n");
@@ -451,15 +453,6 @@ void *recvLoop(void *netBuff) {
 		}
 
 		printf("[%u]%i bytes empfangen\n", sock_type, (int) recv_size);
-
-//		char srcAddr[NI_MAXHOST];
-//		char srcPort[NI_MAXSERV];
-//
-//		int rc = getnameinfo(&addr, sizeof(struct sockaddr_storage),
-//				srcAddr, NI_MAXHOST, srcPort,
-//				NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
-//
-//		printf("MSG from %s:%s\n", srcAddr, srcPort);
 
 		// implicit call of the network receive handler
 		// should start from now ;)
@@ -481,8 +474,7 @@ void *recvLoop(void *netBuff) {
 				continue;
 			}
 
-			memcpy(&((struct UDPLocator_t *) loc)->addr_storage, &addr,
-					addr_len);
+			memcpy(&((struct UDPLocator_t *) loc)->addr_storage, &addr, addr_len);
 		}
 
 		// up ref counter

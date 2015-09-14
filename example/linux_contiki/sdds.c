@@ -45,6 +45,21 @@ int main() {
 			// handle error
 		}
 
+#if defined(SDDS_TOPIC_HAS_SUB)
+		DDS_DCPSPublication pubT[20];
+		int len = 0;
+		ret = DataSource_getDataWrites(pubT, &len);
+
+		int i;
+		for (i = 0; i < len; i++) {
+			if (DDS_DCPSPublicationDataWriter_write(
+					g_DCPSPublication_writer, &pubT[i],
+					NULL) != DDS_RETCODE_OK) {
+				// handle error
+			}
+		}
+#endif
+
 		do {
 			ret = DDS_DCPSParticipantDataReader_take_next_sample(
 					g_DCPSParticipant_reader, (struct DDS_DCPSParticipant **) &p_data_used_ptr, NULL);
@@ -67,6 +82,7 @@ int main() {
 			}
 		} while (ret != DDS_RETCODE_NO_DATA);
 
+#if defined(SDDS_TOPIC_HAS_PUB)
 		do {
 			ret = DDS_DCPSPublicationDataReader_take_next_sample(
 					g_DCPSPublication_reader, &pt_data_used_ptr, NULL);
@@ -87,7 +103,9 @@ int main() {
 				}
 			}
 		} while (ret != DDS_RETCODE_NO_DATA);
+#endif
 
+#if defined(SDDS_TOPIC_HAS_SUB)
 		do {
 			ret = DDS_DCPSSubscriptionDataReader_take_next_sample(
 					g_DCPSSubscription_reader, &st_data_used_ptr, NULL);
@@ -106,6 +124,7 @@ int main() {
 				}
 			}
 		} while (ret != DDS_RETCODE_NO_DATA);
+#endif
 
 		do {
 			ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,

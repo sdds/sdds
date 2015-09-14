@@ -42,12 +42,12 @@ extern DataSource dataSource;
 rc_t DataSource_init(void);
 
 DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask);
-rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t addrType, char *addr);
+rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen);
 
-rc_t DaraSource_getDataWrites(DDS_DCPSPublication *pt, int *len);
+rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len);
+rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic);
 
-
-#ifdef SDDS_TOPIC_HAS_SUB
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t DataSource_write(DataWriter _this, Data data, void* waste);
 #endif// SDDS_TOPIC_HAS_SUB
 

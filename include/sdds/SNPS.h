@@ -82,12 +82,14 @@ typedef uint8_t castType_t;
 
 #define SDDS_SNPS_EXTSUBMSG_EXTENDED		0x0f
 
-#define SDDS_SNPS_ADDR_SIZE	15
+#define SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_CHAR	20		// ffFS::00GG:GGGG:GGGG
+#define SNPS_MULTICAST_COMPRESSION_MIN_LENGTH_IN_CHAR	7		// ffFS::G
+#define SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE	6		// 48 Bit Compression
 
-#define SDDS_SNPS_ADDR_STR_LENGTH	NI_MAXHOST	//SDDS_SNPS_ADDR_SIZE
+#define SDDS_SNPS_ADDR_STR_LENGTH	SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_CHAR + 1	//NI_MAXHOST
 
 struct SNPS_Address {
-	char addr[SDDS_SNPS_ADDR_STR_LENGTH+1];
+	char addr[SDDS_SNPS_ADDR_STR_LENGTH];
 	castType_t addrCast;
 	addrType_t addrType;
 };
@@ -117,9 +119,8 @@ rc_t SNPS_writeSeqNrSmall(NetBuffRef ref);
 rc_t SNPS_writeSeqNrHUGE(NetBuffRef ref);
 rc_t SNPS_writeTSDDS(NetBuffRef ref);
 rc_t SNPS_writeSep(NetBuffRef ref);
-rc_t SNPS_writeAddress(NetBuffRef ref, char *addr);
 
-rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t *addr);
+rc_t SNPS_writeAddress(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen);
 rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType, char *addr);
 
 rc_t SNPS_readHeader(NetBuffRef ref);

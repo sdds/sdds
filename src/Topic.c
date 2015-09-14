@@ -20,7 +20,7 @@
 #include "Msg.h"
 
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t Topic_getFreeMsg(Topic _this, Msg* msg) {
 	return MsgPool_getFreeMsg(&(_this->msg), msg);
 }
@@ -63,7 +63,7 @@ rc_t Topic_getFreeMsg(Topic _this, Msg* msg)
 #endif
 
 
-#ifdef SDDS_TOPIC_HAS_SUB
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t Topic_addRemoteDataSink(Topic _this, Locator addr)
 {
 	if (_this == NULL || addr == NULL){
@@ -85,7 +85,7 @@ rc_t Topic_addRemoteDataSink(Topic _this, Locator addr)
 }
 #endif
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t Topic_addRemoteDataSource(Topic _this, Locator addr)
 {
 	if (_this == NULL || addr == NULL){

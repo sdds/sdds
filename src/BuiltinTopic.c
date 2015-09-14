@@ -54,6 +54,11 @@ Topic sDDS_DCPSTopicTopic_create(DDS_DCPSTopic* pool, int count);
 Topic sDDS_DCPSPublicationTopic_create(DDS_DCPSPublication* pool, int count);
 Topic sDDS_DCPSSubscriptionTopic_create(SDDS_DCPSSubscription* pool, int count);
 
+static uint8_t generalByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
+static uint8_t participantByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
+static uint8_t subPubByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
+static uint8_t topicByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
+
 /**************
  * Initialize *
  **************/
@@ -156,6 +161,30 @@ rc_t BuiltinTopic_init(void)
 	return ret;
 	Locator_downRef(l);
 
+#ifdef _MULTICAST
+	uint8_t addrLen;
+	ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_MULTICAST_ADDRESS, generalByteAddr, &addrLen);
+	if (ret != SDDS_RT_OK) {
+		return ret;
+	}
+	ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_PARTICIPANT_ADDRESS, participantByteAddr, &addrLen);
+	if (ret != SDDS_RT_OK) {
+		return ret;
+	}
+	ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_SUB_PUB_ADDRESS, subPubByteAddr, &addrLen);
+	if (ret != SDDS_RT_OK) {
+		return ret;
+	}
+	ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_TOPIC_ADDRESS, topicByteAddr, &addrLen);
+	if (ret != SDDS_RT_OK) {
+		return ret;
+	}
+#endif
+
+#ifndef _MULTICAST
+	// TO DO
+#endif
+
 	return SDDS_RT_OK;
 }
 
@@ -195,6 +224,7 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 	castType_t castType = SDDS_SNPS_CAST_UNICAST;
 	addrType_t addrType = SDDS_SNPS_ADDR_IPV6;
 	char *addr = "";
+	uint8_t addrLen = 0;
 
 #if PLATFORM_LINUX_SDDS_PROTOCOL != AF_INET6
 		addrType = SDDS_SNPS_ADDR_IPV4;
@@ -202,10 +232,11 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 
 #ifdef _MULTICAST
 		castType = SDDS_SNPS_CAST_MULTICAST;
-		addr = SDDS_BUILTIN_SUB_PUB_ADDRESS;
+		addr = subPubByteAddr;
+		addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
 #endif
 
-	rc_t ret = DataSource_writeAddress((DataWriter) _this, castType, addrType, addr);
+	rc_t ret = DataSource_writeAddress((DataWriter) _this, castType, addrType, addr, addrLen);
 	ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
 	if (ret == SDDS_RT_OK) {
 		return DDS_RETCODE_OK;
@@ -547,6 +578,7 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 	castType_t castType = SDDS_SNPS_CAST_UNICAST;
 	addrType_t addrType = SDDS_SNPS_ADDR_IPV6;
 	char *addr = "";
+	uint8_t addrLen = 0;
 
 #if PLATFORM_LINUX_SDDS_PROTOCOL != AF_INET6
 		addrType = SDDS_SNPS_ADDR_IPV4;
@@ -554,10 +586,11 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 
 #ifdef _MULTICAST
 		castType = SDDS_SNPS_CAST_MULTICAST;
-		addr = PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS;
+		addr = generalByteAddr;
+		addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
 #endif
 
-	rc_t ret = DataSource_writeAddress((DataWriter) _this, castType, addrType, addr);
+	rc_t ret = DataSource_writeAddress((DataWriter) _this, castType, addrType, addr, addrLen);
 	ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
 
 	if (ret == SDDS_RT_OK)

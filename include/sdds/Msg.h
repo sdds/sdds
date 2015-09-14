@@ -20,6 +20,7 @@
 #ifndef  MSG_INC
 #define  MSG_INC
 #include "sdds_types.h"
+#include "gen_constants.h"
 
 #define SDDS_MSG_DIR_UNSPEZ	0
 #define SDDS_MSG_DIR_INCOMMING	1
@@ -50,7 +51,7 @@ rc_t Msg_getData(Msg _this, Data* data);
 // abstract -> impl in generated file
 size_t Msg_getSize(Msg _this);
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg* msg);
 rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg* msg);
 rc_t MsgPool_getUnreadMsgCount(struct MsgPool* _this, uint8_t* count);

@@ -141,16 +141,20 @@ rc_t DataSink_processFrame(NetBuffRef buff) {
 
 			break;
 		case (SDDS_SNPS_T_DATA):
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 			// check data
 
-			submitData();
+			if (DataSink_getTopic(NULL, topic, NULL) == SDDS_RT_OK) {
+				submitData();
 
-			ret = parseData(buff);
+				ret = parseData(buff);
 
-			if (ret != SDDS_RT_OK)
-
-			return SDDS_RT_FAIL;
+				if (ret != SDDS_RT_OK)
+					return SDDS_RT_FAIL;
+			}
+			else {
+				SNPS_discardSubMsg(buff);
+			}
 #endif
 			break;
 		case (SDDS_SNPS_T_ADDRESS):
@@ -211,7 +215,7 @@ rc_t DataSink_init(void) {
 
 	return SDDS_RT_OK;
 }
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm)
 {
 
@@ -236,7 +240,7 @@ DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, S
 }
 #endif
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info)
 {
 	Msg msg = NULL;
@@ -286,7 +290,7 @@ rc_t submitData(void) {
 	return SDDS_RT_OK;
 }
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t parseData(NetBuffRef buff) {
 	Topic topic;
 	// check if there is a topic provided (should be)

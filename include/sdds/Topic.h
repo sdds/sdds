@@ -36,12 +36,12 @@ struct datasinks{
 };
 struct Topic_t {
 
-#ifdef SDDS_TOPIC_HAS_SUB
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
     struct datasinks dsinks;
     rc_t (*Data_encode)(byte_t* buff, Data data, size_t* size);
 #endif
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
     struct datasources dsources;
 #endif
 
@@ -57,13 +57,13 @@ struct Topic_t {
 typedef struct Topic_t* Topic;
 
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t Topic_getFreeMsg(Topic _this, Msg* msg);
 rc_t Topic_getNextMsg(Topic _this, Msg* msg);
 rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count);
 #endif
 
-#ifdef SDDS_TOPIC_HAS_SUB
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 /**
  * Add the address/locator object of a remote node as a Data sink,
  * aka receiver of data samples of this, to the topic.
@@ -88,7 +88,7 @@ rc_t Topic_addRemoteDataSink(Topic _this, Locator addr);
 rc_t Topic_removeRemoteDataSink(Topic _this, Locator addr);
 #endif
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 /**
  * Add a address/locator object of a remote data source node
  * aka. sender/publisher of data samples for this topic, to the

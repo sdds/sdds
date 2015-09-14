@@ -127,7 +127,7 @@ void receive(struct simple_udp_connection *connection,
 
 	Log_debug("\n");
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 	// process the frame
 	DataSink_processFrame(&g_incoming_buffer);
 #endif

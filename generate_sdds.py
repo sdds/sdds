@@ -305,7 +305,7 @@ fimpl = open('%s_sdds_impl.c' % impl_name, 'w')
 get_decl(fdecl, impl_name, datastructures)
 get_impl(fimpl, impl_name, datastructures)
 
-fconstants = open('%s_constants.h' % impl_name, 'w')
+fconstants = open('%s_constants.h' % "gen", 'w')
 fconstants.write(r"""
 #ifndef %(up_name)s_CONSTANTS_H_INCLUDED
 #define %(up_name)s_CONSTANTS_H_INCLUDED

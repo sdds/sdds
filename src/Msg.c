@@ -36,7 +36,7 @@ rc_t Msg_init(Msg _this, Data dataBuffer)
     return SDDS_RT_OK;
 } 
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg* msg) {
 
 	uint8_t end = (_this->start + _this->count) % SDDS_TOPIC_APP_MSG_COUNT;
@@ -55,7 +55,7 @@ rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg* msg) {
 }
 #endif
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg* msg) {
 
 	if (_this->count == 0) {
@@ -72,7 +72,7 @@ rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg* msg) {
 }
 #endif
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t MsgPool_getUnreadMsgCount(struct MsgPool* _this, uint8_t* count) {
 
 	*count = _this->count;

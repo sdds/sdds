@@ -65,20 +65,27 @@ rc_t checkSending(NetBuffRef buf);
 rc_t BuiltinTopicDomainParticipant_encode(byte_t* buff, Data data, size_t* size);
 rc_t BuiltinTopicDataWriter_encode(byte_t* buff, Data data, size_t* size);
 
-void DataSource_printDataWriter() {
-	int i = 0;
-
-	printf("========= DataWriter =========\n");
+rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic) {
+	int i;
 	for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
 			i++) {
-
-		printf("writer id: %d for topic: %d domain: %d\n",
-				dataSource->writers[i].id, dataSource->writers[i].topic->id,
-				dataSource->writers[i].topic->domain);
+		if ((dataSource->writers[i].topic->id == id)) {
+			if (st != NULL) {
+				st->key = dataSource->writers[i].id;
+				st->participant_key = BuiltinTopic_participantID;
+				st->topic_id = dataSource->writers[i].topic->id;
+			}
+			if (topic != NULL) {
+				*topic = dataSource->writers[i].topic;
+			}
+			return SDDS_RT_OK;
+		}
 	}
+
+	return SDDS_RT_FAIL;
 }
 
-rc_t DaraSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
+rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 	int i = 0;
 	*len = 0;
 
@@ -203,7 +210,7 @@ rc_t checkSending(NetBuffRef buf) {
 	}
 	return SDDS_RT_OK;
 }
-#ifdef SDDS_TOPIC_HAS_SUB
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 {
 
@@ -243,7 +250,7 @@ rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 #endif // SDDS_TOPIC_HAS_SUB
 
 // BuildIn Topic
-rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t addrType, char *addr) {
+rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
 	NetBuffRef buffRef = NULL;
 	Topic topic = _this->topic;
 	domainid_t domain = topic->domain;
@@ -261,17 +268,14 @@ rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t a
 		buffRef->curTopic = topic;
 	}
 
-	if (SNPS_writeAddr(buffRef, castType, addrType, addr) != SDDS_RT_OK) {
+	if (SNPS_writeAddress(buffRef, castType, addrType, addr, addrLen) != SDDS_RT_OK) {
 		// something went wrong oO
 		return SDDS_RT_FAIL;
 	}
-	//END
 
 	Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
-	// return 0;
 
 	return SDDS_RT_OK;
-//	return checkSending(buffRef);
 }
 
 /*

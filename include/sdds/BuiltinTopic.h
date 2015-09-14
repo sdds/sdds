@@ -19,6 +19,10 @@
 #include "os-ssal/NodeConfig.h"
 #include "SNPS.h"
 
+#ifndef SDDS_BUILTIN_MULTICAST_ADDRESS
+#define SDDS_BUILTIN_MULTICAST_ADDRESS		"ff02::10"
+#endif
+
 #ifndef SDDS_BUILTIN_PARTICIPANT_ADDRESS
 #define SDDS_BUILTIN_PARTICIPANT_ADDRESS	"ff02::20"
 #endif

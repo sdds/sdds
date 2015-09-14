@@ -80,9 +80,10 @@ int main() {
 				//printf("-----DEBUG-----\t %s:%d\n", __FILE__, __LINE__);
 			}
 
+#if defined(SDDS_TOPIC_HAS_SUB)
 			DDS_DCPSPublication pubT[20];
 			int len = 0;
-			ret = DaraSource_getDataWrites(pubT, &len);
+			ret = DataSource_getDataWrites(pubT, &len);
 
 			int i;
 			for (i = 0; i < len; i++) {
@@ -92,7 +93,7 @@ int main() {
 					// handle error
 				}
 			}
-
+#endif
 
 			b.value = b_val++;
 			if (DDS_BetaDataWriter_write(g_Beta_writer, &b,
@@ -111,6 +112,7 @@ int main() {
 				}
 			} while (ret != DDS_RETCODE_NO_DATA);
 
+#if defined(SDDS_TOPIC_HAS_PUB)
 			do {
 				ret = DDS_DCPSPublicationDataReader_take_next_sample(
 						g_DCPSPublication_reader, &pt_data_used_ptr, NULL);
@@ -129,6 +131,7 @@ int main() {
 					}
 				}
 			} while (ret != DDS_RETCODE_NO_DATA);
+#endif
 
 //			do {
 //				ret = DDS_DCPSTopicDataReader_take_next_sample(
@@ -141,6 +144,7 @@ int main() {
 //				}
 //			} while (ret != DDS_RETCODE_NO_DATA);
 
+#if defined(SDDS_TOPIC_HAS_SUB)
 			do {
 				ret = DDS_DCPSSubscriptionDataReader_take_next_sample(
 						g_DCPSSubscription_reader, &st_data_used_ptr, NULL);
@@ -152,23 +156,24 @@ int main() {
 							st_data_used.data.topic_id);
 
 					Topic topic = NULL;
-					ret = DataSink_getTopic(NULL, st_data_used.data.topic_id, &topic);
+					ret = DataSource_getTopic(NULL, st_data_used.data.topic_id, &topic);
 					if (ret == SDDS_RT_OK) {
 						ret = Discovery_addRemoteDataSinkLoc(st_data_used.addr, topic);
 					}
 				}
 			} while (ret != DDS_RETCODE_NO_DATA);
+#endif
 
-			do {
-				ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,
-						&beta_data_used_ptr, NULL);
-				if (ret == DDS_RETCODE_NO_DATA) {
-					printf("no data beta\n");
-				} else {
-					printf("Received (beta):[%d] %s %s\n", beta_data_used.value,
-							beta_data_used.value2, beta_data_used.value3);
-				}
-			} while (ret != DDS_RETCODE_NO_DATA);
+//			do {
+//				ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,
+//						&beta_data_used_ptr, NULL);
+//				if (ret == DDS_RETCODE_NO_DATA) {
+//					printf("no data beta\n");
+//				} else {
+//					printf("Received (beta):[%d] %s %s\n", beta_data_used.value,
+//							beta_data_used.value2, beta_data_used.value3);
+//				}
+//			} while (ret != DDS_RETCODE_NO_DATA);
 
 			sleep(10);
 	}

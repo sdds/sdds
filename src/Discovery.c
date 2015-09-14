@@ -70,11 +70,11 @@ rc_t Discovery_addParticipant(SDDS_DCPSParticipant *p) {
 rc_t Discovery_handleParticipant(SDDS_DCPSParticipant p) {
 	rc_t ret = Discovery_addParticipant(&p);
 	if (ret == SDDS_RT_OK) {
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB)
 		ret = Discovery_addRemoteDataSinkLoc(p.addr, g_DCPSPublication_topic);
 #endif
 
-#ifdef SDDS_TOPIC_HAS_SUB
+#if defined(SDDS_TOPIC_HAS_SUB)
 		ret = Discovery_addRemoteDataSinkLoc(p.addr, g_DCPSSubscription_topic);
 #endif
 
@@ -91,9 +91,6 @@ rc_t Discovery_handleParticipant(SDDS_DCPSParticipant p) {
 
 rc_t Discovery_addRemoteDataSinkLoc(Locator l, Topic topic) {
 	rc_t ret;
-
-	char a[1024];
-	Locator_getAddress(l, a);
 
 	ret = Topic_addRemoteDataSink(topic, l);
 	if (ret != SDDS_RT_OK)

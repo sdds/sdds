@@ -20,9 +20,17 @@
 #include "Log.h"
 #include "Network.h"
 #include "Discovery.h"
+#include <sdds/Log.h>
 
 #include <string.h>
 #include <netdb.h>
+
+#define SNPS_MULTICAST_COMPRESSION_FRST_NIBBLE			0
+#define SNPS_MULTICAST_COMPRESSION_SCND_NIBBLE			1
+#define SNPS_MULTICAST_COMPRESSION_FLAGS				2
+#define SNPS_MULTICAST_COMPRESSION_SLOPE				3
+#define SNPS_MULTICAST_COMPRESSION_FRST_COLON			4
+#define SNPS_MULTICAST_COMPRESSION_SCND_COLON			5
 
 #define START (ref->buff_start + ref->curPos)
 
@@ -309,8 +317,169 @@ rc_t SNPS_readData(NetBuffRef ref, rc_t (*TopicMarshalling_decode)(byte_t* buff,
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t *addr) {
-	uint8_t addrLen = strlen(addr);
+rc_t SNPS_char2Hex(char c, uint8_t *h) {
+	switch (c) {
+	case '0':
+		h[0] = 0x0;
+		break;
+	case '1':
+		h[0] = 0x1;
+		break;
+	case '2':
+		h[0] = 0x2;
+		break;
+	case '3':
+		h[0] = 0x3;
+		break;
+	case '4':
+		h[0] = 0x4;
+		break;
+	case '5':
+		h[0] = 0x5;
+		break;
+	case '6':
+		h[0] = 0x6;
+		break;
+	case '7':
+		h[0] = 0x7;
+		break;
+	case '8':
+		h[0] = 0x8;
+		break;
+	case '9':
+		h[0] = 0x9;
+		break;
+	case 'A':
+		h[0] = 0xA;
+		break;
+	case 'a':
+		h[0] = 0xA;
+		break;
+	case 'B':
+		h[0] = 0xB;
+		break;
+	case 'b':
+		h[0] = 0xB;
+		break;
+	case 'C':
+		h[0] = 0xC;
+		break;
+	case 'c':
+		h[0] = 0xC;
+		break;
+	case 'D':
+		h[0] = 0xD;
+		break;
+	case 'd':
+		h[0] = 0xD;
+		break;
+	case 'E':
+		h[0] = 0xE;
+		break;
+	case 'e':
+		h[0] = 0xE;
+		break;
+	case 'F':
+		h[0] = 0xF;
+		break;
+	case 'f':
+		h[0] = 0xF;
+		break;
+	default:
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+	return SDDS_RT_OK;
+}
+
+rc_t SNPS_IPv6_str2Addr(char *charAddr, uint8_t *byteAddr, uint8_t *addrLen) {
+	uint8_t tmpAddrLen = (SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE  * 2);
+	uint8_t tmpAddr[tmpAddrLen];
+	uint8_t tmpAddrPos = tmpAddrLen-1;
+	*addrLen = 0;
+
+	uint8_t strLen = strlen(charAddr);
+
+	memset(tmpAddr, 0, tmpAddrLen);
+
+	if (  (strLen > SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_CHAR)
+	   || (strLen < SNPS_MULTICAST_COMPRESSION_MIN_LENGTH_IN_CHAR)
+	) {
+		// Multicast address is not suited for compression
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+	if ( 	(  (charAddr[SNPS_MULTICAST_COMPRESSION_FRST_NIBBLE] != 'f')
+			&& (charAddr[SNPS_MULTICAST_COMPRESSION_FRST_NIBBLE] != 'F') )
+	    ||	(  (charAddr[SNPS_MULTICAST_COMPRESSION_SCND_NIBBLE] != 'f')
+			&& (charAddr[SNPS_MULTICAST_COMPRESSION_SCND_NIBBLE] != 'F') )
+	) {
+		// Not a valid multicast address
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+	if ( 	(charAddr[SNPS_MULTICAST_COMPRESSION_FRST_COLON] != ':')
+	    ||	(charAddr[SNPS_MULTICAST_COMPRESSION_SCND_COLON] != ':')
+	) {
+		// Not a valid multicast address
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+	uint8_t colonCount = 0;
+	for (int i = (strLen-1); i > SNPS_MULTICAST_COMPRESSION_SCND_COLON; i--) {
+		if ( (tmpAddrPos < 0) ) {
+			// ffFS::00GG:GGGG:GGGG	-> check for the possible leading 0-Byte
+			if (charAddr[i] != '0')	 {
+				// Not a valid multicast address
+				return SDDS_RT_BAD_PARAMETER;
+			}
+			else {
+				continue;
+			}
+		}
+		else if ( (charAddr[i] != ':') && (colonCount < 4) ) {
+			if ( SNPS_char2Hex(charAddr[i], &tmpAddr[tmpAddrPos]) != SDDS_RT_OK) {
+				return SDDS_RT_BAD_PARAMETER;
+			}
+			tmpAddrPos--;
+			colonCount++;
+		}
+		else if ( (charAddr[i] == ':') ) {
+			while (colonCount < 4) {
+				tmpAddr[tmpAddrPos] = 0;
+				tmpAddrPos--;
+				colonCount++;
+			}
+			colonCount = 0;
+		}
+	}
+
+	if ( SNPS_char2Hex(charAddr[SNPS_MULTICAST_COMPRESSION_SLOPE], &tmpAddr[1]) != SDDS_RT_OK) {
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+	if ( SNPS_char2Hex(charAddr[SNPS_MULTICAST_COMPRESSION_FLAGS], &tmpAddr[0]) != SDDS_RT_OK) {
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+	for (int i = 0; i < SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE; i++) {
+		int first = i*2;
+		int second = (i*2) + 1;
+
+		byteAddr[(i)] = ((tmpAddr[first] << 4) | tmpAddr[second]);
+		(*addrLen)++;
+	}
+
+	return SDDS_RT_OK;
+}
+
+rc_t SNPS_IPv6_addr2Str(uint8_t *byteAddr, char *charAddr) {
+	sprintf(charAddr, "FF%02X::00%02X:%02X%02X:%02X%02X", byteAddr[0], byteAddr[1], byteAddr[2], byteAddr[3], byteAddr[4], byteAddr[5]);
+	return SDDS_RT_OK;
+}
+
+rc_t SNPS_writeAddress(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
+	rc_t ret = 0;
 
 	Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMGS_ADDR, addrLen);
 	ref->curPos += 1;
@@ -324,12 +493,6 @@ rc_t SNPS_writeAddr(NetBuffRef ref, castType_t castType, addrType_t addrType, ui
 	ref->curPos += addrLen;
 
 	return SDDS_RT_OK;
-}
-
-rc_t SNPS_writeAddress(NetBuffRef ref, char *addr) {
-	uint8_t addrLen = strlen(addr);
-
-	return SNPS_writeAddr(ref, SDDS_SNPS_CAST_UNICAST, SDDS_SNPS_ADDR_IPV6, addr);
 }
 
 rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType, char *addr)
@@ -347,11 +510,16 @@ rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType
     ref->curPos +=1;
 
     if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
+//	if (addrLen == 0) {
     	ret = Locator_getAddress(ref->addr, addr);
     }
     else {
-        ret = Marshalling_dec_string(START, addr, addrLen);
+    	char byteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
+        ret = Marshalling_dec_string(START, byteAddr, addrLen);
         ref->curPos +=addrLen;
+
+    	char charAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_CHAR + 1];
+    	ret = SNPS_IPv6_addr2Str(byteAddr, addr);
     }
 
     ref->subMsgCount -=1;
@@ -392,5 +560,5 @@ rc_t SNPS_writeTSsimple(NetBuffRef ref, TimeStampSimple_t* ts)
 //rc_t SNPS_writeSeqNrHUGE(NetBuffRef ref);
 //rc_t SNPS_writeTSDDS(NetBuffRef ref);
 //rc_t SNPS_wrieSep(NetBuffRef ref);
-//rc_t SNPS_writeAddress(NetBuffRef ref);
+//rc_t SNPS_writeAddressess(NetBuffRef ref);
 
