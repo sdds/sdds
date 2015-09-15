@@ -19,7 +19,6 @@
 #include "sdds_types.h"
 #include "Msg.h"
 
-
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t Topic_getFreeMsg(Topic _this, Msg* msg) {
 	return MsgPool_getFreeMsg(&(_this->msg), msg);

@@ -24,8 +24,6 @@
 #include "Locator.h"
 #include "Msg.h"
 
-
-
 struct datasources{
     Locator list;
     uint8_t count;

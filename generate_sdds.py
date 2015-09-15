@@ -33,6 +33,9 @@ rc_t sDDS_init(void)
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 	BuiltinTopic_init();
 #endif
+#ifdef	FEATURE_SDDS_DISCOVERY_ENABLED
+	Discovery_init();
+#endif
 
     int log_level = 3;
 
