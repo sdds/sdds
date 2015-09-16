@@ -21,6 +21,9 @@ all:
 flash:
 	$(MAKE) -f Makefile_2nd_lvl.mk flash $(MAKEOPTS)
 
+dude:
+	$(MAKE) -f Makefile_2nd_lvl.mk dude $(MAKEOPTS)
+
 debug:
 	$(MAKE) -f Makefile_2nd_lvl.mk debug $(MAKEOPTS)
 
