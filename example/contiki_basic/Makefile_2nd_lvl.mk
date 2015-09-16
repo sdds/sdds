@@ -1,5 +1,6 @@
-SDDS_TOPDIR := ../..
+SDDS_TOPDIR := ../../
 
+DRIVER := $(SDDS_TOPDIR)/include/
 
 ifeq ($(BUILD),sensor_board)
   SDDS_OBJDIR := objs-128rfa1
@@ -31,7 +32,7 @@ DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/atmega_sdds_impl.o
 
 # file for the preprocessor constants of sdds
-SDDS_CONSTANTS_FILE := ./$(SDDS_ARCH)_constants.h
+SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 
 ALL_OBJS += $(DRIVER_DEPEND_OBJS)
@@ -89,6 +90,7 @@ $(LOCAL_CONSTANTS):
 	touch $(LOCAL_CONSTANTS)
 
 CFLAGS += -I.
+CFLAGS += -I $(DRIVER)
 
 $(SDDS_OBJDIR)/%.o: %.c
 	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
@@ -108,6 +110,9 @@ $(APPLICATION_NAME).elf: $(APPLICATION_NAME).co $(SDDS_OBJS) $(IMPL_DEPEND_OBJS)
 
 flash:
 	avarice -g -e -p -f $(APPLICATION_NAME).hex $(FLASH_ARGS)
+	
+dude:
+	sudo avrdude -c dragon_jtag -p m128rfa1 -U flash:w:$(APPLICATION_NAME).hex
 
 debug:
 	avr-gdb $(TARGET)-write.elf

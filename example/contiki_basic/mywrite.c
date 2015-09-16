@@ -8,6 +8,9 @@
 
 #include <avr/eeprom.h>
 
+#include "ATMEGA_LED.h"
+#include "LED.h"
+
 PROCESS(write_process, "sDDS");
 
 AUTOSTART_PROCESSES(&write_process);
@@ -32,10 +35,23 @@ PROCESS_THREAD(write_process, ev, data)
 
 	sDDS_init();
 
+	LED g_statusled;
+	rc_t ret;
+
+	static struct LED_t statusled_stc = {
+			.bank = HAL_LED_BANK_D,
+			.pin = HAL_LED_PIN_7,
+			.sourceing = false
+	};
+	// file scope var pointer
+	g_statusled = &statusled_stc;
+	ret = LED_init(g_statusled);
+
+
 	for (;;)
 	{
 
-
+		LED_switchOn(g_statusled);
 		do
 		{
 			static uint8_t foo = 0;
@@ -49,6 +65,7 @@ PROCESS_THREAD(write_process, ev, data)
 			}
 		} while(0);
 
+		LED_switchOff(g_statusled);
 		etimer_set(&g_wait_timer, CLOCK_SECOND);
 		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer));
 	}

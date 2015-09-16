@@ -238,3 +238,8 @@ rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr)
   // TODO
   return SDDS_RT_OK;  
 }
+
+rc_t Locator_getAddress(Locator l, char *srcAddr) {
+	// TODO
+	return SDDS_RT_OK;
+}

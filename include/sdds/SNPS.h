@@ -24,8 +24,6 @@
 #include "TimeMng.h"
 #include "NetBuffRef.h"
 
-#include <netdb.h>
-
 typedef uint8_t subMsg_t;
 typedef uint8_t addrType_t;
 typedef uint8_t castType_t;

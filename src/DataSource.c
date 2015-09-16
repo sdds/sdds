@@ -91,15 +91,18 @@ rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 
 	for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
 			i++) {
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 		if (!BuildinTopic_isBuiltinTopic(dataSource->writers[i].topic->id,
 				dataSource->writers[i].topic->domain)) {
-
+#endif
 			pt[*len].key = dataSource->writers[i].id;
 			pt[*len].participant_key = BuiltinTopic_participantID;
 			pt[*len].topic_id = dataSource->writers[i].topic->id;
 
 			(*len)++;
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 		}
+#endif
 	}
 
 	return SDDS_RT_OK;

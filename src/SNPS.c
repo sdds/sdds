@@ -20,10 +20,10 @@
 #include "Log.h"
 #include "Network.h"
 #include "Discovery.h"
+#include "Locator.h"
 #include <sdds/Log.h>
 
 #include <string.h>
-#include <netdb.h>
 
 #define SNPS_MULTICAST_COMPRESSION_FRST_NIBBLE			0
 #define SNPS_MULTICAST_COMPRESSION_SCND_NIBBLE			1
