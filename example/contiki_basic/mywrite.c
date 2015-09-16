@@ -21,9 +21,6 @@ static struct etimer g_wait_timer;
 char atmega128rfa1_macadress[8]       EEMEM;
 
 
-
-
-
 PROCESS_THREAD(write_process, ev, data)
 {
 	PROCESS_BEGIN();
@@ -65,9 +62,10 @@ PROCESS_THREAD(write_process, ev, data)
 			}
 		} while(0);
 
-		LED_switchOff(g_statusled);
 		etimer_set(&g_wait_timer, CLOCK_SECOND);
 		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer));
+
+		LED_switchOff(g_statusled);
 	}
 
 	PROCESS_END();

@@ -26,7 +26,7 @@ DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
 #DATA_DEPEND_OBJS += $(addprefix $(SDDS_OBJDIR)/, $(OBJS))
 
 # object files depending on driver for sensors
-# DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-adc.o
+DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
 
 # object files of the generates implementation code file of sdds
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/atmega_sdds_impl.o
