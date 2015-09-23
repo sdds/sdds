@@ -43,7 +43,6 @@ struct Locator_t{
 };
 typedef struct Locator_t* Locator;
 
-typedef struct NetBuffRef_t* NetBuffRef;
 
 /**
  * Initialises a Locator object

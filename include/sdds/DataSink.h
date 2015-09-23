@@ -30,7 +30,10 @@ struct DataSink_t;
 typedef struct DataSink_t* DataSink;
 extern DataSink dataSink;
 
-typedef struct DDS_DCPSSubscription_t DDS_DCPSSubscription;
+
+struct DataReader;
+typedef struct DataReader DataReader_t;
+typedef struct DataReader* DataReader;
 
 typedef void (*On_Data_Avail_Listener)(DataReader);
 
@@ -39,8 +42,7 @@ struct DataReader {
 	unsigned int id :4;
 	On_Data_Avail_Listener on_data_avail_listener;
 };
-typedef struct DataReader DataReader_t;
-typedef struct DataReader* DataReader;
+
 
 rc_t DataSink_init(void);
 DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm);

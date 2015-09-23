@@ -14,7 +14,6 @@
 #include "LocatorDB.h"
 #include "dds/DDS_DCPS.h"
 #include "NetBuffRef.h"
-#include "DataSink.h"
 #include "Network.h"
 #include "os-ssal/NodeConfig.h"
 #include "SNPS.h"

@@ -31,11 +31,11 @@
 // IF BUILTINTOPIC
 #include "BuiltinTopic.h"
 
-struct InstandSender {
-	struct NetBuffRef_t highPrio;
-	struct NetBuffRef_t out[SDDS_NET_MAX_OUT_QUEUE];
+struct InstantSender{
+    struct NetBuffRef_t highPrio;
+    struct NetBuffRef_t out[SDDS_NET_MAX_OUT_QUEUE];
 };
-typedef struct InstandSender InstandSender_t;
+typedef struct InstantSender InstantSender_t;
 
 struct DataWriter {
 	Topic topic;
@@ -47,7 +47,7 @@ struct DataSource {
 #if SDDS_MAX_DATA_WRITERS > 0
 	DataWriter_t writers[SDDS_MAX_DATA_WRITERS];
 #endif
-	InstandSender_t sender;
+    InstantSender_t sender;
 
 #if defined(__GNUC__) && __GNUC_MINOR__ < 6
 #pragma GCC diagnostic error "-Woverflow"
