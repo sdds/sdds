@@ -21,7 +21,7 @@
 #define  SDDS_H_INC
 
 #include "sdds_types.h"
-//#include "Topic.h"
+
 #ifdef _ECLIPSE_DEV_
 #include "CONSTANTS.h"
 #endif // _ECLIPSE_DEV_

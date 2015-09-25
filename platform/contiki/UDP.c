@@ -144,8 +144,6 @@ rc_t Network_send(NetBuffRef buffer) {
 
 		locator = (Contiki_Locator) loc;
 
-		// multicast on all nodes link-local
-		//uip_ip6addr(&address, 0xff02, 0, 0, 0, 0, 0, 0, 1);
 		address = locator->address;
 
 		Log_debug("sending %d bytes to 0x%x buffer addr %p\n",

@@ -18,14 +18,10 @@
 
 #include "Log.h"
 
-#include <contiki.h>
-#include <contiki-net.h>
-#include <stdio.h>
-#include <string.h>
-#include <avr/pgmspace.h>
-
 #include <stdarg.h>
 #include <stdlib.h>
+
+#define PRINTF(FORMAT,args...) printf_P(PSTR(FORMAT),##args)
 
 // 0 all, 1
 static int logLvl =0;
@@ -43,9 +39,9 @@ void _log_debug(const char* fnk, ...)
         va_start(arg, fnk);
 
         string = va_arg(arg, char*);
-        PRINTF("DEBUG: %s() : ", fnk);
+        fprintf(stderr,"DEBUG: %s() : ", fnk);
 
-        vprintf(string, arg);
+        vfprintf(stderr,string, arg);
         va_end(arg);
     }
 }
@@ -59,8 +55,8 @@ void _log_info(const char* fnk, ...)
 
         string = va_arg(arg, char*);
 
-        PRINTF("INFO: %s() : ", fnk);
-        vprintf(string, arg);
+        fprintf(stderr,"INFO: %s() : ", fnk);
+        vfprintf(stderr,string, arg);
 
         va_end(arg);
     }
@@ -74,9 +70,9 @@ void _log_warn(const char* fnk, ...)
         va_start(arg, fnk);
 
         string = va_arg(arg, char*);
-        PRINTF("WARN: %s() : ", fnk);
+        fprintf(stderr,"WARN: %s() : ", fnk);
 
-        vprintf(string, arg);
+        vfprintf(stderr,string, arg);
         va_end(arg);
     }
 }
@@ -89,9 +85,9 @@ void _log_error(const char* fnk, ...)
         va_start(arg, fnk);
 
         string = va_arg(arg, char*);
-        PRINTF("ERROR: %s() : ", fnk);
+        fprintf(stderr,"ERROR: %s() : ", fnk);
 
-        vprintf(string, arg);
+        vfprintf(stderr,string, arg);
         va_end(arg);
     }
 }
@@ -104,9 +100,9 @@ void _log_panic(const char* fnk, ...)
         va_start(arg, fnk);
 
         string = va_arg(arg, char*);
-        PRINTF("PANIC: %s() : ", fnk);
+        fprintf(stderr,"PANIC: %s() : ", fnk);
 
-        vprintf(string, arg);
+        vfprintf(stderr,string, arg);
         va_end(arg);
         abort();
     }

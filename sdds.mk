@@ -67,6 +67,7 @@ endif
 SDDS_INCLUDES += $(SDDS_TOPDIR)/include/sdds $(SDDS_TOPDIR)/include
 SDDS_INCLUDES += $(SDDS_TOPDIR)/platform/$(SDDS_PLATFORM)/include
 SDDS_INCLUDES += $(SDDS_TOPDIR)/driver/include
+SDDS_INCLUDES += .
 AALC_INCLUDE = $(AALC_DIR)/src
 
 CFLAGS_ALL += $(addprefix -I, $(SDDS_INCLUDES))

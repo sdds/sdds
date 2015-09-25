@@ -65,6 +65,7 @@ rc_t checkSending(NetBuffRef buf);
 rc_t BuiltinTopicDomainParticipant_encode(byte_t* buff, Data data, size_t* size);
 rc_t BuiltinTopicDataWriter_encode(byte_t* buff, Data data, size_t* size);
 
+#ifdef SDDS_TOPIC_HAS_SUB
 rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic) {
 	int i;
 	for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
@@ -84,7 +85,9 @@ rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic) {
 
 	return SDDS_RT_FAIL;
 }
+#endif
 
+#ifdef SDDS_TOPIC_HAS_SUB
 rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 	int i = 0;
 	*len = 0;
@@ -107,6 +110,7 @@ rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 
 	return SDDS_RT_OK;
 }
+#endif
 
 rc_t DataSource_init(void) {
 
@@ -252,7 +256,9 @@ rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 }
 #endif // SDDS_TOPIC_HAS_SUB
 
+
 // BuildIn Topic
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
 	NetBuffRef buffRef = NULL;
 	Topic topic = _this->topic;
@@ -280,6 +286,7 @@ rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t a
 
 	return SDDS_RT_OK;
 }
+#endif
 
 /*
  // impl for BuiltinTopic

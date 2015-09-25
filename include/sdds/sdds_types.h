@@ -4,7 +4,7 @@
  *
  *       Filename:  sdds_sdds_types.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  19.02.2010 12:55:38
@@ -23,7 +23,19 @@
 
 #ifdef _ECLIPSE_DEV_
 #include "CONSTANTS.h"
-#endif // _ECLIPSE_DEV_
+#endif // _ECLIPSE_DEV
+
+#ifdef SDDS_ARCH_esp
+#include <stdint.h>
+#include <string.h>
+#include <stdbool.h>
+#include <stddef.h>
+typedef bool                    bool_t;
+typedef uint8_t                 byte_t;
+typedef uint8_t                 char_t;
+typedef float                   float32_t;
+typedef double                  float64_t;
+#endif // #ifdef SDDS_ARCH_esp
 
 #ifdef SDDS_ARCH_atmega
 #include <stdint.h>

@@ -10,8 +10,9 @@ extern "C"
 #include "DataSink.h"
 
 #include "os-ssal/NodeConfig.h"
-
-#include <os-ssal/Memory.h>
+#include "os-ssal/Thread.h"
+#include "os-ssal/Memory.h"
+#include "os-ssal/Task.h"
 
 #include <sdds/DataSink.h>
 #include <sdds/DataSource.h>
@@ -34,10 +35,14 @@ extern "C"
 
 #define SDDS_DISCOVERY_MAX_PARTICIPANTS 50
 
-static SDDS_DCPSParticipant participants[SDDS_DISCOVERY_MAX_PARTICIPANTS];
-static pthread_t discoveryThread;
+#define SDDS_DISCOVERY_SLEEP_TIME		1
 
-static void *discoveryLoop();
+static SDDS_DCPSParticipant participants[SDDS_DISCOVERY_MAX_PARTICIPANTS];
+static Task recvTask;
+static Task sendPartTask;
+static Task sendPubTask;
+static Task sendTopTask;
+
 static void Discovery_sendParticipantTopics();
 static void Discovery_sendPublicationTopics();
 static void Discovery_sendTopicTopics();
@@ -114,7 +119,7 @@ static rc_t Discovery_addRemoteDataSink(Locator l, Topic topic) {
 	return ret;
 }
 
-static void Discovery_sendParticipantTopics() {
+static void Discovery_sendParticipantTopics(void *data) {
 	DDS_DCPSParticipant p;
 	p.key = BuiltinTopic_participantID;
 
@@ -125,7 +130,7 @@ static void Discovery_sendParticipantTopics() {
 	}
 }
 
-static void Discovery_sendPublicationTopics() {
+static void Discovery_sendPublicationTopics(void *data) {
 #if defined(SDDS_TOPIC_HAS_SUB)
 	rc_t ret;
 	DDS_DCPSPublication pubT[20];
@@ -133,19 +138,21 @@ static void Discovery_sendPublicationTopics() {
 
 	ret = DataSource_getDataWrites(pubT, &len);
 
-	int i;
-	for (i = 0; i < len; i++) {
-		if (DDS_DCPSPublicationDataWriter_write(g_DCPSPublication_writer,
-				&pubT[i],
-				NULL) != DDS_RETCODE_OK) {
-			// handle error
-			Log_error("Send publication topic failed.\n");
+	if (ret == SDDS_RT_OK) {
+		int i;
+		for (i = 0; i < len; i++) {
+			if (DDS_DCPSPublicationDataWriter_write(g_DCPSPublication_writer,
+					&pubT[i],
+					NULL) != DDS_RETCODE_OK) {
+				// handle error
+				Log_error("Send publication topic failed.\n");
+			}
 		}
 	}
 #endif
 }
 
-void Discovery_sendTopicTopics() {
+void Discovery_sendTopicTopics(void *data) {
 	// TO DO
 }
 
@@ -238,31 +245,14 @@ static void Discovery_receive_SubscriptionTopics() {
 #endif
 }
 
-static void *discoveryLoop() {
-	int publicationTime = 0;
+void Discovery_receive(void *data) {
+	Discovery_receiveParticipantTopics();
 
-	while (true) {
-		publicationTime += SDDS_DISCOVERY_PARTICIPANT_TIMER;
+	Discovery_receivePublicationTopics();
 
-		Discovery_sendParticipantTopics();
+	Discovery_receiveTopicTopics();
 
-		if (publicationTime >= SDDS_DISCOVERY_PUBLICATION_TIMER) {
-			Discovery_sendPublicationTopics();
-			publicationTime = 0;
-		}
-
-		Discovery_sendTopicTopics();
-
-		Discovery_receiveParticipantTopics();
-
-		Discovery_receivePublicationTopics();
-
-		Discovery_receiveTopicTopics();
-
-		Discovery_receive_SubscriptionTopics();
-
-		sleep(SDDS_DISCOVERY_PARTICIPANT_TIMER);
-	}
+	Discovery_receive_SubscriptionTopics();
 }
 
 rc_t Discovery_init() {
@@ -270,10 +260,39 @@ rc_t Discovery_init() {
 		participants[i].data.key = 0;
 	}
 
-	// set up a thread to read from the udp socket
-	if (pthread_create(&discoveryThread, NULL, discoveryLoop, NULL) != 0) {
-		exit(-1);
+	TaskMng_init();
+
+#if (SDDS_DISCOVERY_RECEIVE_TIMER != 0)
+	recvTask = Task_create();
+	Task_init(recvTask, Discovery_receive, NULL);
+	if (Task_start(recvTask, SDDS_DISCOVERY_RECEIVE_TIMER, 0, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
+		Log_error("Task_start failed\n");
 	}
+#endif
+
+#if (SDDS_DISCOVERY_PARTICIPANT_TIMER != 0)
+	sendPartTask = Task_create();
+	Task_init(sendPartTask, Discovery_sendParticipantTopics, NULL);
+	if (Task_start(sendPartTask, SDDS_DISCOVERY_PARTICIPANT_TIMER, 0, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
+		Log_error("Task_start failed\n");
+	}
+#endif
+
+#if (SDDS_DISCOVERY_PUBLICATION_TIMER != 0)
+	sendPubTask = Task_create();
+	Task_init(sendPubTask, Discovery_sendPublicationTopics, NULL);
+	if (Task_start(sendPubTask, SDDS_DISCOVERY_PUBLICATION_TIMER, 0, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
+		Log_error("Task_start failed\n");
+	}
+#endif
+
+#if (SDDS_DISCOVERY_TOPIC_TIMER != 0)
+	sendTopTask = Task_create();
+	Task_init(sendTopTask, Discovery_sendTopicTopics, NULL);
+	if (Task_start(sendTopTask, SDDS_DISCOVERY_TOPIC_TIMER, 0, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
+		Log_error("Task_start failed\n");
+	}
+#endif
 
 	return SDDS_RT_OK;
 }

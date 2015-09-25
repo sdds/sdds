@@ -14,7 +14,6 @@ SDDS_PLATFORM := contiki
 SDDS_ARCH := atmega
 
 DATASTRUCTURES_FILE := datastructures
-
 LOCAL_CONSTANTS := local_constants.h
 
 # Object files of the generateted dds data types

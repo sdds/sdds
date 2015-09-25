@@ -93,6 +93,7 @@ extern DDS_Topic g_%(name)s_topic;
 def get_impl(f, impl_name, datastructures):
 	f.write(r"""
 #include "%(name)s_sdds_impl.h"
+#include "gen_constants.h"
 
 """[1:-1] % {'name': impl_name})
 

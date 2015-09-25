@@ -1,0 +1,97 @@
+   text	   data	    bss	    dec	    hex	filename
+   2487	      0	      0	   2487	    9b7	sha512.o (ex build/axtls.a)
+    900	      0	      0	    900	    384	sha1.o (ex build/axtls.a)
+   1245	      0	      0	   1245	    4dd	rsa.o (ex build/axtls.a)
+    247	      0	     32	    279	    117	crypto_misc.o (ex build/axtls.a)
+    590	      0	      0	    590	    24e	hmac.o (ex build/axtls.a)
+   5177	      0	      0	   5177	   1439	bigint.o (ex build/axtls.a)
+    251	      0	      0	    251	     fb	sha384.o (ex build/axtls.a)
+  11724	      0	      0	  11724	   2dcc	sha256.o (ex build/axtls.a)
+   2637	      0	      0	   2637	    a4d	md5.o (ex build/axtls.a)
+   2898	      0	      0	   2898	    b52	aes.o (ex build/axtls.a)
+    181	      0	      0	    181	     b5	rc4.o (ex build/axtls.a)
+      0	      0	      0	      0	      0	p12.o (ex build/axtls.a)
+   1402	      0	      0	   1402	    57a	tls1_clnt.o (ex build/axtls.a)
+    299	      0	      0	    299	    12b	loader.o (ex build/axtls.a)
+      0	      0	      0	      0	      0	openssl.o (ex build/axtls.a)
+      0	      0	      0	      0	      0	gen_cert.o (ex build/axtls.a)
+   2833	      0	      0	   2833	    b11	asn1.o (ex build/axtls.a)
+   1356	      0	      0	   1356	    54c	tls1_svr.o (ex build/axtls.a)
+   6810	      0	      0	   6810	   1a9a	tls1.o (ex build/axtls.a)
+   2077	      0	      0	   2077	    81d	x509.o (ex build/axtls.a)
+    193	      0	      0	    193	     c1	os_port.o (ex build/axtls.a)
+     58	      0	      0	     58	     3a	axtls_esp_stubs.o (ex build/axtls.a)
+   3587	      0	      0	   3587	    e03	app_main.o (ex build/core.a)
+    186	      0	      0	    186	     ba	esp_gpio_interrupts.o (ex build/core.a)
+     74	      0	      0	     74	     4a	sdk_compat.o (ex build/core.a)
+    197	      0	      4	    201	     c9	newlib_syscalls.o (ex build/core.a)
+     67	      0	      0	     67	     43	esp_timer.o (ex build/core.a)
+    128	      0	      0	    128	     80	esp_iomux.o (ex build/core.a)
+      0	      0	   1140	   1140	    474	exception_vectors.o (ex build/core.a)
+     95	      0	      0	     95	     5f	cplusplus_operators.o (ex build/core.a)
+   2252	      0	      0	   2252	    8cc	queue.o (ex build/freertos.a)
+   1083	      0	    128	   1211	    4bb	croutine.o (ex build/freertos.a)
+    127	      0	      0	    127	     7f	list.o (ex build/freertos.a)
+   4605	      4	    456	   5065	   13c9	tasks.o (ex build/freertos.a)
+   1152	      0	     60	   1212	    4bc	timers.o (ex build/freertos.a)
+    740	      0	     20	    760	    2f8	port.o (ex build/freertos.a)
+   1279	      0	      4	   1283	    503	sys_arch.o (ex build/lwip.a)
+    206	      0	      0	    206	     ce	esp_interface.o (ex build/lwip.a)
+    701	      0	     36	    737	    2e1	netdb.o (ex build/lwip.a)
+   1983	      0	      0	   1983	    7bf	api_lib.o (ex build/lwip.a)
+      0	      0	      0	      0	      0	netifapi.o (ex build/lwip.a)
+   1167	      0	     12	   1179	    49b	tcpip.o (ex build/lwip.a)
+    418	      0	      0	    418	    1a2	netbuf.o (ex build/lwip.a)
+      0	      0	      0	      0	      0	err.o (ex build/lwip.a)
+   4495	      0	      0	   4495	   118f	api_msg.o (ex build/lwip.a)
+   6069	      0	    104	   6173	   181d	sockets.o (ex build/lwip.a)
+   6424	      4	      0	   6428	   191c	dhcp.o (ex build/lwip.a)
+      0	      0	      0	      0	      0	mem.o (ex build/lwip.a)
+     93	      0	      0	     93	     5d	init.o (ex build/lwip.a)
+     28	      0	      0	     28	     1c	memp.o (ex build/lwip.a)
+     65	      0	      0	     65	     41	sys.o (ex build/lwip.a)
+   4663	      0	     44	   4707	   1263	tcp_in.o (ex build/lwip.a)
+   1633	      0	    688	   2321	    911	dns.o (ex build/lwip.a)
+    577	      0	      4	    581	    245	raw.o (ex build/lwip.a)
+   4340	      6	      2	   4348	   10fc	tcp.o (ex build/lwip.a)
+   1807	      0	      0	   1807	    70f	pbuf.o (ex build/lwip.a)
+    676	      0	      1	    677	    2a5	netif.o (ex build/lwip.a)
+      2	      0	      0	      2	      2	stats.o (ex build/lwip.a)
+    766	      0	      8	    774	    306	timers.o (ex build/lwip.a)
+      0	      0	      0	      0	      0	def.o (ex build/lwip.a)
+   1693	      2	      0	   1695	    69f	udp.o (ex build/lwip.a)
+   4423	      0	      0	   4423	   1147	tcp_out.o (ex build/lwip.a)
+    431	      0	      0	    431	    1af	ip_frag.o (ex build/lwip.a)
+      0	      0	      0	      0	      0	inet.o (ex build/lwip.a)
+    832	      0	     16	    848	    350	ip_addr.o (ex build/lwip.a)
+      0	      0	      0	      0	      0	igmp.o (ex build/lwip.a)
+   1443	      0	      2	   1445	    5a5	ip.o (ex build/lwip.a)
+      0	      0	      0	      0	      0	autoip.o (ex build/lwip.a)
+    703	      0	      0	    703	    2bf	inet_chksum.o (ex build/lwip.a)
+    859	      0	      0	    859	    35b	icmp.o (ex build/lwip.a)
+      0	      0	      0	      0	      0	slipif.o (ex build/lwip.a)
+   2891	      0	    204	   3095	    c17	etharp.o (ex build/lwip.a)
+      0	      0	      0	      0	      0	ethernetif.o (ex build/lwip.a)
+    378	      0	      0	    378	    17a	alpha-ds.o (ex build/program.a)
+    421	      0	      4	    425	    1a9	sdds.o (ex build/program.a)
+    377	      0	      0	    377	    179	beta-ds.o (ex build/program.a)
+    226	      0	      0	    226	     e2	esp_sdds_impl.o (ex build/program.a)
+      0	      0	      0	      0	      0	build/objs-esp/sdds-BuiltinTopic.o
+   1320	      4	     56	   1380	    564	build/objs-esp/sdds-DataSink.o
+    311	      4	     88	    403	    193	build/objs-esp/sdds-DataSource.o
+    142	      0	      0	    142	     8e	build/objs-esp/sdds-Debug.o
+      0	      0	      0	      0	      0	build/objs-esp/sdds-Discovery.o
+    426	      0	      0	    426	    1aa	build/objs-esp/sdds-Locator.o
+    508	      0	     84	    592	    250	build/objs-esp/sdds-LocatorDB.o
+      0	      0	      0	      0	      0	build/objs-esp/sdds-Management.o
+    366	      0	      0	    366	    16e	build/objs-esp/sdds-Marshalling.o
+    184	      0	      0	    184	     b8	build/objs-esp/sdds-Msg.o
+     98	      0	      0	     98	     62	build/objs-esp/sdds-NetBuffRef.o
+   2421	      0	      0	   2421	    975	build/objs-esp/sdds-SNPS.o
+    181	      0	      0	    181	     b5	build/objs-esp/sdds-Topic.o
+    465	      0	     92	    557	    22d	build/objs-esp/sdds-TopicDB.o
+    660	      0	      4	    664	    298	build/objs-esp/sdds-freertos-Log.o
+     51	      0	      0	     51	     33	build/objs-esp/sdds-freertos-Memory.o
+      9	      0	      0	      9	      9	build/objs-esp/sdds-freertos-NodeConfig.o
+   1346	      0	     28	   1374	    55e	build/objs-esp/sdds-freertos-UDP.o
+      0	      0	      0	      0	      0	build/objs-esp/sdds-sDDS.o

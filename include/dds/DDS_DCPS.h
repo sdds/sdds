@@ -20,7 +20,6 @@
 #ifndef  DDS_DCPS_H_INC
 #define  DDS_DCPS_H_INC
 
-#include "sdds/sDDS.h"
 #include "sdds/sdds_types.h"
 
 typedef int16_t		DDS_short;

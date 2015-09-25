@@ -28,8 +28,5 @@ SSW_NodeID_t NodeConfig_getNodeID(void) {
 	mac = (unsigned char *) ifr.ifr_hwaddr.sa_data;
 	nodeID = mac[5] | (mac[4] << 8);
 
-	//	printf("\nMac : %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-	//	printf("nodeID: %x\n", nodeID);
-
 	return nodeID;
 }
