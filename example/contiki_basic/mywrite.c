@@ -1,72 +1,78 @@
+#include "contiki.h"
+#include "contiki-lib.h"
+#include "contiki-net.h"
+#include "net/ipv6/multicast/uip-mcast6.h"
+
+#include "Network.h"
+#include "BuiltinTopic.h"
+#include "Log.h"
+#include "Discovery.h"
+
 #include "atmega_sdds_impl.h"
 
-#include <sdds/DataSink.h>
-#include <sdds/DataSource.h>
+#include <string.h>
 
-#include <contiki.h>
-#include <contiki-net.h>
+#define DEBUG DEBUG_PRINT
+#include "net/ip/uip-debug.h"
 
 #include <avr/eeprom.h>
+char atmega128rfa1_macadress[8]		EEMEM;
 
-#include "ATMEGA_LED.h"
-#include "LED.h"
-
-PROCESS(write_process, "sDDS");
-
-AUTOSTART_PROCESSES(&write_process);
-
-static struct etimer g_wait_timer;
-
-// workaround to prevent contiki to overwrite the mac adress in eeprom
-char atmega128rfa1_macadress[8]       EEMEM;
-
-
-PROCESS_THREAD(write_process, ev, data)
+/*---------------------------------------------------------------------------*/
+PROCESS(mcast_sink_process, "Multicast Sink");
+AUTOSTART_PROCESSES(&mcast_sink_process);
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(mcast_sink_process, ev, data)
 {
+	static struct etimer g_wait_timer;
+	static Beta b;
+
 	PROCESS_BEGIN();
 
-	// make gcc happy
-	(void)ev;
-	(void)data;
-
+#if 0
+	uint16_t myAddr = (uint16_t) &atmega128rfa1_macadress;
+	uint8_t byte1 = eeprom_read_byte((uint8_t*) myAddr);
+	eeprom_write_byte((uint8_t*)myAddr+7, 0x00);
+	eeprom_write_byte((uint8_t*)myAddr+6, 0x21);
+	eeprom_write_byte((uint8_t*)myAddr+5, 0x2E);
+	eeprom_write_byte((uint8_t*)myAddr+4, 0xFF);
+	eeprom_write_byte((uint8_t*)myAddr+3, 0xFF);
+	eeprom_write_byte((uint8_t*)myAddr+2, 0x00);
+	eeprom_write_byte((uint8_t*)myAddr+1, 0x22);
+	eeprom_write_byte((uint8_t*)myAddr, 0xB9);
+#endif
 
 	sDDS_init();
+	Log_setLvl(0);
 
-	LED g_statusled;
-	rc_t ret;
+	DDS_ReturnCode_t ret;
 
-	static struct LED_t statusled_stc = {
-			.bank = HAL_LED_BANK_D,
-			.pin = HAL_LED_PIN_7,
-			.sourceing = false
-	};
-	// file scope var pointer
-	g_statusled = &statusled_stc;
-	ret = LED_init(g_statusled);
+	memset(&b, 0, sizeof(b));
+	b.value = 0;
+	b.value2[0] = 'D';
+	b.value2[1] = 'e';
+	b.value2[2] = 'r';
+	b.value2[3] = '\0';
+	b.value3[0] = 'B';
+	b.value3[1] = 'a';
+	b.value3[2] = 'u';
+	b.value3[3] = 'm';
+	b.value3[4] = '!';
+	b.value3[5] = '\0';
 
 
-	for (;;)
-	{
+	while (1) {
+		if (DDS_BetaDataWriter_write(g_Beta_writer, &b,
+				NULL) != DDS_RETCODE_OK) {
+			// handle error
+		}
+		b.value++;
 
-		LED_switchOn(g_statusled);
-		do
-		{
-			static uint8_t foo = 0;
-			Test t;
-
-			t.testvalue = foo++;
-
-			if (DDS_TestDataWriter_write(g_Test_writer, &t, NULL) != DDS_RETCODE_OK)
-			{
-				// handle error
-			}
-		} while(0);
-
-		etimer_set(&g_wait_timer, CLOCK_SECOND);
+		etimer_set(&g_wait_timer, 10 * CLOCK_SECOND);
 		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer));
-
-		LED_switchOff(g_statusled);
 	}
 
-	PROCESS_END();
+
+  PROCESS_END();
 }
+/*---------------------------------------------------------------------------*/

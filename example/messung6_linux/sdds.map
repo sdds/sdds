@@ -1,0 +1,1108 @@
+Archive member included to satisfy reference by file (symbol)
+
+/usr/lib/x86_64-linux-gnu/libc_nonshared.a(elf-init.oS)
+                              /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o (__libc_csu_init)
+
+As-needed library included to satisfy reference by file (symbol)
+
+librt.so.1                    objs-linux/sdds-linux-Task.o (timer_settime@@GLIBC_2.3.3)
+libpthread.so.0               objs-linux/sdds-linux-UDP.o (recvfrom@@GLIBC_2.2.5)
+
+Allocating common symbols
+Common symbol       size              file
+
+g_DCPSPublication_writer
+                    0x8               objs-linux/sdds-BuiltinTopic.o
+BuiltinTopic_participantID
+                    0x2               objs-linux/sdds-DataSource.o
+g_Beta_writer       0x8               objs-linux/linux_sdds_impl.o
+g_DCPSSubscription_topic
+                    0x8               objs-linux/sdds-BuiltinTopic.o
+g_DCPSTopic_pool    0x8c              objs-linux/sdds-BuiltinTopic.o
+builtinTopicNetAddress
+                    0x8               objs-linux/sdds-linux-UDP.o
+g_Alpha_writer      0x8               objs-linux/linux_sdds_impl.o
+g_Delta_pool        0x5               objs-linux/linux_sdds_impl.o
+g_DCPSTopic_topic   0x8               objs-linux/sdds-BuiltinTopic.o
+g_DCPSParticipant_topic
+                    0x8               objs-linux/sdds-BuiltinTopic.o
+g_DCPSParticipant_pool
+                    0x50              objs-linux/sdds-BuiltinTopic.o
+g_DCPSSubscription_reader
+                    0x8               objs-linux/sdds-BuiltinTopic.o
+g_Alpha_pool        0x5               objs-linux/linux_sdds_impl.o
+g_DCPSParticipant_reader
+                    0x8               objs-linux/sdds-BuiltinTopic.o
+g_Beta_pool         0x5               objs-linux/linux_sdds_impl.o
+g_Delta_topic       0x8               objs-linux/linux_sdds_impl.o
+g_Gamma_topic       0x8               objs-linux/linux_sdds_impl.o
+g_DCPSParticipant_writer
+                    0x8               objs-linux/sdds-BuiltinTopic.o
+g_DCPSTopic_writer  0x8               objs-linux/sdds-BuiltinTopic.o
+g_Alpha_topic       0x8               objs-linux/linux_sdds_impl.o
+g_DCPSPublication_topic
+                    0x8               objs-linux/sdds-BuiltinTopic.o
+g_Beta_topic        0x8               objs-linux/linux_sdds_impl.o
+g_DCPSTopic_reader  0x8               objs-linux/sdds-BuiltinTopic.o
+g_Gamma_reader      0x8               objs-linux/linux_sdds_impl.o
+g_DCPSPublication_pool
+                    0x1e              objs-linux/sdds-BuiltinTopic.o
+g_Gamma_pool        0x5               objs-linux/linux_sdds_impl.o
+g_DCPSSubscription_pool
+                    0x50              objs-linux/sdds-BuiltinTopic.o
+g_DCPSPublication_reader
+                    0x8               objs-linux/sdds-BuiltinTopic.o
+g_DCPSSubscription_writer
+                    0x8               objs-linux/sdds-BuiltinTopic.o
+g_Delta_reader      0x8               objs-linux/linux_sdds_impl.o
+
+Discarded input sections
+
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+ .gnu_debuglink
+                0x0000000000000000        0xc /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crti.o
+ .gnu_debuglink
+                0x0000000000000000        0xc /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crti.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-DataSource.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-BuiltinTopic.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-sDDS.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-DataSink.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-Marshalling.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-NetBuffRef.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-TopicDB.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-Discovery.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-Msg.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-Locator.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-Management.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-Debug.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-SNPS.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-LocatorDB.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-Topic.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-linux-NodeConfig.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-linux-UDP.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-linux-Log.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-linux-Event.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-linux-Memory.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-linux-Thread.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/sdds-linux-Task.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/linux_sdds_impl.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/alpha-ds.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/beta-ds.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/gamma-ds.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 objs-linux/delta-ds.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/x86_64-linux-gnu/libc_nonshared.a(elf-init.oS)
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtend.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crtn.o
+ .gnu_debuglink
+                0x0000000000000000        0xc /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crtn.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crti.o
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+LOAD objs-linux/sdds.o
+LOAD objs-linux/sdds-DataSource.o
+LOAD objs-linux/sdds-BuiltinTopic.o
+LOAD objs-linux/sdds-sDDS.o
+LOAD objs-linux/sdds-DataSink.o
+LOAD objs-linux/sdds-Marshalling.o
+LOAD objs-linux/sdds-NetBuffRef.o
+LOAD objs-linux/sdds-TopicDB.o
+LOAD objs-linux/sdds-Discovery.o
+LOAD objs-linux/sdds-Msg.o
+LOAD objs-linux/sdds-Locator.o
+LOAD objs-linux/sdds-Management.o
+LOAD objs-linux/sdds-Debug.o
+LOAD objs-linux/sdds-SNPS.o
+LOAD objs-linux/sdds-LocatorDB.o
+LOAD objs-linux/sdds-Topic.o
+LOAD objs-linux/sdds-linux-NodeConfig.o
+LOAD objs-linux/sdds-linux-UDP.o
+LOAD objs-linux/sdds-linux-Log.o
+LOAD objs-linux/sdds-linux-Event.o
+LOAD objs-linux/sdds-linux-Memory.o
+LOAD objs-linux/sdds-linux-Thread.o
+LOAD objs-linux/sdds-linux-Task.o
+LOAD objs-linux/linux_sdds_impl.o
+LOAD objs-linux/alpha-ds.o
+LOAD objs-linux/beta-ds.o
+LOAD objs-linux/gamma-ds.o
+LOAD objs-linux/delta-ds.o
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/librt.so
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/libpthread.so
+START GROUP
+LOAD /lib/x86_64-linux-gnu/libpthread.so.0
+LOAD /usr/lib/x86_64-linux-gnu/libpthread_nonshared.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/libpthread.so
+START GROUP
+LOAD /lib/x86_64-linux-gnu/libpthread.so.0
+LOAD /usr/lib/x86_64-linux-gnu/libpthread_nonshared.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/libgcc.a
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/libgcc_s.so
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/libc.so
+START GROUP
+LOAD /lib/x86_64-linux-gnu/libc.so.6
+LOAD /usr/lib/x86_64-linux-gnu/libc_nonshared.a
+LOAD /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+END GROUP
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/libgcc.a
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/libgcc_s.so
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/crtend.o
+LOAD /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crtn.o
+                [!provide]                        PROVIDE (__executable_start, 0x400000)
+                0x0000000000400238                . = (0x400000 + SIZEOF_HEADERS)
+
+.interp         0x0000000000400238       0x1c
+ *(.interp)
+ .interp        0x0000000000400238       0x1c /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.note.ABI-tag   0x0000000000400254       0x20
+ .note.ABI-tag  0x0000000000400254       0x20 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.note.gnu.build-id
+                0x0000000000400274       0x24
+ *(.note.gnu.build-id)
+ .note.gnu.build-id
+                0x0000000000400274       0x24 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.hash
+ *(.hash)
+
+.gnu.hash       0x0000000000400298       0x24
+ *(.gnu.hash)
+ .gnu.hash      0x0000000000400298       0x24 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.dynsym         0x00000000004002c0      0x3f0
+ *(.dynsym)
+ .dynsym        0x00000000004002c0      0x3f0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.dynstr         0x00000000004006b0      0x220
+ *(.dynstr)
+ .dynstr        0x00000000004006b0      0x220 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.gnu.version    0x00000000004008d0       0x54
+ *(.gnu.version)
+ .gnu.version   0x00000000004008d0       0x54 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.gnu.version_d  0x0000000000400928        0x0
+ *(.gnu.version_d)
+ .gnu.version_d
+                0x0000000000400928        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.gnu.version_r  0x0000000000400928       0x80
+ *(.gnu.version_r)
+ .gnu.version_r
+                0x0000000000400928       0x80 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.rela.dyn       0x00000000004009a8       0x30
+ *(.rela.init)
+ *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
+ .rela.text     0x00000000004009a8        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+ .rela.text.startup
+                0x00000000004009a8        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+ *(.rela.fini)
+ *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
+ *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
+ *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
+ *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
+ *(.rela.ctors)
+ *(.rela.dtors)
+ *(.rela.got)
+ .rela.got      0x00000000004009a8       0x18 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+ *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
+ .rela.bss      0x00000000004009c0       0x18 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+ *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
+ *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
+ *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
+ *(.rela.ifunc)
+
+.rela.plt       0x00000000004009d8      0x378
+ *(.rela.plt)
+ .rela.plt      0x00000000004009d8      0x378 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+                [!provide]                        PROVIDE (__rela_iplt_start, .)
+ *(.rela.iplt)
+ .rela.iplt     0x0000000000400d50        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+                [!provide]                        PROVIDE (__rela_iplt_end, .)
+
+.init           0x0000000000400d50       0x1a
+ *(SORT(.init))
+ .init          0x0000000000400d50       0x15 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crti.o
+                0x0000000000400d50                _init
+ .init          0x0000000000400d65        0x5 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crtn.o
+
+.plt            0x0000000000400d70      0x260
+ *(.plt)
+ .plt           0x0000000000400d70      0x260 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+                0x0000000000400d80                free@@GLIBC_2.2.5
+                0x0000000000400d90                pthread_create@@GLIBC_2.2.5
+                0x0000000000400da0                __vfprintf_chk@@GLIBC_2.3.4
+                0x0000000000400db0                abort@@GLIBC_2.2.5
+                0x0000000000400dc0                __errno_location@@GLIBC_2.2.5
+                0x0000000000400dd0                strncpy@@GLIBC_2.2.5
+                0x0000000000400de0                puts@@GLIBC_2.2.5
+                0x0000000000400df0                setsockopt@@GLIBC_2.2.5
+                0x0000000000400e00                __stack_chk_fail@@GLIBC_2.4
+                0x0000000000400e10                printf@@GLIBC_2.2.5
+                0x0000000000400e20                __assert_fail@@GLIBC_2.2.5
+                0x0000000000400e30                ioctl@@GLIBC_2.2.5
+                0x0000000000400e40                sendto@@GLIBC_2.2.5
+                0x0000000000400e50                close@@GLIBC_2.2.5
+                0x0000000000400e60                getnameinfo@@GLIBC_2.2.5
+                0x0000000000400e70                __libc_start_main@@GLIBC_2.2.5
+                0x0000000000400e80                memcmp@@GLIBC_2.2.5
+                0x0000000000400e90                getsockopt@@GLIBC_2.2.5
+                0x0000000000400ea0                __memcpy_chk@@GLIBC_2.3.4
+                0x0000000000400ec0                if_nametoindex@@GLIBC_2.2.5
+                0x0000000000400ed0                malloc@@GLIBC_2.2.5
+                0x0000000000400ee0                recvfrom@@GLIBC_2.2.5
+                0x0000000000400ef0                __printf_chk@@GLIBC_2.3.4
+                0x0000000000400f00                bind@@GLIBC_2.2.5
+                0x0000000000400f10                timer_settime@@GLIBC_2.3.3
+                0x0000000000400f20                perror@@GLIBC_2.2.5
+                0x0000000000400f30                timer_create@@GLIBC_2.3.3
+                0x0000000000400f40                exit@@GLIBC_2.2.5
+                0x0000000000400f50                __fprintf_chk@@GLIBC_2.3.4
+                0x0000000000400f60                getaddrinfo@@GLIBC_2.2.5
+                0x0000000000400f70                strerror@@GLIBC_2.2.5
+                0x0000000000400f80                sleep@@GLIBC_2.2.5
+                0x0000000000400f90                usleep@@GLIBC_2.2.5
+                0x0000000000400fa0                freeaddrinfo@@GLIBC_2.2.5
+                0x0000000000400fb0                __sprintf_chk@@GLIBC_2.3.4
+                0x0000000000400fc0                socket@@GLIBC_2.2.5
+ *(.iplt)
+ .iplt          0x0000000000400fd0        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.plt.bnd
+ *(.plt.bnd)
+
+.text           0x0000000000400fd0     0x4322
+ *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+ .text.unlikely
+                0x0000000000400fd0        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-DataSource.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-BuiltinTopic.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-DataSink.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-Marshalling.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-NetBuffRef.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-TopicDB.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-Discovery.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-Msg.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-Locator.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-Debug.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-SNPS.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-LocatorDB.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-Topic.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-linux-NodeConfig.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-linux-UDP.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-linux-Log.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-linux-Memory.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-linux-Thread.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/sdds-linux-Task.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/linux_sdds_impl.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/alpha-ds.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/beta-ds.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/gamma-ds.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 objs-linux/delta-ds.o
+ .text.unlikely
+                0x0000000000400fd0        0x0 /usr/lib/x86_64-linux-gnu/libc_nonshared.a(elf-init.oS)
+ *(.text.exit .text.exit.*)
+ *(.text.startup .text.startup.*)
+ .text.startup  0x0000000000400fd0      0x101 objs-linux/sdds.o
+                0x0000000000400fd0                main
+ *(.text.hot .text.hot.*)
+ *(.text .stub .text.* .gnu.linkonce.t.*)
+ *fill*         0x00000000004010d1        0xf 
+ .text          0x00000000004010e0       0x2a /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+                0x00000000004010e0                _start
+ .text          0x000000000040110a        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crti.o
+ *fill*         0x000000000040110a        0x6 
+ .text          0x0000000000401110       0xc6 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+ .text          0x00000000004011d6        0x0 objs-linux/sdds.o
+ .text          0x00000000004011d6      0x3fc objs-linux/sdds-DataSource.o
+                0x00000000004011d6                DataSource_getTopic
+                0x0000000000401244                DataSource_getDataWrites
+                0x00000000004012dd                DataSource_init
+                0x000000000040132a                DataSource_create_datawriter
+                0x00000000004013af                findFreeFrame
+                0x0000000000401461                checkSending
+                0x000000000040148d                DataSource_write
+                0x0000000000401523                DataSource_writeAddress
+ .text          0x00000000004015d2      0xaa5 objs-linux/sdds-BuiltinTopic.o
+                0x00000000004015d2                TopicMarshalling_DCPSParticipant_cpy
+                0x00000000004015e3                TopicMarshalling_DCPSTopic_cpy
+                0x00000000004015ed                TopicMarshalling_DCPSPublication_cpy
+                0x00000000004015fc                TopicMarshalling_DCPSSubscription_cpy
+                0x000000000040160d                TopicMarshalling_DCPSParticipant_encode
+                0x0000000000401625                TopicMarshalling_DCPSPublication_encode
+                0x0000000000401677                TopicMarshalling_DCPSSubscription_encode
+                0x00000000004016c9                TopicMarshalling_DCPSPublication_decode
+                0x000000000040174d                TopicMarshalling_DCPSParticipant_decode
+                0x000000000040181f                TopicMarshalling_DCPSSubscription_decode
+                0x0000000000401923                TopicMarshalling_DCPSTopic_encode
+                0x0000000000401987                TopicMarshalling_DCPSTopic_decode
+                0x00000000004019f9                BuiltinTopic_printSubPool
+                0x0000000000401a38                BuiltinTopic_printTopicAddr
+                0x0000000000401a9a                DDS_DCPSParticipantDataReader_take_next_sample
+                0x0000000000401ab4                DDS_DCPSParticipantDataWriter_write
+                0x0000000000401af6                sDDS_DCPSParticipantTopic_create
+                0x0000000000401b5c                DDS_DCPSTopicDataReader_take_next_sample
+                0x0000000000401b76                DDS_DCPSTopicDataWriter_write
+                0x0000000000401b86                sDDS_DCPSTopicTopic_create
+                0x0000000000401bec                DDS_DCPSPublicationDataReader_take_next_sample
+                0x0000000000401c06                DDS_DCPSPublicationDataWriter_write
+                0x0000000000401c16                sDDS_DCPSPublicationTopic_create
+                0x0000000000401c7c                DDS_DCPSSubscriptionDataReader_take_next_sample
+                0x0000000000401c96                DDS_DCPSSubscriptionDataWriter_write
+                0x0000000000401cd8                sDDS_DCPSSubscriptionTopic_create
+                0x0000000000401d3e                BuiltinTopic_init
+                0x0000000000402065                BuildinTopic_isBuiltinTopic
+ .text          0x0000000000402077        0x0 objs-linux/sdds-sDDS.o
+ .text          0x0000000000402077      0x4da objs-linux/sdds-DataSink.o
+                0x0000000000402077                BuiltinTopicDataReader_encode
+                0x00000000004020bc                DataSink_getTopic
+                0x0000000000402127                DataSink_getAddr
+                0x0000000000402148                DataSink_init
+                0x0000000000402164                DataSink_create_datareader
+                0x00000000004021cb                DataSink_take_next_sample
+                0x0000000000402266                submitData
+                0x000000000040227e                parseData
+                0x00000000004022f8                checkDomain
+                0x0000000000402323                checkTopic
+                0x000000000040234c                DataSink_processFrame
+                0x00000000004024f5                BuiltinTopic_writeDataReaders2Buf
+                0x000000000040254a                DataSink_set_on_data_avail_listener
+ .text          0x0000000000402551      0x22a objs-linux/sdds-Marshalling.o
+                0x0000000000402551                decode
+                0x0000000000402570                Marshalling_dec_SubMsg
+                0x00000000004025d0                Marshalling_dec_bool
+                0x00000000004025dd                Marshalling_dec_int8
+                0x00000000004025ea                Marshalling_dec_uint8
+                0x00000000004025f7                Marshalling_dec_string
+                0x0000000000402649                Marshalling_dec_int16
+                0x0000000000402656                Marshalling_dec_uint16
+                0x0000000000402663                Marshalling_dec_int32
+                0x0000000000402670                Marshalling_dec_uint32
+                0x000000000040267d                encode
+                0x000000000040269a                Marshalling_enc_SubMsg
+                0x00000000004026e3                Marshalling_enc_bool
+                0x00000000004026f0                Marshalling_enc_int8
+                0x00000000004026fd                Marshalling_enc_uint8
+                0x000000000040270a                Marshalling_enc_string
+                0x0000000000402747                Marshalling_enc_int16
+                0x0000000000402754                Marshalling_enc_uint16
+                0x0000000000402761                Marshalling_enc_int32
+                0x000000000040276e                Marshalling_enc_uint32
+ .text          0x000000000040277b       0x7e objs-linux/sdds-NetBuffRef.o
+                0x000000000040277b                NetBuffRef_renew
+                0x000000000040279f                NetBuffRef_init
+ .text          0x00000000004027f9      0x159 objs-linux/sdds-TopicDB.o
+                0x00000000004027f9                BuiltinTopicTopic_encode
+                0x0000000000402836                TopicDB_createTopic
+                0x000000000040288b                TopicDB_checkDomain
+                0x00000000004028b3                TopicDB_getTopic
+                0x00000000004028e5                TopicDB_checkTopic
+                0x000000000040290d                BuiltinTopic_writeTopics2Buf
+ .text          0x0000000000402952      0x432 objs-linux/sdds-Discovery.o
+                0x0000000000402a14                Discovery_receive
+                0x0000000000402c8b                Discovery_init
+ .text          0x0000000000402d84       0x7f objs-linux/sdds-Msg.o
+                0x0000000000402d84                Msg_init
+                0x0000000000402d8f                MsgPool_getFreeMsg
+                0x0000000000402dc8                MsgPool_getNextMsg
+                0x0000000000402df2                MsgPool_getUnreadMsgCount
+                0x0000000000402dfa                Msg_getData
+ .text          0x0000000000402e03      0x156 objs-linux/sdds-Locator.o
+                0x0000000000402e03                Locator_upRef
+                0x0000000000402e15                Locator_downRef
+                0x0000000000402e32                Locator_init
+                0x0000000000402e53                Locator_addToList
+                0x0000000000402eb2                Locator_removeFromList
+                0x0000000000402f21                Locator_contains
+ .text          0x0000000000402f59        0x0 objs-linux/sdds-Management.o
+ .text          0x0000000000402f59       0x36 objs-linux/sdds-Debug.o
+                0x0000000000402f59                printRC
+ .text          0x0000000000402f8f      0x88a objs-linux/sdds-SNPS.o
+                0x0000000000402f8f                SNPS_evalSubMsg
+                0x0000000000403014                SNPS_discardSubMsg
+                0x00000000004030aa                SNPS_gotoNextSubMsg
+                0x000000000040310d                SNPS_initFrame
+                0x0000000000403172                SNPS_readHeader
+                0x00000000004031dc                SNPS_updateHeader
+                0x00000000004031f1                SNPS_writeDomain
+                0x0000000000403211                SNPS_readDomain
+                0x0000000000403230                _writeBasicTopic
+                0x0000000000403253                _writeExtTopic
+                0x00000000004032a1                SNPS_writeTopic
+                0x00000000004032b5                SNPS_readTopic
+                0x0000000000403363                SNPS_writeData
+                0x00000000004033eb                SNPS_readData
+                0x0000000000403473                SNPS_char2Hex
+                0x00000000004034db                SNPS_IPv6_str2Addr
+                0x0000000000403649                SNPS_IPv6_addr2Str
+                0x0000000000403689                SNPS_writeAddress
+                0x0000000000403743                SNPS_readAddress
+ .text          0x0000000000403819      0x1ad objs-linux/sdds-LocatorDB.o
+                0x0000000000403819                LocatorDB_init
+                0x0000000000403848                LocatorDB_newLocator
+                0x00000000004038a6                LocatorDB_newMultiLocator
+                0x00000000004038fd                LocatorDB_newBroadLocator
+                0x000000000040394d                LocatorDB_freeLocator
+                0x0000000000403972                LocatorDB_isUsedLocator
+                0x000000000040397d                LocatorDB_findLocator
+ .text          0x00000000004039c6       0xb5 objs-linux/sdds-Topic.o
+                0x00000000004039c6                Topic_getFreeMsg
+                0x00000000004039cf                Topic_getNextMsg
+                0x00000000004039d8                Topic_getUnreadMsgCount
+                0x00000000004039e1                Topic_addRemoteDataSink
+                0x0000000000403a2d                Topic_addRemoteDataSource
+ .text          0x0000000000403a7b       0x83 objs-linux/sdds-linux-NodeConfig.o
+                0x0000000000403a7b                NodeConfig_getNodeID
+ .text          0x0000000000403afe      0xb0f objs-linux/sdds-linux-UDP.o
+                0x0000000000403afe                recvLoop
+                0x0000000000403c5b                Network_size
+                0x0000000000403c61                Network_Multicast_joinMulticastGroup
+                0x0000000000403d50                Network_send
+                0x0000000000403dfa                Network_recvFrameHandler
+                0x0000000000403dfb                Network_getFrameBuff
+                0x0000000000403e30                Network_getPayloadBegin
+                0x0000000000403e3a                Network_locSize
+                0x0000000000403e40                Network_setAddressToLocator
+                0x0000000000403f21                Network_setMulticastAddressToLocator
+                0x0000000000404007                Network_createLocator
+                0x0000000000404033                Network_createMulticastLocator
+                0x0000000000404067                Network_Multicast_init
+                0x000000000040440e                Network_init
+                0x00000000004045c4                Locator_isEqual
+                0x00000000004045de                Locator_getAddress
+ .text          0x000000000040460d      0x4bc objs-linux/sdds-linux-Log.o
+                0x000000000040460d                Log_setLvl
+                0x0000000000404614                _log_debug
+                0x0000000000404704                _log_info
+                0x00000000004047f4                _log_warn
+                0x00000000004048e4                _log_error
+                0x00000000004049d4                _log_panic
+ .text          0x0000000000404ac9        0x0 objs-linux/sdds-linux-Event.o
+ .text          0x0000000000404ac9        0xd objs-linux/sdds-linux-Memory.o
+                0x0000000000404ac9                Memory_init
+                0x0000000000404acc                Memory_alloc
+                0x0000000000404ad1                Memory_free
+ .text          0x0000000000404ad6       0x7a objs-linux/sdds-linux-Thread.o
+                0x0000000000404ad6                Thread_create
+                0x0000000000404aff                Thread_init
+                0x0000000000404b36                Thread_usleep
+                0x0000000000404b43                Thread_sleep
+ .text          0x0000000000404b50      0x157 objs-linux/sdds-linux-Task.o
+                0x0000000000404b50                Task_callback
+                0x0000000000404b5d                TaskMng_init
+                0x0000000000404b60                Task_create
+                0x0000000000404b6a                Task_init
+                0x0000000000404bb7                Task_start
+                0x0000000000404c35                Task_stop
+                0x0000000000404c8b                Task_delete
+ .text          0x0000000000404ca7      0x1c5 objs-linux/linux_sdds_impl.o
+                0x0000000000404ca7                DDS_DataReader_set_listener
+                0x0000000000404cbb                sDDS_init
+ .text          0x0000000000404e6c      0x104 objs-linux/alpha-ds.o
+                0x0000000000404e6c                TopicMarshalling_Alpha_cpy
+                0x0000000000404e73                TopicMarshalling_Alpha_encode
+                0x0000000000404e8a                TopicMarshalling_Alpha_decode
+                0x0000000000404edf                DDS_AlphaDataReader_take_next_sample
+                0x0000000000404ef9                DDS_AlphaDataWriter_write
+                0x0000000000404f09                sDDS_AlphaTopic_create
+ .text          0x0000000000404f70      0x104 objs-linux/beta-ds.o
+                0x0000000000404f70                TopicMarshalling_Beta_cpy
+                0x0000000000404f77                TopicMarshalling_Beta_encode
+                0x0000000000404f8e                TopicMarshalling_Beta_decode
+                0x0000000000404fe3                DDS_BetaDataReader_take_next_sample
+                0x0000000000404ffd                DDS_BetaDataWriter_write
+                0x000000000040500d                sDDS_BetaTopic_create
+ .text          0x0000000000405074      0x104 objs-linux/gamma-ds.o
+                0x0000000000405074                TopicMarshalling_Gamma_cpy
+                0x000000000040507b                TopicMarshalling_Gamma_encode
+                0x0000000000405092                TopicMarshalling_Gamma_decode
+                0x00000000004050e7                DDS_GammaDataReader_take_next_sample
+                0x0000000000405101                DDS_GammaDataWriter_write
+                0x0000000000405111                sDDS_GammaTopic_create
+ .text          0x0000000000405178      0x104 objs-linux/delta-ds.o
+                0x0000000000405178                TopicMarshalling_Delta_cpy
+                0x000000000040517f                TopicMarshalling_Delta_encode
+                0x0000000000405196                TopicMarshalling_Delta_decode
+                0x00000000004051eb                DDS_DeltaDataReader_take_next_sample
+                0x0000000000405205                DDS_DeltaDataWriter_write
+                0x0000000000405215                sDDS_DeltaTopic_create
+ *fill*         0x000000000040527c        0x4 
+ .text          0x0000000000405280       0x72 /usr/lib/x86_64-linux-gnu/libc_nonshared.a(elf-init.oS)
+                0x0000000000405280                __libc_csu_init
+                0x00000000004052f0                __libc_csu_fini
+ .text          0x00000000004052f2        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtend.o
+ .text          0x00000000004052f2        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crtn.o
+ *(.gnu.warning)
+
+.fini           0x00000000004052f4        0x9
+ *(SORT(.fini))
+ .fini          0x00000000004052f4        0x4 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crti.o
+                0x00000000004052f4                _fini
+ .fini          0x00000000004052f8        0x5 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crtn.o
+                [!provide]                        PROVIDE (__etext, .)
+                [!provide]                        PROVIDE (_etext, .)
+                [!provide]                        PROVIDE (etext, .)
+
+.rodata         0x0000000000405300      0xcde
+ *(.rodata .rodata.* .gnu.linkonce.r.*)
+ .rodata.cst4   0x0000000000405300        0x4 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+                0x0000000000405300                _IO_stdin_used
+ .rodata.str1.1
+                0x0000000000405304       0x4a objs-linux/sdds.o
+ .rodata.str1.1
+                0x000000000040534e       0x24 objs-linux/sdds-DataSource.o
+ *fill*         0x0000000000405372        0xe 
+ .rodata        0x0000000000405380       0x31 objs-linux/sdds-DataSource.o
+ .rodata.str1.1
+                0x00000000004053b1      0x13c objs-linux/sdds-BuiltinTopic.o
+ *fill*         0x00000000004054ed        0x3 
+ .rodata        0x00000000004054f0       0xe8 objs-linux/sdds-BuiltinTopic.o
+ .rodata.str1.1
+                0x00000000004055d8       0x34 objs-linux/sdds-DataSink.o
+ *fill*         0x000000000040560c        0x4 
+ .rodata        0x0000000000405610       0x1a objs-linux/sdds-DataSink.o
+ .rodata.str1.1
+                0x000000000040562a       0xe6 objs-linux/sdds-Discovery.o
+ .rodata        0x0000000000405710      0x103 objs-linux/sdds-Discovery.o
+ .rodata.str1.1
+                0x0000000000405813       0x20 objs-linux/sdds-Debug.o
+ *fill*         0x0000000000405833        0x5 
+ .rodata        0x0000000000405838      0x247 objs-linux/sdds-SNPS.o
+ .rodata.str1.1
+                0x0000000000405a7f       0x46 objs-linux/sdds-SNPS.o
+ .rodata.str1.1
+                0x0000000000405ac5       0x14 objs-linux/sdds-LocatorDB.o
+ .rodata.str1.1
+                0x0000000000405ad9        0x5 objs-linux/sdds-linux-NodeConfig.o
+ .rodata.str1.1
+                0x0000000000405ade      0x2d5 objs-linux/sdds-linux-UDP.o
+                                        0x31a (size before relaxing)
+ *fill*         0x0000000000405db3        0xd 
+ .rodata        0x0000000000405dc0       0xe5 objs-linux/sdds-linux-UDP.o
+ .rodata.str1.1
+                0x0000000000405ea5       0x49 objs-linux/sdds-linux-Log.o
+ .rodata.str1.1
+                0x0000000000405eee       0x37 objs-linux/sdds-linux-Thread.o
+ *fill*         0x0000000000405f25        0x3 
+ .rodata        0x0000000000405f28       0x1e objs-linux/sdds-linux-Thread.o
+ .rodata.str1.1
+                0x0000000000405f46       0x18 objs-linux/linux_sdds_impl.o
+ .rodata.str1.1
+                0x0000000000405f5e       0x28 objs-linux/alpha-ds.o
+ *fill*         0x0000000000405f5e        0x2 
+ .rodata        0x0000000000405f60       0x1e objs-linux/alpha-ds.o
+ .rodata.str1.1
+                0x0000000000405f7e       0x28 objs-linux/beta-ds.o
+ *fill*         0x0000000000405f7e        0x2 
+ .rodata        0x0000000000405f80       0x1d objs-linux/beta-ds.o
+ .rodata.str1.1
+                0x0000000000405f9d       0x28 objs-linux/gamma-ds.o
+ *fill*         0x0000000000405f9d        0x3 
+ .rodata        0x0000000000405fa0       0x1e objs-linux/gamma-ds.o
+ .rodata.str1.1
+                0x0000000000405fbe       0x28 objs-linux/delta-ds.o
+ *fill*         0x0000000000405fbe        0x2 
+ .rodata        0x0000000000405fc0       0x1e objs-linux/delta-ds.o
+
+.rodata1
+ *(.rodata1)
+
+.eh_frame_hdr   0x0000000000405fe0      0x614
+ *(.eh_frame_hdr)
+ .eh_frame_hdr  0x0000000000405fe0      0x614 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.eh_frame       0x00000000004065f8     0x1a54
+ *(.eh_frame)
+ .eh_frame      0x00000000004065f8       0x30 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+ .eh_frame      0x0000000000406628       0x40 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+ .eh_frame      0x0000000000406668       0x18 objs-linux/sdds.o
+                                         0x30 (size before relaxing)
+ .eh_frame      0x0000000000406680      0x170 objs-linux/sdds-DataSource.o
+ .eh_frame      0x00000000004067f0      0x438 objs-linux/sdds-BuiltinTopic.o
+                                        0x408 (size before relaxing)
+ .eh_frame      0x0000000000406c28      0x1c0 objs-linux/sdds-DataSink.o
+                                        0x1b0 (size before relaxing)
+ .eh_frame      0x0000000000406de8      0x238 objs-linux/sdds-Marshalling.o
+                                        0x208 (size before relaxing)
+ .eh_frame      0x0000000000407020       0x38 objs-linux/sdds-NetBuffRef.o
+                                         0x50 (size before relaxing)
+ .eh_frame      0x0000000000407058       0xb8 objs-linux/sdds-TopicDB.o
+                                         0xc0 (size before relaxing)
+ .eh_frame      0x0000000000407110       0xb0 objs-linux/sdds-Discovery.o
+                                         0xc0 (size before relaxing)
+ .eh_frame      0x00000000004071c0       0x78 objs-linux/sdds-Msg.o
+                                         0x80 (size before relaxing)
+ .eh_frame      0x0000000000407238       0xc8 objs-linux/sdds-Locator.o
+                                         0xd0 (size before relaxing)
+ .eh_frame      0x0000000000407300       0x18 objs-linux/sdds-Debug.o
+                                         0x30 (size before relaxing)
+ .eh_frame      0x0000000000407318      0x2e0 objs-linux/sdds-SNPS.o
+ .eh_frame      0x00000000004075f8       0xd8 objs-linux/sdds-LocatorDB.o
+                                         0xe0 (size before relaxing)
+ .eh_frame      0x00000000004076d0       0xc8 objs-linux/sdds-Topic.o
+                                         0xd0 (size before relaxing)
+ .eh_frame      0x0000000000407798       0x20 objs-linux/sdds-linux-NodeConfig.o
+                                         0x38 (size before relaxing)
+ .eh_frame      0x00000000004077b8      0x250 objs-linux/sdds-linux-UDP.o
+                                        0x240 (size before relaxing)
+ .eh_frame      0x0000000000407a08       0xe0 objs-linux/sdds-linux-Log.o
+ .eh_frame      0x0000000000407ae8       0x48 objs-linux/sdds-linux-Memory.o
+                                         0x58 (size before relaxing)
+ .eh_frame      0x0000000000407b30       0x68 objs-linux/sdds-linux-Thread.o
+                                         0x80 (size before relaxing)
+ .eh_frame      0x0000000000407b98       0xb0 objs-linux/sdds-linux-Task.o
+                                         0xb8 (size before relaxing)
+ .eh_frame      0x0000000000407c48       0x40 objs-linux/linux_sdds_impl.o
+                                         0x58 (size before relaxing)
+ .eh_frame      0x0000000000407c88       0xd8 objs-linux/alpha-ds.o
+                                         0xe0 (size before relaxing)
+ .eh_frame      0x0000000000407d60       0xd8 objs-linux/beta-ds.o
+                                         0xe0 (size before relaxing)
+ .eh_frame      0x0000000000407e38       0xd8 objs-linux/gamma-ds.o
+                                         0xe0 (size before relaxing)
+ .eh_frame      0x0000000000407f10       0xd8 objs-linux/delta-ds.o
+                                         0xe0 (size before relaxing)
+ .eh_frame      0x0000000000407fe8       0x60 /usr/lib/x86_64-linux-gnu/libc_nonshared.a(elf-init.oS)
+                                         0x78 (size before relaxing)
+ .eh_frame      0x0000000000408048        0x4 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtend.o
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.exception_ranges
+ *(.exception_ranges .exception_ranges*)
+                0x000000000040804c                . = (ALIGN (0x200000) - ((0x200000 - .) & 0x1fffff))
+                0x0000000000608dec                . = DATA_SEGMENT_ALIGN (0x200000, 0x1000)
+
+.eh_frame
+ *(.eh_frame)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.exception_ranges
+ *(.exception_ranges .exception_ranges*)
+
+.tdata
+ *(.tdata .tdata.* .gnu.linkonce.td.*)
+
+.tbss
+ *(.tbss .tbss.* .gnu.linkonce.tb.*)
+ *(.tcommon)
+
+.preinit_array  0x0000000000608dec        0x0
+                [!provide]                        PROVIDE (__preinit_array_start, .)
+ *(.preinit_array)
+                [!provide]                        PROVIDE (__preinit_array_end, .)
+
+.init_array     0x0000000000608df0        0x8
+                0x0000000000608df0                PROVIDE (__init_array_start, .)
+ *(SORT(.init_array.*) SORT(.ctors.*))
+ *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
+ .init_array    0x0000000000608df0        0x8 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+                0x0000000000608df8                PROVIDE (__init_array_end, .)
+
+.fini_array     0x0000000000608df8        0x8
+                [!provide]                        PROVIDE (__fini_array_start, .)
+ *(SORT(.fini_array.*) SORT(.dtors.*))
+ *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
+ .fini_array    0x0000000000608df8        0x8 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+                [!provide]                        PROVIDE (__fini_array_end, .)
+
+.ctors
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+ *(SORT(.ctors.*))
+ *(.ctors)
+
+.dtors
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+ *(SORT(.dtors.*))
+ *(.dtors)
+
+.jcr            0x0000000000608e00        0x8
+ *(.jcr)
+ .jcr           0x0000000000608e00        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+ .jcr           0x0000000000608e00        0x8 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtend.o
+
+.data.rel.ro
+ *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+ *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+
+.dynamic        0x0000000000608e08      0x1f0
+ *(.dynamic)
+ .dynamic       0x0000000000608e08      0x1f0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+                0x0000000000608e08                _DYNAMIC
+
+.got            0x0000000000608ff8        0x8
+ *(.got)
+ .got           0x0000000000608ff8        0x8 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+ *(.igot)
+                0x0000000000609fe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
+
+.got.plt        0x0000000000609000      0x140
+ *(.got.plt)
+ .got.plt       0x0000000000609000      0x140 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+                0x0000000000609000                _GLOBAL_OFFSET_TABLE_
+ *(.igot.plt)
+ .igot.plt      0x0000000000609140        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+
+.data           0x0000000000609140       0x20
+ *(.data .data.* .gnu.linkonce.d.*)
+ .data          0x0000000000609140        0x4 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+                0x0000000000609140                data_start
+                0x0000000000609140                __data_start
+ .data          0x0000000000609144        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crti.o
+ *fill*         0x0000000000609144        0x4 
+ .data          0x0000000000609148        0x8 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+                0x0000000000609148                __dso_handle
+ .data          0x0000000000609150        0x0 objs-linux/sdds.o
+ .data          0x0000000000609150        0x8 objs-linux/sdds-DataSource.o
+                0x0000000000609150                dataSource
+ .data          0x0000000000609158        0x0 objs-linux/sdds-BuiltinTopic.o
+ .data          0x0000000000609158        0x0 objs-linux/sdds-sDDS.o
+ .data          0x0000000000609158        0x8 objs-linux/sdds-DataSink.o
+                0x0000000000609158                dataSink
+ .data          0x0000000000609160        0x0 objs-linux/sdds-Marshalling.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-NetBuffRef.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-TopicDB.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-Discovery.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-Msg.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-Locator.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-Management.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-Debug.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-SNPS.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-LocatorDB.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-Topic.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-linux-NodeConfig.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-linux-UDP.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-linux-Log.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-linux-Event.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-linux-Memory.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-linux-Thread.o
+ .data          0x0000000000609160        0x0 objs-linux/sdds-linux-Task.o
+ .data          0x0000000000609160        0x0 objs-linux/linux_sdds_impl.o
+ .data          0x0000000000609160        0x0 objs-linux/alpha-ds.o
+ .data          0x0000000000609160        0x0 objs-linux/beta-ds.o
+ .data          0x0000000000609160        0x0 objs-linux/gamma-ds.o
+ .data          0x0000000000609160        0x0 objs-linux/delta-ds.o
+ .data          0x0000000000609160        0x0 /usr/lib/x86_64-linux-gnu/libc_nonshared.a(elf-init.oS)
+ .data          0x0000000000609160        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtend.o
+ .data          0x0000000000609160        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crtn.o
+
+.tm_clone_table
+                0x0000000000609160        0x0
+ .tm_clone_table
+                0x0000000000609160        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+ .tm_clone_table
+                0x0000000000609160        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtend.o
+
+.data1
+ *(.data1)
+                0x0000000000609160                _edata = .
+                [!provide]                        PROVIDE (edata, .)
+                0x0000000000609160                . = .
+                0x0000000000609160                __bss_start = .
+
+.bss            0x0000000000609180      0xe00
+ *(.dynbss)
+ .dynbss        0x0000000000609180        0x8 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+                0x0000000000609180                stderr@@GLIBC_2.2.5
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x0000000000609188        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crt1.o
+ .bss           0x0000000000609188        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crti.o
+ .bss           0x0000000000609188        0x1 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+ .bss           0x0000000000609189        0x0 objs-linux/sdds.o
+ *fill*         0x0000000000609189       0x37 
+ .bss           0x00000000006091c0      0x110 objs-linux/sdds-DataSource.o
+ .bss           0x00000000006092d0       0x18 objs-linux/sdds-BuiltinTopic.o
+ .bss           0x00000000006092e8        0x0 objs-linux/sdds-sDDS.o
+ *fill*         0x00000000006092e8       0x18 
+ .bss           0x0000000000609300       0xe0 objs-linux/sdds-DataSink.o
+ .bss           0x00000000006093e0        0x0 objs-linux/sdds-Marshalling.o
+ .bss           0x00000000006093e0        0x0 objs-linux/sdds-NetBuffRef.o
+ *fill*         0x00000000006093e0       0x20 
+ .bss           0x0000000000609400      0x388 objs-linux/sdds-TopicDB.o
+ *fill*         0x0000000000609788       0x38 
+ .bss           0x00000000006097c0      0x360 objs-linux/sdds-Discovery.o
+ .bss           0x0000000000609b20        0x0 objs-linux/sdds-Msg.o
+ .bss           0x0000000000609b20        0x0 objs-linux/sdds-Locator.o
+ .bss           0x0000000000609b20        0x0 objs-linux/sdds-Management.o
+ .bss           0x0000000000609b20        0x0 objs-linux/sdds-Debug.o
+ .bss           0x0000000000609b20        0x0 objs-linux/sdds-SNPS.o
+ *fill*         0x0000000000609b20       0x20 
+ .bss           0x0000000000609b40       0xa8 objs-linux/sdds-LocatorDB.o
+ .bss           0x0000000000609be8        0x0 objs-linux/sdds-Topic.o
+ .bss           0x0000000000609be8        0x0 objs-linux/sdds-linux-NodeConfig.o
+ *fill*         0x0000000000609be8        0x8 
+ .bss           0x0000000000609bf0       0xf0 objs-linux/sdds-linux-UDP.o
+                0x0000000000609bf0                recv_mutex
+ .bss           0x0000000000609ce0        0x4 objs-linux/sdds-linux-Log.o
+ .bss           0x0000000000609ce4        0x0 objs-linux/sdds-linux-Event.o
+ .bss           0x0000000000609ce4        0x0 objs-linux/sdds-linux-Memory.o
+ .bss           0x0000000000609ce4        0x0 objs-linux/sdds-linux-Thread.o
+ .bss           0x0000000000609ce4        0x0 objs-linux/sdds-linux-Task.o
+ .bss           0x0000000000609ce4        0x0 objs-linux/linux_sdds_impl.o
+ .bss           0x0000000000609ce4        0x0 objs-linux/alpha-ds.o
+ .bss           0x0000000000609ce4        0x0 objs-linux/beta-ds.o
+ .bss           0x0000000000609ce4        0x0 objs-linux/gamma-ds.o
+ .bss           0x0000000000609ce4        0x0 objs-linux/delta-ds.o
+ .bss           0x0000000000609ce4        0x0 /usr/lib/x86_64-linux-gnu/libc_nonshared.a(elf-init.oS)
+ .bss           0x0000000000609ce4        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtend.o
+ .bss           0x0000000000609ce4        0x0 /usr/lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crtn.o
+ *(COMMON)
+ COMMON         0x0000000000609ce4        0x2 objs-linux/sdds-DataSource.o
+                0x0000000000609ce4                BuiltinTopic_participantID
+ *fill*         0x0000000000609ce6       0x1a 
+ COMMON         0x0000000000609d00      0x220 objs-linux/sdds-BuiltinTopic.o
+                0x0000000000609d00                g_DCPSPublication_writer
+                0x0000000000609d08                g_DCPSSubscription_topic
+                0x0000000000609d40                g_DCPSTopic_pool
+                0x0000000000609dd0                g_DCPSTopic_topic
+                0x0000000000609dd8                g_DCPSParticipant_topic
+                0x0000000000609e00                g_DCPSParticipant_pool
+                0x0000000000609e50                g_DCPSSubscription_reader
+                0x0000000000609e58                g_DCPSParticipant_reader
+                0x0000000000609e60                g_DCPSParticipant_writer
+                0x0000000000609e68                g_DCPSTopic_writer
+                0x0000000000609e70                g_DCPSPublication_topic
+                0x0000000000609e78                g_DCPSTopic_reader
+                0x0000000000609e80                g_DCPSPublication_pool
+                0x0000000000609ec0                g_DCPSSubscription_pool
+                0x0000000000609f10                g_DCPSPublication_reader
+                0x0000000000609f18                g_DCPSSubscription_writer
+ COMMON         0x0000000000609f20        0x8 objs-linux/sdds-linux-UDP.o
+                0x0000000000609f20                builtinTopicNetAddress
+ COMMON         0x0000000000609f28       0x58 objs-linux/linux_sdds_impl.o
+                0x0000000000609f28                g_Beta_writer
+                0x0000000000609f30                g_Alpha_writer
+                0x0000000000609f38                g_Delta_pool
+                0x0000000000609f3d                g_Alpha_pool
+                0x0000000000609f42                g_Beta_pool
+                0x0000000000609f48                g_Delta_topic
+                0x0000000000609f50                g_Gamma_topic
+                0x0000000000609f58                g_Alpha_topic
+                0x0000000000609f60                g_Beta_topic
+                0x0000000000609f68                g_Gamma_reader
+                0x0000000000609f70                g_Gamma_pool
+                0x0000000000609f78                g_Delta_reader
+                0x0000000000609f80                . = ALIGN ((. != 0x0)?0x8:0x1)
+
+.lbss
+ *(.dynlbss)
+ *(.lbss .lbss.* .gnu.linkonce.lb.*)
+ *(LARGE_COMMON)
+                0x0000000000609f80                . = ALIGN (0x8)
+                0x0000000000609f80                . = SEGMENT_START ("ldata-segment", .)
+
+.lrodata
+ *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
+
+.ldata          0x0000000000a09f80        0x0
+ *(.ldata .ldata.* .gnu.linkonce.l.*)
+                0x0000000000a09f80                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x0000000000a09f80                . = ALIGN (0x8)
+                0x0000000000a09f80                _end = .
+                [!provide]                        PROVIDE (end, .)
+                0x0000000000a09f80                . = DATA_SEGMENT_END (.)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x4a
+ *(.comment)
+ .comment       0x0000000000000000       0x25 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtbegin.o
+                                         0x26 (size before relaxing)
+ .comment       0x0000000000000025       0x26 objs-linux/sdds.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-DataSource.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-BuiltinTopic.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-sDDS.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-DataSink.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-Marshalling.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-NetBuffRef.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-TopicDB.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-Discovery.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-Msg.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-Locator.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-Management.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-Debug.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-SNPS.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-LocatorDB.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-Topic.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-linux-NodeConfig.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-linux-UDP.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-linux-Log.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-linux-Event.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-linux-Memory.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-linux-Thread.o
+ .comment       0x0000000000000025       0x26 objs-linux/sdds-linux-Task.o
+ .comment       0x0000000000000025       0x26 objs-linux/linux_sdds_impl.o
+ .comment       0x0000000000000025       0x26 objs-linux/alpha-ds.o
+ .comment       0x0000000000000025       0x26 objs-linux/beta-ds.o
+ .comment       0x0000000000000025       0x26 objs-linux/gamma-ds.o
+ .comment       0x0000000000000025       0x26 objs-linux/delta-ds.o
+ .comment       0x0000000000000025       0x25 /usr/lib/x86_64-linux-gnu/libc_nonshared.a(elf-init.oS)
+                                         0x26 (size before relaxing)
+ .comment       0x000000000000004a       0x26 /usr/lib/gcc/x86_64-linux-gnu/4.9/crtend.o
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges
+ *(.debug_aranges)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info
+ *(.debug_info .gnu.linkonce.wi.*)
+
+.debug_abbrev
+ *(.debug_abbrev)
+
+.debug_line
+ *(.debug_line .debug_line.* .debug_line_end)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str
+ *(.debug_str)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_macro
+ *(.debug_macro)
+
+.gnu.attributes
+ *(.gnu.attributes)
+
+/DISCARD/
+ *(.note.GNU-stack)
+ *(.gnu_debuglink)
+ *(.gnu.lto_*)
+OUTPUT(sdds elf64-x86-64)

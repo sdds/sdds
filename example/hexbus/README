@@ -1,6 +1,2 @@
-compile:
-	make
-
-delete:
-	make clean
+Out of date :(
 

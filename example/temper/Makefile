@@ -7,7 +7,7 @@ SDDS_ARCH := x86
 endif
 
 SDDS_TOPDIR := ../..
-SDDS_CONSTANTS_FILE := $(SDDS_TOPDIR)/example/temper/CONSTANTS.h
+SDDS_CONSTANTS_FILE := $(SDDS_TOPDIR)/example/temper/gen_constants.h
 SDDS_OBJDIR := ./objs
 
 # make sure to set all: if you want to use it, before including sdds.mk

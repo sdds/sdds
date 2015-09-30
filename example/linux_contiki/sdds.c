@@ -28,7 +28,7 @@ int main() {
 			if (ret == DDS_RETCODE_NO_DATA) {
 				printf("no data beta\n");
 			} else {
-				printf("Received (beta):[%d] %s %s\n", beta_data_used.value,
+				printf("Received (beta):[%u] %s %s\n", beta_data_used.value,
 						beta_data_used.value2, beta_data_used.value3);
 			}
 		} while (ret != DDS_RETCODE_NO_DATA);

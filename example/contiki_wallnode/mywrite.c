@@ -67,8 +67,8 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 
 		uint8_t byte1 = eeprom_read_byte((uint8_t*) myAddr);
 
-/*
-		if (byte1 == 0xff) {
+
+		//if (byte1 == 0xff) {
 			eeprom_write_byte((uint8_t*)myAddr+7, 0x00);
 			eeprom_write_byte((uint8_t*)myAddr+6, 0x21);
 			eeprom_write_byte((uint8_t*)myAddr+5, 0x2E);
@@ -76,9 +76,9 @@ PROCESS_THREAD(periodicPublishProcess, ev, data)
 			eeprom_write_byte((uint8_t*)myAddr+3, 0xFF);
 			eeprom_write_byte((uint8_t*)myAddr+2, 0x00);
 			eeprom_write_byte((uint8_t*)myAddr+1, 0x22);
-			eeprom_write_byte((uint8_t*)myAddr, 0xE3);
-		}
-*/
+			eeprom_write_byte((uint8_t*)myAddr, 0xC1);
+		//}
+
 
 		for (uint8_t i = 0; i < 8; i++) {
 			uint8_t byte = eeprom_read_byte((uint8_t*) myAddr+i);

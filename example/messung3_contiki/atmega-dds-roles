@@ -1,0 +1,7 @@
+endian: little
+
+[alpha]
+subscriber
+
+[beta]
+publisher fe80::12:13ff:fe14:1516

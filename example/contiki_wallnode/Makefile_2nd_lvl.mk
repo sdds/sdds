@@ -78,7 +78,7 @@ include Dependency.mk
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/atmega_sdds_impl.o
 
 # file for the preprocessor constants of sdds
-SDDS_CONSTANTS_FILE := ./atmega_constants.h
+SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 
 ALL_OBJS += $(DRIVER_DEPEND_OBJS)

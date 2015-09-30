@@ -24,8 +24,8 @@ int main() {
 
 	Beta b;
 	b.value = 44;
-	memset(b.value2, 0, 11);
-	memset(b.value3, 0, 10);
+	memset(b.value2, 0, 10);
+	memset(b.value3, 0, 9);
 	b.value2[0] = 'D';
 	b.value2[1] = 'e';
 	b.value2[2] = 'r';
@@ -37,7 +37,7 @@ int main() {
 	b.value3[4] = '!';
 	b.value3[5] = '\0';
 
-	int b_val = 0;
+	uint32_t b_val = 0;
 
 	for (;;) {
 		b.value = b_val++;

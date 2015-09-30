@@ -18,6 +18,7 @@
 
 #include <contiki.h>
 #include <contiki-net.h>
+#include <avr/eeprom.h>
 
 // workaround to prevent contiki to overwrite the mac adress in eeprom
 char atmega128rfa1_macadress[8]       EEMEM;

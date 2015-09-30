@@ -31,7 +31,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "CONSTANTS.h"
+#include "gen_constants.h"
 
 
 DDS_FooDataReader fooDataReader;
