@@ -31,11 +31,11 @@
 // IF BUILTINTOPIC
 #include "BuiltinTopic.h"
 
-struct InstantSender{
-    struct NetBuffRef_t highPrio;
-    struct NetBuffRef_t out[SDDS_NET_MAX_OUT_QUEUE];
+struct InstandSender {
+	struct NetBuffRef_t highPrio;
+	struct NetBuffRef_t out[SDDS_NET_MAX_OUT_QUEUE];
 };
-typedef struct InstantSender InstantSender_t;
+typedef struct InstandSender InstandSender_t;
 
 struct DataWriter {
 	Topic topic;
@@ -47,7 +47,7 @@ struct DataSource {
 #if SDDS_MAX_DATA_WRITERS > 0
 	DataWriter_t writers[SDDS_MAX_DATA_WRITERS];
 #endif
-    InstantSender_t sender;
+	InstandSender_t sender;
 
 #if defined(__GNUC__) && __GNUC_MINOR__ < 6
 #pragma GCC diagnostic error "-Woverflow"
@@ -65,7 +65,7 @@ rc_t checkSending(NetBuffRef buf);
 rc_t BuiltinTopicDomainParticipant_encode(byte_t* buff, Data data, size_t* size);
 rc_t BuiltinTopicDataWriter_encode(byte_t* buff, Data data, size_t* size);
 
-#ifdef SDDS_TOPIC_HAS_SUB
+#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic) {
 	int i;
 	for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
@@ -87,7 +87,7 @@ rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic) {
 }
 #endif
 
-#ifdef SDDS_TOPIC_HAS_SUB
+#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 	int i = 0;
 	*len = 0;
@@ -256,8 +256,6 @@ rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 }
 #endif // SDDS_TOPIC_HAS_SUB
 
-
-// BuildIn Topic
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
 	NetBuffRef buffRef = NULL;

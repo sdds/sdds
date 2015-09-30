@@ -33,7 +33,9 @@ extern "C"
 
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 
-#define SDDS_DISCOVERY_MAX_PARTICIPANTS 50
+#ifndef SDDS_DISCOVERY_MAX_PARTICIPANTS
+#define SDDS_DISCOVERY_MAX_PARTICIPANTS 10
+#endif
 
 #define SDDS_DISCOVERY_SLEEP_TIME		1
 
@@ -110,9 +112,16 @@ static rc_t Discovery_handleParticipant(SDDS_DCPSParticipant p) {
 static rc_t Discovery_addRemoteDataSink(Locator l, Topic topic) {
 	rc_t ret;
 
-	ret = Topic_addRemoteDataSink(topic, l);
-	if (ret != SDDS_RT_OK)
-		return ret;
+	Locator loc;
+	ret = Network_createMulticastLocator(&loc);
+	ret = Network_setMulticastAddressToLocator(loc, SDDS_BUILTIN_SUB_PUB_ADDRESS);
+
+	if (!Locator_isEqual(l, loc)) {
+		ret = Topic_addRemoteDataSink(topic, l);
+		if (ret != SDDS_RT_OK) {
+			return ret;
+		}
+	}
 
 	Locator_downRef(l);
 
@@ -197,6 +206,11 @@ static void Discovery_receivePublicationTopics() {
 	DDS_DCPSPublication pt_data_used;
 	DDS_DCPSPublication* pt_data_used_ptr = &pt_data_used;
 
+	topicid_t tIDs[SDDS_DISCOVERY_MAX_PARTICIPANTS];
+	memset(tIDs, 0, SDDS_DISCOVERY_MAX_PARTICIPANTS);
+	bool sub = true;
+	int nextID = 0;
+
 	do {
 		ret = DDS_DCPSPublicationDataReader_take_next_sample(
 				g_DCPSPublication_reader, &pt_data_used_ptr, NULL);
@@ -208,7 +222,17 @@ static void Discovery_receivePublicationTopics() {
 			Log_debug("Received (publication):[%u][%x] topic:%u\n",
 					pt_data_used.key, pt_data_used.participant_key,
 					pt_data_used.topic_id);
-			Discovery_sendSubscriptionTopics(pt_data_used.topic_id);
+			for (int i = 0; i <= nextID; i++) {
+				if (tIDs[i] == pt_data_used.topic_id) {
+					sub = false;
+					break;
+				}
+			}
+			if (sub) {
+				tIDs[nextID] = pt_data_used.topic_id;
+				nextID = (nextID + 1) % SDDS_DISCOVERY_MAX_PARTICIPANTS;
+				Discovery_sendSubscriptionTopics(pt_data_used.topic_id);
+			}
 		}
 	}while (ret != DDS_RETCODE_NO_DATA);
 #endif
