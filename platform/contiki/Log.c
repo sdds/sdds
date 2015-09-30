@@ -27,6 +27,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#define PRINTF(FORMAT,args...) printf_P(PSTR(FORMAT),##args)
+
 // 0 all, 1
 static int logLvl =0;
 

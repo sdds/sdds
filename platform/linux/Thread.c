@@ -48,12 +48,18 @@ ssw_rc_t Thread_init(Thread _this, void* (*function)(void* object), void* obj)
 
 ssw_rc_t Thread_run(Thread _this);
 ssw_rc_t Thread_stop(Thread _this);
-ssw_rc_t Thread_sleep(Thread _this, uint16_t usecSleep)
+
+ssw_rc_t Thread_usleep(Thread _this, uint16_t usecSleep)
 {
 	usleep(usecSleep);
 	return SDDS_RT_OK;
 }
 
+ssw_rc_t Thread_sleep(Thread _this, uint16_t secSleep)
+{
+	sleep(secSleep);
+	return SDDS_RT_OK;
+}
 
 
 

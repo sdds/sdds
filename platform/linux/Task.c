@@ -25,7 +25,6 @@ struct Task_struct{
 
 };
 
-
 /**
  * Should be called at the init phase
  */
@@ -45,7 +44,11 @@ void Task_callback(union sigval v){
     Task t = (Task) v.sival_ptr;
 
     t->cb(t->data);
-  // printf("hello task\n");
+}
+
+static void                         /* Thread notification function */
+threadFunc(union sigval sv) {
+	printf("hello task\n");
 }
 
 /**
@@ -66,19 +69,18 @@ ssw_rc_t Task_init(Task _this, void(*callback)(void* obj), void* data)
 
     // call the callback fkt in a new thread
     _this->evp.sigev_notify = SIGEV_THREAD;
-    // arg for the callback is the task structure
-    _this->evp.sigev_value.sival_ptr = (void*)_this;
-
-    // no thread attributes
-    _this->evp.sigev_notify_attributes = NULL;
     // use this internal callback
     _this->evp.sigev_notify_function = Task_callback;
+    // no thread attributes
+    _this->evp.sigev_notify_attributes = NULL;
+
+    // arg for the callback is the task structure
+    _this->evp.sigev_value.sival_ptr = &(_this->timer);
 
     rc = timer_create(CLOCK_REALTIME, &(_this->evp), &(_this->timer));
     if (rc != 0){
-	return SDDS_SSW_RT_FAIL;
+    	return SDDS_SSW_RT_FAIL;
     }
-
 
     return SDDS_SSW_RT_OK;
 }
@@ -86,25 +88,28 @@ ssw_rc_t Task_init(Task _this, void(*callback)(void* obj), void* data)
 ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode)
 {
     if (_this == NULL){
-	return SDDS_SSW_RT_FAIL;
+    	return SDDS_SSW_RT_FAIL;
     }
+
     struct timespec intv = {0,0};
     struct timespec value = {0,0};
 
-    if (mode == SDDS_SSW_TaskMode_single){
 	value.tv_nsec = usec *1000;
 	value.tv_sec = sec;
-    } else if (mode == SDDS_SSW_TaskMode_repeat){
-	intv.tv_nsec = usec *1000;
-	intv.tv_sec = sec;
+
+	if (mode == SDDS_SSW_TaskMode_single){
+
+	} else if (mode == SDDS_SSW_TaskMode_repeat){
+		intv.tv_nsec = usec *1000;
+		intv.tv_sec = sec;
     } else {
-	return SDDS_SSW_RT_FAIL;
+    	return SDDS_SSW_RT_FAIL;
     }
     struct itimerspec timer = {intv, value};
 
-    int rc = timer_settime(_this, 0, &timer, NULL);
+    int rc = timer_settime(_this->timer, 0, &timer, NULL);
     if (rc != 0){
-	return SDDS_SSW_RT_FAIL;
+    	return SDDS_SSW_RT_FAIL;
     }
 
     return SDDS_SSW_RT_OK;
@@ -121,11 +126,12 @@ ssw_rc_t Task_stop(Task _this)
     int rc = timer_settime(_this, 0, &timer, NULL);
 
     if (rc != 0){
-	return SDDS_SSW_RT_FAIL;
+    	return SDDS_SSW_RT_FAIL;
     }
 
     return SDDS_SSW_RT_OK;
 }
+
 ssw_rc_t Task_delete(Task _this)
 {
     if (_this == NULL){

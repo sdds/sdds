@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <string.h>
+#include "gen_constants.h"
 
 #ifndef PLATFORM_LINUX_SDDS_IFACE
 #define PLATFORM_LINUX_SDDS_IFACE "tap0"

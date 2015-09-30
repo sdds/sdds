@@ -24,6 +24,8 @@
 #include "DataSink.h"
 #include "sdds_types.h"
 #include "BuiltinTopic.h"
+#include "gen_constants.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -35,6 +37,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>
+#include <net/if.h>
 
 // taking into account ipv4 tunneling features
 #define PLATFORM_LINUX_IPV6_MAX_CHAR_LEN 45
@@ -44,15 +47,10 @@
 #endif
 
 #ifndef PLATFORM_LINUX_SDDS_PROTOCOL
-// only use AF_INET or AF_INET6
 #define PLATFORM_LINUX_SDDS_PROTOCOL AF_INET6
 #endif
 
-#ifndef PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS
-// use default link local ipv6 address
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS 				SDDS_BUILTIN_MULTICAST_ADDRESS
-#endif
-
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS 	SDDS_BUILTIN_PARTICIPANT_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS 		SDDS_BUILTIN_TOPIC_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS 		SDDS_BUILTIN_SUB_PUB_ADDRESS
@@ -102,7 +100,7 @@ size_t Network_size(void) {
 	return sizeof(struct Network_t);
 }
 
-rc_t Multicast_joinMulticastGroup(char *group) {
+rc_t Network_Multicast_joinMulticastGroup(char *group) {
 	struct addrinfo *mReq; /* Multicast Address */
 	char multicastPort[PLATFORM_LINUX_IPV6_MAX_CHAR_LEN];
 	struct addrinfo hints = { 0 }; /* Hints for name lookup */
@@ -143,7 +141,7 @@ rc_t Multicast_joinMulticastGroup(char *group) {
 	return SDDS_RT_OK;
 }
 
-rc_t Multicast_init() {
+rc_t Network_Multicast_init() {
 	struct addrinfo* multicastAddr; /* Multicast address */
 	struct addrinfo* localAddr; /* Local address to bind to */
 	char* multicastIP = PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS; /* Arg: IP Multicast address */
@@ -248,10 +246,10 @@ rc_t Multicast_init() {
 	printf("tried to set socket receive buffer from %d to %d, got %d\n",
 			dfltrcvbuf, PLATFORM_LINUX_MULTICAST_SO_RCVBUF, optval);
 
-	Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS);
-	Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
-	Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS);
-	Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
+	Network_Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS);
+	Network_Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
+	Network_Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS);
+	Network_Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
 
 	NetBuffRef_init(&multiInBuff);
 	Network_createMulticastLocator(&multiInBuff.addr);
@@ -349,7 +347,7 @@ rc_t Network_init(void) {
 	// ENDIF
 
 #ifdef _MULTICAST
-	Multicast_init();
+	Network_Multicast_init();
 #endif
 
 	return SDDS_RT_OK;
