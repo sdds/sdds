@@ -1,0 +1,5 @@
+endian: little
+
+[ipc]
+subscriber
+publisher fe80::ff:fe00:1bef
