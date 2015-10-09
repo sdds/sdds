@@ -1,0 +1,14 @@
+
+endian: little
+
+[alpha]
+publisher
+
+[beta]
+publisher
+
+[gamma]
+subscriber
+
+[delta]
+subscriber
