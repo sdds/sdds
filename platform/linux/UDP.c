@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
 #include <sys/un.h>
 #include <string.h>
 #include <arpa/inet.h>
@@ -788,7 +789,7 @@ rc_t Locator_getAddress(Locator l, char *srcAddr) {
 	static char srcPort[NI_MAXSERV];
 	struct sockaddr_storage *a = &((struct UDPLocator_t *) l)->addr_storage;
 
-	int rc = getnameinfo(a, sizeof(struct sockaddr_storage), srcAddr,
+	int rc = getnameinfo((struct sockaddr *) a, sizeof(struct sockaddr_storage), srcAddr,
 			NI_MAXHOST, srcPort, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
 
 	return SDDS_RT_OK;

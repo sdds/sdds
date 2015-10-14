@@ -30,7 +30,7 @@ SDDS_PLATFORM_SRCS := $(wildcard $(SDDS_TOPDIR)/platform/$(SDDS_PLATFORM)/*.c)
 SDDS_PLATFORM_OBJS := $(patsubst $(SDDS_TOPDIR)/platform/$(SDDS_PLATFORM)/%.c, \
 	$(SDDS_OBJDIR)/sdds-$(SDDS_PLATFORM)-%.o, \
 	$(SDDS_PLATFORM_SRCS))
-	
+
 #SDDS_DRIVER_SRCS := $(wildcard $(SDDS_TOPDIR)/driver/src/$(SDDS_ARCH)/*.c)
 #SDDS_DRIVER_OBJS := $(patsubst $(SDDS_TOPDIR)/driver/src/$(SDDS_ARCH)/%.c, \
 	$(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-%.o, \
@@ -48,7 +48,7 @@ CFLAGS += -D_POSIX_C_SOURCE=200809L
 CFLAGS += -std=c99
 
 # required for some socket API
-CFLAGS += -D_BSD_SOURCE
+CFLAGS += -D_DEFAULT_SOURCE
 
 CFLAGS += -pthread
 LDLIBS += -lrt -lpthread

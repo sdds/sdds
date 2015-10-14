@@ -3,7 +3,7 @@
  *
  *       Filename:  TopicDB.h
  *
- *    Description:  singelton class to store all the topics within the dds 
+ *    Description:  singelton class to store all the topics within the dds
  *    system on one device
  *
  *        Version:  1.0
@@ -19,6 +19,9 @@
 
 #ifndef  TOPICDB_H_INC
 #define  TOPICDB_H_INC
+
+#include <stdio.h>
+#include <string.h>
 #include "sdds_types.h"
 #include "Topic.h"
 #include "NetBuffRef.h"

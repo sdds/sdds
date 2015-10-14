@@ -1,4 +1,5 @@
 #include "Debug.h"
+#include <stdio.h>
 
 void printRC(rc_t ret) {
 	switch (ret) {
