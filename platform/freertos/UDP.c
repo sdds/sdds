@@ -171,9 +171,14 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr) {
 	}
 	FreeRTOS_Locator l = (FreeRTOS_Locator) loc;
 
-	int intAddr[4];
+	// IPV4 only!
+	char buffer[16];
+	uint8_t intAddr[4];
+	char* token = NULL;
 
-	char* token = strtok(addr, ".");
+	strcpy(buffer, addr);
+
+	token = strtok(buffer, ".");
 	intAddr[0] = atoi(token);
 
 	token = strtok(NULL, ".");
@@ -182,7 +187,7 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr) {
 	token = strtok(NULL, ".");
 	intAddr[2] = atoi(token);
 
-	token = strtok(NULL, ".");
+	token = strtok(NULL, "\0");
 	intAddr[3] = atoi(token);
 
 	IP4_ADDR(&l->address, intAddr[0], intAddr[1], intAddr[2], intAddr[3]);

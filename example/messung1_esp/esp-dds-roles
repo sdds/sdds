@@ -1,4 +1,4 @@
 endian: little
 
 [alpha]
-publisher fe80::12:13ff:fe14:1516
+publisher 192.168.178.22
