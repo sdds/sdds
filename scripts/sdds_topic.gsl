@@ -1,0 +1,286 @@
+.#  ===========================================================================
+.#  Generate topic data structures
+.#
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details.
+.#
+.#  This script will generate the following files:
+.#      * ds (source|header)
+.#  ===========================================================================
+.#
+.template 0
+
+function resolve_topic_type (topic)
+    my.topic.size ?= 0
+    my.topic.description ?= "$(string.trim (topic.?""):left)"
+    my.topic.c_name = "$(My.Topic.Name)"
+    my.topic.c_name = "$(my.topic.c_name:Camel)"
+
+    for my.topic.attribute
+        attribute.description ?= "$(string.trim (attribute.?""):left)"
+        attribute.size ?= 1
+
+        attribute.enc_type ?= ""
+        if attribute.type = "DDS_short"
+            attribute.enc_type = "int16"
+            my.topic.size += 2
+        elsif attribute.type = "DDS_long"
+            attribute.enc_type = "int32"
+            my.topic.size += 4
+        elsif attribute.type = "DDS_long_long"
+            attribute.enc_type = "int64"
+            my.topic.size += 8
+        elsif attribute.type = "DDS_unsigned_short"
+            attribute.enc_type = "uint16"
+            my.topic.size += 2
+        elsif attribute.type = "DDS_unsigned_long"
+            attribute.enc_type = "uint32"
+            my.topic.size += 4
+        elsif attribute.type = "DDS_unsigned_long_long"
+            attribute.enc_type = "uint64"
+            my.topic.size += 8
+        elsif attribute.type = "DDS_char"
+            attribute.enc_type = "int8"
+            my.topic.size += 1
+        elsif attribute.type = "DDS_octet"
+            attribute.enc_type = "uint8"
+            my.topic.size += 1
+        elsif attribute.type = "DDS_boolean"
+            attribute.enc_type = "bool"
+            my.topic.size += 1
+        elsif attribute.type = "DDS_string"
+            attribute.type = "DDS_char"
+            attribute.enc_type = "string"
+            my.topic.size += attribute.size
+        else
+            echo "E: Invalid type '$(attribute.type)' for attribute '$(attribute.name)' in topic $(topic.name:)"
+        endif
+    endfor
+endfunction
+
+for project->domain.topic
+    resolve_topic_type (topic)
+endfor
+
+.endtemplate
+.for project->domain.topic
+.#
+.#  Generate topic ds header
+.#
+.   echo "Generating $(topic.c_name)-ds.h ..."
+.   output "$(topic.c_name)-ds.h"
+/*  =========================================================================
+    $(topic.c_name:) - $(topic.description:)
+
+.       for project.license
+    $(string.trim (license.):block                                         )
+.       endfor
+
+$(project.GENERATED_WARNING_HEADER:)
+    =========================================================================
+*/
+#ifndef $(TOPIC.NAME)_H_INC
+#define $(TOPIC.NAME)_H_INC
+
+#include <dds/DDS_DCPS.h>
+
+#include <sdds/Topic.h>
+
+struct $(topic.c_name:)
+{
+.   for topic.attribute
+    /* $(attribute.description:) */
+.       if attribute.size = 1
+    $(attribute.type:) $(attribute.name:c);
+.       else
+    $(attribute.type:) $(attribute.name:c)[$(attribute.size + 1)];
+.       endif
+.   endfor
+};
+
+typedef struct $(topic.c_name:) $(topic.c_name:);
+
+#ifdef SDDS_TOPIC_HAS_PUB
+DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
+    DDS_DataReader _this,
+    $(topic.c_name:)** values,
+    DDS_SampleInfo* sample_info
+);
+
+#endif
+
+#ifdef SDDS_TOPIC_HAS_SUB
+DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
+    DDS_DataWriter _this,
+    const $(topic.c_name:)* instance_data,
+    const DDS_InstanceHandle_t handle
+);
+#endif
+
+Topic sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count);
+
+#endif
+/*
+$(project.GENERATED_WARNING_HEADER:)
+*/
+.close
+.#
+.#  Generate topic sources
+.#
+.   echo "Generating $(topic.c_name)-ds.c ..."
+.   output "$(topic.c_name)-ds.c"
+/*  =========================================================================
+    $(topic.c_name:) - $(topic.description:)
+
+.       for project.license
+    $(string.trim (license.):block                                         )
+.       endfor
+
+$(project.GENERATED_WARNING_HEADER:)
+    =========================================================================
+*/
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#include "$(topic.c_name)-ds.h"
+
+#include <os-ssal/Memory.h>
+
+#include <sdds/DataSink.h>
+#include <sdds/DataSource.h>
+#include <sdds/LocatorDB.h>
+#include <sdds/Marshalling.h>
+#include <sdds/Network.h>
+#include <sdds/TopicDB.h>
+#include <sdds/TopicMarshalling.h>
+
+#include <stdio.h>
+#include <string.h>
+
+#ifdef __cplusplus
+}
+#endif
+
+#define SDDS_DOMAIN 0x$(topic.domain)
+#define SDDS_TOPIC 0x$(topic.id)
+
+
+rc_t TopicMarshalling_$(topic.c_name:)_cpy(Data dest, Data source);
+
+#ifdef SDDS_TOPIC_HAS_PUB
+
+rc_t TopicMarshalling_$(topic.c_name:)_decode(byte_t* buffer, Data data, size_t* size);
+
+DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
+    DDS_DataReader _this,
+    $(topic.c_name:)** data_values,
+    DDS_SampleInfo* sample_info
+)
+{
+	rc_t ret = DataSink_take_next_sample((DataReader) _this, (Data*) data_values, (DataInfo) sample_info);
+
+	if (ret == SDDS_RT_NODATA)
+		return DDS_RETCODE_NO_DATA;
+
+	if (ret == SDDS_RT_OK)
+		return DDS_RETCODE_OK;
+
+	return DDS_RETCODE_ERROR;
+}
+#endif
+
+#ifdef SDDS_TOPIC_HAS_SUB
+
+rc_t TopicMarshalling_$(topic.c_name:)_encode(byte_t* buffer, Data data, size_t* size);
+
+DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
+    DDS_DataWriter _this,
+    const $(topic.c_name:)* instance_data,
+    const DDS_InstanceHandle_t  handle
+)
+{
+	rc_t ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
+
+	if (ret == SDDS_RT_OK)
+		return DDS_RETCODE_OK;
+
+	return DDS_RETCODE_ERROR;
+}
+#endif
+
+Topic sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
+{
+	Topic topic = TopicDB_createTopic();
+
+	for (int i = 0; i < count; i++)
+		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
+
+#ifdef SDDS_TOPIC_HAS_SUB
+	topic->Data_encode = TopicMarshalling_$(topic.c_name:)_encode;
+#endif
+
+#ifdef SDDS_TOPIC_HAS_PUB
+	topic->Data_decode = TopicMarshalling_$(topic.c_name:)_decode;
+#endif
+
+	topic->domain = SDDS_DOMAIN;
+	topic->id = SDDS_TOPIC;
+	topic->Data_cpy = TopicMarshalling_$(topic.c_name:)_cpy;
+
+	return topic;
+}
+
+rc_t TopicMarshalling_$(topic.c_name:)_cpy(Data dest, Data source)
+{
+	memcpy(dest, source, sizeof($(topic.c_name:)));
+
+	return SDDS_RT_OK;
+}
+
+rc_t TopicMarshalling_$(topic.c_name:)_encode(byte_t* buffer, Data data, size_t* size)
+{
+	*size = 0;
+
+	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
+
+.   for topic.attribute
+.       if attribute.size > 1
+    Marshalling_enc_$(attribute.enc_type)(buffer + *size, real_data->$(attribute.name:c), $(attribute.size));
+.       else
+    Marshalling_enc_$(attribute.enc_type)(buffer + *size, &real_data->$(attribute.name:c));
+.       endif
+    *size += sizeof(real_data->$(attribute.name:c));
+
+.   endfor
+
+	return SDDS_RT_OK;
+}
+
+rc_t TopicMarshalling_$(topic.c_name:)_decode(byte_t* buffer, Data data, size_t* size)
+{
+	if (*size != $(topic.size))
+		fprintf(stderr, "%s : size mismatch is %zu should be $(size)\\n",__FUNCTION__, *size);
+
+	*size = 0;
+
+	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
+
+.   for topic.attribute
+.       if attribute.size > 1
+    Marshalling_dec_$(attribute.enc_type)(buffer + *size, real_data->$(attribute.name:c), $(attribute.size));
+.       else
+    Marshalling_dec_$(attribute.enc_type)(buffer + *size, &real_data->$(attribute.name:c));
+.       endif
+    *size += sizeof(real_data->$(attribute.name:c));
+
+.   endfor
+
+	return SDDS_RT_OK;
+}
+/*
+$(project.GENERATED_WARNING_HEADER:)
+*/
+.   close
+.endfor

@@ -1,0 +1,41 @@
+.template 0
+#  This is a code generator built using the iMatix GSL code generation
+#  language. See https://github.com/imatix/gsl for details.
+
+#   Resolve XML includes
+function resolve_includes ()
+    for project.include
+        if defined (include.filename)
+            my.include_file = project.load_file (filename)
+            if defined (my.include_file)
+                move my.include_file after include
+            else
+                echo "E: error loading include file: $(filename): $(xml.error?)"
+            endif
+        else
+            echo "E: required attribute 'filename' not defined"
+        endif
+    endfor
+endfunction
+resolve_includes ()
+
+project.description ?= "$(string.trim (project.?""):left)"
+project.generated_warning_header ?= "\
+################################################################################
+#  THIS FILE IS 100% GENERATED FOR sDDS; DO NOT EDIT EXCEPT EXPERIMENTALLY     #
+#  Please refer to the README for information about making permanent changes.  #
+################################################################################"
+.endtemplate
+
+.#  These scripts generate code independently from one another
+.#  so are not run in any particular order other than alphabetically.
+.gsl from "sdds_topic.gsl"
+.gsl from "sdds_impl.gsl"
+.gsl from "sdds_constants.gsl"
+.if project.os = "linux"
+.   gsl from "sdds_make_linux.gsl"
+.elsif project.os = "contiki"
+.   gsl from "sdds_make_contiki.gsl"
+.else
+.   echo "W: Cannot generate makefiles for '$(project.os)'. It's not supported by makefile generator!"
+.endif
