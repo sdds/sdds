@@ -1,0 +1,18 @@
+<project
+    name = "linux_basic"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    >
+    Linux basic example with beta topic
+
+    <contiki jackdaw = "fe80::12:13ff:fe14:1516"
+             board = "fe80::00ff:fe00:0001" />
+    <!--
+        Includes are processed first, so XML in included files will be
+        part of the XML tree
+    -->
+    <include filename = "../topics/beta.xml" />
+
+    <role name = "beta" type = "subscriber" />
+</project>

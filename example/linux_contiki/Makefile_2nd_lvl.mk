@@ -5,13 +5,11 @@ TARGET := linux
 SDDS_PLATFORM := linux
 SDDS_ARCH := x86
 
-DATASTRUCTURES_FILE := datastructures
-
 LOCAL_CONSTANTS := local_constants.h
 
-IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_sdds_impl.o
+IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_basic_sdds_impl.o
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
-ALL_OBJS += $(SDDS_OBJDIR)/sdds.o
+ALL_OBJS += $(SDDS_OBJDIR)/linux_basic.o
 
 SDDS_CONSTANTS_FILE := ./gen_constants.h
 
@@ -32,12 +30,6 @@ CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
 
-%-ds.c %-ds.h: $(DATASTRUCTURES_FILE)
-	$(shell python $(SDDS_TOPDIR)/generate_ds.py $<)
-
-%_sdds_impl.c %_sdds_impl.h: %-dds-roles $(DATASTRUCTURES_FILE) $(DATA_DEPEND_SRCS)
-	$(shell python $(SDDS_TOPDIR)/generate_sdds.py $(<:-dds-roles=) $(DATASTRUCTURES_FILE))
-
 all:
 
 $(SDDS_OBJDIR):
@@ -52,15 +44,18 @@ LDLIBS += -lpthread
 
 $(SDDS_OBJDIR)/%.o: %.c
 	echo $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
-	$(COMPILE.c)  $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
+	$(COMPILE.c)   $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
 
 $(SDDS_OBJDIR)/%.o: %.c
 	$(COMPILE.c) $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
 
 $(APPLICATION_NAME).c: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR) $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
 
-$(APPLICATION_NAME): $(SDDS_OBJDIR)/sdds.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
+$(APPLICATION_NAME): $(SDDS_OBJDIR)/linux_basic.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
 	$(CC) -o $@ $^ $(LDLIBS)
+
+code:
+	$(shell ./generate.sh)
 
 clean:
 	$(RM) ./$(APPLICATION_NAME)

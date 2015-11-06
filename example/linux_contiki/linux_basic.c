@@ -2,12 +2,9 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "linux_sdds_impl.h"
-#include "beta-ds.h"
-#include "BuiltinTopic.h"
-#include "Discovery.h"
+#include <string.h>
 
-#include "os-ssal/NodeConfig.h"
+#include "linux_basic_sdds_impl.h"
 
 int main() {
 	pthread_t t;
