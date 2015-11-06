@@ -287,9 +287,9 @@ rc_t TopicMarshalling_DCPSParticipant_decode(byte_t* buffer, Data data, size_t* 
 {
 	DDS_DCPSParticipant* real_data = (DDS_DCPSParticipant*) data;
 
-	int expectedSize = sizeof(real_data->key);
+	size_t expectedSize = sizeof(real_data->key);
 	if (*size != expectedSize)
-	fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, expectedSize);
+	fprintf(stderr, "%s : size mismatch is %zu should be %zu \n",__FUNCTION__, *size, expectedSize);
 
 	*size = 0;
 
@@ -403,9 +403,9 @@ rc_t TopicMarshalling_DCPSTopic_decode(byte_t* buffer, Data data, size_t* size)
 {
 	DDS_DCPSTopic* real_data = (DDS_DCPSTopic*) data;
 
-	int expectedSize = sizeof(real_data->key) + DDS_TOPIC_NAME_SIZE;
+	size_t expectedSize = sizeof(real_data->key) + DDS_TOPIC_NAME_SIZE;
 	if (*size != expectedSize)
-	fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, expectedSize);
+	fprintf(stderr, "%s : size mismatch is %zu should be %zu \n",__FUNCTION__, *size, expectedSize);
 
 	*size = 0;
 
@@ -510,9 +510,9 @@ rc_t TopicMarshalling_DCPSPublication_decode(byte_t* buffer, Data data, size_t* 
 {
 	DDS_DCPSPublication* real_data = (DDS_DCPSPublication*) data;
 
-	int expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
+	size_t expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
 	if (*size != expectedSize)
-	fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, expectedSize);
+	fprintf(stderr, "%s : size mismatch is %zu should be %zu \n",__FUNCTION__, *size, expectedSize);
 
 	*size = 0;
 
@@ -646,9 +646,9 @@ rc_t TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t*
 {
 	DDS_DCPSSubscription* real_data = (DDS_DCPSSubscription*) data;
 
-	int expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
+	size_t expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
 	if (*size != expectedSize)
-	fprintf(stderr, "%s : size mismatch is %d should be %d \n",__FUNCTION__, *size, expectedSize);
+	fprintf(stderr, "%s : size mismatch is %zu should be %zu \n",__FUNCTION__, *size, expectedSize);
 
 	*size = 0;
 
