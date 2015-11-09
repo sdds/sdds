@@ -3,15 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "linux_sdds_impl.h"
-#include "beta-ds.h"
-#include "BuiltinTopic.h"
-#include "Log.h"
-#include "DataSource.h"
-#include "DataSink.h"
-#include "Discovery.h"
-
-#include "os-ssal/NodeConfig.h"
+#include "linux_mcast1_sdds_impl.h"
 
 int main() {
 	sDDS_init();

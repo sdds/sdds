@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "linux_basic_sdds_impl.h"
+#include "linux_mcast2_sdds_impl.h"
 
 int main() {
 	pthread_t t;
