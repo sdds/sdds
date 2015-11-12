@@ -381,11 +381,13 @@ static int create_socket(struct addrinfo *address) {
 #error "Only AF_INET and AF_INET6 are understood linux protocols."
 #endif
 
+#ifdef SDDS_TOPIC_HAS_PUB
 	// bind the socket
 	if (bind(fd, address->ai_addr, address->ai_addrlen) != 0) {
 		Log_error("Unable to bind socket\n");
 		return -1;
 	}
+#endif
 
 #ifdef UTILS_DEBUG
 	// show which address was assigned
