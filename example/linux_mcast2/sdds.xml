@@ -6,13 +6,13 @@
     >
     Linux basic example with beta topic
 
-    <contiki jackdaw = "fe80::12:13ff:fe14:1516"
-             board = "fe80::00ff:fe00:0001" />
+    <linux iface = "eth0" ip = "fe80::219:99ff:fede:9b09" port = "23234" />
+
     <!--
         Includes are processed first, so XML in included files will be
         part of the XML tree
     -->
     <include filename = "../topics/beta.xml" />
 
-    <role name = "beta" type = "subscriber" />
+    <role topic = "beta" type = "subscriber" />
 </project>
