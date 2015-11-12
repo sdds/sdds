@@ -1,28 +1,17 @@
-SDDS_TOPDIR := ../../..
+SDDS_TOPDIR := ../..
 
 SDDS_OBJDIR := objs-linux
 TARGET := linux
 SDDS_PLATFORM := linux
 SDDS_ARCH := x86
 
-IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_sdds_impl.o
+LOCAL_CONSTANTS := local_constants.h
+
+IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_publisher_sdds_impl.o
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
-ALL_OBJS += $(SDDS_OBJDIR)/sdds.o
+ALL_OBJS += $(SDDS_OBJDIR)/linux_publisher.o
 
-ifneq ($(SDDS_LINUX_PORT),)
-  CFLAGS += -DSDDS_LINUX_PORT=$(SDDS_LINUX_PORT)
-endif
-ifneq ($(SDDS_LINUX_PROTOCOL),)
-  CFLAGS += -DSDDS_LINUX_PROTOCOL=$(SDDS_LINUX_PROTOCOL)
-endif
-ifneq ($(SDDS_LINUX_LISTEN_ADDRESS),)
-  CFLAGS += -DSDDS_LINUX_LISTEN_ADDRESS=\"$(SDDS_LINUX_LISTEN_ADDRESS)\"
-endif
-ifneq ($(SDDS_LINUX_SEND_ADDRESS),)
-  CFLAGS += -DSDDS_LINUX_SEND_ADDRESS=\"$(SDDS_LINUX_SEND_ADDRESS)\"
-endif
-
-SDDS_CONSTANTS_FILE := ./linux_constants.h
+SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 include $(SDDS_TOPDIR)/sdds.mk
 
@@ -41,13 +30,13 @@ CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
 
-%-ds.c %-ds.h: datastructures
-	$(shell python $(SDDS_TOPDIR)/generate_ds.py $<)
-
-%_sdds_impl.c %_sdds_impl.h: %-dds-roles datastructures $(DATA_DEPEND_SRCS)
-	$(shell python $(SDDS_TOPDIR)/generate_sdds.py $(<:-dds-roles=))
-
 all:
+
+$(SDDS_OBJDIR):
+	mkdir $(SDDS_OBJDIR)
+
+$(LOCAL_CONSTANTS):
+	touch $(LOCAL_CONSTANTS)
 
 CFLAGS += -I.
 CFLAGS += -O0 -ggdb3
@@ -55,19 +44,23 @@ LDLIBS += -lpthread
 
 $(SDDS_OBJDIR)/%.o: %.c
 	echo $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
-	$(COMPILE.c)  $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
+	$(COMPILE.c)   $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
 
 $(SDDS_OBJDIR)/%.o: %.c
 	$(COMPILE.c) $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
 
-sdds.c: $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
+$(APPLICATION_NAME).c: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR) $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
 
-sdds: $(SDDS_OBJDIR)/sdds.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
+$(APPLICATION_NAME): $(SDDS_OBJDIR)/linux_publisher.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
 	$(CC) -o $@ $^ $(LDLIBS)
 
+code:
+	$(shell ./generate.sh)
+
 clean:
-	$(RM) ./sdds
+	$(RM) ./$(APPLICATION_NAME)
 	$(RM) $(CLEAN)
 	$(RM) $(SDDS_OBJS) $(SDDS_OBJS_DEPEND)
+	$(RM) -rf $(SDDS_OBJDIR)
 
 -include $(patsubst %.o,%.d,$(ALL_OBJS))
