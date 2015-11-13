@@ -54,6 +54,9 @@ $(APPLICATION_NAME).c: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR) $(IMPL_DEPEND_SRCS) $(D
 $(APPLICATION_NAME): $(SDDS_OBJDIR)/linux_mcast1.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
 	$(CC) -o $@ $^ $(LDLIBS)
 
+%-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
+	$(shell ./generate.sh)
+
 code:
 	$(shell ./generate.sh)
 
