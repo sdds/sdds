@@ -53,7 +53,7 @@ typedef struct Contiki_Locator* Contiki_Locator;
 // global variables
 struct simple_udp_connection g_connection;
 struct simple_udp_connection g_multi_connection;
-static struct NetBuffRef_t g_incoming_buffer;
+static NetBuffRef_t g_incoming_buffer;
 
 void receive(struct simple_udp_connection *connection,
 		uip_ipaddr_t const *src_addr, uint16_t src_port,
@@ -173,7 +173,7 @@ void receive(struct simple_udp_connection *connection,
 	Locator_downRef(locator);
 }
 
-rc_t Network_send(NetBuffRef buffer) {
+rc_t Network_send(NetBuffRef_t *buffer) {
 	Locator loc = buffer->addr;
 	struct uip_udp_conn *con;
 	int port;
