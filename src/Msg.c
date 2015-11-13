@@ -19,7 +19,7 @@
 #include "sdds_types.h"
 #include "BuiltinTopic.h"
 
-rc_t Msg_init(Msg _this, Data dataBuffer)
+rc_t Msg_init(Msg_t *_this, Data dataBuffer)
 {
 
 //    _this->next = NULL;
@@ -34,7 +34,7 @@ rc_t Msg_init(Msg _this, Data dataBuffer)
     _this->isNew = false;
   */
     return SDDS_RT_OK;
-} 
+}
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg* msg) {
@@ -81,7 +81,7 @@ rc_t MsgPool_getUnreadMsgCount(struct MsgPool* _this, uint8_t* count) {
 }
 #endif
 
-rc_t Msg_getData(Msg _this, Data* data) {
+rc_t Msg_getData(Msg_t *_this, Data* data) {
 
 	*data = _this->data;
 

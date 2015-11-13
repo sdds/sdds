@@ -39,7 +39,7 @@ struct _DataSink_t {
 	unsigned int remaining_datareader :4;
 };
 
-static Msg msg;
+static Msg_t *msg;
 static DataSink_t dsStruct;
 DataSink_t *dataSink = &dsStruct;
 
@@ -243,7 +243,7 @@ DataReader_t * DataSink_create_datareader(Topic topic, Qos qos, Listener listene
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t DataSink_take_next_sample(DataReader_t *_this, Data* data, DataInfo info)
 {
-	Msg msg = NULL;
+	Msg_t *msg = NULL;
 
 	Topic topic = _this->topic;
 	(void)info;
