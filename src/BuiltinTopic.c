@@ -202,7 +202,7 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataReader_take_next_sample(
 		DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataSink_take_next_sample((DataReader) _this, (Data*) data_values, (DataInfo) sample_info);
+	rc_t ret = DataSink_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 	return DDS_RETCODE_NO_DATA;
@@ -236,8 +236,8 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 		addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
 #endif
 
-	rc_t ret = DataSource_writeAddress((DataWriter) _this, castType, addrType, addr, addrLen);
-	ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
+	rc_t ret = DataSource_writeAddress((DataWriter_t *) _this, castType, addrType, addr, addrLen);
+	ret = DataSource_write((DataWriter_t *) _this, (Data)instance_data, (void*) handle);
 	if (ret == SDDS_RT_OK) {
 		return DDS_RETCODE_OK;
 	}
@@ -329,7 +329,7 @@ DDS_ReturnCode_t DDS_DCPSTopicDataReader_take_next_sample(
 		DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataSink_take_next_sample((DataReader) _this, (Data*) data_values, (DataInfo) sample_info);
+	rc_t ret = DataSink_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 	return DDS_RETCODE_NO_DATA;
@@ -348,7 +348,7 @@ DDS_ReturnCode_t DDS_DCPSTopicDataWriter_write(
 		const DDS_InstanceHandle_t handle
 )
 {
-	rc_t ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
+	rc_t ret = DataSource_write((DataWriter_t *) _this, (Data)instance_data, (void*) handle);
 
 	if (ret == SDDS_RT_OK)
 	return DDS_RETCODE_OK;
@@ -432,7 +432,7 @@ DDS_ReturnCode_t DDS_DCPSPublicationDataReader_take_next_sample(
 		DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataSink_take_next_sample((DataReader) _this, (Data*) data_values, (DataInfo) sample_info);
+	rc_t ret = DataSink_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 	return DDS_RETCODE_NO_DATA;
@@ -451,7 +451,7 @@ DDS_ReturnCode_t DDS_DCPSPublicationDataWriter_write(
 		const DDS_InstanceHandle_t handle
 )
 {
-	rc_t ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
+	rc_t ret = DataSource_write((DataWriter_t *) _this, (Data)instance_data, (void*) handle);
 
 	if (ret == SDDS_RT_OK)
 	return DDS_RETCODE_OK;
@@ -542,7 +542,7 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataReader_take_next_sample(
 		DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataSink_take_next_sample((DataReader) _this, (Data*) data_values, (DataInfo) sample_info);
+	rc_t ret = DataSink_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 	return DDS_RETCODE_NO_DATA;
@@ -559,7 +559,7 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataReader_take_next_sample(
  const DDS_StatusMask mask
  )
  {
- rc_t ret = DataSink_set_on_data_avail_listener((DataReader) _this, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
+ rc_t ret = DataSink_set_on_data_avail_listener((DataReader_t *) _this, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
  if (ret == SDDS_RT_OK)
  return DDS_RETCODE_OK;
 
@@ -590,8 +590,8 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 		addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
 #endif
 
-	rc_t ret = DataSource_writeAddress((DataWriter) _this, castType, addrType, addr, addrLen);
-	ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
+	rc_t ret = DataSource_writeAddress((DataWriter_t *) _this, castType, addrType, addr, addrLen);
+	ret = DataSource_write((DataWriter_t *) _this, (Data)instance_data, (void*) handle);
 
 	if (ret == SDDS_RT_OK)
 	return DDS_RETCODE_OK;

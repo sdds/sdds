@@ -56,8 +56,8 @@ typedef struct Topic_t* Topic;
 
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t Topic_getFreeMsg(Topic _this, Msg* msg);
-rc_t Topic_getNextMsg(Topic _this, Msg* msg);
+rc_t Topic_getFreeMsg(Topic _this, Msg_t **msg);
+rc_t Topic_getNextMsg(Topic _this, Msg_t **msg);
 rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count);
 #endif
 

@@ -50,8 +50,8 @@ rc_t Msg_getData(Msg_t *_this, Data* data);
 size_t Msg_getSize(Msg_t *_this);
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg* msg);
-rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg* msg);
+rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg_t **msg);
+rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg_t **msg);
 rc_t MsgPool_getUnreadMsgCount(struct MsgPool* _this, uint8_t* count);
 #endif
 
