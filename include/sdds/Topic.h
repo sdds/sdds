@@ -32,7 +32,7 @@ struct datasinks{
     Locator list;
     uint8_t count;
 };
-struct Topic_t {
+struct _Topic_t {
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
     struct datasinks dsinks;
@@ -52,13 +52,13 @@ struct Topic_t {
     topicid_t id;
 };				/* ----------  end of struct Topic  ---------- */
 
-typedef struct Topic_t* Topic;
+typedef struct _Topic_t Topic_t;
 
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t Topic_getFreeMsg(Topic _this, Msg_t **msg);
-rc_t Topic_getNextMsg(Topic _this, Msg_t **msg);
-rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count);
+rc_t Topic_getFreeMsg(Topic_t *_this, Msg_t **msg);
+rc_t Topic_getNextMsg(Topic_t *_this, Msg_t **msg);
+rc_t Topic_getUnreadMsgCount(Topic_t *_this, uint8_t* count);
 #endif
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
@@ -70,7 +70,7 @@ rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count);
  * @param addr Locator object of the remote node
  * @return SDDS return code @see rc_t
  */
-rc_t Topic_addRemoteDataSink(Topic _this, Locator addr);
+rc_t Topic_addRemoteDataSink(Topic_t *_this, Locator addr);
 #endif
 
 #if defined (SDDS_TOPIC_HAS_PUB) && (SDDS_TOPIC_DYNAMIC)
@@ -83,7 +83,7 @@ rc_t Topic_addRemoteDataSink(Topic _this, Locator addr);
  * @param addr Locator object to remove
  * @return sdds return code @see rc_t
  */
-rc_t Topic_removeRemoteDataSink(Topic _this, Locator addr);
+rc_t Topic_removeRemoteDataSink(Topic_t *_this, Locator addr);
 #endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
@@ -95,7 +95,7 @@ rc_t Topic_removeRemoteDataSink(Topic _this, Locator addr);
  * @param addr Locator object of the remote node
  * @return sdds return code @see rc_t
  */
-rc_t Topic_addRemoteDataSource(Topic _this, Locator addr);
+rc_t Topic_addRemoteDataSource(Topic_t *_this, Locator addr);
 #endif
 
 #if defined (SDDS_TOPIC_HAS_SUB) && (SDDS_TOPIC_DYNAMIC)
@@ -107,7 +107,7 @@ rc_t Topic_addRemoteDataSource(Topic _this, Locator addr);
  * @param addr Locator object to remove
  * @return sdds return code @see rc_t
  */
-rc_t Topic_removeRemoteDataSink(Topic _this, Locator addr);
+rc_t Topic_removeRemoteDataSink(Topic_t *_this, Locator addr);
 #endif
 
 //rc_t Topic_addRemoteDataSink(Topic _this, Locator addr);

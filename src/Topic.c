@@ -20,13 +20,13 @@
 #include "Msg.h"
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t Topic_getFreeMsg(Topic _this, Msg_t **msg) {
+rc_t Topic_getFreeMsg(Topic_t *_this, Msg_t **msg) {
 	return MsgPool_getFreeMsg(&(_this->msg), msg);
 }
-rc_t Topic_getNextMsg(Topic _this, Msg_t **msg) {
+rc_t Topic_getNextMsg(Topic_t *_this, Msg_t **msg) {
 	return MsgPool_getNextMsg(&(_this->msg), msg);
 }
-rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count) {
+rc_t Topic_getUnreadMsgCount(Topic_t *_this, uint8_t* count) {
 	return MsgPool_getUnreadMsgCount(&(_this->msg), count);
 }
 #endif
@@ -34,7 +34,7 @@ rc_t Topic_getUnreadMsgCount(Topic _this, uint8_t* count) {
 
 
 #if 0
-rc_t Topic_getFreeMsg(Topic _this, Msg_t **msg)
+rc_t Topic_getFreeMsg(Topic_t *_this, Msg_t **msg)
 {
     for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++){
 	if (_this->msg.pool[i].isEmpty == true){
@@ -63,7 +63,7 @@ rc_t Topic_getFreeMsg(Topic _this, Msg_t **msg)
 
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t Topic_addRemoteDataSink(Topic _this, Locator addr)
+rc_t Topic_addRemoteDataSink(Topic_t *_this, Locator addr)
 {
 	if (_this == NULL || addr == NULL){
 		return SDDS_RT_BAD_PARAMETER;
@@ -85,7 +85,7 @@ rc_t Topic_addRemoteDataSink(Topic _this, Locator addr)
 #endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t Topic_addRemoteDataSource(Topic _this, Locator addr)
+rc_t Topic_addRemoteDataSource(Topic_t *_this, Locator addr)
 {
 	if (_this == NULL || addr == NULL){
 		return SDDS_RT_BAD_PARAMETER;

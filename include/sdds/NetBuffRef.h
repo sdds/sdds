@@ -3,7 +3,7 @@
  *
  *       Filename:  NetBuffRef.h
  *
- *    Description:  class to wrap the networkbuffer and store the state of the 
+ *    Description:  class to wrap the networkbuffer and store the state of the
  *    protocol etc
  *
  *        Version:  1.0
@@ -40,7 +40,7 @@ struct _NetBuffRef_t{
 
     // state of the frame
     struct Locator_t* addr;
-    Topic curTopic;
+    Topic_t *curTopic;
     domainid_t curDomain;
 };
 typedef struct _NetBuffRef_t NetBuffRef_t;

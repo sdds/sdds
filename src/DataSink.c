@@ -52,7 +52,7 @@ rc_t checkTopic(NetBuffRef_t *buff, topicid_t topic);
 
 rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size);
 
-rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic) {
+rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) {
 	int i;
 	for (i = 0; i < (SDDS_MAX_DATA_READERS - dataSink->remaining_datareader);
 			i++) {
@@ -216,7 +216,7 @@ rc_t DataSink_init(void) {
 	return SDDS_RT_OK;
 }
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-DataReader_t * DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm)
+DataReader_t * DataSink_create_datareader(Topic_t *topic, Qos qos, Listener listener, StatusMask sm)
 {
 
 	qos = qos;
@@ -245,7 +245,7 @@ rc_t DataSink_take_next_sample(DataReader_t *_this, Data* data, DataInfo info)
 {
 	Msg_t *msg = NULL;
 
-	Topic topic = _this->topic;
+	Topic_t *topic = _this->topic;
 	(void)info;
 
 	rc_t ret = Topic_getNextMsg(topic, &msg);
@@ -292,7 +292,7 @@ rc_t submitData(void) {
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t parseData(NetBuffRef_t *buff) {
-	Topic topic;
+	Topic_t *topic;
 	// check if there is a topic provided (should be)
 	// data without topic are useless for this version!
 
@@ -337,7 +337,7 @@ rc_t checkDomain(NetBuffRef_t *buff, domainid_t domain) {
 }
 
 rc_t checkTopic(NetBuffRef_t *buff, topicid_t topic) {
-	Topic t_ptr = TopicDB_getTopic(topic);
+	Topic_t *t_ptr = TopicDB_getTopic(topic);
 	if (t_ptr == NULL) {
 		SNPS_gotoNextSubMsg(buff, SDDS_SNPS_T_TOPIC);
 	} else {

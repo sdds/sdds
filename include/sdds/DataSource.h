@@ -3,7 +3,7 @@
  *
  *       Filename:  DataSource.h
  *
- *    Description:  Header File for the DataSource class. Object is dedicated to 
+ *    Description:  Header File for the DataSource class. Object is dedicated to
  *    handle the publishing of data to the dds network.
  *
  *        Version:  1.0
@@ -38,11 +38,11 @@ extern DataSource_t *dataSource;
 
 rc_t DataSource_init(void);
 
-DataWriter_t * DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask);
+DataWriter_t * DataSource_create_datawriter(Topic_t *topic, Qos qos, Listener list, StatusMask mask);
 rc_t DataSource_writeAddress(DataWriter_t *_this, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen);
 
 rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len);
-rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic);
+rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic);
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste);

@@ -49,10 +49,10 @@ SDDS_DCPSSubscription g_DCPSSubscription_pool[SDDS_TOPIC_APP_MSG_COUNT];
 DDS_DataReader g_DCPSSubscription_reader;
 DDS_DataWriter g_DCPSSubscription_writer;
 
-Topic sDDS_DCPSParticipantTopic_create(SDDS_DCPSParticipant* pool, int count);
-Topic sDDS_DCPSTopicTopic_create(DDS_DCPSTopic* pool, int count);
-Topic sDDS_DCPSPublicationTopic_create(DDS_DCPSPublication* pool, int count);
-Topic sDDS_DCPSSubscriptionTopic_create(SDDS_DCPSSubscription* pool, int count);
+Topic_t * sDDS_DCPSParticipantTopic_create(SDDS_DCPSParticipant* pool, int count);
+Topic_t * sDDS_DCPSTopicTopic_create(DDS_DCPSTopic* pool, int count);
+Topic_t * sDDS_DCPSPublicationTopic_create(DDS_DCPSPublication* pool, int count);
+Topic_t * sDDS_DCPSSubscriptionTopic_create(SDDS_DCPSSubscription* pool, int count);
 
 static uint8_t generalByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
 static uint8_t participantByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
@@ -244,9 +244,9 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 	return DDS_RETCODE_ERROR;
 }
 
-Topic sDDS_DCPSParticipantTopic_create(SDDS_DCPSParticipant* pool, int count)
+Topic_t * sDDS_DCPSParticipantTopic_create(SDDS_DCPSParticipant* pool, int count)
 {
-	Topic topic = TopicDB_createTopic();
+	Topic_t *topic = TopicDB_createTopic();
 
 	for (int i = 0; i < count; i++) {
 		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
@@ -356,9 +356,9 @@ DDS_ReturnCode_t DDS_DCPSTopicDataWriter_write(
 	return DDS_RETCODE_ERROR;
 }
 
-Topic sDDS_DCPSTopicTopic_create(DDS_DCPSTopic* pool, int count)
+Topic_t * sDDS_DCPSTopicTopic_create(DDS_DCPSTopic* pool, int count)
 {
-	Topic topic = TopicDB_createTopic();
+	Topic_t *topic = TopicDB_createTopic();
 
 	for (int i = 0; i < count; i++) {
 		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
@@ -459,9 +459,9 @@ DDS_ReturnCode_t DDS_DCPSPublicationDataWriter_write(
 	return DDS_RETCODE_ERROR;
 }
 
-Topic sDDS_DCPSPublicationTopic_create(DDS_DCPSPublication* pool, int count)
+Topic_t * sDDS_DCPSPublicationTopic_create(DDS_DCPSPublication* pool, int count)
 {
-	Topic topic = TopicDB_createTopic();
+	Topic_t *topic = TopicDB_createTopic();
 	//Locator locator;
 
 	//Network_createLocator(&locator);
@@ -599,9 +599,9 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 	return DDS_RETCODE_ERROR;
 }
 
-Topic sDDS_DCPSSubscriptionTopic_create(SDDS_DCPSSubscription* pool, int count)
+Topic_t * sDDS_DCPSSubscriptionTopic_create(SDDS_DCPSSubscription* pool, int count)
 {
-	Topic topic = TopicDB_createTopic();
+	Topic_t *topic = TopicDB_createTopic();
 
 	for (int i = 0; i < count; i++) {
 		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));

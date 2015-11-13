@@ -38,7 +38,7 @@ struct _InstantSender_t {
 typedef struct _InstantSender_t InstantSender_t;
 
 struct _DataWriter_t {
-	Topic topic;
+	Topic_t *topic;
 	struct SourceQos_t qos;
 	unsigned int id :4;
 };
@@ -66,7 +66,7 @@ rc_t BuiltinTopicDomainParticipant_encode(byte_t* buff, Data data, size_t* size)
 rc_t BuiltinTopicDataWriter_encode(byte_t* buff, Data data, size_t* size);
 
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic) {
+rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) {
 	int i;
 	for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
 			i++) {
@@ -135,7 +135,7 @@ rc_t DataSource_init(void) {
 }
 
 #if SDDS_MAX_DATA_WRITERS > 0
-DataWriter_t * DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask)
+DataWriter_t * DataSource_create_datawriter(Topic_t *topic, Qos qos, Listener list, StatusMask mask)
 {
 	qos=qos;
 	list=list;
@@ -223,7 +223,7 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste)
 
 	waste = waste;
 	NetBuffRef_t *buffRef = NULL;
-	Topic topic = _this->topic;
+	Topic_t *topic = _this->topic;
 	domainid_t domain = topic->domain;
 	Locator dest = topic->dsinks.list;
 
@@ -259,7 +259,7 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste)
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 rc_t DataSource_writeAddress(DataWriter_t *_this, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
 	NetBuffRef_t *buffRef = NULL;
-	Topic topic = _this->topic;
+	Topic_t *topic = _this->topic;
 	domainid_t domain = topic->domain;
 	Locator dest = topic->dsinks.list;
 

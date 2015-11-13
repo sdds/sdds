@@ -36,13 +36,13 @@ typedef struct _DataReader_t DataReader_t;
 typedef void (*On_Data_Avail_Listener)(DataReader_t *);
 
 struct _DataReader_t {
-	Topic topic;
+	Topic_t *topic;
 	unsigned int id :4;
 	On_Data_Avail_Listener on_data_avail_listener;
 };
 
 rc_t DataSink_init(void);
-DataReader_t * DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm);
+DataReader_t * DataSink_create_datareader(Topic_t *topic, Qos qos, Listener listener, StatusMask sm);
 rc_t DataSink_take_next_sample(DataReader_t *_this, Data* data, DataInfo info);
 rc_t DataSink_processFrame(NetBuffRef_t *buff);
 rc_t DataSink_set_on_data_avail_listener (
@@ -53,6 +53,6 @@ rc_t DataSink_set_on_data_avail_listener (
 rc_t DataSink_printAddr();
 rc_t DataSink_getAddr(struct SNPS_Address *address);
 
-rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic *topic);
+rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic);
 
 #endif   /* ----- #ifndef DATASINK_H_INC  ----- */

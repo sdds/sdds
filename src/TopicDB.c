@@ -21,21 +21,21 @@
 #include "Marshalling.h"
 #include "SNPS.h"
 
-struct TopicDB_t {
-    struct Topic_t db[SDDS_TOPIC_MAX_COUNT];
-   // struct Topic_t db[4];
+struct _TopicDB_t {
+    Topic_t db[SDDS_TOPIC_MAX_COUNT];
     unsigned int topicCount : 4;
 };
+typedef struct _TopicDB_t TopicDB_t;
 
-static struct TopicDB_t topicdb = {.topicCount = 0};
+static TopicDB_t topicdb = {.topicCount = 0};
 
 rc_t BuiltinTopicTopic_encode(byte_t* buff, Data data, size_t* size);
 
-Topic TopicDB_createTopic(void)
+Topic_t * TopicDB_createTopic(void)
 {
 	if (topicdb.topicCount < SDDS_TOPIC_MAX_COUNT){
-		Topic n = &(topicdb.db[topicdb.topicCount++]);
-		memset(n, 0, sizeof(struct Topic_t));
+		Topic_t *n = &(topicdb.db[topicdb.topicCount++]);
+		memset(n, 0, sizeof(Topic_t));
 		n->msg.count = 0;
 		n->msg.start = 0;
 
@@ -54,7 +54,7 @@ bool_t TopicDB_checkDomain(domainid_t domain)
     }
     return false;
 }
-Topic TopicDB_getTopic(topicid_t topic)
+Topic_t * TopicDB_getTopic(topicid_t topic)
 {
     for (int i = 0; i < topicdb.topicCount; i++){
 	if (topicdb.db[i].id == topic){
@@ -88,7 +88,7 @@ rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef_t *buf)
 
 rc_t BuiltinTopicTopic_encode(byte_t* buff, Data data, size_t* size)
 {
-    Topic t = (Topic) data;
+    Topic_t *t = (Topic_t *) data;
     *size = 0;
     Marshalling_enc_uint8(buff+(*size), &(t->domain));
     *size += sizeof(domainid_t);

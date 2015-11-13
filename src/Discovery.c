@@ -56,7 +56,7 @@ static void Discovery_receive_SubscriptionTopics();
 
 static rc_t Discovery_addParticipant(SDDS_DCPSParticipant *p);
 static rc_t Discovery_handleParticipant(SDDS_DCPSParticipant p);
-static rc_t Discovery_addRemoteDataSink(Locator l, Topic topic);
+static rc_t Discovery_addRemoteDataSink(Locator l, Topic_t *topic);
 
 /************************************************************************************/
 /*									Implementierung									*/
@@ -109,7 +109,7 @@ static rc_t Discovery_handleParticipant(SDDS_DCPSParticipant p) {
 	return ret;
 }
 
-static rc_t Discovery_addRemoteDataSink(Locator l, Topic topic) {
+static rc_t Discovery_addRemoteDataSink(Locator l, Topic_t *topic) {
 	rc_t ret;
 
 	Locator loc;
@@ -259,7 +259,7 @@ static void Discovery_receive_SubscriptionTopics() {
 			Log_debug("Received (subscription):[%u][%x] topic:%u\n",
 					st_data_used.data.key, st_data_used.data.participant_key,
 					st_data_used.data.topic_id);
-			Topic topic = NULL;
+			Topic_t *topic = NULL;
 			ret = DataSource_getTopic(NULL, st_data_used.data.topic_id, &topic);
 			if (ret == SDDS_RT_OK) {
 				ret = Discovery_addRemoteDataSink(st_data_used.addr, topic);

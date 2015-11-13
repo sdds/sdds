@@ -117,7 +117,7 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
 );
 #endif
 
-Topic sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count);
+Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count);
 
 #endif
 /*
@@ -210,9 +210,9 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
 }
 #endif
 
-Topic sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
+Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 {
-	Topic topic = TopicDB_createTopic();
+	Topic_t *topic = TopicDB_createTopic();
 
 	for (int i = 0; i < count; i++)
 		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
