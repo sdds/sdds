@@ -30,7 +30,7 @@
 
 #include "Log.h"
 
-struct DataSink_t {
+struct _DataSink_t {
 	DataReader_t readers[SDDS_MAX_DATA_READERS];
 
 #if defined(__GNUC__) && __GNUC_MINOR__ < 6
@@ -40,8 +40,8 @@ struct DataSink_t {
 };
 
 static Msg msg;
-static struct DataSink_t dsStruct;
-DataSink dataSink = &dsStruct;
+static DataSink_t dsStruct;
+DataSink_t *dataSink = &dsStruct;
 
 static SNPS_Address_t addr;
 
@@ -187,7 +187,7 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 
 	for (uint8_t i = 0;
 			i < SDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i++) {
-		DataReader dr = &(dataSink->readers[i]);
+		DataReader_t *dr = &(dataSink->readers[i]);
 
 		int tpc = dr->topic->id;
 		if ((topic == tpc) && dr->on_data_avail_listener) {
@@ -216,13 +216,13 @@ rc_t DataSink_init(void) {
 	return SDDS_RT_OK;
 }
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm)
+DataReader_t * DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm)
 {
 
 	qos = qos;
 	sm = sm;
 
-	DataReader dr = NULL;
+	DataReader_t *dr = NULL;
 	// not free slots?
 	if (dataSink->remaining_datareader == 0) {
 		return NULL;
@@ -241,7 +241,7 @@ DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, S
 #endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info)
+rc_t DataSink_take_next_sample(DataReader_t *_this, Data* data, DataInfo info)
 {
 	Msg msg = NULL;
 
@@ -357,7 +357,7 @@ rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef_t *buf) {
 	return SDDS_RT_OK;
 }
 rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size) {
-	DataReader dr = (DataReader) data;
+	DataReader_t *dr = (DataReader_t *) data;
 	*size = 0;
 	Marshalling_enc_uint8(buff + (*size), &(dr->topic->domain));
 	*size += sizeof(domainid_t);
@@ -367,7 +367,7 @@ rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size) {
 	return SDDS_RT_OK;
 }
 
-rc_t DataSink_set_on_data_avail_listener(DataReader _this,
+rc_t DataSink_set_on_data_avail_listener(DataReader_t *_this,
 		On_Data_Avail_Listener a_listener, const StatusMask sm) {
 	_this->on_data_avail_listener = a_listener;
 	return SDDS_RT_OK;

@@ -81,7 +81,7 @@ DDS_ReturnCode_t DDS_DataReader_set_listener(
 	const DDS_StatusMask mask
 )
 {
-	rc_t ret = DataSink_set_on_data_avail_listener((DataReader) _this, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
+	rc_t ret = DataSink_set_on_data_avail_listener((DataReader_t *) _this, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
 	if (ret == SDDS_RT_OK)
 		return DDS_RETCODE_OK;
 

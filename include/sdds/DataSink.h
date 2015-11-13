@@ -26,30 +26,27 @@
 #include "SNPS.h"
 
 
-struct DataSink_t;
-typedef struct DataSink_t* DataSink;
-extern DataSink dataSink;
+struct _DataSink_t;
+typedef struct _DataSink_t DataSink_t;
+extern DataSink_t *dataSink;
 
+struct _DataReader_t;
+typedef struct _DataReader_t DataReader_t;
 
-struct DataReader;
-typedef struct DataReader DataReader_t;
-typedef struct DataReader* DataReader;
+typedef void (*On_Data_Avail_Listener)(DataReader_t *);
 
-typedef void (*On_Data_Avail_Listener)(DataReader);
-
-struct DataReader {
+struct _DataReader_t {
 	Topic topic;
 	unsigned int id :4;
 	On_Data_Avail_Listener on_data_avail_listener;
 };
 
-
 rc_t DataSink_init(void);
-DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm);
-rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info);
+DataReader_t * DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm);
+rc_t DataSink_take_next_sample(DataReader_t *_this, Data* data, DataInfo info);
 rc_t DataSink_processFrame(NetBuffRef_t *buff);
 rc_t DataSink_set_on_data_avail_listener (
-		DataReader _this,
+		DataReader_t *_this,
 		On_Data_Avail_Listener listener,
 		const StatusMask sm);
 

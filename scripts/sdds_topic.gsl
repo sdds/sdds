@@ -179,7 +179,7 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
     DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataSink_take_next_sample((DataReader) _this, (Data*) data_values, (DataInfo) sample_info);
+	rc_t ret = DataSink_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 		return DDS_RETCODE_NO_DATA;
@@ -201,7 +201,7 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
     const DDS_InstanceHandle_t  handle
 )
 {
-	rc_t ret = DataSource_write((DataWriter) _this, (Data)instance_data, (void*) handle);
+	rc_t ret = DataSource_write((DataWriter_t *) _this, (Data)instance_data, (void*) handle);
 
 	if (ret == SDDS_RT_OK)
 		return DDS_RETCODE_OK;

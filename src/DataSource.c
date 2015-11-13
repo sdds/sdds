@@ -31,19 +31,19 @@
 // IF BUILTINTOPIC
 #include "BuiltinTopic.h"
 
-struct InstantSender {
+struct _InstantSender_t {
 	NetBuffRef_t highPrio;
 	NetBuffRef_t out[SDDS_NET_MAX_OUT_QUEUE];
 };
-typedef struct InstantSender InstantSender_t;
+typedef struct _InstantSender_t InstantSender_t;
 
-struct DataWriter {
+struct _DataWriter_t {
 	Topic topic;
 	struct SourceQos_t qos;
 	unsigned int id :4;
 };
 
-struct DataSource {
+struct _DataSource_t {
 #if SDDS_MAX_DATA_WRITERS > 0
 	DataWriter_t writers[SDDS_MAX_DATA_WRITERS];
 #endif
@@ -57,7 +57,7 @@ struct DataSource {
 
 static DataSource_t dsStruct;
 
-DataSource dataSource = &dsStruct;
+DataSource_t *dataSource = &dsStruct;
 
 NetBuffRef_t * findFreeFrame(Locator dest);
 rc_t checkSending(NetBuffRef_t *buf);
@@ -135,13 +135,13 @@ rc_t DataSource_init(void) {
 }
 
 #if SDDS_MAX_DATA_WRITERS > 0
-DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask)
+DataWriter_t * DataSource_create_datawriter(Topic topic, Qos qos, Listener list, StatusMask mask)
 {
 	qos=qos;
 	list=list;
 	mask=mask;
 
-	DataWriter dw = NULL;
+	DataWriter_t *dw = NULL;
 
 	if (dataSource->remaining_datawriter == 0) {
 		return NULL;
@@ -218,7 +218,7 @@ rc_t checkSending(NetBuffRef_t *buf) {
 	return SDDS_RT_OK;
 }
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t DataSource_write(DataWriter _this, Data data, void* waste)
+rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste)
 {
 
 	waste = waste;
@@ -257,7 +257,7 @@ rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 #endif // SDDS_TOPIC_HAS_SUB
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
+rc_t DataSource_writeAddress(DataWriter_t *_this, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
 	NetBuffRef_t *buffRef = NULL;
 	Topic topic = _this->topic;
 	domainid_t domain = topic->domain;
@@ -351,7 +351,7 @@ rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t a
 
  rc_t BuiltinTopicDataWriter_encode(byte_t* buff, Data data, size_t* size)
  {
- DataWriter dw = (DataWriter) data;
+ DataWriter_t *dw = (DataWriter) data;
  *size = 0;
  Marshalling_enc_uint8(buff+(*size), &(dw->topic->domain));
  *size += sizeof(domainid_t);
