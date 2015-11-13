@@ -34,13 +34,13 @@
 
 #define START (ref->buff_start + ref->curPos)
 
-rc_t _writeBasicTopic(NetBuffRef ref, topicid_t topic);
+rc_t _writeBasicTopic(NetBuffRef_t *ref, topicid_t topic);
 #ifdef SDDS_EXTENDED_TOPIC_SUPPORT
-rc_t _writeExtTopic(NetBuffRef ref, topicid_t topic);
+rc_t _writeExtTopic(NetBuffRef_t *ref, topicid_t topic);
 #endif
 
 
-rc_t SNPS_evalSubMsg(NetBuffRef ref, subMsg_t* type)
+rc_t SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type)
 {
 
     uint8_t read;
@@ -51,7 +51,7 @@ rc_t SNPS_evalSubMsg(NetBuffRef ref, subMsg_t* type)
     if ((read & 0x0f) < 15){
     	*type = (read & 0x0f);
     	return SDDS_RT_OK;
-    } 
+    }
 
     // it is an extended submessage
     // eval the next 4 bits
@@ -81,16 +81,16 @@ rc_t SNPS_evalSubMsg(NetBuffRef ref, subMsg_t* type)
 	    *type = SDDS_SNPS_T_UNKNOWN;
 	    break;
     }
-   
+
 
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_discardSubMsg(NetBuffRef ref)
+rc_t SNPS_discardSubMsg(NetBuffRef_t *ref)
 {
     uint8_t read;
     Marshalling_dec_uint8(START, &read);
-   
+
     // submsg will be removed, all the same
     // read at least the basic submsgheader
     ref->subMsgCount--;
@@ -111,7 +111,7 @@ rc_t SNPS_discardSubMsg(NetBuffRef ref)
 	    break;
 
 	    // normale submsg with the size of 8 bit
-	default: 
+	default:
 	    return SDDS_RT_OK;
     }
 
@@ -145,7 +145,7 @@ rc_t SNPS_discardSubMsg(NetBuffRef ref)
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_gotoNextSubMsg(NetBuffRef buff, subMsg_t type)
+rc_t SNPS_gotoNextSubMsg(NetBuffRef_t *buff, subMsg_t type)
 {
 	subMsg_t readType;
 	while (buff->subMsgCount > 0){
@@ -161,7 +161,7 @@ rc_t SNPS_gotoNextSubMsg(NetBuffRef buff, subMsg_t type)
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_initFrame(NetBuffRef ref)
+rc_t SNPS_initFrame(NetBuffRef_t *ref)
 {
     // write header
     version_t v = SDDS_NET_VERSION;
@@ -173,7 +173,7 @@ rc_t SNPS_initFrame(NetBuffRef ref)
 
     return SDDS_RT_OK;
 }
-rc_t SNPS_readHeader(NetBuffRef ref)
+rc_t SNPS_readHeader(NetBuffRef_t *ref)
 {
     version_t v;
     Marshalling_dec_uint8(ref->buff_start, &v);
@@ -187,14 +187,14 @@ rc_t SNPS_readHeader(NetBuffRef ref)
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_updateHeader(NetBuffRef ref)
+rc_t SNPS_updateHeader(NetBuffRef_t *ref)
 {
     Marshalling_enc_uint8( (ref->buff_start + sizeof(version_t)), &(ref->subMsgCount));
 
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeDomain(NetBuffRef ref, domainid_t domain)
+rc_t SNPS_writeDomain(NetBuffRef_t *ref, domainid_t domain)
 {
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_DOMAIN, (uint8_t)domain);
     ref->curPos += 1;
@@ -202,7 +202,7 @@ rc_t SNPS_writeDomain(NetBuffRef ref, domainid_t domain)
 
     return SDDS_RT_OK;
 }
-rc_t SNPS_readDomain(NetBuffRef ref, domainid_t* domain)
+rc_t SNPS_readDomain(NetBuffRef_t *ref, domainid_t* domain)
 {
     Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_DOMAIN, (uint8_t*)domain);
     ref->curPos += 1;
@@ -211,7 +211,7 @@ rc_t SNPS_readDomain(NetBuffRef ref, domainid_t* domain)
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeTopic(NetBuffRef ref, topicid_t topic)
+rc_t SNPS_writeTopic(NetBuffRef_t *ref, topicid_t topic)
 {
 #ifdef SDDS_EXTENDED_TOPIC_SUPPORT
 	if (topic > 15) {
@@ -221,7 +221,7 @@ rc_t SNPS_writeTopic(NetBuffRef ref, topicid_t topic)
 
     return _writeBasicTopic(ref, topic);
 }
-rc_t _writeBasicTopic(NetBuffRef ref, topicid_t topic)
+rc_t _writeBasicTopic(NetBuffRef_t *ref, topicid_t topic)
 {
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_TOPIC, (uint8_t)topic);
     ref->curPos +=1;
@@ -230,7 +230,7 @@ rc_t _writeBasicTopic(NetBuffRef ref, topicid_t topic)
 	return SDDS_RT_OK;
 }
 #ifdef SDDS_EXTENDED_TOPIC_SUPPORT
-rc_t _writeExtTopic(NetBuffRef ref, topicid_t topic)
+rc_t _writeExtTopic(NetBuffRef_t *ref, topicid_t topic)
 {
 	// write the header of an extended submessage of the type topic
 	Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_EXTENDED, SDDS_SNPS_EXTSUBMSG_TOPIC);
@@ -243,7 +243,7 @@ rc_t _writeExtTopic(NetBuffRef ref, topicid_t topic)
 }
 #endif
 
-rc_t SNPS_readTopic(NetBuffRef ref, topicid_t* topic)
+rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic)
 {
 	rc_t ret;
 	ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_TOPIC, (uint8_t*)topic);
@@ -273,7 +273,7 @@ rc_t SNPS_readTopic(NetBuffRef ref, topicid_t* topic)
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeData(NetBuffRef ref, rc_t (*TopicMarshalling_encode)(byte_t* buff, Data data, size_t* size), Data d)
+rc_t SNPS_writeData(NetBuffRef_t *ref, rc_t (*TopicMarshalling_encode)(byte_t* buff, Data data, size_t* size), Data d)
 {
     size_t writtenBytes = 0;
 
@@ -295,7 +295,7 @@ rc_t SNPS_writeData(NetBuffRef ref, rc_t (*TopicMarshalling_encode)(byte_t* buff
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_readData(NetBuffRef ref, rc_t (*TopicMarshalling_decode)(byte_t* buff, Data data, size_t* size), Data data)
+rc_t SNPS_readData(NetBuffRef_t *ref, rc_t (*TopicMarshalling_decode)(byte_t* buff, Data data, size_t* size), Data data)
 {
 	size_t size = 0;
 
@@ -478,7 +478,7 @@ rc_t SNPS_IPv6_addr2Str(uint8_t *byteAddr, char *charAddr) {
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeAddress(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
+rc_t SNPS_writeAddress(NetBuffRef_t *ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
 	rc_t ret = 0;
 
 	Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMGS_ADDR, addrLen);
@@ -495,7 +495,7 @@ rc_t SNPS_writeAddress(NetBuffRef ref, castType_t castType, addrType_t addrType,
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType, char *addr)
+rc_t SNPS_readAddress(NetBuffRef_t *ref, castType_t *addrCast, addrType_t *addrType, char *addr)
 {
 	rc_t ret;
 	uint8_t addrLen;
@@ -534,7 +534,7 @@ rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType
 }
 
 /*
-rc_t SNPS_writeTSsimple(NetBuffRef ref, TimeStampSimple_t* ts)
+rc_t SNPS_writeTSsimple(NetBuffRef_t *ref, TimeStampSimple_t* ts)
 {
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_TS, ts->firstField);
     ref->curPos += 1;
@@ -542,25 +542,25 @@ rc_t SNPS_writeTSsimple(NetBuffRef ref, TimeStampSimple_t* ts)
     ref->curPos += 1;
     Marshalling_enc_uint8(START, &(ts->thirdField));
     ref->curPos += 1;
-    
+
     ref->subMsgCount +=1;
 
     return SDDS_RT_OK;
 
 }
 */
-//rc_t SNPS_writeStatus(NetBuffRef ref);
-//rc_t SNPS_writeSeqNr(NetBuffRef ref);
-//rc_t SNPS_writeAckSeq(NetBuffRef ref);
-//rc_t SNPS_writeNackSeq(NetBuffRef ref);
-//rc_t SNPS_writeNack(NetBuffRef ref);
-//rc_t SNPS_writeAck(NetBuffRef ref);
-//rc_t SNPS_writeTSuSec(NetBuffRef ref);
-//rc_t SNPS_writeTSmSec(NetBuffRef ref);
-//rc_t SNPS_writeSeqNrBig(NetBuffRef ref);
-//rc_t SNPS_writeSeqNrSmall(NetBuffRef ref);
-//rc_t SNPS_writeSeqNrHUGE(NetBuffRef ref);
-//rc_t SNPS_writeTSDDS(NetBuffRef ref);
-//rc_t SNPS_wrieSep(NetBuffRef ref);
-//rc_t SNPS_writeAddressess(NetBuffRef ref);
+//rc_t SNPS_writeStatus(NetBuffRef_t *ref);
+//rc_t SNPS_writeSeqNr(NetBuffRef_t *ref);
+//rc_t SNPS_writeAckSeq(NetBuffRef_t *ref);
+//rc_t SNPS_writeNackSeq(NetBuffRef_t *ref);
+//rc_t SNPS_writeNack(NetBuffRef_t *ref);
+//rc_t SNPS_writeAck(NetBuffRef_t *ref);
+//rc_t SNPS_writeTSuSec(NetBuffRef_t *ref);
+//rc_t SNPS_writeTSmSec(NetBuffRef_t *ref);
+//rc_t SNPS_writeSeqNrBig(NetBuffRef_t *ref);
+//rc_t SNPS_writeSeqNrSmall(NetBuffRef_t *ref);
+//rc_t SNPS_writeSeqNrHUGE(NetBuffRef_t *ref);
+//rc_t SNPS_writeTSDDS(NetBuffRef_t *ref);
+//rc_t SNPS_wrieSep(NetBuffRef_t *ref);
+//rc_t SNPS_writeAddressess(NetBuffRef_t *ref);
 

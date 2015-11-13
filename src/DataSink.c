@@ -45,10 +45,10 @@ DataSink dataSink = &dsStruct;
 
 static SNPS_Address_t addr;
 
-rc_t parseData(NetBuffRef buff);
+rc_t parseData(NetBuffRef_t *buff);
 rc_t submitData(void);
-rc_t checkDomain(NetBuffRef buff, domainid_t domain);
-rc_t checkTopic(NetBuffRef buff, topicid_t topic);
+rc_t checkDomain(NetBuffRef_t *buff, domainid_t domain);
+rc_t checkTopic(NetBuffRef_t *buff, topicid_t topic);
 
 rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size);
 
@@ -79,14 +79,14 @@ rc_t DataSink_getAddr(SNPS_Address_t *address) {
 	return SDDS_RT_OK;
 }
 
-static void getAddress(NetBuffRef buff) {
+static void getAddress(NetBuffRef_t *buff) {
 	memset(addr.addr, 0, SDDS_SNPS_ADDR_STR_LENGTH);
 	addr.addrType = 0;
 	addr.addrCast = 0;
 	SNPS_readAddress(buff, &addr.addrCast, &addr.addrType, addr.addr);
 }
 
-rc_t DataSink_processFrame(NetBuffRef buff) {
+rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 	rc_t ret;
 
 	if (buff == NULL)
@@ -291,7 +291,7 @@ rc_t submitData(void) {
 }
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t parseData(NetBuffRef buff) {
+rc_t parseData(NetBuffRef_t *buff) {
 	Topic topic;
 	// check if there is a topic provided (should be)
 	// data without topic are useless for this version!
@@ -326,7 +326,7 @@ rc_t parseData(NetBuffRef buff) {
 }
 #endif
 
-rc_t checkDomain(NetBuffRef buff, domainid_t domain) {
+rc_t checkDomain(NetBuffRef_t *buff, domainid_t domain) {
 	if (TopicDB_checkDomain(domain) == false) {
 		SNPS_gotoNextSubMsg(buff, SDDS_SNPS_T_DOMAIN);
 	} else {
@@ -336,7 +336,7 @@ rc_t checkDomain(NetBuffRef buff, domainid_t domain) {
 	return SDDS_RT_OK;
 }
 
-rc_t checkTopic(NetBuffRef buff, topicid_t topic) {
+rc_t checkTopic(NetBuffRef_t *buff, topicid_t topic) {
 	Topic t_ptr = TopicDB_getTopic(topic);
 	if (t_ptr == NULL) {
 		SNPS_gotoNextSubMsg(buff, SDDS_SNPS_T_TOPIC);
@@ -347,13 +347,12 @@ rc_t checkTopic(NetBuffRef buff, topicid_t topic) {
 	return SDDS_RT_OK;
 }
 
-rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef buf) {
+rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef_t *buf) {
 	SNPS_writeTopic(buf, DDS_DCPS_SUBSCRIPTION_TOPIC);
 	for (uint8_t i = 0;
 			i < SDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i++) {
 		SNPS_writeData(buf, BuiltinTopicDataReader_encode,
-				(Data) &(dataSink->readers[i]));
-	}
+				(Data) &(dataSink->readers[i])); }
 
 	return SDDS_RT_OK;
 }

@@ -33,6 +33,6 @@ Topic TopicDB_getTopic(topicid_t topic);
 bool_t TopicDB_checkTopic(topicid_t topic);
 Topic TopicDB_createTopic(void);
 
-rc_t TopicDB_publishBuiltinTopic(NetBuffRef buf);
+rc_t TopicDB_publishBuiltinTopic(NetBuffRef_t *buf);
 
 #endif   /* ----- #ifndef TOPICDB_H_INC  ----- */

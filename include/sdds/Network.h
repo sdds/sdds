@@ -31,7 +31,7 @@ rc_t Network_init(void);
 
 size_t Network_size(void);
 
-rc_t Network_send(NetBuffRef buff);
+rc_t Network_send(NetBuffRef_t *buff);
 
 void Network_recvFrameHandler(Network _this);
 

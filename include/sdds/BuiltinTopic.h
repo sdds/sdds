@@ -185,10 +185,10 @@ rc_t BuiltinTopic_publishPub(void);
 
 rc_t BuiltinTopic_publishSub(void);
 
-rc_t BuiltinTopic_writeDomainParticipant2Buf(NetBuffRef buf);
-rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef buf);
-rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef buf);
-rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef buf);
+rc_t BuiltinTopic_writeDomainParticipant2Buf(NetBuffRef_t *buf);
+rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef_t *buf);
+rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef_t *buf);
+rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef_t *buf);
 
 bool BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID);
 

@@ -27,7 +27,7 @@
 
 struct Locator_t;
 
-struct NetBuffRef_t{
+struct _NetBuffRef_t{
 //    uint8_t byteCount;
     uint8_t subMsgCount;
 
@@ -43,12 +43,12 @@ struct NetBuffRef_t{
     Topic curTopic;
     domainid_t curDomain;
 };
-typedef struct NetBuffRef_t* NetBuffRef;
+typedef struct _NetBuffRef_t NetBuffRef_t;
 
-rc_t NetBuffRef_init(NetBuffRef _this);
-rc_t NetBuffRef_renew(NetBuffRef _this);
+rc_t NetBuffRef_init(NetBuffRef_t *_this);
+rc_t NetBuffRef_renew(NetBuffRef_t *_this);
 
 #ifdef UTILS_DEBUG
-void NetBuffRef_print(NetBuffRef _this);
+void NetBuffRef_print(NetBuffRef_t *_this);
 #endif
 #endif   /* ----- #ifndef NETBUFFREF_H_INC  ----- */

@@ -3,7 +3,7 @@
  *
  *       Filename:  DataSink.h
  *
- *    Description:  data sink class to receive data. Impl all datareader of the 
+ *    Description:  data sink class to receive data. Impl all datareader of the
  *    system
  *
  *        Version:  1.0
@@ -47,7 +47,7 @@ struct DataReader {
 rc_t DataSink_init(void);
 DataReader DataSink_create_datareader(Topic topic, Qos qos, Listener listener, StatusMask sm);
 rc_t DataSink_take_next_sample(DataReader _this, Data* data, DataInfo info);
-rc_t DataSink_processFrame(NetBuffRef buff);
+rc_t DataSink_processFrame(NetBuffRef_t *buff);
 rc_t DataSink_set_on_data_avail_listener (
 		DataReader _this,
 		On_Data_Avail_Listener listener,

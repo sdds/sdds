@@ -24,7 +24,7 @@
 #include <stdio.h>
 #endif
 
-rc_t NetBuffRef_init(NetBuffRef _this)
+rc_t NetBuffRef_init(NetBuffRef_t *_this)
 {
 
 
@@ -42,7 +42,7 @@ rc_t NetBuffRef_init(NetBuffRef _this)
     return SDDS_RT_OK;
 }
 
-rc_t NetBuffRef_renew(NetBuffRef _this)
+rc_t NetBuffRef_renew(NetBuffRef_t *_this)
 {
     _this->subMsgCount = 0;
     _this->curPos = 0;
@@ -55,7 +55,7 @@ rc_t NetBuffRef_renew(NetBuffRef _this)
 }
 
 #ifdef UTILS_DEBUG
-void NetBuffRef_print(NetBuffRef _this)
+void NetBuffRef_print(NetBuffRef_t *_this)
 {
     printf("NetRefBuf Print:\n");
     printf("\ttopicid: %i\n", (_this->curTopic == NULL) ? 0 : _this->curTopic->id );

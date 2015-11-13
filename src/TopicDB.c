@@ -75,7 +75,7 @@ bool_t TopicDB_checkTopic(topicid_t topic)
 }
 
 // Impl for the BuiltinTopic
-rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef buf)
+rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef_t *buf)
 {
     SNPS_writeTopic(buf, DDS_DCPS_TOPIC_TOPIC);
 

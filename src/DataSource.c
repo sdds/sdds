@@ -32,8 +32,8 @@
 #include "BuiltinTopic.h"
 
 struct InstantSender {
-	struct NetBuffRef_t highPrio;
-	struct NetBuffRef_t out[SDDS_NET_MAX_OUT_QUEUE];
+	NetBuffRef_t highPrio;
+	NetBuffRef_t out[SDDS_NET_MAX_OUT_QUEUE];
 };
 typedef struct InstantSender InstantSender_t;
 
@@ -59,8 +59,8 @@ static DataSource_t dsStruct;
 
 DataSource dataSource = &dsStruct;
 
-NetBuffRef findFreeFrame(Locator dest);
-rc_t checkSending(NetBuffRef buf);
+NetBuffRef_t * findFreeFrame(Locator dest);
+rc_t checkSending(NetBuffRef_t *buf);
 
 rc_t BuiltinTopicDomainParticipant_encode(byte_t* buff, Data data, size_t* size);
 rc_t BuiltinTopicDataWriter_encode(byte_t* buff, Data data, size_t* size);
@@ -161,8 +161,8 @@ DataWriter DataSource_create_datawriter(Topic topic, Qos qos, Listener list, Sta
 }
 #endif // SDDS_MAX_DATA_WRITERS
 
-NetBuffRef findFreeFrame(Locator dest) {
-	NetBuffRef buffRef = NULL;
+NetBuffRef_t *findFreeFrame(Locator dest) {
+	NetBuffRef_t *buffRef = NULL;
 
 	bool_t sameAddr = false;
 	for (int i = 0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
@@ -197,7 +197,7 @@ NetBuffRef findFreeFrame(Locator dest) {
 	return buffRef;
 }
 
-rc_t checkSending(NetBuffRef buf) {
+rc_t checkSending(NetBuffRef_t *buf) {
 	if (true) {
 		// update header
 
@@ -222,7 +222,7 @@ rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 {
 
 	waste = waste;
-	NetBuffRef buffRef = NULL;
+	NetBuffRef_t *buffRef = NULL;
 	Topic topic = _this->topic;
 	domainid_t domain = topic->domain;
 	Locator dest = topic->dsinks.list;
@@ -258,7 +258,7 @@ rc_t DataSource_write(DataWriter _this, Data data, void* waste)
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
-	NetBuffRef buffRef = NULL;
+	NetBuffRef_t *buffRef = NULL;
 	Topic topic = _this->topic;
 	domainid_t domain = topic->domain;
 	Locator dest = topic->dsinks.list;
@@ -292,7 +292,7 @@ rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t a
  {
 
  // get new buffer
- NetBuffRef buf = NULL;
+ NetBuffRef_t *buf = NULL;
 
  buf = findFreeFrame(builtinTopicNetAddress);
  if (buf == NULL){
@@ -317,7 +317,7 @@ rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t a
 
  }
 
- rc_t BuiltinTopic_writeDomainParticipant2Buf(NetBuffRef buf)
+ rc_t BuiltinTopic_writeDomainParticipant2Buf(NetBuffRef_t *buf)
  {
  SNPS_writeTopic(buf, SDDS_BUILTINTOPIC_PARTICIPANT_TOPIC_ID);
 
@@ -335,7 +335,7 @@ rc_t DataSource_writeAddress(DataWriter _this, castType_t castType, addrType_t a
  return SDDS_RT_OK;
  }
 
- rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef buf)
+ rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef_t *buf)
  {
  // write topic id
  SNPS_writeTopic(buf, SDDS_BUILTINTOPIC_PUBLICATION_TOPIC_ID);

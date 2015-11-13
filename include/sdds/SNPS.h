@@ -3,8 +3,8 @@
  *
  *       Filename:  SNPS.h
  *
- *    Description:  SNPS protocoll class, does the en- and decoding of the 
- *    SNPS-protocoll. 
+ *    Description:  SNPS protocoll class, does the en- and decoding of the
+ *    SNPS-protocoll.
  *
  *        Version:  1.0
  *        Created:  24.02.2010 13:02:38
@@ -93,36 +93,36 @@ struct SNPS_Address {
 };
 typedef struct SNPS_Address SNPS_Address_t;
 
-rc_t SNPS_evalSubMsg(NetBuffRef ref, subMsg_t* type);
-rc_t SNPS_discardSubMsg(NetBuffRef ref);
+rc_t SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type);
+rc_t SNPS_discardSubMsg(NetBuffRef_t *ref);
 // go to next occurence of the sub msg type provided, but not parse the submsg!
-rc_t SNPS_gotoNextSubMsg(NetBuffRef buff, subMsg_t type);
+rc_t SNPS_gotoNextSubMsg(NetBuffRef_t *buff, subMsg_t type);
 
-rc_t SNPS_initFrame(NetBuffRef ref);
-rc_t SNPS_updateHeader(NetBuffRef ref);
-rc_t SNPS_writeDomain(NetBuffRef ref, domainid_t domain);
-rc_t SNPS_writeTopic(NetBuffRef ref, topicid_t topic);
-rc_t SNPS_writeData(NetBuffRef ref, rc_t (*TopicMarshalling_encode)(byte_t* buff, Data data, size_t* size), Data);
-rc_t SNPS_writeTSsimple(NetBuffRef ref, TimeStampSimple_t* ts);
-rc_t SNPS_writeStatus(NetBuffRef ref);
-rc_t SNPS_writeSeqNr(NetBuffRef ref);
-rc_t SNPS_writeAckSeq(NetBuffRef ref);
-rc_t SNPS_writeNackSeq(NetBuffRef ref);
-rc_t SNPS_writeNack(NetBuffRef ref);
-rc_t SNPS_writeAck(NetBuffRef ref);
-rc_t SNPS_writeTSuSec(NetBuffRef ref);
-rc_t SNPS_writeTSmSec(NetBuffRef ref);
-rc_t SNPS_writeSeqNrBig(NetBuffRef ref);
-rc_t SNPS_writeSeqNrSmall(NetBuffRef ref);
-rc_t SNPS_writeSeqNrHUGE(NetBuffRef ref);
-rc_t SNPS_writeTSDDS(NetBuffRef ref);
-rc_t SNPS_writeSep(NetBuffRef ref);
+rc_t SNPS_initFrame(NetBuffRef_t *ref);
+rc_t SNPS_updateHeader(NetBuffRef_t *ref);
+rc_t SNPS_writeDomain(NetBuffRef_t *ref, domainid_t domain);
+rc_t SNPS_writeTopic(NetBuffRef_t *ref, topicid_t topic);
+rc_t SNPS_writeData(NetBuffRef_t *ref, rc_t (*TopicMarshalling_encode)(byte_t* buff, Data data, size_t* size), Data);
+rc_t SNPS_writeTSsimple(NetBuffRef_t *ref, TimeStampSimple_t* ts);
+rc_t SNPS_writeStatus(NetBuffRef_t *ref);
+rc_t SNPS_writeSeqNr(NetBuffRef_t *ref);
+rc_t SNPS_writeAckSeq(NetBuffRef_t *ref);
+rc_t SNPS_writeNackSeq(NetBuffRef_t *ref);
+rc_t SNPS_writeNack(NetBuffRef_t *ref);
+rc_t SNPS_writeAck(NetBuffRef_t *ref);
+rc_t SNPS_writeTSuSec(NetBuffRef_t *ref);
+rc_t SNPS_writeTSmSec(NetBuffRef_t *ref);
+rc_t SNPS_writeSeqNrBig(NetBuffRef_t *ref);
+rc_t SNPS_writeSeqNrSmall(NetBuffRef_t *ref);
+rc_t SNPS_writeSeqNrHUGE(NetBuffRef_t *ref);
+rc_t SNPS_writeTSDDS(NetBuffRef_t *ref);
+rc_t SNPS_writeSep(NetBuffRef_t *ref);
 
-rc_t SNPS_writeAddress(NetBuffRef ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen);
-rc_t SNPS_readAddress(NetBuffRef ref, castType_t *addrCast, addrType_t *addrType, char *addr);
+rc_t SNPS_writeAddress(NetBuffRef_t *ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen);
+rc_t SNPS_readAddress(NetBuffRef_t *ref, castType_t *addrCast, addrType_t *addrType, char *addr);
 
-rc_t SNPS_readHeader(NetBuffRef ref);
-rc_t SNPS_readDomain(NetBuffRef ref, domainid_t* domain);
-rc_t SNPS_readTopic(NetBuffRef ref, topicid_t* topic);
-rc_t SNPS_readData(NetBuffRef ref, rc_t (*TopicMarshalling_decode)(byte_t* buff, Data data, size_t* size), Data data);
+rc_t SNPS_readHeader(NetBuffRef_t *ref);
+rc_t SNPS_readDomain(NetBuffRef_t *ref, domainid_t* domain);
+rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic);
+rc_t SNPS_readData(NetBuffRef_t *ref, rc_t (*TopicMarshalling_decode)(byte_t* buff, Data data, size_t* size), Data data);
 #endif   /* ----- #ifndef SNPS_H_INC  ----- */

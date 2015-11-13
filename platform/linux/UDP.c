@@ -83,8 +83,8 @@ struct UDPLocator_t {
 };
 
 static struct Network_t net;
-static struct NetBuffRef_t inBuff;
-static struct NetBuffRef_t multiInBuff;
+static NetBuffRef_t inBuff;
+static NetBuffRef_t multiInBuff;
 
 pthread_mutex_t recv_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -418,7 +418,7 @@ static int create_socket(struct addrinfo *address) {
 }
 
 void *recvLoop(void *netBuff) {
-	NetBuffRef buff = (NetBuffRef) netBuff;
+	NetBuffRef_t *buff = (NetBuffRef_t *) netBuff;
 	int sock; // receive socket
 	unsigned int sock_type; // broad or multicast
 
@@ -523,7 +523,7 @@ void *recvLoop(void *netBuff) {
 	return SDDS_RT_OK;
 }
 
-rc_t Network_send(NetBuffRef buff) {
+rc_t Network_send(NetBuffRef_t *buff) {
 	int sock;
 	unsigned int sock_type;
 
