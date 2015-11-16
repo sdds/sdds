@@ -1,0 +1,84 @@
+.#  ===========================================================================
+.#  Generates skeleton for new examples
+.#
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details.
+.#
+.#  This script will generate the following files:
+.#      * $(project.name).c
+.#  ===========================================================================
+.if !file.exists ("$(project.name:c).c")
+.   output "$(project.name:c).c"
+.   if project.os = "contiki"
+#include "contiki.h"
+#include "$(project.name:c)_sdds_impl.h"
+
+PROCESS($(project.name:c), "$(string.trim (project.?""):left)");
+AUTOSTART_PROCESSES(&$(project.name:c));
+
+PROCESS_THREAD($(project.name:c), ev, data)
+{
+	static struct etimer g_wait_timer;
+
+	PROCESS_BEGIN();
+
+.   elsif project.os = "linux"
+#include "$(project.name:c)_sdds_impl.h"
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+.   endif
+	DDS_ReturnCode_t ret;
+
+	sDDS_init();
+	Log_setLvl(0);
+
+.       for project.role
+.           for project.topic where role.topic = topic.name
+.               if role.type = "publisher"
+    $(topic.c_name:) $(topic.c_name:c)_pub;
+.               elsif role.type = "subscriber"
+    $(topic.c_name:) $(topic.c_name:c)_sub;
+    $(topic.c_name:) *$(topic.c_name:c)_sub_p = &$(topic.c_name:c)_sub;
+.               endif
+.           endfor
+.       endfor
+
+    for (;;) {
+.       for project.role
+.           for project.topic where role.topic = topic.name
+.              if role.type = "publisher"
+        ret = DDS_$(topic.c_name:)DataWriter_write (g_$(topic.c_name:)_writer, &$(topic.c_name:c)_pub, NULL);
+        if (ret != DDS_RETCODE_OK)
+            printf ("Failed to send topic $(topic.name)\\n");
+.           elsif role.type = "subscriber"
+        ret = DDS_$(topic.c_name:)DataReader_take_next_sample(g_$(topic.c_name:)_reader,
+                &$(topic.c_name:c)_sub_p, NULL);
+        if (ret == DDS_RETCODE_NO_DATA) {
+            printf("no data for $(topic.name)\\n");
+        }
+        else {
+            printf("Received ($(topic.name))\\n");
+        }
+.           endif
+
+.       endfor
+.   endfor
+.   if project.os = "contiki"
+		etimer_set(&g_wait_timer, 10 * CLOCK_SECOND);
+		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer));
+    }
+
+    PROCESS_END();
+}
+.   elsif project.os = "linux"
+        sleep (1);
+    }
+
+    return 0;
+}
+.   endif
+.   close
+.endif

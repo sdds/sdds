@@ -22,38 +22,6 @@ endfunction
 .       directory.create ("$(example.name:c)")
 .   endif
 .   if !file.exists ("$(example.name:c)/generate.sh")
-.       output "$(example.name:c)/$(example.name:c).c"
-.           if example.os = "contiki"
-#include "contiki.h"
-#include "$(example.name:c)_sdds_impl.h"
-
-PROCESS($(example.name:c), "$(string.trim (example.?""):left)");
-AUTOSTART_PROCESSES(&$(example.name:c));
-
-PROCESS_THREAD($(example.name:c), ev, data)
-{
-	PROCESS_BEGIN();
-
-	sDDS_init();
-	Log_setLvl(0);
-
-    PROCESS_END();
-}
-.           endif
-.           if example.os = "linux"
-#include "$(example.name:c)_sdds_impl.h"
-
-int main()
-{
-	sDDS_init();
-	Log_setLvl(0);
-
-    return 0;
-}
-.           endif
-.       close
-.   endif
-.   if !file.exists ("$(example.name:c)/generate.sh")
 .       ln_s ("../../scripts/generate.sh", "$(example.name:c)/generate.sh")
 .   endif
 .   if !file.exists ("$(example.name:c)/sdds.xml")

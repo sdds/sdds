@@ -33,6 +33,7 @@ project.generated_warning_header ?= "\
 .#  These scripts generate code independently from one another
 .#  so are not run in any particular order other than alphabetically.
 .gsl from "sdds_topic.gsl"
+.gsl from "sdds_skeleton.gsl"
 .gsl from "sdds_impl.gsl"
 .gsl from "sdds_constants.gsl"
 .if project.os = "linux"
