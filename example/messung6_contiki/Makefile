@@ -6,7 +6,7 @@ BUILD = sensor_board
 TARGET_USE_DERFMEGA128 = 1
 UIP_CONF_RPL=0
 
-APPLICATION_NAME := sdds
+APPLICATION_NAME = messung6_contiki
 
 export APPLICATION_NAME
 export CONTIKI
@@ -17,7 +17,7 @@ export UIP_CONF_RPL
 
 all:
 	$(MAKE) -f Makefile_2nd_lvl.mk $(APPLICATION_NAME).hex $(MAKEOPTS)
-			    
+
 flash:
 	$(MAKE) -f Makefile_2nd_lvl.mk flash $(MAKEOPTS)
 
@@ -32,8 +32,3 @@ gdb-server:
 
 clean:
 	$(MAKE) -f Makefile_2nd_lvl.mk clean
-
-messung: all
-	avr-strip *.co objs-128rfa1/*.o obj_avr-atmega128rfa1/*.o
-	avr-size *.co objs-128rfa1/*.o obj_avr-atmega128rfa1/*.o > Messung6_Contiki.csv
-

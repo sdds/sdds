@@ -63,15 +63,15 @@ $(project.GENERATED_WARNING_HEADER:)
 #endif /* SDDS_TOPIC_APP_MSG_COUNT */
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-#define SDDS_TOPIC_MAX_COUNT $(count (project->domain.topic) + 4)
+#define SDDS_TOPIC_MAX_COUNT $(count (project.topic) + 4)
 #else
-#define SDDS_TOPIC_MAX_COUNT $(count (project->domain.topic))
+#define SDDS_TOPIC_MAX_COUNT $(count (project.topic))
 #endif
 
 #define SDDS_MNG_WORKER_CYCLE_TIME 10000
 #define SDDS_MNG_BUILTINT_PUBCYCLE_PRESCALER 2
 
-.if count (project->domain.topics)
+.if count (project.topic)
 #define SDDS_EXTENDED_TOPIC_SUPPORT
 .endif
 

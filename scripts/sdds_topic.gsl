@@ -58,12 +58,12 @@ function resolve_topic_type (topic)
     endfor
 endfunction
 
-for project->domain.topic
+for project.topic
     resolve_topic_type (topic)
 endfor
 
 .endtemplate
-.for project->domain.topic
+.for project.topic
 .#
 .#  Generate topic ds header
 .#

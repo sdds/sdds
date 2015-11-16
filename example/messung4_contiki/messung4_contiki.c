@@ -1,5 +1,5 @@
 #include "contiki.h"
-#include "atmega_sdds_impl.h"
+#include "messung4_contiki_sdds_impl.h"
 #include "Log.h"
 
 /*---------------------------------------------------------------------------*/
@@ -20,8 +20,8 @@ PROCESS_THREAD(messung1_contiki, ev, data)
 	Alpha alpha_data_used;
 	Alpha* alpha_data_used_ptr = &alpha_data_used;
 
-	Beta b;
-	b.value = 0;
+	Beta beta_data_used;
+	Beta* beta_data_used_ptr = &beta_data_used;
 
 	while (1) {
 
@@ -35,11 +35,16 @@ PROCESS_THREAD(messung1_contiki, ev, data)
 			}
 		} while (ret != DDS_RETCODE_NO_DATA);
 
-		if (DDS_BetaDataWriter_write(g_Beta_writer, &b,
-				NULL) != DDS_RETCODE_OK) {
-			// handle error
-		}
-		b.value++;
+		do {
+			ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,
+					&beta_data_used_ptr, NULL);
+			if (ret == DDS_RETCODE_NO_DATA) {
+				printf("no data beta\n");
+			} else {
+				printf("Received (beta): %d\n", beta_data_used.value);
+			}
+		} while (ret != DDS_RETCODE_NO_DATA);
+
 
 		etimer_set(&g_wait_timer, 10 * CLOCK_SECOND);
 		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer));

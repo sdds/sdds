@@ -75,7 +75,7 @@ CONTIKI_WITH_IPV6 = 1
 LOCAL_CONSTANTS := local_constants.h
 
 # Object files of the generateted dds data types
-.for project->domain.topic
+.for project.topic
 DATA_DEPEND_OBJS += \$(SDDS_OBJDIR)/$(topic.c_name)-ds.o
 .endfor
 

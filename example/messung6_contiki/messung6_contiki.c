@@ -1,5 +1,5 @@
 #include "contiki.h"
-#include "atmega_sdds_impl.h"
+#include "messung6_contiki_sdds_impl.h"
 #include "Log.h"
 
 /*---------------------------------------------------------------------------*/
@@ -17,34 +17,53 @@ PROCESS_THREAD(messung1_contiki, ev, data)
 
 	DDS_ReturnCode_t ret;
 
-	Alpha alpha_data_used;
-	Alpha* alpha_data_used_ptr = &alpha_data_used;
+	Alpha a;
+	a.value = 0;
 
-	Beta beta_data_used;
-	Beta* beta_data_used_ptr = &beta_data_used;
+	Beta b;
+	b.value = 0;
+
+	Gamma gamma_data_used;
+	Gamma* gamma_data_used_ptr = &gamma_data_used;
+
+
+	Delta delta_data_used;
+	Delta* delta_data_used_ptr = &delta_data_used;
+
 
 	while (1) {
 
+		if (DDS_AlphaDataWriter_write(g_Alpha_writer, &a,
+				NULL) != DDS_RETCODE_OK) {
+			// handle error
+		}
+		a.value++;
+
+		if (DDS_BetaDataWriter_write(g_Beta_writer, &b,
+				NULL) != DDS_RETCODE_OK) {
+			// handle error
+		}
+		b.value++;
+
 		do {
-			ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader,
-					&alpha_data_used_ptr, NULL);
+			ret = DDS_GammaDataReader_take_next_sample(g_Gamma_reader,
+					&gamma_data_used_ptr, NULL);
 			if (ret == DDS_RETCODE_NO_DATA) {
-				printf("no data alpha\n");
+				printf("no data gamma\n");
 			} else {
-				printf("Received (alpha): %d\n", alpha_data_used.value);
+				printf("Received (gamma): %d\n", gamma_data_used.value);
 			}
 		} while (ret != DDS_RETCODE_NO_DATA);
 
 		do {
-			ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader,
-					&beta_data_used_ptr, NULL);
+			ret = DDS_DeltaDataReader_take_next_sample(g_Delta_reader,
+					&delta_data_used_ptr, NULL);
 			if (ret == DDS_RETCODE_NO_DATA) {
-				printf("no data beta\n");
+				printf("no data delta\n");
 			} else {
-				printf("Received (beta): %d\n", beta_data_used.value);
+				printf("Received (delta): %d\n", delta_data_used.value);
 			}
 		} while (ret != DDS_RETCODE_NO_DATA);
-
 
 		etimer_set(&g_wait_timer, 10 * CLOCK_SECOND);
 		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer));

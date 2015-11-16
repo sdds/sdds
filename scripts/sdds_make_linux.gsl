@@ -48,7 +48,7 @@ SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 include \$(SDDS_TOPDIR)/sdds.mk
 
-.for project->domain.topic
+.for project.topic
 DATA_DEPEND_OBJS += \$(SDDS_OBJDIR)/$(topic.c_name)-ds.o
 .endfor
 ALL_OBJS += \$(DATA_DEPEND_OBJS)

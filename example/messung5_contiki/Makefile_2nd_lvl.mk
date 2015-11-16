@@ -17,8 +17,6 @@ MODULES += core/net/ipv6/multicast
 
 CONTIKI_WITH_IPV6 = 1
 
-DATASTRUCTURES_FILE := datastructures
-
 LOCAL_CONSTANTS := local_constants.h
 
 # Object files of the generateted dds data types
@@ -35,7 +33,7 @@ DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
 #DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
 
 # object files of the generates implementation code file of sdds
-IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/atmega_sdds_impl.o
+IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/messung5_contiki_sdds_impl.o
 
 # file for the preprocessor constants of sdds
 SDDS_CONSTANTS_FILE := ./gen_constants.h
@@ -59,15 +57,9 @@ ifneq ($(TARGET_USE_DERFMEGA128),)
  CFLAGS += -DTARGET_USE_DERFMEGA128
 endif
 
-
-
-
 include $(SDDS_TOPDIR)/sdds.mk
 
-
 include $(CONTIKI)/Makefile.include
-
-
 
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.h,$(DATA_DEPEND_OBJS))
@@ -81,12 +73,6 @@ CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
 
-%-ds.c %-ds.h: $(DATASTRUCTURES_FILE)
-	$(shell python $(SDDS_TOPDIR)/generate_ds.py $<)
-
-%_sdds_impl.c %_sdds_impl.h: %-dds-roles $(DATASTRUCTURES_FILE) $(DATA_DEPEND_SRCS)
-	$(shell python $(SDDS_TOPDIR)/generate_sdds.py $(<:-dds-roles=) $(DATASTRUCTURES_FILE))
-
 all:
 
 $(SDDS_OBJDIR):
@@ -97,7 +83,7 @@ $(LOCAL_CONSTANTS):
 
 CFLAGS += -I.
 CFLAGS += -I $(DRIVER)
-CFLAGS += -Os 
+CFLAGS += -Os
 
 $(SDDS_OBJDIR)/%.o: %.c
 	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
@@ -117,7 +103,7 @@ $(APPLICATION_NAME).elf: $(APPLICATION_NAME).co $(SDDS_OBJS) $(IMPL_DEPEND_OBJS)
 
 flash:
 	avarice -g -e -p -f $(APPLICATION_NAME).hex $(FLASH_ARGS)
-	
+
 dude:
 	sudo avrdude -c dragon_jtag -p m128rfa1 -U flash:w:$(APPLICATION_NAME).hex
 
@@ -132,5 +118,10 @@ CLEAN += symbols.c symbols.h
 CLEAN += $(APPLICATION_NAME).d
 CLEAN += -rf $(SDDS_OBJDIR)
 
+%-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
+	$(shell ./generate.sh)
 
 -include $(patsubst %.o,%.d,$(ALL_OBJS))
+
+code:
+	$(shell ./generate.sh)

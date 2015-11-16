@@ -1,10 +1,10 @@
 <project
-    name = "messung1_contiki"
+    name = "messung4_contiki"
     script = "sdds.gsl"
     endian = "little"
     os = "contiki"
     >
-    Messung 1 auf Contiki
+    Messung 4 auf Contiki
 
     <!--
          iface: this node shall use
@@ -19,7 +19,6 @@
     -->
     <include filename = "../topics/messung.xml" />
 
-    <role topic = "alpha" type = "publisher">
-        <subscriber ip = "fe80::12:13ff:fe14:1516" />
-    </role>
+    <role topic = "alpha" type = "subscriber" />
+    <role topic = "beta" type = "subscriber" />
 </project>

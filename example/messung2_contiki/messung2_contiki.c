@@ -1,5 +1,5 @@
 #include "contiki.h"
-#include "atmega_sdds_impl.h"
+#include "messung2_contiki_sdds_impl.h"
 #include "Log.h"
 
 /*---------------------------------------------------------------------------*/
