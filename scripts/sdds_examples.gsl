@@ -1,0 +1,95 @@
+.#  ===========================================================================
+.#  Generate examples
+.#
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details.
+.#
+.#  This script will generate the following files:
+.#  ===========================================================================
+.template 0
+
+function ln_s (filename, linkname)
+    my.shell = proc.new ("ln -s $(my.filename:) $(my.linkname:)")
+    my.shell.run ()
+endfunction
+
+.endtemplate
+.#
+.#  Create examples or update existing
+.#
+.for example
+.   if !file.exists ("$(example.name:c)")
+.       directory.create ("$(example.name:c)")
+.   endif
+.   if !file.exists ("$(example.name:c)/generate.sh")
+.       output "$(example.name:c)/$(example.name:c).c"
+.           if example.os = "contiki"
+#include "contiki.h"
+#include "$(example.name:c)_sdds_impl.h"
+
+PROCESS($(example.name:c), "$(string.trim (example.?""):left)");
+AUTOSTART_PROCESSES(&$(example.name:c));
+
+PROCESS_THREAD($(example.name:c), ev, data)
+{
+	PROCESS_BEGIN();
+
+	sDDS_init();
+	Log_setLvl(0);
+
+    PROCESS_END();
+}
+.           endif
+.           if example.os = "linux"
+#include "$(example.name:c)_sdds_impl.h"
+
+int main()
+{
+	sDDS_init();
+	Log_setLvl(0);
+
+    return 0;
+}
+.           endif
+.       close
+.   endif
+.   if !file.exists ("$(example.name:c)/generate.sh")
+.       ln_s ("../../scripts/generate.sh", "$(example.name:c)/generate.sh")
+.   endif
+.   if !file.exists ("$(example.name:c)/sdds.xml")
+.       output "$(example.name:c)/sdds.xml"
+<project
+    name = "$(example.name:c)"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "$(example.os)"
+    >
+    <!--
+        Set interface, ip and port for this project
+    iface = ""
+    ip = ""
+    port = ""
+    >
+    -->
+    "$(string.trim (example.?""):left)"
+
+    <!--
+        Include your topic files here. You can include topics from multiple files.
+        Only those topics will be generated that have at least one matching role.
+    -->
+    <include filename = "../topics/alpha.xml" />
+
+    <!--
+        Roles are bound to one topic and are either a publisher or subscriber.
+        Publisher can have a list of subscriber to whom the should send data.
+    <role topic = "mytopic" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "mytopic" type = "subscriber" />
+    -->
+    <role topic = "alpha" type = "subscriber" />
+</project>
+.       close
+.   endif
+.endfor
+.
