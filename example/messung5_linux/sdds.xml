@@ -1,0 +1,32 @@
+<project
+    name = "messung5_linux"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    ip = "fe80::12:13ff:fe14:1516"
+    >
+    <!--
+        Set interface, ip and port for this project
+    iface = ""
+    ip = ""
+    port = ""
+    >
+    -->
+
+    <!--
+        Include your topic files here. You can include topics from multiple files.
+        Only those topics will be generated that have at least one matching role.
+    -->
+    <include filename = "../topics/messung.xml" />
+
+    <!--
+        Roles are bound to one topic and are either a publisher or subscriber.
+        Publisher can have a list of subscriber to whom the should send data.
+    -->
+    <role topic = "alpha" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "beta" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+</project>

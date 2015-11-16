@@ -1,13 +1,12 @@
-APPLICATION_NAME = sdds
+APPLICATION_NAME = messung1_linux
 
 export APPLICATION_NAME
 
 all:
 	$(MAKE) -f Makefile_2nd_lvl.mk $(APPLICATION_NAME) $(MAKEOPTS)
 
+code:
+	$(MAKE) -f Makefile_2nd_lvl.mk code
+
 clean:
 	$(MAKE) -f Makefile_2nd_lvl.mk clean
-
-messung: all
-	strip objs-linux/*.o
-	size objs-linux/*.o > Messung1_Linux.csv
