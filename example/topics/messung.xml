@@ -1,0 +1,19 @@
+<domain id = "1">
+    <topic name = "alpha" domain = "1" id = "10">
+        Alpha messung topic.
+        <attribute name = "value" type = "DDS_char">Any char value</attribute>
+    </topic>
+    <topic name = "beta" domain = "0" id = "11">
+        Beta messung topic.
+        <attribute name = "value" type = "DDS_char">Any char value</attribute>
+    </topic>
+    <topic name = "gamma" domain = "0" id = "12">
+        Gamma messung topic.
+        <attribute name = "value" type = "DDS_char">Any char value</attribute>
+    </topic>
+    <topic name = "delta" domain = "0" id = "13">
+        Delta messung topic.
+        <attribute name = "value" type = "DDS_char">Any char value</attribute>
+    </topic>
+</domain>
+
