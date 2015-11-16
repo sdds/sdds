@@ -20,6 +20,9 @@ endfunction
 resolve_topics ()
 
 project.description ?= "$(string.trim (project.?""):left)"
+project.iface ?= ""
+project.ip ?= "fe80::10"
+project.port ?= "23234"
 project.generated_warning_header ?= "\
 ################################################################################
 #  THIS FILE IS 100% GENERATED FOR sDDS; DO NOT EDIT EXCEPT EXPERIMENTALLY     #

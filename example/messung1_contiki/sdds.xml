@@ -3,15 +3,10 @@
     script = "sdds.gsl"
     endian = "little"
     os = "contiki"
+    ip = "fe80::12:13ff:fe14:1516"
+    port = "23234"
     >
     Messung 1 auf Contiki
-
-    <!--
-         iface: this node shall use
-         ip: ipv6 of the iface
-         port: to send to
-     -->
-    <contiki jackdaw = "fe80::12:13ff:fe14:1516" board = "fe80::00ff:fe00:0001" />
 
     <!--
         Includes are processed first, so XML in included files will be

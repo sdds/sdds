@@ -3,10 +3,11 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
+    iface = "tap0"
+    ip = "fe80::10"
+    port = "23234"
     >
     Linux multicast discovery example with beta topic.
-
-    <linux iface = "tap0" ip = "fe80::10" port = "23234" />
 
     <!--
         Includes are processed first, so XML in included files will be

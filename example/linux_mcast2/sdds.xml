@@ -3,10 +3,11 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
+    iface = "tap1"
+    ip = "fe80::20"
+    port = "23234"
     >
     Linux basic example with beta topic
-
-    <linux iface = "tap1" ip = "fe80::20" port = "23234" />
 
     <!--
         Includes are processed first, so XML in included files will be
