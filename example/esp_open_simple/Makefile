@@ -1,15 +1,15 @@
-APPLICATION_NAME := mywrite
+APPLICATION_NAME := sdds
 PLATTFORM_RTOS_IP_PROTOCOL := ipv4
 
 export APPLICATION_NAME
 export PLATTFORM_RTOS_IP_PROTOCOL
 
-all: gen
+all: code
 	$(MAKE) -f Makefile_2nd_lvl.mk $(APPLICATION_NAME).hex $(MAKEOPTS)
-	
-gen:
-	$(MAKE) -f Makefile_2nd_lvl.mk gen
-			    
+
+code:
+	$(MAKE) -f Makefile_2nd_lvl.mk code $(MAKEOPTS)
+
 flash:
 	$(MAKE) -f Makefile_2nd_lvl.mk flash $(MAKEOPTS)
 

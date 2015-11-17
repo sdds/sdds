@@ -17,7 +17,7 @@
       0	      0	      0	      0	      0	gen_cert.o (ex build/axtls.a)
    2833	      0	      0	   2833	    b11	asn1.o (ex build/axtls.a)
    1356	      0	      0	   1356	    54c	tls1_svr.o (ex build/axtls.a)
-   6810	      0	      0	   6810	   1a9a	tls1.o (ex build/axtls.a)
+   6804	      0	      0	   6804	   1a94	tls1.o (ex build/axtls.a)
    2077	      0	      0	   2077	    81d	x509.o (ex build/axtls.a)
     193	      0	      0	    193	     c1	os_port.o (ex build/axtls.a)
      58	      0	      0	     58	     3a	axtls_esp_stubs.o (ex build/axtls.a)
@@ -80,7 +80,7 @@
    1324	      4	     80	   1408	    580	build/objs-esp/sdds-DataSink.o
    1120	      4	    160	   1284	    504	build/objs-esp/sdds-DataSource.o
     142	      0	      0	    142	     8e	build/objs-esp/sdds-Debug.o
-   1221	      0	    412	   1633	    661	build/objs-esp/sdds-Discovery.o
+   1285	      0	     92	   1377	    561	build/objs-esp/sdds-Discovery.o
     426	      0	      0	    426	    1aa	build/objs-esp/sdds-Locator.o
     508	      0	     84	    592	    250	build/objs-esp/sdds-LocatorDB.o
       0	      0	      0	      0	      0	build/objs-esp/sdds-Management.o
@@ -94,5 +94,5 @@
      51	      0	      0	     51	     33	build/objs-esp/sdds-freertos-Memory.o
       9	      0	      0	      9	      9	build/objs-esp/sdds-freertos-NodeConfig.o
      24	      0	      0	     24	     18	build/objs-esp/sdds-freertos-Task.o
-   1346	      0	     28	   1374	    55e	build/objs-esp/sdds-freertos-UDP.o
+   1350	      0	     28	   1378	    562	build/objs-esp/sdds-freertos-UDP.o
       0	      0	      0	      0	      0	build/objs-esp/sdds-sDDS.o

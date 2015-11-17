@@ -1,11 +1,11 @@
-#include "atmega_sdds_impl.h"
+#include "mywrite_sdds_impl.h"
+#include "SDDS_Application.h"
 
 #include <sdds/DataSink.h>
 #include <sdds/DataSource.h>
 #include <sdds/Log.h>
 #include <sdds/sdds_types.h>
 #include <os-ssal/NodeConfig.h>
-#include "SDDS_Application.h"
 
 #include <avr/pgmspace.h>
 

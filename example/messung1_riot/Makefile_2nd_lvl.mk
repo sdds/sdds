@@ -12,9 +12,9 @@ DATASTRUCTURES_FILE := datastructures
 
 export LOCAL_CONSTANTS :=  local_constants.h
 
-IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/riot_sdds_impl.o
+IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/messung1_riot_sdds_impl.o
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
-ALL_OBJS += $(SDDS_OBJDIR)/sdds.o
+ALL_OBJS += $(SDDS_OBJDIR)/$(APPLICATION_NAME).o
 
 
 ifneq ($(PLATFORM_RIOT_SDDS_PORT),)
@@ -49,7 +49,7 @@ USEMODULE += vtimer
 
 
 export APPLICATION := $(APPLICATION_NAME)
-APPDEPS += $(LOCAL_CONSTANTS) $(SDDS_OBJDIR)/sdds.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS) riot_sdds_impl.c riot_sdds_impl.h
+APPDEPS += $(LOCAL_CONSTANTS) $(SDDS_OBJDIR)/$(APPLICATION_NAME).o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS) riot_sdds_impl.c riot_sdds_impl.h
 APPDEPS += $(SDDS_CONSTANTS_FILE)
 
 LINKFLAGS += $(abspath $(SDDS_OBJS)) 

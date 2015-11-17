@@ -41,12 +41,8 @@
 #define PLATFORM_RIOT_SDDS_BUILTIN_MULTICAST_PORT_OFF 50
 
 
-#ifndef PLATFORM_RIOT_SDDS_LISTEN_ADDRESS
-#define PLATFORM_RIOT_SDDS_LISTEN_ADDRESS "::1"
-#endif
-
-#ifndef PLATFORM_RIOT_SDDS_SEND_ADDRESS
-#define PLATFORM_RIOT_SDDS_SEND_ADDRESS "::1"
+#ifndef PLATFORM_RIOT_SDDS_ADDRESS
+#define PLATFORM_RIOT_SDDS_ADDRESS "::"
 #endif
 
 #define SDDS_IF 0
@@ -219,7 +215,7 @@ static int create_socket(int port)
   sa.sin6_family = PLATFORM_RIOT_SDDS_PROTOCOL;
   sa.sin6_port = HTONS(port);
   
-  int ret = inet_pton(PTON_AF_INET6, PLATFORM_RIOT_SDDS_SEND_ADDRESS, &(sa.sin6_addr));
+  int ret = inet_pton(PTON_AF_INET6, PLATFORM_RIOT_SDDS_ADDRESS, &(sa.sin6_addr));
   if(ret != 1)
   {
     return -1;
@@ -427,7 +423,7 @@ rc_t Network_createLocator(Locator* loc)
   // set type for recvLoop
   (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
 
-  return Network_setAddressToLocator(*loc, PLATFORM_RIOT_SDDS_SEND_ADDRESS);
+  return Network_setAddressToLocator(*loc, PLATFORM_RIOT_SDDS_ADDRESS);
 }
 
 rc_t Network_createMulticastLocator(Locator* loc) 

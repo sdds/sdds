@@ -17,7 +17,7 @@
       0	      0	      0	      0	      0	gen_cert.o (ex build/axtls.a)
    2833	      0	      0	   2833	    b11	asn1.o (ex build/axtls.a)
    1356	      0	      0	   1356	    54c	tls1_svr.o (ex build/axtls.a)
-   6810	      0	      0	   6810	   1a9a	tls1.o (ex build/axtls.a)
+   6804	      0	      0	   6804	   1a94	tls1.o (ex build/axtls.a)
    2077	      0	      0	   2077	    81d	x509.o (ex build/axtls.a)
     193	      0	      0	    193	     c1	os_port.o (ex build/axtls.a)
      58	      0	      0	     58	     3a	axtls_esp_stubs.o (ex build/axtls.a)
@@ -75,12 +75,12 @@
     378	      0	      0	    378	    17a	alpha-ds.o (ex build/program.a)
     421	      0	      4	    425	    1a9	sdds.o (ex build/program.a)
     377	      0	      0	    377	    179	beta-ds.o (ex build/program.a)
-    226	      0	      0	    226	     e2	esp_sdds_impl.o (ex build/program.a)
-      0	      0	      0	      0	      0	build/objs-esp/sdds-BuiltinTopic.o
-   1320	      4	     56	   1380	    564	build/objs-esp/sdds-DataSink.o
-    311	      4	     88	    403	    193	build/objs-esp/sdds-DataSource.o
+    246	      0	      0	    246	     f6	esp_sdds_impl.o (ex build/program.a)
+   3621	      0	     30	   3651	    e43	build/objs-esp/sdds-BuiltinTopic.o
+   1332	      4	    104	   1440	    5a0	build/objs-esp/sdds-DataSink.o
+   1120	      4	    136	   1260	    4ec	build/objs-esp/sdds-DataSource.o
     142	      0	      0	    142	     8e	build/objs-esp/sdds-Debug.o
-      0	      0	      0	      0	      0	build/objs-esp/sdds-Discovery.o
+   1253	      0	     92	   1345	    541	build/objs-esp/sdds-Discovery.o
     426	      0	      0	    426	    1aa	build/objs-esp/sdds-Locator.o
     508	      0	     84	    592	    250	build/objs-esp/sdds-LocatorDB.o
       0	      0	      0	      0	      0	build/objs-esp/sdds-Management.o
@@ -88,10 +88,11 @@
     184	      0	      0	    184	     b8	build/objs-esp/sdds-Msg.o
      98	      0	      0	     98	     62	build/objs-esp/sdds-NetBuffRef.o
    2421	      0	      0	   2421	    975	build/objs-esp/sdds-SNPS.o
-    181	      0	      0	    181	     b5	build/objs-esp/sdds-Topic.o
-    465	      0	     92	    557	    22d	build/objs-esp/sdds-TopicDB.o
+    305	      0	      0	    305	    131	build/objs-esp/sdds-Topic.o
+    489	      0	    340	    829	    33d	build/objs-esp/sdds-TopicDB.o
     660	      0	      4	    664	    298	build/objs-esp/sdds-freertos-Log.o
      51	      0	      0	     51	     33	build/objs-esp/sdds-freertos-Memory.o
       9	      0	      0	      9	      9	build/objs-esp/sdds-freertos-NodeConfig.o
-   1346	      0	     28	   1374	    55e	build/objs-esp/sdds-freertos-UDP.o
+     24	      0	      0	     24	     18	build/objs-esp/sdds-freertos-Task.o
+   1350	      0	     28	   1378	    562	build/objs-esp/sdds-freertos-UDP.o
       0	      0	      0	      0	      0	build/objs-esp/sdds-sDDS.o

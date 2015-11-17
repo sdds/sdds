@@ -9,6 +9,11 @@
 
 #include "lwip/udp.h"
 
+#define PLATFORM_RTOS_SDDS_BUILTIN_MULTICAST_ADDRESS 				SDDS_BUILTIN_MULTICAST_ADDRESS
+#define PLATFORM_RTOS_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS 	SDDS_BUILTIN_PARTICIPANT_ADDRESS
+#define PLATFORM_RTOS_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS 			SDDS_BUILTIN_TOPIC_ADDRESS
+#define PLATFORM_RTOS_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS 		SDDS_BUILTIN_SUB_PUB_ADDRESS
+
 struct FreeRTOS_Locator
 {
 	struct Locator_t sdds_locator;
@@ -19,7 +24,7 @@ struct FreeRTOS_Locator
 typedef struct FreeRTOS_Locator FreeRTOS_Locator_t;
 typedef struct FreeRTOS_Locator* FreeRTOS_Locator;
 
-static struct NetBuffRef_t incoming_buffer;
+static NetBuffRef_t incoming_buffer;
 
 struct udp_pcb *unicastConn_pcb;
 struct pbuf *p;
@@ -98,7 +103,7 @@ rc_t Network_init(void) {
 	return SDDS_RT_OK;
 }
 
-rc_t Network_send(NetBuffRef buffer) {
+rc_t Network_send(NetBuffRef_t *buffer) {
 	Locator loc = buffer->addr;
 
 	while (loc != NULL ) {
@@ -210,7 +215,12 @@ rc_t Network_createLocator(Locator* locator) {
 
 	*locator = (Locator) freertos_locator;
 
-	return Network_setAddressToLocator(*locator, PLATFORM_RTOS_SDDS_SEND_ADDRESS);
+	return Network_setAddressToLocator(*locator, PLATFORM_RTOS_SDDS_ADDRESS);
+}
+
+rc_t Network_createMulticastLocator(Locator* loc) {
+	return Network_setMulticastAddressToLocator(*loc,
+	PLATFORM_RTOS_SDDS_BUILTIN_MULTICAST_ADDRESS);
 }
 
 rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr) {

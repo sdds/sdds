@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#include "linux_sdds_impl.h"
+#include "mywrite_sdds_impl.h"
 
 #include <sdds/DataSink.h>
 #include <sdds/DataSource.h>

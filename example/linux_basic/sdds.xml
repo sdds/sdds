@@ -1,0 +1,31 @@
+<project
+    name = "mywrite"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    ip = "127.0.0.1"
+    port = "23234"
+    >
+
+	contiki wallnode for wiedas
+
+    <!--
+        Includes are processed first, so XML in included files will be
+        part of the XML tree
+    -->
+    <include filename = "../topics/wallnode.xml" />
+
+    <role topic = "SimpleLamp" type = "subscriber">
+    </role>
+    <role topic = "DimmableLight" type = "subscriber">
+    </role>
+    <role topic = "ToggleFunctionality" type = "publisher">
+        <subscriber ip = "fe80::250:c2ff:ff18:88aa" />
+	</role>
+    <role topic = "OnOffFunctionality" type = "publischer">
+        <subscriber ip = "fe80::250:c2ff:ff18:88aa" />
+	</role>
+    <role topic = "LightRegulationFunctionality" type = "publisher">
+        <subscriber ip = "fe80::250:c2ff:ff18:88aa" />
+	</role>
+</project>

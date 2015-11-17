@@ -29,12 +29,8 @@
 
 #define PLATFORM_CONTIKI_SDDS_BUILTIN_MULTICAST_PORT_OFF 				20
 
-#ifndef PLATFORM_CONTIKI_SDDS_LISTEN_ADDRESS
-#define PLATFORM_CONTIKI_SDDS_LISTEN_ADDRESS "::"
-#endif
-
-#ifndef PLATFORM_CONTIKI_SDDS_SEND_ADDRESSS
-#define PLATFORM_CONTIKI_SDDS_SEND_ADDRESSS "::1"
+#ifndef PLATFORM_CONTIKI_SDDS_ADDRESS
+#define PLATFORM_CONTIKI_SDDS_ADDRESS "::"
 #endif
 
 // IF BUILTIN
@@ -65,7 +61,7 @@ rc_t Network_Multicast_init();
 rc_t Network_init(void) {
 //	uip_ipaddr_t address;
 
-//	uiplib_ipaddrconv(PLATFORM_CONTIKI_SDDS_LISTEN_ADDRESS, &address);
+//	uiplib_ipaddrconv(PLATFORM_CONTIKI_SDDS_ADDRESS, &address);
 
 	NetBuffRef_init(&g_incoming_buffer);
 
@@ -274,7 +270,7 @@ rc_t Network_createLocator(Locator* loc) {
 	(*loc)->type = SDDS_LOCATOR_TYPE_UNI;
 
 	return Network_setAddressToLocator(*loc,
-			PLATFORM_CONTIKI_SDDS_SEND_ADDRESSS);
+			PLATFORM_CONTIKI_SDDS_ADDRESS);
 
 }
 

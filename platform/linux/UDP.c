@@ -59,12 +59,8 @@
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF 20
 #define PLATFORM_LINUX_MULTICAST_SO_RCVBUF 1200000
 
-#ifndef PLATFORM_LINUX_SDDS_LISTEN_ADDRESS
-#define PLATFORM_LINUX_SDDS_LISTEN_ADDRESS "::"
-#endif
-
-#ifndef PLATFORM_LINUX_SDDS_SEND_ADDRESS
-#define PLATFORM_LINUX_SDDS_SEND_ADDRESS "::1"
+#ifndef PLATFORM_LINUX_SDDS_ADDRESS
+#define PLATFORM_LINUX_SDDS_ADDRESS "::"
 #endif
 
 //#define PRINT_RECVBUF 1
@@ -159,7 +155,7 @@ rc_t Network_Multicast_init() {
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_flags = AI_NUMERICHOST;
 	int status;
-	if ((status = getaddrinfo(PLATFORM_LINUX_SDDS_SEND_ADDRESS, multicastPort, &hints,
+	if ((status = getaddrinfo(PLATFORM_LINUX_SDDS_ADDRESS, multicastPort, &hints,
 			&multicastAddr)) != 0) {
 		Log_error("%d ERROR: getaddrinfo() failed\n", __LINE__);
 		return SDDS_RT_FAIL;
@@ -286,7 +282,7 @@ rc_t Network_init(void) {
 	hints.ai_family = PLATFORM_LINUX_SDDS_PROTOCOL;
 	hints.ai_flags = AI_PASSIVE;
 
-	int gai_ret = getaddrinfo(PLATFORM_LINUX_SDDS_SEND_ADDRESS, port_buffer,
+	int gai_ret = getaddrinfo(PLATFORM_LINUX_SDDS_ADDRESS, port_buffer,
 			&hints, &address);
 	if (gai_ret != 0) {
 		Log_error("can't obtain suitable addresses for listening\n");
@@ -381,7 +377,7 @@ static int create_socket(struct addrinfo *address) {
 #error "Only AF_INET and AF_INET6 are understood linux protocols."
 #endif
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_DISCOVERY_ENABLED)
 	// bind the socket
 	if (bind(fd, address->ai_addr, address->ai_addrlen) != 0) {
 		Log_error("Unable to bind socket\n");
@@ -738,7 +734,7 @@ rc_t Network_createLocator(Locator* loc) {
 	(*loc)->type = SDDS_LOCATOR_TYPE_UNI;
 
 	return Network_setAddressToLocator(*loc,
-	PLATFORM_LINUX_SDDS_SEND_ADDRESS);
+	PLATFORM_LINUX_SDDS_ADDRESS);
 }
 
 rc_t Network_createMulticastLocator(Locator* loc) {

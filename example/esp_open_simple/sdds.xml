@@ -1,0 +1,32 @@
+<project
+    name = "mywrite"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "freertos"
+	ip =  "192.168.178.21"
+    >
+    <!--
+        Set interface, ip and port for this project
+    iface = ""
+    ip = ""
+    port = ""
+    >
+    -->
+    ""
+
+    <!--
+        Include your topic files here. You can include topics from multiple files.
+        Only those topics will be generated that have at least one matching role.
+    -->
+    <include filename = "../topics/messung.xml" />
+
+    <!--
+        Roles are bound to one topic and are either a publisher or subscriber.
+        Publisher can have a list of subscriber to whom the should send data.
+    <role topic = "mytopic" type = "subscriber" />
+    -->
+    <role topic = "beta" type = "publisher">
+        <subscriber ip = "192.168.178.22" />
+    </role>
+    <role topic = "beta" type = "subscriber"></role>
+</project>

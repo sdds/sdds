@@ -10,7 +10,7 @@ SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 $(LOCAL_CONSTANTS):
 	touch $(LOCAL_CONSTANTS)
-	
+
 $(SDDS_OBJDIR):
 	mkdir -p $(SDDS_OBJDIR)
 
@@ -24,15 +24,15 @@ CFLAGS += -I $(FREERTOS_TOPDIR)/../lwip/lwip/src/include/
 CFLAGS += -I $(FREERTOS_TOPDIR)/../lwip/include/
 CFLAGS += -I $(FREERTOS_TOPDIR)/../include/
 CFLAGS += -I $(FREERTOS_TOPDIR)/../lwip/lwip/src/include/$(PLATTFORM_RTOS_IP_PROTOCOL)/
+CFLAGS += -Os
 
 include $(SDDS_TOPDIR)/sdds.mk
 
 PROGRAM=$(APPLICATION_NAME)
 include ../../../platform/esp-open-rtos/common.mk
 
-gen: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR) $(SDDS_ARCH)-dds-roles $(DATASTRUCTURES_FILE)
-	$(shell python $(SDDS_TOPDIR)/generate_ds.py $(DATASTRUCTURES_FILE))
-	$(shell python $(SDDS_TOPDIR)/generate_sdds.py $(SDDS_ARCH) $(DATASTRUCTURES_FILE))
-	
+code: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR) 
+	$(shell ./generate.sh)
+
 $(APPLICATION_NAME).hex: all
 	$(OBJCOPY) build/$(APPLICATION_NAME).out -j .text -j .data -O ihex $@
