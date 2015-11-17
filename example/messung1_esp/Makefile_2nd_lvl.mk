@@ -31,9 +31,8 @@ include $(SDDS_TOPDIR)/sdds.mk
 PROGRAM=$(APPLICATION_NAME)
 include ../../../platform/esp-open-rtos/common.mk
 
-gen: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR) $(SDDS_ARCH)-dds-roles $(DATASTRUCTURES_FILE)
-	$(shell python $(SDDS_TOPDIR)/generate_ds.py $(DATASTRUCTURES_FILE))
-	$(shell python $(SDDS_TOPDIR)/generate_sdds.py $(SDDS_ARCH) $(DATASTRUCTURES_FILE))
+gen: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR)
+	$(shell generate.sh)
 	
 $(APPLICATION_NAME).hex: all
 	$(OBJCOPY) build/$(APPLICATION_NAME).out -j .text -j .data -O ihex $@
