@@ -10,7 +10,7 @@ SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 $(LOCAL_CONSTANTS):
 	touch $(LOCAL_CONSTANTS)
-	
+
 $(SDDS_OBJDIR):
 	mkdir -p $(SDDS_OBJDIR)
 
@@ -31,8 +31,8 @@ include $(SDDS_TOPDIR)/sdds.mk
 PROGRAM=$(APPLICATION_NAME)
 include ../../../platform/esp-open-rtos/common.mk
 
-gen: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR)
-	$(shell generate.sh)
-	
+%-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
+	$(shell ./generate.sh)
+
 $(APPLICATION_NAME).hex: all
 	$(OBJCOPY) build/$(APPLICATION_NAME).out -j .text -j .data -O ihex $@
