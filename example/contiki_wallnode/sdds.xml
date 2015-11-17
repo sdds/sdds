@@ -1,0 +1,47 @@
+<project
+    name = "mywrite"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "contiki"
+    ip = "fe80::12:13ff:fe14:1516"
+    port = "23234"
+    >
+
+	contiki wallnode for wiedas
+
+    <!--
+        Includes are processed first, so XML in included files will be
+        part of the XML tree
+    -->
+    <include filename = "../topics/wallnode.xml" />
+
+    <role topic = "MovementSensor" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "DoorSensor" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "LightSensor" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "OnOffSwitch" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "WindowSensor" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "SimpleLamp" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "TemperatureSensor" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "HumiditySensor" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "DimmableLight" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "ToggleFunctionality" type = "subscriber"></role>
+    <role topic = "LightRegulationFunctionality" type = "subscriber"></role>
+</project>
