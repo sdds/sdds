@@ -13,8 +13,8 @@
 function resolve_topic_type (topic)
     my.topic.size ?= 0
     my.topic.description ?= "$(string.trim (topic.?""):left)"
-    my.topic.c_name = "$(My.Topic.Name)"
-    my.topic.c_name = "$(my.topic.c_name:Camel)"
+
+    my.topic.c_name = "$(string.substr (my.topic.name, 0, 0):upper)" + "$(string.substr (my.topic.name, 1):Camel)"
 
     for my.topic.attribute
         attribute.description ?= "$(string.trim (attribute.?""):left)"
