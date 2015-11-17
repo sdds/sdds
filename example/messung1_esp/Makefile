@@ -4,8 +4,11 @@ PLATTFORM_RTOS_IP_PROTOCOL := ipv4
 export APPLICATION_NAME
 export PLATTFORM_RTOS_IP_PROTOCOL
 
-all:
+all: code
 	$(MAKE) -f Makefile_2nd_lvl.mk $(APPLICATION_NAME).hex $(MAKEOPTS)
+
+code:
+	$(MAKE) -f Makefile_2nd_lvl.mk code $(MAKEOPTS)
 
 flash:
 	$(MAKE) -f Makefile_2nd_lvl.mk flash $(MAKEOPTS)

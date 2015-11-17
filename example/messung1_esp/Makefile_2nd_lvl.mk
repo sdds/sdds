@@ -31,7 +31,7 @@ include $(SDDS_TOPDIR)/sdds.mk
 PROGRAM=$(APPLICATION_NAME)
 include ../../../platform/esp-open-rtos/common.mk
 
-%-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
+code: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR) 
 	$(shell ./generate.sh)
 
 $(APPLICATION_NAME).hex: all
