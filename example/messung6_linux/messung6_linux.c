@@ -1,62 +1,50 @@
 #include "messung6_linux_sdds_impl.h"
-#include "alpha-ds.h"
-#include "Log.h"
+#include <stdio.h>
+#include <unistd.h>
 
-int main() {
+int main()
+{
+	DDS_ReturnCode_t ret;
+
 	sDDS_init();
 	Log_setLvl(0);
 
-	DDS_ReturnCode_t ret;
+    Alpha alpha_pub;
+    Beta beta_pub;
+    Gamma gamma_sub;
+    Gamma *gamma_sub_p = &gamma_sub;
+    Delta delta_sub;
+    Delta *delta_sub_p = &delta_sub;
 
-	Alpha a;
-	a.value = 0;
+    for (;;) {
+        ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
+        if (ret != DDS_RETCODE_OK)
+            printf ("Failed to send topic alpha\n");
 
-	Beta b;
-	b.value = 0;
+        ret = DDS_BetaDataWriter_write (g_Beta_writer, &beta_pub, NULL);
+        if (ret != DDS_RETCODE_OK)
+            printf ("Failed to send topic beta\n");
 
-	Gamma gamma_data_used;
-	Gamma* gamma_data_used_ptr = &gamma_data_used;
+        ret = DDS_GammaDataReader_take_next_sample(g_Gamma_reader,
+                &gamma_sub_p, NULL);
+        if (ret == DDS_RETCODE_NO_DATA) {
+            printf("no data for gamma\n");
+        }
+        else {
+            printf("Received (gamma)\n");
+        }
 
+        ret = DDS_DeltaDataReader_take_next_sample(g_Delta_reader,
+                &delta_sub_p, NULL);
+        if (ret == DDS_RETCODE_NO_DATA) {
+            printf("no data for delta\n");
+        }
+        else {
+            printf("Received (delta)\n");
+        }
 
-	Delta delta_data_used;
-	Delta* delta_data_used_ptr = &delta_data_used;
+        sleep (1);
+    }
 
-
-	while (1) {
-
-		if (DDS_AlphaDataWriter_write(g_Alpha_writer, &a,
-				NULL) != DDS_RETCODE_OK) {
-			// handle error
-		}
-		a.value++;
-
-		if (DDS_BetaDataWriter_write(g_Beta_writer, &b,
-				NULL) != DDS_RETCODE_OK) {
-			// handle error
-		}
-		b.value++;
-
-		do {
-			ret = DDS_GammaDataReader_take_next_sample(g_Gamma_reader,
-					&gamma_data_used_ptr, NULL);
-			if (ret == DDS_RETCODE_NO_DATA) {
-				printf("no data gamma\n");
-			} else {
-				printf("Received (gamma): %d\n", gamma_data_used.value);
-			}
-		} while (ret != DDS_RETCODE_NO_DATA);
-
-		do {
-			ret = DDS_DeltaDataReader_take_next_sample(g_Delta_reader,
-					&delta_data_used_ptr, NULL);
-			if (ret == DDS_RETCODE_NO_DATA) {
-				printf("no data delta\n");
-			} else {
-				printf("Received (delta): %d\n", delta_data_used.value);
-			}
-		} while (ret != DDS_RETCODE_NO_DATA);
-
-		sleep(10);
-	}
-
+    return 0;
 }

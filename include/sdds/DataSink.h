@@ -20,26 +20,19 @@
 #ifndef  DATASINK_H_INC
 #define  DATASINK_H_INC
 
+#include "sDDS.h"
 #include "BuiltinTopic.h"
-#include "sdds_types.h"
+#include "Log.h"
+#include "Marshalling.h"
 #include "NetBuffRef.h"
 #include "SNPS.h"
+#include "TopicDB.h"
 
+#include <string.h>
 
 struct _DataSink_t;
 typedef struct _DataSink_t DataSink_t;
 extern DataSink_t *dataSink;
-
-struct _DataReader_t;
-typedef struct _DataReader_t DataReader_t;
-
-typedef void (*On_Data_Avail_Listener)(DataReader_t *);
-
-struct _DataReader_t {
-	Topic_t *topic;
-	unsigned int id :4;
-	On_Data_Avail_Listener on_data_avail_listener;
-};
 
 rc_t DataSink_init(void);
 DataReader_t * DataSink_create_datareader(Topic_t *topic, Qos qos, Listener listener, StatusMask sm);
