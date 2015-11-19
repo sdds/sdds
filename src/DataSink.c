@@ -16,10 +16,22 @@
  * =====================================================================================
  */
 
+#include "sDDS.h"
+
 #include "DataSink.h"
+#include "SNPS.h"
+#include "Topic.h"
+#include "TopicDB.h"
+#include "BuiltinTopic.h"
+#include "Marshalling.h"
+#include "sdds_types.h"
+
+#include <string.h>
+
+#include "Log.h"
 
 struct _DataSink_t {
-	DataReader_t *readers[SDDS_MAX_DATA_READERS];
+	DataReader_t readers[SDDS_MAX_DATA_READERS];
 
 #if defined(__GNUC__) && __GNUC_MINOR__ < 6
 #pragma GCC diagnostic error "-Woverflow"
@@ -40,18 +52,18 @@ rc_t checkTopic(NetBuffRef_t *buff, topicid_t topic);
 
 rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size);
 
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) {
 	int i;
-	for (i = 0; i < SDDS_MAX_DATA_READERS; i++) {
-		if (dataSink->readers[i] && (DataReader_topic (dataSink->readers[i])->id == id)) {
+	for (i = 0; i < (SDDS_MAX_DATA_READERS - dataSink->remaining_datareader);
+			i++) {
+		if ((dataSink->readers[i].topic->id == id)) {
 			if (st != NULL) {
-				st->key = DataReader_id (dataSink->readers[i]);
+				st->key = dataSink->readers[i].id;
 				st->participant_key = BuiltinTopic_participantID;
-				st->topic_id = DataReader_topic (dataSink->readers[i])->id;
+				st->topic_id = dataSink->readers[i].topic->id;
 			}
 			if (topic != NULL) {
-				*topic = DataReader_topic (dataSink->readers[i]);
+				*topic = dataSink->readers[i].topic;
 			}
 			return SDDS_RT_OK;
 		}
@@ -59,7 +71,6 @@ rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) 
 
 	return SDDS_RT_FAIL;
 }
-#endif
 
 rc_t DataSink_getAddr(SNPS_Address_t *address) {
 	address->addrType = addr.addrType;
@@ -174,27 +185,23 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 
 	// ggf send events to the applications
 
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-	for (uint8_t i = 0;	i < SDDS_MAX_DATA_READERS; i++) {
-		DataReader_t *dr = dataSink->readers[i];
-        if (!dr)
-            continue;
+	for (uint8_t i = 0;
+			i < SDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i++) {
+		DataReader_t *dr = &(dataSink->readers[i]);
 
-		int tpc = DataReader_topic (dr)->id;
-		if ((topic == tpc) && DataReader_on_data_avail_listener (dr)) {
-            On_Data_Avail_Listener on_data_avail_listener = DataReader_on_data_avail_listener (dr);
-            on_data_avail_listener (dr);
+		int tpc = dr->topic->id;
+		if ((topic == tpc) && dr->on_data_avail_listener) {
+
+			dr->on_data_avail_listener(dr);
+
 		}
 	}
-#endif
 
 	return SDDS_RT_OK;
 }
 
 rc_t DataSink_init(void) {
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-    DataReader_init ();
-#endif
+
 #if defined(__GNUC__) && __GNUC_MINOR__ >= 6
 #pragma GCC diagnostic push
 #pragma GCC diagnostic error "-Woverflow"
@@ -215,9 +222,19 @@ DataReader_t * DataSink_create_datareader(Topic_t *topic, Qos qos, Listener list
 	qos = qos;
 	sm = sm;
 
-	DataReader_t *dr = DataReader_new (topic, qos, listener, sm);
-    dataSink->readers[SDDS_MAX_DATA_READERS - dataSink->remaining_datareader] = dr;
+	DataReader_t *dr = NULL;
+	// not free slots?
+	if (dataSink->remaining_datareader == 0) {
+		return NULL;
+	}
+
+	dr = &(dataSink->readers[SDDS_MAX_DATA_READERS - dataSink->remaining_datareader]);
+	dr->id = SDDS_MAX_DATA_READERS - dataSink->remaining_datareader;
+
 	dataSink->remaining_datareader--;
+
+	dr->topic = topic;
+	dr->on_data_avail_listener = NULL;
 
 	return dr;
 }
@@ -228,7 +245,7 @@ rc_t DataSink_take_next_sample(DataReader_t *_this, Data* data, DataInfo info)
 {
 	Msg_t *msg = NULL;
 
-	Topic_t *topic = DataReader_topic (_this);
+	Topic_t *topic = _this->topic;
 	(void)info;
 
 	rc_t ret = Topic_getNextMsg(topic, &msg);
@@ -332,29 +349,26 @@ rc_t checkTopic(NetBuffRef_t *buff, topicid_t topic) {
 
 rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef_t *buf) {
 	SNPS_writeTopic(buf, DDS_DCPS_SUBSCRIPTION_TOPIC);
-	for (uint8_t i = 0;	i < SDDS_MAX_DATA_READERS; i++) {
+	for (uint8_t i = 0;
+			i < SDDS_MAX_DATA_READERS - dataSink->remaining_datareader; i++) {
 		SNPS_writeData(buf, BuiltinTopicDataReader_encode,
-				(Data) dataSink->readers[i]); }
+				(Data) &(dataSink->readers[i])); }
 
 	return SDDS_RT_OK;
 }
 rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size) {
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 	DataReader_t *dr = (DataReader_t *) data;
 	*size = 0;
-	Marshalling_enc_uint8(buff + (*size), &(DataReader_topic (dr)->domain));
+	Marshalling_enc_uint8(buff + (*size), &(dr->topic->domain));
 	*size += sizeof(domainid_t);
-	Marshalling_enc_uint8(buff + (*size), &(DataReader_topic (dr)->id));
+	Marshalling_enc_uint8(buff + (*size), &(dr->topic->id));
 	*size += sizeof(topicid_t);
-#endif
 
 	return SDDS_RT_OK;
 }
 
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t DataSink_set_on_data_avail_listener(DataReader_t *_this,
 		On_Data_Avail_Listener a_listener, const StatusMask sm) {
-    return DataReader_set_on_data_avail_listener (_this, a_listener, sm);
+	_this->on_data_avail_listener = a_listener;
+	return SDDS_RT_OK;
 }
-#endif
-
