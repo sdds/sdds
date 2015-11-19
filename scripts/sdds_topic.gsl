@@ -21,47 +21,36 @@ function resolve_topic_type (topic)
         attribute.size ?= 1
 
         attribute.enc_type ?= ""
-        attribute.print_type ?= ""
         if attribute.type = "DDS_short"
             attribute.enc_type = "int16"
-            attribute.print_type = "\"PRId16\""
             my.topic.size += 2
         elsif attribute.type = "DDS_long"
             attribute.enc_type = "int32"
-            attribute.print_type = "\"PRId32\""
             my.topic.size += 4
         elsif attribute.type = "DDS_long_long"
             attribute.enc_type = "int64"
-            attribute.print_type = "\"PRId64\""
             my.topic.size += 8
         elsif attribute.type = "DDS_unsigned_short"
             attribute.enc_type = "uint16"
-            attribute.print_type = "\"PRIu16\""
             my.topic.size += 2
         elsif attribute.type = "DDS_unsigned_long"
             attribute.enc_type = "uint32"
-            attribute.print_type = "\"PRIu32\""
             my.topic.size += 4
         elsif attribute.type = "DDS_unsigned_long_long"
             attribute.enc_type = "uint64"
-            attribute.print_type = "\"PRIu64\""
             my.topic.size += 8
         elsif attribute.type = "DDS_char"
             attribute.enc_type = "int8"
-            attribute.print_type = "c"
             my.topic.size += 1
         elsif attribute.type = "DDS_octet"
             attribute.enc_type = "uint8"
-            attribute.print_type = "\"PRIu8\""
             my.topic.size += 1
         elsif attribute.type = "DDS_boolean"
             attribute.enc_type = "bool"
-            attribute.print_type = "d"
             my.topic.size += 1
         elsif attribute.type = "DDS_string"
             attribute.type = "DDS_char"
             attribute.enc_type = "string"
-            attribute.print_type = "s"
             my.topic.size += attribute.size
         else
             echo "E: Invalid type '$(attribute.type)' for attribute '$(attribute.name)' in topic $(topic.name:)"

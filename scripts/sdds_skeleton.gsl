@@ -26,7 +26,6 @@ PROCESS_THREAD($(project.name:c), ev, data)
 #include "$(project.name:c)_sdds_impl.h"
 #include <stdio.h>
 #include <unistd.h>
-#include <inttypes.h>
 
 int main()
 {
@@ -40,26 +39,6 @@ int main()
 .           for project.topic where role.topic = topic.name
 .               if role.type = "publisher"
     $(topic.c_name:) $(topic.c_name:c)_pub;
-.               for topic.attribute
-.                   if attribute.type = "DDS_short" \
-                     | attribute.type = "DDS_long" \
-                     | attribute.type = "DDS_long_long" \
-                     | attribute.type = "DDS_unsigned_short" \
-                     | attribute.type = "DDS_unsigned_long" \
-                     | attribute.type = "DDS_unsigned_long_long" \
-                     | attribute.type = "DDS_octet"
-    $(topic.c_name:c)_pub.$(attribute.name:c) = 1;
-.                   elsif attribute.type = "DDS_boolean"
-    $(topic.c_name:c)_pub.$(attribute.name:c) = true;
-.                   elsif  attribute.type = "DDS_char"
-.                       if attribute.size = 1
-    $(topic.c_name:c)_pub.$(attribute.name:c) = 'H';
-.                       else
-    $(topic.c_name:c)_pub.$(attribute.name:c)[0] = 'H';
-    $(topic.c_name:c)_pub.$(attribute.name:c)[1] = 'W';
-.                       endif
-.                   endif
-.               endfor
 .               elsif role.type = "subscriber"
     $(topic.c_name:) $(topic.c_name:c)_sub;
     $(topic.c_name:) *$(topic.c_name:c)_sub_p = &$(topic.c_name:c)_sub;
@@ -81,18 +60,7 @@ int main()
             printf("no data for $(topic.name)\\n");
         }
         else {
-            printf("Received a sample from topic '$(topic.name)': {\\n"
-.               for topic.attribute
-                   "   $(attribute.name:) => %$(attribute.print_type:)\\n"
-.               endfor
-                   "}\\n"
-.               for topic.attribute
-.                   if ! last()
-                   , $(topic.c_name:c)_sub_p->$(attribute.name)
-.                   else
-                   , $(topic.c_name:c)_sub_p->$(attribute.name));
-.                   endif
-.               endfor
+            printf("Received ($(topic.name))\\n");
         }
 .           endif
 
