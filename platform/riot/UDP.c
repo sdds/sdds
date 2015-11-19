@@ -72,8 +72,8 @@ struct RiotLocator_str
 typedef struct RiotLocator_str RiotLocator_t;
 
 static struct Network_t net;
-static struct NetBuffRef_t inBuff;
-static struct NetBuffRef_t multiInBuff;
+static NetBuffRef_t inBuff;
+static NetBuffRef_t multiInBuff;
 
 const int recv_stack_size =  KERNEL_CONF_STACKSIZE_PRINTF_FLOAT * sizeof(char);
 
@@ -233,7 +233,7 @@ static int create_socket(int port)
 
 void *recvLoop(void *netBuff)
 {
-    NetBuffRef buff = (NetBuffRef)netBuff;
+    NetBuffRef_t *buff = (NetBuffRef_t *) netBuff;
     int sock; // receive socket
     unsigned int sock_type; // broad or multicast
     sockaddr6_t addr;
@@ -302,7 +302,7 @@ void *recvLoop(void *netBuff)
     return SDDS_RT_OK;
 }
 
-rc_t Network_send(NetBuffRef buff) {
+rc_t Network_send(NetBuffRef_t *buff) {
   int sock;
   unsigned int sock_type;
 
