@@ -78,11 +78,8 @@ CLEAN += $(SDDS_CONSTANTS_FILE)
 
 
 
-%-ds.c %-ds.h: $(DATASTRUCTURES_FILE)
-	$(shell echo  python $(SDDS_TOPDIR)/generate_ds.py $<)
-
-%_sdds_impl.c %_sdds_impl.h: %-dds-roles $(DATASTRUCTURES_FILE) $(DATA_DEPEND_SRCS)
-	$(shell echo python $(SDDS_TOPDIR)/generate_sdds.py $(<:-dds-roles=) $(DATASTRUCTURES_FILE))
+%-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h: $(DATA_DEPEND_SRCS)
+	$(shell ./generate.sh)
 
 all:
 
