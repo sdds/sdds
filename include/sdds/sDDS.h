@@ -27,9 +27,13 @@
 #endif // _ECLIPSE_DEV_
 // special types
 
-
 rc_t sDDS_init(void);
 
+typedef struct _DataReader_t DataReader_t;
+typedef struct _Topic_t Topic_t;
 
+#include "DataReader.h"
+#include "Topic.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */
+
