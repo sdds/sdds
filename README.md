@@ -1,5 +1,7 @@
 # sDDS
 
+<img src="https://zenon.cs.hs-rm.de/uploads/project/avatar/528/Drawing_1_.png" width="200px" height="200px" />
+
 ## Overview
 
 ## Scope and Goals
