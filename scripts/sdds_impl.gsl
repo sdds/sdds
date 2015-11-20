@@ -104,20 +104,36 @@ rc_t sDDS_init(void)
 {
 	rc_t ret;
 
-	Memory_init();
-	LocatorDB_init();
-	DataSource_init();
-	DataSink_init();
-	Network_init();
+    //  Initializes all sDDS classes is defined in sDDS.c
+    //  Must be first as all other classes depend on it
+    ret = BitArray_init ();
+    if (ret == SDDS_RT_FAIL) goto exit;
+
+    // Initalize classes
+    ret = Memory_init();
+    if (ret == SDDS_RT_FAIL) goto exit;
+	ret = LocatorDB_init();
+    if (ret == SDDS_RT_FAIL) goto exit;
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+	ret = DataReader_init();
+    if (ret == SDDS_RT_FAIL) goto exit;
+#endif
+	ret = DataSource_init();
+    if (ret == SDDS_RT_FAIL) goto exit;
+	ret = DataSink_init();
+    if (ret == SDDS_RT_FAIL) goto exit;
+	ret = Network_init();
+    if (ret == SDDS_RT_FAIL) goto exit;
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-	BuiltinTopic_init();
+	ret = BuiltinTopic_init();
+    if (ret == SDDS_RT_FAIL) goto exit;
 #endif
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-	Discovery_init();
+	ret = Discovery_init();
+    if (ret == SDDS_RT_FAIL) goto exit;
 #endif
 
     int log_level = 3;
-
 	Log_setLvl(log_level);
 
 	Locator l;
@@ -150,7 +166,8 @@ rc_t sDDS_init(void)
 .   endfor
 .endfor
 
-	return SDDS_RT_OK;
+exit:
+	return ret;
 }
 /*
 $(project.GENERATED_WARNING_HEADER:)

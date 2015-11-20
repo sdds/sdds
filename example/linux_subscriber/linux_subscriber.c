@@ -1,6 +1,4 @@
 #include "linux_subscriber_sdds_impl.h"
-#include <stdio.h>
-#include <unistd.h>
 
 int main()
 {
@@ -8,7 +6,7 @@ int main()
 
 	sDDS_init();
 	Log_setLvl(0);
-
+ 
     Ipc ipc_sub;
     Ipc *ipc_sub_p = &ipc_sub;
 
@@ -19,7 +17,10 @@ int main()
             printf("no data for ipc\n");
         }
         else {
-            printf("Received (ipc)\n");
+            printf("Received a sample from topic 'ipc': {\n"
+                   "   value => %"PRIu16"\n"
+                   "}\n"
+                   , ipc_sub_p->value);
         }
 
         sleep (1);

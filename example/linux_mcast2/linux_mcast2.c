@@ -1,6 +1,4 @@
 #include "linux_mcast2_sdds_impl.h"
-#include <stdio.h>
-#include <unistd.h>
 
 int main()
 {
@@ -8,7 +6,7 @@ int main()
 
 	sDDS_init();
 	Log_setLvl(0);
-
+ 
     Beta beta_sub;
     Beta *beta_sub_p = &beta_sub;
 
@@ -19,7 +17,14 @@ int main()
             printf("no data for beta\n");
         }
         else {
-            printf("Received (beta)\n");
+            printf("Received a sample from topic 'beta': {\n"
+                   "   value => %c\n"
+                   "   value2 => %s\n"
+                   "   value3 => %s\n"
+                   "}\n"
+                   , beta_sub_p->value
+                   , beta_sub_p->value2
+                   , beta_sub_p->value3);
         }
 
         sleep (1);

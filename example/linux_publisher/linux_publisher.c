@@ -1,6 +1,4 @@
 #include "linux_publisher_sdds_impl.h"
-#include <stdio.h>
-#include <unistd.h>
 
 int main()
 {
@@ -8,8 +6,9 @@ int main()
 
 	sDDS_init();
 	Log_setLvl(0);
-
+ 
     Ipc ipc_pub;
+    ipc_pub.value = 1;
 
     for (;;) {
         ret = DDS_IpcDataWriter_write (g_Ipc_writer, &ipc_pub, NULL);
