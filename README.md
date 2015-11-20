@@ -187,7 +187,7 @@ To get started with your first app add it to the 'example/examples.xml':
     ...
     <example name = "my_example" os = "myos">My sDDS example</example>
     ...
-</examples
+</examples>
 ```
 
 Then run the 'example/generate_examples.sh' to create the stub for your app.
