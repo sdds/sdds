@@ -261,3 +261,7 @@ The entry point is 'sdds.gsl':
 * sdds_constants.gsl - Generate the default constants for sDDS
 * sdds_make\_$(OS).gsl - Generates the Makefiles for the different operating systems
 * sdds_skeleton - Generates a skeleton for new examples dependent on topics and roles
+
+## Acknowledgements
+
+sDDS Logo Copyright CC BY 3.0 - Scheme by Flaticon from Freepik
