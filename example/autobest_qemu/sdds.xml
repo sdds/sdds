@@ -1,0 +1,33 @@
+<project
+    name = "sdds"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "autobest"
+    ip = "fe80::201:2ff:fe03:405"
+    port = "23234"
+    >
+    <!--
+        Set interface, ip and port for this project
+    iface = ""
+    ip = ""
+    port = ""
+    >
+    -->
+    "Autobest example on QEMU"
+
+    <!--
+        Include your topic files here. You can include topics from multiple files.
+        Only those topics will be generated that have at least one matching role.
+    -->
+    <include filename = "../topics/ipc.xml" />
+
+    <!--
+        Roles are bound to one topic and are either a publisher or subscriber.
+        Publisher can have a list of subscriber to whom the should send data.
+    <role topic = "mytopic" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "mytopic" type = "subscriber" />
+    -->
+    <role topic = "ipc" type = "subscriber" />
+</project>

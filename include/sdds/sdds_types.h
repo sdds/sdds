@@ -110,6 +110,45 @@ typedef unsigned int 		size_t;
 #define NULL    ((void *)0)
 #endif
 
+#ifdef SDDS_ARCH_ARM
+//#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#ifndef __int8_t_defined
+#define __int8_t_defined
+typedef	short int 		int16_t;
+typedef	int 			int32_t;
+
+#define AF_INET 1
+#define AF_INET6 2
+
+#endif
+
+#if 0
+typedef	unsigned char		uint8_t;		/* 8 bit unsigned  */
+typedef	unsigned short int	uint16_t;	/* 16 bit ungned  */
+typedef unsigned int		uint32_t;	/*  */
+typedef unsigned long 		uint64_t;	/*  */
+#endif
+typedef unsigned char		bool_t;		/*  */
+typedef char			char_t;
+typedef unsigned char		byte_t;
+typedef float			float32_t;
+typedef double			float64_t;
+typedef long double		float128_t;
+typedef bool_t 			bool;
+#define true 1
+#define false 0
+#ifndef __size_t
+#define __size_t__
+typedef unsigned int 		size_t;
+#endif
+#endif   /* TYPE_DEFINES_x86 */
+
+#ifndef NULL
+#define NULL    ((void *)0)
+#endif
+
 typedef uint32_t SDDS_timestamp_t ;
 typedef uint16_t SDDS_msec_t ;
 typedef uint16_t SDDS_usec_t ;

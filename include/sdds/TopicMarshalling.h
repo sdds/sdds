@@ -20,6 +20,13 @@
 #ifndef  TOPICMARSHALLING_H_INC
 #define  TOPICMARSHALLING_H_INC
 
+#ifdef SDDS_PLATFORM_autobest
+#ifndef stderr 
+#define stderr 2
+#endif
+#define fprintf(a, b, args...) printf(b, ##args)
+#endif
+
 #include "sdds_types.h"
 
 rc_t TopicMarshalling_encode(byte_t* buff, Data data, size_t* size);

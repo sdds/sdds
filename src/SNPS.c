@@ -474,7 +474,35 @@ rc_t SNPS_IPv6_str2Addr(char *charAddr, uint8_t *byteAddr, uint8_t *addrLen) {
 }
 
 rc_t SNPS_IPv6_addr2Str(uint8_t *byteAddr, char *charAddr) {
-	sprintf(charAddr, "FF%02X::00%02X:%02X%02X:%02X%02X", byteAddr[0], byteAddr[1], byteAddr[2], byteAddr[3], byteAddr[4], byteAddr[5]);
+	/*
+	 * replace from z_zoor for autobest port
+     * offset:       0         1
+     *               01234567890123456789
+     * string:       FFxx::00xx:xxyy:xxyy
+     * replace with:   00    11 2233 4455
+     */
+    static const char hex[16] = "0123456789ABCDEF";
+    charAddr[ 0] = 'F';
+    charAddr[ 1] = 'F';
+    charAddr[ 2] = hex[(byteAddr[0] >> 4) & 0xf];
+    charAddr[ 3] = hex[(byteAddr[0] >> 0) & 0xf];
+    charAddr[ 4] = ':';
+    charAddr[ 5] = ':';
+    charAddr[ 6] = '0';
+    charAddr[ 7] = '0';
+    charAddr[ 8] = hex[(byteAddr[1] >> 4) & 0xf];
+    charAddr[ 9] = hex[(byteAddr[1] >> 0) & 0xf];
+    charAddr[10] = ':';
+    charAddr[11] = hex[(byteAddr[2] >> 4) & 0xf];
+    charAddr[12] = hex[(byteAddr[2] >> 0) & 0xf];
+    charAddr[13] = hex[(byteAddr[3] >> 4) & 0xf];
+    charAddr[14] = hex[(byteAddr[3] >> 0) & 0xf];
+    charAddr[15] = ':';
+    charAddr[16] = hex[(byteAddr[4] >> 4) & 0xf];
+    charAddr[17] = hex[(byteAddr[4] >> 0) & 0xf];
+    charAddr[18] = hex[(byteAddr[5] >> 4) & 0xf];
+    charAddr[19] = hex[(byteAddr[5] >> 0) & 0xf];
+    charAddr[20] = 0;    /* NUL terminate */
 	return SDDS_RT_OK;
 }
 

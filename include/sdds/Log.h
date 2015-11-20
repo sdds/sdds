@@ -32,8 +32,9 @@
 #ifndef UTILS_NO_LOGGING
 #include <stdio.h>
 #include <assert.h>
+#ifndef SDDS_PLATFORM_autobest
 #include <stdlib.h>
-
+#endif
 #define Log_debug(args...) _log_debug(__FUNCTION__,##args);
 #define Log_info(args...) _log_info(__FUNCTION__,##args);
 #define Log_warn(args...) _log_warn(__FUNCTION__,##args);

@@ -25,7 +25,9 @@
 #include "Network.h"
 #include "Marshalling.h"
 
+#ifndef SDDS_PLATFORM_autobest
 #include <stdlib.h>
+#endif
 #include <string.h>
 
 // IF BUILTINTOPIC
