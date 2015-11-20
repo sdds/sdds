@@ -1,4 +1,3 @@
-
 /*
  * =====================================================================================
  *
@@ -42,6 +41,7 @@ typedef double                  float64_t;
 #include <string.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <assert.h>
 typedef bool                    bool_t;
 typedef uint8_t                 byte_t;
 typedef uint8_t                 char_t;
@@ -69,40 +69,33 @@ typedef uint8                   char_t;
 
 typedef float                   float32_t;
 typedef double                  float64_t;
-
-//typedef uint32_t                size_t;
 #endif /* SDDS_ARCH_CC2430 */
-
-
 
 #ifdef SDDS_ARCH_x86
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <inttypes.h>
+#include <assert.h>
 #ifndef __int8_t_defined
 #define __int8_t_defined
-typedef	char 			int8_t;
-typedef	short int 		int16_t;
-typedef	int 			int32_t;
+typedef char 			int8_t;
+typedef short int 	int16_t;
+typedef int 			int32_t;
 typedef long int 		int64_t;
 #endif
 
-#if 0
-typedef	unsigned char		uint8_t;		/* 8 bit unsigned  */
-typedef	unsigned short int	uint16_t;	/* 16 bit ungned  */
-typedef unsigned int		uint32_t;	/*  */
-typedef unsigned long 		uint64_t;	/*  */
-#endif
-typedef unsigned char		bool_t;		/*  */
-typedef char			char_t;
-typedef unsigned char		byte_t;
-typedef float			float32_t;
-typedef double			float64_t;
+typedef unsigned char	bool_t;
+typedef char			   char_t;
+typedef unsigned char	byte_t;
+typedef float			   float32_t;
+typedef double			   float64_t;
 typedef long double		float128_t;
 
 #ifndef __size_t
 #define __size_t__
-typedef unsigned int 		size_t;
+typedef unsigned int 	size_t;
 #endif
 #endif   /* TYPE_DEFINES_x86 */
 
@@ -111,12 +104,12 @@ typedef unsigned int 		size_t;
 #endif
 
 #ifdef SDDS_ARCH_ARM
-//#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <assert.h>
 #ifndef __int8_t_defined
 #define __int8_t_defined
-typedef	short int 		int16_t;
+typedef	short int 	int16_t;
 typedef	int 			int32_t;
 
 #define AF_INET 1
@@ -124,24 +117,18 @@ typedef	int 			int32_t;
 
 #endif
 
-#if 0
-typedef	unsigned char		uint8_t;		/* 8 bit unsigned  */
-typedef	unsigned short int	uint16_t;	/* 16 bit ungned  */
-typedef unsigned int		uint32_t;	/*  */
-typedef unsigned long 		uint64_t;	/*  */
-#endif
-typedef unsigned char		bool_t;		/*  */
-typedef char			char_t;
-typedef unsigned char		byte_t;
-typedef float			float32_t;
-typedef double			float64_t;
+typedef unsigned char	bool_t;		/*  */
+typedef char			   char_t;
+typedef unsigned char	byte_t;
+typedef float			   float32_t;
+typedef double			   float64_t;
 typedef long double		float128_t;
 typedef bool_t 			bool;
 #define true 1
 #define false 0
 #ifndef __size_t
 #define __size_t__
-typedef unsigned int 		size_t;
+typedef unsigned int 	size_t;
 #endif
 #endif   /* TYPE_DEFINES_x86 */
 

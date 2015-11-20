@@ -1,5 +1,6 @@
 /*  =========================================================================
-    DataReader -
+    DataReader - DDS DataReader representation, allows the application to
+                 declare the data it wishes to receive.
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
 

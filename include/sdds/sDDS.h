@@ -27,13 +27,21 @@
 #endif // _ECLIPSE_DEV_
 // special types
 
-rc_t sDDS_init(void);
+rc_t
+   sDDS_init (void);
 
+#ifndef SDDS_BIT_ARRAY_MAX_OBJS
+   #define SDDS_BIT_ARRAY_MAX_OBJS 25
+#endif
+typedef struct _BitArray_t BitArray_t;
+#ifndef SDDS_DATA_READER_MAX_OBJS
+   #define SDDS_DATA_READER_MAX_OBJS 64
+#endif
 typedef struct _DataReader_t DataReader_t;
 typedef struct _Topic_t Topic_t;
 
+#include "BitArray.h"
 #include "DataReader.h"
 #include "Topic.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */
-

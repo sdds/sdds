@@ -1,5 +1,6 @@
 /*  =========================================================================
-    DataReader -
+    DataReader - DDS DataReader representation, allows the application to
+                 declare the data it wishes to receive.
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
 
@@ -16,24 +17,18 @@ struct _DataReader_t {
 	On_Data_Avail_Listener on_data_avail_listener;
 };
 
-DataReader_t data_readers[SDDS_MAX_DATA_READERS];
-DataReader_t *readers[SDDS_MAX_DATA_READERS];
-
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+
+DataReader_t objects[SDDS_DATA_READER_MAX_OBJS];
+BitArray_t *objectAllocation;
+
+
+//  ----------------------------------------------------------------------------
+//  Initialize this class
 
 rc_t
 DataReader_init (void) {
-#if defined(__GNUC__) && __GNUC_MINOR__ >= 6
-#pragma GCC diagnostic push
-#pragma GCC diagnostic error "-Woverflow"
-#endif
-    int index;
-    for (index = 1; index < SDDS_MAX_DATA_READERS; index++) {
-        readers[index] = NULL;
-    }
-#if defined(__GNUC__) && __GNUC_MINOR__ >= 6
-#pragma GCC diagnostic pop
-#endif
+    objectAllocation = BitArray_new ();
 	return SDDS_RT_OK;
 }
 
@@ -43,24 +38,23 @@ DataReader_init (void) {
 DataReader_t *
 DataReader_new (Topic_t *topic, Qos qos, Listener listener, StatusMask sm)
 {
+    assert (objectAllocation);
 	qos = qos;
 	sm = sm;
 
-	DataReader_t *self = NULL;
-    int index;
-    for (index = 0; index < SDDS_MAX_DATA_READERS; index++) {
-        if (!readers[index]) {
-            self = &data_readers[index];
-            readers[index] = self;
-            break;
+    uint8_t index;
+    for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
+        if (!BitArray_check (objectAllocation, index)) {
+            BitArray_set (objectAllocation, index);
+            DataReader_t *self = &objects[index];
+            // Initialize object properties
+            self->id = index;
+            self->topic = topic;
+            self->on_data_avail_listener = NULL;
+            return self;
         }
     }
-    if (self) {
-        self->id = SDDS_MAX_DATA_READERS - index;
-        self->topic = topic;
-        self->on_data_avail_listener = NULL;
-    }
-	return self;
+	return NULL;
 }
 
 //  ---------------------------------------------------------------------------
@@ -69,16 +63,20 @@ DataReader_new (Topic_t *topic, Qos qos, Listener listener, StatusMask sm)
 void
 DataReader_delete (DataReader_t **self_p)
 {
+    assert (self_p);
     if (*self_p) {
-        DataReader_t *self;
+        DataReader_t *self = *self_p;
 
-        int index;
-        for (index = 1; index < SDDS_MAX_DATA_READERS; index++) {
-            if (readers[index] == self) {
-                readers[index] = NULL;
+        uint8_t index;
+        for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
+            if (self == &objects[index]) {
+                BitArray_clear (objectAllocation, index);
+                //  Cleanup object properties
+                self->id = 0;
+                self->topic = NULL;
+                self->on_data_avail_listener = NULL;
             }
         }
-        self = NULL;
     }
 }
 

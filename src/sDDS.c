@@ -17,5 +17,3 @@
  */
 
 #include "sDDS.h"
-
-
