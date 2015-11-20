@@ -160,6 +160,10 @@ object files to the resulting binary. Fiddle with the Makefile as you like,
 e.g. by creating an all target or use the contiki APPS features, to build
 common objects and use common dependencies.
 
+## Style Guide
+
+sDDS uses [uCLASS] (https://zenon.cs.hs-rm.de/sdds/sdds/blob/master/style_guide.md) guild for code style.
+
 ## sDDS - Code Generator
 
 ### Overview
