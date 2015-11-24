@@ -7,8 +7,3 @@
 #define SDDS_DISCOVERY_PARTICIPANT_TIMER			10
 #define SDDS_DISCOVERY_PUBLICATION_TIMER			60
 #define SDDS_DISCOVERY_TOPIC_TIMER					0
-<<<<<<< HEAD
-=======
-
-//#define UTILS_DEBUG
->>>>>>> . change local constans for test wich autobest.
