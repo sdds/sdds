@@ -186,7 +186,7 @@ $(project.GENERATED_WARNING_HEADER:)
 .endif
 #endif
 
-.if project.os = "linux"
+.if project.os = "linux" | project.os = "autobest"
 #ifndef PLATFORM_$(PROJECT.OS)_SDDS_PROTOCOL
 #define PLATFORM_$(PROJECT.OS)_SDDS_PROTOCOL			AF_INET6
 #endif
