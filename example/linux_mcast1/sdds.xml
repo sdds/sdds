@@ -3,8 +3,8 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "tap0"
-    ip = "fe80::10"
+    iface = "eth0"
+    ip = "fe80::a00:27ff:feb5:8352"
     port = "23234"
     >
     Linux multicast discovery example with beta topic.
@@ -13,7 +13,7 @@
         Includes are processed first, so XML in included files will be
         part of the XML tree
     -->
-    <include filename = "../topics/beta.xml" />
+    <include filename = "../topics/ipc.xml" />
 
-    <role topic = "beta" type = "publisher" />
+    <role topic = "ipc" type = "publisher" />
 </project>
