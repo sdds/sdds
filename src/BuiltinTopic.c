@@ -202,7 +202,7 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataReader_take_next_sample(
 		DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataSink_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
+	rc_t ret = DataReader_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 	return DDS_RETCODE_NO_DATA;
@@ -329,7 +329,7 @@ DDS_ReturnCode_t DDS_DCPSTopicDataReader_take_next_sample(
 		DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataSink_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
+	rc_t ret = DataReader_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 	return DDS_RETCODE_NO_DATA;
@@ -432,7 +432,7 @@ DDS_ReturnCode_t DDS_DCPSPublicationDataReader_take_next_sample(
 		DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataSink_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
+	rc_t ret = DataReader_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 	return DDS_RETCODE_NO_DATA;
@@ -542,7 +542,7 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataReader_take_next_sample(
 		DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataSink_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
+	rc_t ret = DataReader_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 	return DDS_RETCODE_NO_DATA;

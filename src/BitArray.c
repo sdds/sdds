@@ -14,8 +14,8 @@ struct _BitArray_t {
     uint64_t array;
 };
 
-BitArray_t objects[SDDS_BIT_ARRAY_MAX_OBJS];
-BitArray_t objectAllocation;
+static BitArray_t objects[SDDS_BIT_ARRAY_MAX_OBJS];
+static BitArray_t objectAllocation;
 
 
 //  ----------------------------------------------------------------------------

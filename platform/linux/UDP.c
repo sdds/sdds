@@ -508,7 +508,8 @@ void *recvLoop(void *netBuff) {
 
 		// invoke the datasink handler
 
-		DataSink_processFrame(buff);
+		if (DataSink_processFrame(buff) != SDDS_RT_OK)
+            Log_debug ("Failed to process frame\n");
 
 		LocatorDB_freeLocator(loc);
 

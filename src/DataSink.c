@@ -142,6 +142,7 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 					return SDDS_RT_FAIL;
 			}
 			else {
+                Log_debug ("Discard submessage\n");
 				SNPS_discardSubMsg(buff);
 			}
 #endif
@@ -208,51 +209,15 @@ rc_t DataSink_init(void) {
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 DataReader_t * DataSink_create_datareader(Topic_t *topic, Qos qos, Listener listener, StatusMask sm)
 {
-
 	qos = qos;
 	sm = sm;
 	DataReader_t *dr = DataReader_new (topic, qos, listener, sm);
     dataSink->readers[SDDS_DATA_READER_MAX_OBJS - dataSink->remaining_datareader] = dr;
 	dataSink->remaining_datareader--;
 
+    Log_debug ("Create data reader with id %d at %p\n", DataReader_id (dr), (void *) dr);
+    Log_debug ("Remaining data reader %d/%d.\n", SDDS_DATA_READER_MAX_OBJS, dataSink->remaining_datareader);
 	return dr;
-}
-#endif
-
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t DataSink_take_next_sample(DataReader_t *_this, Data* data, DataInfo info)
-{
-	Msg_t *msg = NULL;
-
-	Topic_t *topic = DataReader_topic (_this);
-	(void)info;
-
-	rc_t ret = Topic_getNextMsg(topic, &msg);
-
-	if (ret == SDDS_RT_NODATA) {
-		return SDDS_RT_NODATA;
-	}
-
-	// check if buffer is provided
-
-	if (*data != NULL) {
-		// cpy the data
-		Data newData;
-		Msg_getData(msg, &newData);
-
-		(*topic->Data_cpy)(*data, newData);
-		// free the msg
-		Msg_init(msg, NULL);
-	} else {
-		// TODO impl loan
-		Log_error("No buffer for datasample is provided. Data is lost\n");
-		return SDDS_RT_FAIL;
-	}
-
-	//TODO sample infos
-
-	return SDDS_RT_OK;
-
 }
 #endif
 
@@ -347,10 +312,3 @@ rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size) {
 
 	return SDDS_RT_OK;
 }
-
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t DataSink_set_on_data_avail_listener(DataReader_t *_this,
-		On_Data_Avail_Listener a_listener, const StatusMask sm) {
-    return DataReader_set_on_data_avail_listener (_this, a_listener, sm);
-}
-#endif

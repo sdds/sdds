@@ -22,7 +22,7 @@
 
 #include "sDDS.h"
 #include "BuiltinTopic.h"
-#include "Log.h"
+/*#include "Log.h"*/
 #include "Marshalling.h"
 #include "NetBuffRef.h"
 #include "SNPS.h"
@@ -36,12 +36,7 @@ extern DataSink_t *dataSink;
 
 rc_t DataSink_init(void);
 DataReader_t * DataSink_create_datareader(Topic_t *topic, Qos qos, Listener listener, StatusMask sm);
-rc_t DataSink_take_next_sample(DataReader_t *_this, Data* data, DataInfo info);
 rc_t DataSink_processFrame(NetBuffRef_t *buff);
-rc_t DataSink_set_on_data_avail_listener (
-		DataReader_t *_this,
-		On_Data_Avail_Listener listener,
-		const StatusMask sm);
 
 rc_t DataSink_printAddr();
 rc_t DataSink_getAddr(struct SNPS_Address *address);

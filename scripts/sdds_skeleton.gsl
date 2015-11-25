@@ -23,6 +23,7 @@ PROCESS_THREAD($(project.name:c), ev, data)
 	PROCESS_BEGIN();
 
 .   elsif project.os = "linux"
+#include <unistd.h>
 #include "$(project.name:c)_sdds_impl.h"
 
 int main()
@@ -32,7 +33,7 @@ int main()
 
 	sDDS_init();
 	Log_setLvl(0);
- 
+
 .       for project.role
 .           for project.topic where role.topic = topic.name
 .               if role.type = "publisher"

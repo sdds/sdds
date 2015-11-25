@@ -185,12 +185,12 @@ rc_t TopicMarshalling_$(topic.c_name:)_cpy(Data dest, Data source);
 rc_t TopicMarshalling_$(topic.c_name:)_decode(byte_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
-    DDS_DataReader _this,
+    DDS_DataReader self,
     $(topic.c_name:)** data_values,
     DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataSink_take_next_sample((DataReader_t *) _this, (Data*) data_values, (DataInfo) sample_info);
+	rc_t ret = DataReader_take_next_sample((DataReader_t *) self, (Data*) data_values, (DataInfo) sample_info);
 
 	if (ret == SDDS_RT_NODATA)
 		return DDS_RETCODE_NO_DATA;

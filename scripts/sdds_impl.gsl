@@ -76,13 +76,13 @@ $(project.GENERATED_WARNING_HEADER:)
 #include "$(project.name)_sdds_impl.h"
 
 DDS_ReturnCode_t DDS_DataReader_set_listener(
-	DDS_DataReader _this,
+	DDS_DataReader self,
 	const struct DDS_DataReaderListener* a_listener,
 	const DDS_StatusMask mask
 )
 {
 .if count (project.role, role.type = "subscriber")
-	rc_t ret = DataSink_set_on_data_avail_listener((DataReader_t *) _this, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
+	rc_t ret = DataReader_set_on_data_avail_listener((DataReader_t *) self, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
 	if (ret == SDDS_RT_OK)
 		return DDS_RETCODE_OK;
 .endif
@@ -132,9 +132,6 @@ rc_t sDDS_init(void)
 	ret = Discovery_init();
     if (ret == SDDS_RT_FAIL) goto exit;
 #endif
-
-    int log_level = 3;
-	Log_setLvl(log_level);
 
 	Locator l;
 .for project.topic

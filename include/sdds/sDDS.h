@@ -42,6 +42,7 @@ typedef struct _Topic_t Topic_t;
 
 #include "BitArray.h"
 #include "DataReader.h"
+#include "Log.h"
 #include "Topic.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */

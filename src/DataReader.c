@@ -11,6 +11,8 @@
 
 #include "sDDS.h"
 
+//  Structure of this class
+
 struct _DataReader_t {
 	Topic_t *topic;
 	unsigned int id :4;
@@ -19,8 +21,8 @@ struct _DataReader_t {
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 
-DataReader_t objects[SDDS_DATA_READER_MAX_OBJS];
-BitArray_t *objectAllocation;
+static DataReader_t objects[SDDS_DATA_READER_MAX_OBJS];
+static BitArray_t *objectAllocation;
 
 
 //  ----------------------------------------------------------------------------
@@ -61,7 +63,7 @@ DataReader_new (Topic_t *topic, Qos qos, Listener listener, StatusMask sm)
 //  Deletes a DataReader object
 
 void
-DataReader_delete (DataReader_t **self_p)
+DataReader_destroy (DataReader_t **self_p)
 {
     assert (self_p);
     if (*self_p) {
@@ -78,6 +80,43 @@ DataReader_delete (DataReader_t **self_p)
             }
         }
     }
+}
+
+//  ---------------------------------------------------------------------------
+//  Tries to take a sample from the data readers history. The provided
+//  structure must match the de-serialized data for this topic. Return
+//  SDDS_RT_OK if data available, otherwise SDDS_RT_NODATA.
+
+rc_t
+DataReader_take_next_sample (DataReader_t *self, Data* data, DataInfo info)
+{
+    assert (self);
+    assert (data);
+	(void) info;
+	Msg_t *msg = NULL;
+
+    //  If there a no data in the history return immediately
+	rc_t ret = Topic_getNextMsg (self->topic, &msg);
+	if (ret == SDDS_RT_NODATA)
+		return SDDS_RT_NODATA;
+
+	//  Check if buffer is provided
+    if (*data) {
+		//  Copy the data
+		Data newData;
+		Msg_getData(msg, &newData);
+
+		(self->topic->Data_cpy)(*data, newData);
+		//  Free the msg
+		Msg_init(msg, NULL);
+	}
+    else {
+		//  TODO Implement loan
+		Log_error ("No buffer for datasample is provided. Data is lost\n");
+		return SDDS_RT_FAIL;
+	}
+	//  TODO Sample infos
+	return SDDS_RT_OK;
 }
 
 On_Data_Avail_Listener

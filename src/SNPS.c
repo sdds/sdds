@@ -235,7 +235,8 @@ rc_t _writeExtTopic(NetBuffRef_t *ref, topicid_t topic)
 	// write the header of an extended submessage of the type topic
 	Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_EXTENDED, SDDS_SNPS_EXTSUBMSG_TOPIC);
 	ref->curPos +=1;
-	Marshalling_enc_uint16(START, &topic);
+    uint16_t topic_id = (uint16_t) topic;
+	Marshalling_enc_uint16(START, &topic_id);
 	ref->curPos += 2;
 	ref->subMsgCount += 1;
 

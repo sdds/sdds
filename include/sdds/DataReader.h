@@ -27,7 +27,13 @@ DataReader_t *
 
 //  Deletes a DataReader object
 void
-   DataReader_delete (DataReader_t **self_p);
+   DataReader_destroy (DataReader_t **self_p);
+
+//  Tries to take a sample from the data readers history. The provided
+//  structure must match the de-serialized data for this topic. Return
+//  SDDS_RT_OK if data available, otherwise SDDS_RT_NODATA.
+rc_t
+   DataReader_take_next_sample (DataReader_t *self, Data* data, DataInfo info);
 
 On_Data_Avail_Listener
    DataReader_on_data_avail_listener (DataReader_t *self);
