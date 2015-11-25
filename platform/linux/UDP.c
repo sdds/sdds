@@ -592,35 +592,35 @@ size_t Network_locSize(void) {
 	return sizeof(struct UDPLocator_t);
 }
 
-rc_t Network_setAddressToLocator(Locator loc, char* addr) {
+rc_t Network_setAddressToLocator(Locator loc, char* endpoint) {
+    Network_set_locator_endpoint (loc, endpoint, net.port);
+}
 
-	if (loc == NULL || addr == NULL) {
-		return SDDS_RT_BAD_PARAMETER;
-	}
+rc_t
+Network_set_locator_endpoint (Locator loc, char* endpoint, int port) {
+    assert (loc);
+    assert (endpoint);
+    Log_debug ("Set locator endpoint to ip: %s, port: %d\n", endpoint, port);
 
-	struct UDPLocator_t* l = (struct UDPLocator_t*) loc;
-
-	struct addrinfo *address;
-	struct addrinfo hints;
-	char port_buffer[6];
-
-	// clear hints, no dangling fields
-	memset(&hints, 0, sizeof hints);
+	struct UDPLocator_t* udp_loc = (struct UDPLocator_t*) loc;
 
 	// getaddrinfo wants its port parameter in string form
-	sprintf(port_buffer, "%u", net.port);
+	char port_buffer[6];
+	sprintf(port_buffer, "%u", port);
+
+	// clear hints, no dangling fields
+	struct addrinfo hints;
+	memset(&hints, 0, sizeof hints);
 
 	// returned addresses will be used to create datagram sockets
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_family = PLATFORM_LINUX_SDDS_PROTOCOL;
 
-	int gai_ret = getaddrinfo(addr, port_buffer, &hints, &address);
+	struct addrinfo *address;
+	int gai_ret = getaddrinfo(endpoint, port_buffer, &hints, &address);
 
 	if (gai_ret != 0) {
-		Log_error(
-				"can't obtain suitable addresses %s for setting UDP locator\n",
-				addr);
-
+		Log_error("can't obtain suitable addresses %s for setting UDP locator\n", endpoint);
 		return SDDS_RT_FAIL;
 	}
 
@@ -649,7 +649,7 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr) {
 	}
 #endif
 
-	memcpy(&l->addr_storage, address->ai_addr, address->ai_addrlen);
+	memcpy(&udp_loc->addr_storage, address->ai_addr, address->ai_addrlen);
 
 	// free up address
 	freeaddrinfo(address);

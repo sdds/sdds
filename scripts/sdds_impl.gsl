@@ -100,36 +100,32 @@ DDS_DataWriter g_$(topic.c_name:)_writer;
 .   endif
 
 .endfor
-rc_t sDDS_init(void)
+rc_t
+sDDS_init (void)
 {
-	rc_t ret;
-
+    rc_t ret;
     //  Initializes all sDDS classes is defined in sDDS.c
     //  Must be first as all other classes depend on it
-    ret = BitArray_init ();
-    if (ret == SDDS_RT_FAIL) goto exit;
-
+    if (BitArray_init () == SDDS_RT_FAIL) {
+        return SDDS_RT_FAIL;
+    }
     // Initalize classes
-    ret = Memory_init();
+    ret = Memory_init ();
     if (ret == SDDS_RT_FAIL) goto exit;
-	ret = LocatorDB_init();
+	ret = LocatorDB_init ();
     if (ret == SDDS_RT_FAIL) goto exit;
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-	ret = DataReader_init();
+	ret = DataSource_init ();
     if (ret == SDDS_RT_FAIL) goto exit;
-#endif
-	ret = DataSource_init();
+	ret = DataSink_init ();
     if (ret == SDDS_RT_FAIL) goto exit;
-	ret = DataSink_init();
-    if (ret == SDDS_RT_FAIL) goto exit;
-	ret = Network_init();
+	ret = Network_init ();
     if (ret == SDDS_RT_FAIL) goto exit;
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-	ret = BuiltinTopic_init();
+	ret = BuiltinTopic_init ();
     if (ret == SDDS_RT_FAIL) goto exit;
 #endif
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-	ret = Discovery_init();
+	ret = Discovery_init ();
     if (ret == SDDS_RT_FAIL) goto exit;
 #endif
 
@@ -145,20 +141,24 @@ rc_t sDDS_init(void)
 
 .   for project.role where topic.name = role.topic
 .       for role.subscriber
-    ret = LocatorDB_newLocator(&l);
+    ret = LocatorDB_newLocator (&l);
     if (ret != SDDS_RT_OK)
         return ret;
 
-    Locator_upRef(l);
+    Locator_upRef (l);
 
-    ret = Network_setAddressToLocator(l, "$(subscriber.ip)");
+.   if defined (subscriber.port)
+    ret = Network_set_locator_endpoint (l, "$(subscriber.ip)", $(subscriber.port));
+.   else
+    ret = Network_setAddressToLocator (l, "$(subscriber.ip)");
+.   endif
     if (ret != SDDS_RT_OK)
         return ret;
 
-    ret = Topic_addRemoteDataSink(g_$(topic.c_name:)_topic, l);
+    ret = Topic_addRemoteDataSink (g_$(topic.c_name:)_topic, l);
     if (ret != SDDS_RT_OK)
         return ret;
-    Locator_downRef(l);
+    Locator_downRef (l);
 .       endfor
 .   endfor
 .endfor
