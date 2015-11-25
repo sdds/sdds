@@ -118,13 +118,13 @@ ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mo
 ssw_rc_t Task_stop(Task _this)
 {
 
-    if (_this == NULL){
-	return SDDS_SSW_RT_FAIL;
+	if (_this == NULL || _this->timer == 0){
+	r	eturn SDDS_SSW_RT_FAIL;
     }
     // stop the timer
     struct itimerspec timer;
     memset(&timer, 0, sizeof(struct itimerspec));
-    int rc = timer_settime(_this, 0, &timer, NULL);
+    int rc = timer_settime(_this->timer, 0, &timer, NULL);
 
     if (rc != 0){
     	return SDDS_SSW_RT_FAIL;

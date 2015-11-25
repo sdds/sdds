@@ -25,6 +25,18 @@
 #include "Network.h"
 #include "Marshalling.h"
 
+#ifndef SDDS_QOS_LATBUD_COMM
+#define SDDS_QOS_LATBUD_COMM 0
+#endif
+
+#ifndef SDDS_QOS_LATBUD_READ
+#define SDDS_QOS_LATBUD_READ 0
+#endif
+
+#ifndef SDDS_QOS_DW_LATBUD
+#define SDDS_QOS_DW_LATBUD 0
+#endif
+
 #ifndef SDDS_PLATFORM_autobest
 #include <stdlib.h>
 #endif
@@ -154,10 +166,7 @@ DataWriter_t * DataSource_create_datawriter(Topic_t *topic, Qos qos, Listener li
 	dw->id = (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
 	dataSource->remaining_datawriter--;
 
-	if (dw->id == 1)
-	dw->qos.latBudDuration = SDDS_QOS_DW1_LATBUD;
-	if (dw->id == 2)
-	dw->qos.latBudDuration = SDDS_QOS_DW2_LATBUD;
+	dw->qos.latBudDuration = SDDS_QOS_DW_LATBUD;
 
 	return dw;
 }
@@ -200,9 +209,12 @@ NetBuffRef_t *findFreeFrame(Locator dest) {
 }
 
 rc_t checkSending(NetBuffRef_t *buf) {
-	if (true) {
-		// update header
+	pointInTime_t curTime;
+	Time_getCurTime(&curTime);
+	if (buf->sendDeadline <= curTime) {
+		Task_stop(sendTask);
 
+		// update header
 		SNPS_updateHeader(buf);
 
 		if (buf->addr != NULL) {
@@ -211,14 +223,27 @@ rc_t checkSending(NetBuffRef_t *buf) {
 				return SDDS_RT_FAIL;
 			}
 
+			// is frame is send free the buffer
+			NetBuffRef_renew(buf);
 		}
 
-		// is frame is send free the buffer
-		NetBuffRef_renew(buf);
-
+		return SDDS_RT_OK;
 	}
-	return SDDS_RT_OK;
+	else {
+
+		Task_init(sendTask, checkSending, (void *)buf);
+		if (Task_start(sendTask, (buf->sendDeadline - curTime), 0, SDDS_SSW_TaskMode_single) != SDDS_RT_OK) {
+			Log_error("Task_start failed\n");
+		}
+
+#ifdef UTILS_DEBUG
+		Log_debug("Test startet, timer: %d\n", (buf->sendDeadline - curTime));
+		Log_debug("%d > %d\n", buf->sendDeadline, curTime);
+#endif
+		return SDDS_RT_FAIL;
+	}
 }
+
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste)
 {

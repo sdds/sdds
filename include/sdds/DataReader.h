@@ -12,9 +12,13 @@
 #ifndef __DATA_READER_H_INCLUDED__
 #define __DATA_READER_H_INCLUDED__
 
+#include "sDDS.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+//typedef struct _Topic_t Topic_t;
 
 //  Callbacks of this class
 
