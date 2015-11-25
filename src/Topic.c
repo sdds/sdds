@@ -31,37 +31,6 @@ rc_t Topic_getUnreadMsgCount(Topic_t *_this, uint8_t* count) {
 }
 #endif
 
-
-
-#if 0
-rc_t Topic_getFreeMsg(Topic_t *_this, Msg_t **msg)
-{
-    for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++){
-	if (_this->msg.pool[i].isEmpty == true){
-	    // found one
-	    _this->msg.pool[i].isEmpty = false;
-	    *msg = &(_this->msg.pool[i]);
-	    return SDDS_RT_OK;
-	}
-    }
-    // nothing found yet?
-    // use a allready read data
-    for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++){
-	if (_this->msg.pool[i].isRead == true && _this->msg.pool[i].isLoaned == false){
-	    // empty it
-	    Msg_init(&(_this->msg.pool[i]), NULL);
-	    _this->msg.pool[i].isEmpty = false;
-	    *msg = &(_this->msg.pool[i]);
-	    return SDDS_RT_OK;
-	}
-    }
-
-    // no free msg!
-    return SDDS_RT_FAIL;
-}
-#endif
-
-
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t Topic_addRemoteDataSink(Topic_t *_this, Locator addr)
 {

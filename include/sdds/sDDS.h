@@ -30,6 +30,7 @@
 rc_t
    sDDS_init (void);
 
+//  Forward declaration of classes
 #ifndef SDDS_BIT_ARRAY_MAX_OBJS
    #define SDDS_BIT_ARRAY_MAX_OBJS 25
 #endif
@@ -38,8 +39,8 @@ typedef struct _BitArray_t BitArray_t;
    #define SDDS_DATA_READER_MAX_OBJS 64
 #endif
 typedef struct _DataReader_t DataReader_t;
-typedef struct _Topic_t Topic_t;
 
+//  Class headers
 #include "BitArray.h"
 #include "DataReader.h"
 #include "Log.h"

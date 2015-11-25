@@ -26,8 +26,6 @@
 
 rc_t NetBuffRef_init(NetBuffRef_t *_this)
 {
-
-
     Network_getFrameBuff(&(_this->frame_start));
 
     // get the buffer start?

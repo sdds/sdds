@@ -160,8 +160,7 @@ typedef uint8_t rc_t;
 #define SDDS_RT_BAD_PARAMETER 4
 #define SDDS_RT_KNOWN 5
 
-
-//abstract definistion for Data
+//  Abstract definition for Data
 struct Data_t;
 typedef struct Data_t* Data;
 struct DataInfo_t;

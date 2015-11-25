@@ -274,15 +274,15 @@ rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic)
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeData(NetBuffRef_t *ref, rc_t (*TopicMarshalling_encode)(byte_t* buff, Data data, size_t* size), Data d)
+rc_t
+SNPS_writeData (NetBuffRef_t *ref, TopicMarshalling_encode_fn encode_fn, Data d)
 {
     size_t writtenBytes = 0;
 
     // start 1 byte later, the header have to be written if the size is known
     byte_t* s = (ref->buff_start + ref->curPos + 1);
 
-
-    if ((*TopicMarshalling_encode)(s, d, &writtenBytes) != SDDS_RT_OK)
+    if (encode_fn (s, d, &writtenBytes) != SDDS_RT_OK)
     	return SDDS_RT_FAIL;
 
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t) writtenBytes);
@@ -296,25 +296,19 @@ rc_t SNPS_writeData(NetBuffRef_t *ref, rc_t (*TopicMarshalling_encode)(byte_t* b
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_readData(NetBuffRef_t *ref, rc_t (*TopicMarshalling_decode)(byte_t* buff, Data data, size_t* size), Data data)
+rc_t
+SNPS_readData (NetBuffRef_t *ref, TopicMarshalling_decode_fn decode_fn, Data data)
 {
 	size_t size = 0;
-
-	Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t*) &size);
+	Marshalling_dec_SubMsg (START, SDDS_SNPS_SUBMSG_DATA, (uint8_t*) &size);
 
 	ref->curPos += 1;
-
-
 	byte_t* s = (ref->buff_start + ref->curPos);
-
-	if ((*TopicMarshalling_decode)(s, data, &size) != SDDS_RT_OK){
-
+	if (decode_fn (s, data, &size) != SDDS_RT_OK) {
 		return SDDS_RT_FAIL;
 	}
-
 	ref->curPos += size;
 	ref->subMsgCount -= 1;
-
 	return SDDS_RT_OK;
 }
 

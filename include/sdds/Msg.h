@@ -43,7 +43,6 @@ struct MsgPool{
     uint8_t count;   // TODO generate datatype
 };
 
-
 rc_t Msg_init(Msg_t *_this, Data dataBuffer);
 rc_t Msg_getData(Msg_t *_this, Data* data);
 // abstract -> impl in generated file

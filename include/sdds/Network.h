@@ -39,11 +39,13 @@ rc_t Network_getFrameBuff(NetFrameBuff* buff);
 rc_t Network_getPayloadBegin(size_t* startByte);
 
 rc_t Network_createLocator(Locator* loc);
-/* Kevin Sapper */
 rc_t Network_createMulticastLocator(Locator* loc);
 rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr);
 
 size_t Network_locSize(void);
+
+rc_t
+Network_set_locator_endpoint (Locator loc, char* addr, int port);
 
 rc_t Network_setAddressToLocator(Locator loc, char* addr);
 

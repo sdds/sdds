@@ -23,6 +23,7 @@
 #include "sdds_types.h"
 #include "TimeMng.h"
 #include "NetBuffRef.h"
+#include "TopicMarshalling.h"
 
 typedef uint8_t subMsg_t;
 typedef uint8_t addrType_t;
@@ -102,7 +103,7 @@ rc_t SNPS_initFrame(NetBuffRef_t *ref);
 rc_t SNPS_updateHeader(NetBuffRef_t *ref);
 rc_t SNPS_writeDomain(NetBuffRef_t *ref, domainid_t domain);
 rc_t SNPS_writeTopic(NetBuffRef_t *ref, topicid_t topic);
-rc_t SNPS_writeData(NetBuffRef_t *ref, rc_t (*TopicMarshalling_encode)(byte_t* buff, Data data, size_t* size), Data);
+rc_t SNPS_writeData(NetBuffRef_t *ref, TopicMarshalling_encode_fn encode_fn, Data);
 rc_t SNPS_writeTSsimple(NetBuffRef_t *ref, TimeStampSimple_t* ts);
 rc_t SNPS_writeStatus(NetBuffRef_t *ref);
 rc_t SNPS_writeSeqNr(NetBuffRef_t *ref);
@@ -124,5 +125,5 @@ rc_t SNPS_readAddress(NetBuffRef_t *ref, castType_t *addrCast, addrType_t *addrT
 rc_t SNPS_readHeader(NetBuffRef_t *ref);
 rc_t SNPS_readDomain(NetBuffRef_t *ref, domainid_t* domain);
 rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic);
-rc_t SNPS_readData(NetBuffRef_t *ref, rc_t (*TopicMarshalling_decode)(byte_t* buff, Data data, size_t* size), Data data);
+rc_t SNPS_readData (NetBuffRef_t *ref, TopicMarshalling_decode_fn decode_fn, Data data);
 #endif   /* ----- #ifndef SNPS_H_INC  ----- */

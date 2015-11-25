@@ -28,7 +28,6 @@
 struct Locator_t;
 
 struct _NetBuffRef_t{
-//    uint8_t byteCount;
     uint8_t subMsgCount;
 
     NetFrameBuff frame_start;

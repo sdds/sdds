@@ -16,18 +16,17 @@
 extern "C" {
 #endif
 
+//  Callbacks of this class
+
 typedef void (*On_Data_Avail_Listener)(DataReader_t *);
 
-rc_t
-   DataReader_init (void);
+//  Structure of this class
 
-//  Creates a new DataReader object
-DataReader_t *
-   DataReader_new (Topic_t *topic, Qos qos, Listener listener, StatusMask sm);
-
-//  Deletes a DataReader object
-void
-   DataReader_destroy (DataReader_t **self_p);
+struct _DataReader_t {
+	Topic_t *topic;
+	unsigned int id :4;
+	On_Data_Avail_Listener on_data_avail_listener;
+};
 
 //  Tries to take a sample from the data readers history. The provided
 //  structure must match the de-serialized data for this topic. Return

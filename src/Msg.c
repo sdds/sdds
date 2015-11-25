@@ -19,36 +19,36 @@
 #include "sdds_types.h"
 #include "BuiltinTopic.h"
 
-rc_t Msg_init(Msg_t *_this, Data dataBuffer)
+rc_t Msg_init(Msg_t *self, Data dataBuffer)
 {
 
-//    _this->next = NULL;
+//    self->next = NULL;
     if (dataBuffer != NULL) {
-    	_this->data = dataBuffer;
+    	self->data = dataBuffer;
     }
     /*
-    _this->isEmpty = true;
-    _this->dir = SDDS_MSG_DIR_UNSPEZ;
-    _this->isRead = false;
-    _this->isLoaned = false;
-    _this->isNew = false;
+    self->isEmpty = true;
+    self->dir = SDDS_MSG_DIR_UNSPEZ;
+    self->isRead = false;
+    self->isLoaned = false;
+    self->isNew = false;
   */
     return SDDS_RT_OK;
 }
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg_t **msg) {
+rc_t MsgPool_getFreeMsg(struct MsgPool* self, Msg_t **msg) {
 
-	uint8_t end = (_this->start + _this->count) % SDDS_TOPIC_APP_MSG_COUNT;
+	uint8_t end = (self->start + self->count) % SDDS_TOPIC_APP_MSG_COUNT;
 
-	*msg = &(_this->pool[end]);
+	*msg = &(self->pool[end]);
 
-	if (_this->count < SDDS_TOPIC_APP_MSG_COUNT) {
-		_this->count++;
+	if (self->count < SDDS_TOPIC_APP_MSG_COUNT) {
+		self->count++;
 
 	} else {
 		// ring buffer full, discard oldest element
-		_this->start = (_this->start + 1) % SDDS_TOPIC_APP_MSG_COUNT;
+		self->start = (self->start + 1) % SDDS_TOPIC_APP_MSG_COUNT;
 	}
 
 	return SDDS_RT_OK;
@@ -56,34 +56,33 @@ rc_t MsgPool_getFreeMsg(struct MsgPool* _this, Msg_t **msg) {
 #endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t MsgPool_getNextMsg(struct MsgPool* _this, Msg_t **msg) {
+rc_t MsgPool_getNextMsg(struct MsgPool* self, Msg_t **msg) {
 
-	if (_this->count == 0) {
+	if (self->count == 0) {
 		return SDDS_RT_NODATA;
 	}
 
-	*msg = &(_this->pool[_this->start]);
+	*msg = &(self->pool[self->start]);
 
-	_this->start = (_this->start + 1) % SDDS_TOPIC_APP_MSG_COUNT;
+	self->start = (self->start + 1) % SDDS_TOPIC_APP_MSG_COUNT;
 
-	_this->count--;
+	self->count--;
 
 	return SDDS_RT_OK;
 }
 #endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t MsgPool_getUnreadMsgCount(struct MsgPool* _this, uint8_t* count) {
+rc_t MsgPool_getUnreadMsgCount(struct MsgPool* self, uint8_t* count) {
 
-	*count = _this->count;
+	*count = self->count;
 
 	return SDDS_RT_OK;
 }
 #endif
 
-rc_t Msg_getData(Msg_t *_this, Data* data) {
-
-	*data = _this->data;
-
+rc_t Msg_getData(Msg_t *self, Data* data)
+{
+	*data = self->data;
 	return SDDS_RT_OK;
 }

@@ -29,8 +29,7 @@
 
 #include "sdds_types.h"
 
-rc_t TopicMarshalling_encode(byte_t* buff, Data data, size_t* size);
-rc_t TopicMarshalling_decode(byte_t* buff, Data data, size_t* size);
-rc_t TopicMarshalling_cpy(Data dest, Data source);
+typedef rc_t (TopicMarshalling_encode_fn) (byte_t* buff, Data data, size_t* size);
+typedef rc_t (TopicMarshalling_decode_fn) (byte_t* buff, Data data, size_t* size);
 
 #endif   /* ----- #ifndef TOPICMARSHALLING_H_INC  ----- */
