@@ -148,29 +148,29 @@ These two services MAY be combined into one project header file ((`myproj.h`), o
 The external header file SHALL define a version number for the project as follows:
 
 ```c
-    //  MYPROJ version macros for compile-time API detection
-    #define MYPROJ_VERSION_MAJOR 1
-    #define MYPROJ_VERSION_MINOR 0
-    #define MYPROJ_VERSION_PATCH 0
-    
-    #define MYPROJ_MAKE_VERSION(major, minor, patch) \
-        ((major) * 10000 + (minor) * 100 + (patch))
-    #define MYPROJ_VERSION \
-        MYPROJ_MAKE_VERSION(MYPROJ_VERSION_MAJOR, \
-                            MYPROJ_VERSION_MINOR, \
-                            MYPROJ_VERSION_PATCH)
+//  MYPROJ version macros for compile-time API detection
+#define MYPROJ_VERSION_MAJOR 1
+#define MYPROJ_VERSION_MINOR 0
+#define MYPROJ_VERSION_PATCH 0
+
+#define MYPROJ_MAKE_VERSION(major, minor, patch) \
+    ((major) * 10000 + (minor) * 100 + (patch))
+#define MYPROJ_VERSION \
+    MYPROJ_MAKE_VERSION(MYPROJ_VERSION_MAJOR, \
+                        MYPROJ_VERSION_MINOR, \
+                        MYPROJ_VERSION_PATCH)
 ```
 
 The external header file SHALL contain all public classes structs and includes as follows:
 
 ```c
-    //  Opaque class structures to allow forward references
-    typedef struct _myclass_t myclass_t;
-    ...
-    
-    //  Public API classes
-    #include "myclass.h"
-    ...
+//  Opaque class structures to allow forward references
+typedef struct _myclass_t myclass_t;
+...
+
+//  Public API classes
+#include "myclass.h"
+...
 ```
 
 The same SHOULD be applied to the internal header file.
@@ -178,10 +178,10 @@ The same SHOULD be applied to the internal header file.
 The project header file SHALL assert the required version numbers for any dependencies immediately after including their respective header files, like this:
 
 ```c
-    #include <czmq.h>
-    #if CZMQ_VERSION < 10203
-    #   error "myproject needs CZMQ/1.2.3 or later"
-    #endif
+#include <czmq.h>
+#if CZMQ_VERSION < 10203
+#   error "myproject needs CZMQ/1.2.3 or later"
+#endif
 ```
 
 Definitions in the external header file are visible to calling applications as well as class source code. The external header file SHALL include all class header files that form part of the public API for the project.
@@ -192,19 +192,19 @@ Definitions in the internal header file are visible only to class source code. T
 
 
 
-    # Project Title
-    
-    <One-paragraph statement of the goals of the project, and the problems it aims to solve>
-    
-    ## References
-    
-    * Contribution policy is defined by C4 (http://rfc.zeromq.org/spec:21).
-    * Project style guide is defined by CLASS (http://rfc.zeromq.org/spec:14).
-     * short name: <shortname>
-     * abbreviation: <abbreviation>
-     * prefix: <prefix>
-    * Licensed under <license name>, see COPYING
-    * Language level: C99
+# Project Title
+
+<One-paragraph statement of the goals of the project, and the problems it aims to solve>
+
+## References
+
+* Contribution policy is defined by C4 (http://rfc.zeromq.org/spec:21).
+* Project style guide is defined by CLASS (http://rfc.zeromq.org/spec:14).
+ * short name: <shortname>
+ * abbreviation: <abbreviation>
+ * prefix: <prefix>
+* Licensed under <license name>, see COPYING
+* Language level: C99
 
 
 ### Language Level
@@ -256,30 +256,30 @@ Every source and header file SHALL start with an appropriate file header that st
 Here is a template file header for an LGPL open source project:
 
 ```c
-    /*  =========================================================================
-        <name> - <description>
-    
-        -------------------------------------------------------------------------
-        Copyright (c) <year> - <company name> - <website>
-        Copyright other contributors as noted in the AUTHORS file.
-    
-        This file is part of <project name>, <description>
-        <website>
-    
-        This is free software; you can redistribute it and/or modify it under
-        the terms of the GNU Lesser General Public License as published by the
-        Free Software Foundation; either version 3 of the License, or (at your
-        option) any later version.
-    
-        This software is distributed in the hope that it will be useful, but
-        WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANT-
-        ABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
-        Public License for more details.
-    
-        You should have received a copy of the GNU Lesser General Public
-        License along with this program. If not see http://www.gnu.org/licenses.
-        =========================================================================
-    */
+/*  =========================================================================
+    <name> - <description>
+
+    -------------------------------------------------------------------------
+    Copyright (c) <year> - <company name> - <website>
+    Copyright other contributors as noted in the AUTHORS file.
+
+    This file is part of <project name>, <description>
+    <website>
+
+    This is free software; you can redistribute it and/or modify it under
+    the terms of the GNU Lesser General Public License as published by the
+    Free Software Foundation; either version 3 of the License, or (at your
+    option) any later version.
+
+    This software is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANT-
+    ABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General
+    Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this program. If not see http://www.gnu.org/licenses.
+    =========================================================================
+*/
 ```
 
 ### Class Types
@@ -328,54 +328,54 @@ The class header file SHALL have this layout:
 Here is a template header file for stateful classes, not showing the file header:
 
 ```c
-    #ifndef __MYMOD_H_INCLUDED__
-    #define __MYMOD_H_INCLUDED__
-    
-    #ifdef __cplusplus
-    extern "C" {
-    #endif
-    
-    //  Opaque class structure
-    typedef struct _myp_mymod_t myp_mymod_t;
-    
-    //  Create a new <class name> instance
-    CZMQ_EXPORT myp_mymod_t *
-        myp_mymod_new (void);
-    
-    //  Destroy a <class name> instance
-    CZMQ_EXPORT void
-        myp_mymod_destroy (myp_mymod_t **self_p);
-    
-    //  Self test of this class
-    void
-        myp_mymod_test (bool verbose);
-    
-    #ifdef __cplusplus
-    }
-    #endif
-    
-    #endif
+#ifndef __MYMOD_H_INCLUDED__
+#define __MYMOD_H_INCLUDED__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//  Opaque class structure
+typedef struct _myp_mymod_t myp_mymod_t;
+
+//  Create a new <class name> instance
+CZMQ_EXPORT myp_mymod_t *
+    myp_mymod_new (void);
+
+//  Destroy a <class name> instance
+CZMQ_EXPORT void
+    myp_mymod_destroy (myp_mymod_t **self_p);
+
+//  Self test of this class
+void
+    myp_mymod_test (bool verbose);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
 ```
 
 Here is a similar template header file for stateless classes:
 
 ```c
-    #ifndef __MYMOD_H_INCLUDED__
-    #define __MYMOD_H_INCLUDED__
-    
-    #ifdef __cplusplus
-    extern "C" {
-    #endif
-    
-    //  Self test of this class
-    int
-        myp_mymod_test (bool verbose);
-    
-    #ifdef __cplusplus
-    }
-    #endif
-    
-    #endif
+#ifndef __MYMOD_H_INCLUDED__
+#define __MYMOD_H_INCLUDED__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//  Self test of this class
+int
+    myp_mymod_test (bool verbose);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
 ```
 
 All public methods SHALL be declared with `CZMQ_EXPORT` in the class header file so that these methods are properly exported on operating systems that require it.
@@ -405,11 +405,11 @@ For stateful classes, the class structure has one or more properties defined as 
 This SHOULD be defined as follows:
 
 ```c
-    //  Structure of our class
-    
-    struct _mymod_t {
-        <type> <name>;              //  <description>
-    };
+//  Structure of our class
+
+struct _mymod_t {
+    <type> <name>;              //  <description>
+};
 ```
 
 Property names SHALL follow the General Style for Naming. Property names SHOULD be nouns or adjectives (typically used for Boolean properties). We will use `myprop` in examples.
@@ -417,8 +417,8 @@ Property names SHALL follow the General Style for Naming. Property names SHOULD 
 Stateful classes also define an array of the classes structure. And a BitArray_t to keep track of their assignment.
 
 ```c
-    mymod_t objects[MYP_MYMOD_MAX_OBJS];
-    bit_array_t *object_allocation;
+static mymod_t objects[MYP_MYMOD_MAX_OBJS];
+static bit_array_t *object_allocation;
 ```
 
 ## Method Styles
@@ -447,16 +447,16 @@ In stateless classes, the only standard method is `myp_mymod_test ()`, which SHA
 The self test method shall take this general form:
 
 ```c
-    //  --------------------------------------------------------------------------
-    //  Runs selftest of class
-    
-    void
-    myp_mymod_test (int verbose)
-    {
-        printf (" * myp_mymod: ");
-        //  Conduct tests of every method
-        printf ("OK\n");
-    }
+//  --------------------------------------------------------------------------
+//  Runs selftest of class
+
+void
+myp_mymod_test (int verbose)
+{
+    printf (" * myp_mymod: ");
+    //  Conduct tests of every method
+    printf ("OK\n");
+}
 ```
 
 * The self test method SHALL be a primary source of example code for users of the class.
@@ -470,12 +470,12 @@ The self test method shall take this general form:
 The initialize method SHALL prepare the static declared objects.
 
 ```c
-    //  Initialize this class
-    int
-    myp_mymod_t (void) {
-        object_allocation = bit_array_new ();
-        return 0;
-    }
+//  Initialize this class
+int
+myp_mymod_t (void) {
+    object_allocation = bit_array_new ();
+    return 0;
+}
 ```
 
 #### The Constructor Method
@@ -483,26 +483,26 @@ The initialize method SHALL prepare the static declared objects.
 The constructor SHALL take this general form:
 
 ```c
-    //  Create a new myp_mymod instance
-    myp_mymod_t *
-    myp_mymod_new (<arguments>)
-    {
-        assert (object_allocation);
-        uint8_t index;
-        for (index = 0; index < MYP_MYMOD_MAX_OBJS; index++) {
-            if (!bit_array_check (object_allocation, index)) {
-                bitArray_set (object_allocation, index);
-                DataReader_t *self = &objects[index];
-                // Initialize object properties
-                self->someprop = someprop_new ();
-                if (self->someprop)
-                    self->anotherprop = anotherprop_new ();
-                if (self->anotherprop)
-                    self->lastprop = lastprop_new ();
-            }
+//  Create a new myp_mymod instance
+myp_mymod_t *
+myp_mymod_new (<arguments>)
+{
+    assert (object_allocation);
+    uint8_t index;
+    for (index = 0; index < MYP_MYMOD_MAX_OBJS; index++) {
+        if (!bit_array_check (object_allocation, index)) {
+            bitArray_set (object_allocation, index);
+            DataReader_t *self = &objects[index];
+            // Initialize object properties
+            self->someprop = someprop_new ();
+            if (self->someprop)
+                self->anotherprop = anotherprop_new ();
+            if (self->anotherprop)
+                self->lastprop = lastprop_new ();
         }
-        return NULL;
     }
+    return NULL;
+}
 ```
 
 * The constructor SHALL initialize all properties in new class instances. Properties SHALL either get a suitable initial value, or be set to zero. Very large properties MAY exceptionally be left uninitialized for performance reasons; such behavior MUST be explicitly noted in the constructor body.
@@ -518,27 +518,27 @@ The constructor SHALL take this general form:
 The destructor SHALL take this general form:
 
 ```c
-    //  Destroy a myp_mymod instance
-    void
-    myp_mymod_destroy (myp_mymod_t **self_p)
-    {
-        assert (self_p);
-        if (*self_p) {
-            myp_mymod_t *self = *self_p;
-            uint8_t index;
-            for (index = 0; index < MYP_MYMOD_MAX_OBJS; index++) {
-                if (self == &objects[index]) {
-                    bit_array_clear (object_allocation, index);
-                    //  Cleanup object properties
-                    someprop_destroy (&self->someprop);
-                    anotherprop_destroy (&self->anotherprop);
-                    lastprop_destroy (&self->lastprop);
-                    self = NULL;
-                    *self_p = NULL;
-                }
+//  Destroy a myp_mymod instance
+void
+myp_mymod_destroy (myp_mymod_t **self_p)
+{
+    assert (self_p);
+    if (*self_p) {
+        myp_mymod_t *self = *self_p;
+        uint8_t index;
+        for (index = 0; index < MYP_MYMOD_MAX_OBJS; index++) {
+            if (self == &objects[index]) {
+                bit_array_clear (object_allocation, index);
+                //  Cleanup object properties
+                someprop_destroy (&self->someprop);
+                anotherprop_destroy (&self->anotherprop);
+                lastprop_destroy (&self->lastprop);
+                self = NULL;
+                *self_p = NULL;
             }
         }
     }
+}
 ```
 
 * The destructor SHALL nullify the provided instance reference.
@@ -550,22 +550,22 @@ The destructor SHALL take this general form:
 The class MAY offer a duplicator method which creates a full copy of an instance; if it offers such semantics, the method MUST be called `myp_mymod_dup ()` and take this general form:
 
 ```c
-    //  Create a copy of a myp_mymod instance
-    
-    myp_mymod_t *
-    myp_mymod_dup (myp_mymod_t *self)
-    {
-        if (self) {
-            assert (self);
-            myp_mymod_t *copy = myp_mymod_new (...);
-            if (copy) {
-                //  Initialize copy
-            }
-            return copy;
+//  Create a copy of a myp_mymod instance
+
+myp_mymod_t *
+myp_mymod_dup (myp_mymod_t *self)
+{
+    if (self) {
+        assert (self);
+        myp_mymod_t *copy = myp_mymod_new (...);
+        if (copy) {
+            //  Initialize copy
         }
-        else
-            return NULL;
+        return copy;
     }
+    else
+        return NULL;
+}
 ```
 
 * The duplicator SHALL return either a new instance reference, or null, if construction failed, in the same manner as the constructor.
@@ -581,25 +581,25 @@ A class MAY act as a list container for other items, which may be child class in
 Such a container class SHALL keep the list cursor position in the instance, and provide the following methods for navigating the list:
 
 ```
-    //  Return first item in the list or null if the list is empty
-    
-    item_t *
-    myp_mymod_first (myp_mymod_t *self)
-    {
-        assert (self);
-        //  Reset cursor to first item in list
-        return item;
-    }
-    
-    //  Return next item in the list or null if there are no more items
-    
-    item_t *
-    myp_mymod_next (myp_mymod_t *self)
-    {
-        assert (self);
-        //  Move cursor to next item in list
-        return item;
-    }
+//  Return first item in the list or null if the list is empty
+
+item_t *
+myp_mymod_first (myp_mymod_t *self)
+{
+    assert (self);
+    //  Reset cursor to first item in list
+    return item;
+}
+
+//  Return next item in the list or null if there are no more items
+
+item_t *
+myp_mymod_next (myp_mymod_t *self)
+{
+    assert (self);
+    //  Move cursor to next item in list
+    return item;
+}
 ```
 
 * The navigation methods SHALL return null to indicate "no more items".
@@ -623,25 +623,25 @@ The class MAY expose instance properties via its API, in which case this SHALL b
 To return the value of a property the class SHALL define an accessor method like this:
 
 ```c
-    //  Return the value of myprop
-    <type>
-    myp_mymod_myprop (myp_mymod_t *self)
-    {
-        assert (self);
-        return self->myprop;
-    }
+//  Return the value of myprop
+<type>
+myp_mymod_myprop (myp_mymod_t *self)
+{
+    assert (self);
+    return self->myprop;
+}
 ```
 
 To write the value of a property, if this is permitted, the class SHALL define an accessor method like this:
 
 ```c
-    //  Set the value of myprop
-    void
-    myp_mymod_set_myprop (myp_mymod_t *self, <type> myprop)
-    {
-        assert (self);
-        self->myprop = myprop;
-    }
+//  Set the value of myprop
+void
+myp_mymod_set_myprop (myp_mymod_t *self, <type> myprop)
+{
+    assert (self);
+    self->myprop = myprop;
+}
 ```
 
 * Properties exposed by accessor methods MAY not actually exist as such in the instance; they may be calculated rather than simply copied to/from the instance structure.
@@ -727,25 +727,25 @@ Indentation SHALL be 4 spaces per level. Tab characters SHALL NOT be used in cod
 Functions SHALL be prototyped as follows:
 
 ```
-    <type>
-        <name> (<arguments>);
+<type>
+<name> (<arguments>);
 ```
 
 Functions SHALL be defined as follows:
 
 ```
-    <type>
-    <name> (<arguments>)
-    {
-        <body>
-    }
+<type>
+<name> (<arguments>)
+{
+    <body>
+}
 ```
 
 When the project uses C99, stack variables SHALL be defined in-line, as close as possible to their first use, and initialized. For example:
 
 ```c
-    myp_mymod_t *mymod = myp_mymod_new ();
-    char *comma = strchr (surname, '.');
+myp_mymod_t *mymod = myp_mymod_new ();
+char *comma = strchr (surname, '.');
 ```
 
 When the project uses C89, stack variables SHALL all be defined and initialized at the start of the function or method where they are used.
@@ -766,56 +766,42 @@ Single-statement blocks SHALL NOT be enclosed in brackets.
 This is the form of a single-statement block:
 
 ```c
-    if (comma == NULL)
-        comma = surname;
+if (comma == NULL) {
+    comma = surname;
+}
 ```
 
 In `else` statements, the `else` SHALL be put on a line by itself.
-
-Multiple `if`/`else` tests SHALL be stacked vertically to indicate that the order is arbitrary.
-
-This is the form of a stacked `if` statement block:
-
-```c
-    if (command == CMD_HELLO)
-        puts ("hello");
-    else
-    if (command == CMD_GOODBYE)
-        puts ("goodbye");
-    else
-    if (command == CMD_ERROR)
-        puts ("error");
-```
 
 With multi-statement conditional blocks, the closing bracket SHALL be put on a line by itself, aligned with the opening keyword.
 
 This is the form of a stacked `if` statement block with brackets around each conditional block:
 
 ```c
-    if (command == CMD_HELLO) {
-        puts ("hello");
-        myp_peer_reply (peer, CMD_GOODBYE);
-    }
-    else
-    if (command == CMD_GOODBYE) {
-        puts ("goodbye");
-        myp_peer_reply (peer, CMD_DISCONNECT);
-    }
-    else
-    if (command == CMD_ERROR) {
-        puts ("error");
-        myp_peer_close (peer);
-    }
+if (command == CMD_HELLO) {
+    puts ("hello");
+    myp_peer_reply (peer, CMD_GOODBYE);
+}
+else
+if (command == CMD_GOODBYE) {
+    puts ("goodbye");
+    myp_peer_reply (peer, CMD_DISCONNECT);
+}
+else
+if (command == CMD_ERROR) {
+    puts ("error");
+    myp_peer_close (peer);
+}
 ```
 
 This is the form of a `while` statement:
 
 ```c
-    char *comma = strchr (surname, ',');
-    while (comma) {
-        *comma = ' ';
-        comma = strchr (surname, ',');
-    }
+char *comma = strchr (surname, ',');
+while (comma) {
+    *comma = ' ';
+    comma = strchr (surname, ',');
+}
 ```
 
 ### Comments
@@ -842,13 +828,13 @@ In C89 projects the syntax for all comments SHALL be the C `/* ... */` style.
 This is the general template for a method comment header:
 
 ```c
-    //  --------------------------------------------------------------------------
-    //  Finds the first item in the list, returns null if the list is empty.
-    
-    myp_mymod_t *
-    myp_mymod_first (myp_mymod_t *self)
-    {
-        ...
+//  --------------------------------------------------------------------------
+//  Finds the first item in the list, returns null if the list is empty.
+
+myp_mymod_t *
+myp_mymod_first (myp_mymod_t *self)
+{
+    ...
 ```
 
 * Every property in a class structure SHALL have a 1-line in-line comment that describes its purpose.
@@ -879,11 +865,11 @@ Blank lines SHALL not be used in these cases:
 Code SHALL NOT use extra spacing to create vertical alignment.
 
 ```c
-    char *comma = strchr (surname, ',');
-    while (comma) {
-        *comma = ' ';
-        comma = strchr (surname, ',');
-    }
+char *comma = strchr (surname, ',');
+while (comma) {
+    *comma = ' ';
+    comma = strchr (surname, ',');
+}
 ```
 
 ### Punctuation
@@ -894,46 +880,46 @@ Punctuation SHALL follow English rules as far as possible.
 This is the style for unary operators, with a space after but not before the operator:
 
 ```c
-    char_nbr++;
+char_nbr++;
 ```
 
 This is the style for binary operators, with a space before and after the operator:
 
 ```c
-    comma = comma + 1;
+comma = comma + 1;
 ```
 
 This is the style for the `?:` operator:
 
 ```c
-    comma = comma? comma + 1: strchr (name, '.');
+comma = comma? comma + 1: strchr (name, '.');
 ```
 
 This is the style for semi-colons, with a space after but not before:
 
 ```c
-    for (char_nbr = 0; *char_nbr; char_nbr++)
-        char_nbr++;
+for (char_nbr = 0; *char_nbr; char_nbr++)
+    char_nbr++;
 ```
 
 This is the style for parentheses, with a space before the opening, and after the closing parenthesis, with multiple opening or closing parentheses joined together without spaces:
 
 ```c
-    node = (node_t *) zmalloc (sizeof (node_t));
-    if (!node)
-        return -1;
+node = (node_t *) zmalloc (sizeof (node_t));
+if (!node)
+    return -1;
 ```
 
 This is the style for square brackets:
 
 ```c
-    comma = name [char_nbr];
+comma = name[char_nbr];
 ```
 
 This is the style for pointer dereferences, with no space before or after the '->':
 
 ```c
-    self->name = strdup (name);
+self->name = strdup (name);
 ```
 
 ### Assertions
@@ -972,19 +958,19 @@ A void function SHALL NOT end in an empty `return` statement.
 * The recommended pattern for array iteration is:
 
 ```c
-    for (array_index = 0; array_index < array_size; array_index++) {
-        //  Access element [array_index]
-    }
+for (array_index = 0; array_index < array_size; array_index++) {
+    //  Access element[array_index]
+}
 ```
 
 * The recommended pattern for list iteration is:
-    
+
 ```c
-    myp_mymod_t *mymod = myp_mymod_first (mymod);
-    while (mymod) {
-        //  Do something
-        mymod = myp_mymod_next (mymod);
-    }
+myp_mymod_t *mymod = myp_mymod_first (mymod);
+while (mymod) {
+    //  Do something
+    mymod = myp_mymod_next (mymod);
+}
 ```
 
 
@@ -1009,13 +995,13 @@ A void function SHALL NOT end in an empty `return` statement.
 This example shows the general style of native code:
 
 ```
-    #if (defined (__UNIX__))
-        pid = GetCurrentProcessId ();
-    #elif (defined (__WINDOWS__))
-        pid = getpid ();
-    #else
-        pid = 0;
-    #endif
+#if (defined (__UNIX__))
+    pid = GetCurrentProcessId ();
+#elif (defined (__WINDOWS__))
+    pid = getpid ();
+#else
+    pid = 0;
+#endif
 ```
 
 
@@ -1049,14 +1035,14 @@ Compiler warnings SHOULD always be treated as fatal. The following is a list of 
 
 Code generation MAY be used to produce classes mechanically when there is compelling benefit.
 
-* The code generator SHOULD be GSL, from <https://github.com/imatix/gsl.>  
+* The code generator SHOULD be GSL, from <https://github.com/imatix/gsl.>
 
 * All code generation scripts SHALL be in the project `scripts` subdirectory.
 
 ```sh
-    export PATH=../scripts:$PATH
-    gsl -q -script:<script>.gsl model.xml
-```    
+export PATH=../scripts:$PATH
+gsl -q -script:<script>.gsl model.xml
+```
 
 
 * If only parts of a class are generated, these parts SHALL have the extension `.inc` and SHALL generated into the project `src` directory, and SHALL be included in the class source file using an #include statement.
