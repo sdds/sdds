@@ -119,7 +119,7 @@ ssw_rc_t Task_stop(Task _this)
 {
 
 	if (_this == NULL || _this->timer == 0){
-	r	eturn SDDS_SSW_RT_FAIL;
+		return SDDS_SSW_RT_FAIL;
     }
     // stop the timer
     struct itimerspec timer;

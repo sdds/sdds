@@ -70,6 +70,7 @@ struct _DataSource_t {
 };
 
 static DataSource_t dsStruct;
+static Task sendTask;
 
 DataSource_t *dataSource = &dsStruct;
 
@@ -127,6 +128,7 @@ rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 #endif
 
 rc_t DataSource_init(void) {
+	sendTask = Task_create();
 
 #if defined(__GNUC__) && __GNUC_MINOR__ >= 6
 #pragma GCC diagnostic push
@@ -253,11 +255,29 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste)
 	Topic_t *topic = _this->topic;
 	domainid_t domain = topic->domain;
 	Locator dest = topic->dsinks.list;
+	msec_t latBudDuration = _this->qos.latBudDuration;
+	pointInTime_t deadline;
+	rc_t ret = Time_getCurTime(&deadline);
+
+#ifdef UTILS_DEBUG
+	Log_debug("dw ID: %d, latBud: %d time: %d\n", _this->id, _this->qos.latBudDuration, deadline);
+#endif
+
+	// to do exact calculation
+	deadline += (latBudDuration - SDDS_QOS_LATBUD_COMM - SDDS_QOS_LATBUD_READ);
 
 
 	buffRef = findFreeFrame(dest);
 	buffRef->addr = dest;
 
+	//  If new deadline is earlier
+	if ((buffRef->sendDeadline== 0) ) {
+		buffRef->sendDeadline = deadline;
+	}
+
+#ifdef UTILS_DEBUG
+	Log_debug("sendDeadline: %d\n", buffRef->sendDeadline);
+#endif
 
 	if(buffRef->curDomain != domain) {
 		SNPS_writeDomain(buffRef, domain);

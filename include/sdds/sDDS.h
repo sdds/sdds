@@ -42,5 +42,6 @@ typedef struct _Topic_t Topic_t;
 #include "DataReader.h"
 #include "Log.h"
 #include "Topic.h"
+#include "os-ssal/Task.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */
