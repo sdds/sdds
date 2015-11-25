@@ -20,7 +20,7 @@
 
 struct _DataSink_t {
 	DataReader_t readers[SDDS_DATA_READER_MAX_OBJS];
-    BitArray_t *allocated_readers;
+    uint64_t allocated_readers;
 };
 static DataSink_t _dataSink;
 static DataSink_t *self = &_dataSink;
@@ -40,7 +40,6 @@ rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size);
 
 rc_t
 DataSink_init (void) {
-    self->allocated_readers = BitArray_new ();
 	return SDDS_RT_OK;
 }
 
@@ -49,7 +48,7 @@ rc_t
 DataSink_getTopic (DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) {
 	uint8_t index;
 	for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
-		if (BitArray_check (self->allocated_readers, index)
+		if (BitArray_check (&self->allocated_readers, index)
         &&  DataReader_topic (&self->readers[index])->id == id) {
 			if (st != NULL) {
 				st->key = DataReader_id (&self->readers[index]);
@@ -210,9 +209,9 @@ DataSink_create_datareader (Topic_t *topic, Qos qos, Listener listener, StatusMa
     uint8_t index;
     for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
         //  Check if object at index has been allocated
-        if (!BitArray_check (self->allocated_readers, index)) {
+        if (!BitArray_check (&self->allocated_readers, index)) {
             //  Allocate object at index
-            BitArray_set (self->allocated_readers, index);
+            BitArray_set (&self->allocated_readers, index);
             reader = &self->readers[index];
             // Initialize object properties
             reader->id = index;

@@ -10,64 +10,13 @@
 
 #include "sDDS.h"
 
-struct _BitArray_t {
-    uint64_t array;
-};
-
-static BitArray_t objects[SDDS_BIT_ARRAY_MAX_OBJS];
-static BitArray_t objectAllocation;
-
-
 //  ----------------------------------------------------------------------------
 //  Initialize this class
 
 rc_t
 BitArray_init ()
 {
-    uint8_t index;
-    for (index = 0; index < SDDS_BIT_ARRAY_MAX_OBJS; index++)
-        objects[index].array = 0ull;
-    objectAllocation.array = 0ull;
-
 	return SDDS_RT_OK;
-}
-
-
-//  ----------------------------------------------------------------------------
-//  Obtain a new instance of BitArray
-
-BitArray_t *
-BitArray_new ()
-{
-    uint8_t index;
-    for (index = 0; index < SDDS_BIT_ARRAY_MAX_OBJS; index++) {
-        if (!BitArray_check (&objectAllocation, index)) {
-            BitArray_set (&objectAllocation, index);
-            return &objects[index];
-        }
-    }
-    return NULL;
-}
-
-
-//  ----------------------------------------------------------------------------
-//  Delete a instance of BitArray
-
-BitArray_t *
-BitArray_delete (BitArray_t ** self_p)
-{
-    assert (self_p);
-    if (*self_p) {
-        BitArray_t *self = *self_p;
-
-        uint8_t index;
-        for (index = 0; index < SDDS_BIT_ARRAY_MAX_OBJS; index++) {
-            if (self == &objects[index]) {
-                self->array = 0ull;
-                BitArray_clear (&objectAllocation, index);
-            }
-        }
-    }
 }
 
 
@@ -75,11 +24,11 @@ BitArray_delete (BitArray_t ** self_p)
 //  Sets the bit at index to 1.
 
 void
-BitArray_set (BitArray_t *self, unsigned int index)
+BitArray_set (uint64_t* self, unsigned int index)
 {
     assert (self);
     assert (index < 64);
-    self->array |= 1ull << index;
+    *self |= 1ull << index;
 }
 
 
@@ -87,11 +36,11 @@ BitArray_set (BitArray_t *self, unsigned int index)
 //  Sets the bit at index to 0.
 
 void
-BitArray_clear (BitArray_t *self, unsigned int index)
+BitArray_clear (uint64_t* self, unsigned int index)
 {
     assert (self);
     assert (index < 64);
-    self->array &= ~(1ull << index);
+    *self &= ~(1ull << index);
 }
 
 
@@ -99,11 +48,11 @@ BitArray_clear (BitArray_t *self, unsigned int index)
 //  Toggles the bit at index
 
 void
-BitArray_toggle (BitArray_t *self, unsigned int index)
+BitArray_toggle (uint64_t* self, unsigned int index)
 {
     assert (self);
     assert (index < 64);
-    self->array ^= 1ull << index;
+    *self ^= 1ull << index;
 }
 
 
@@ -112,11 +61,11 @@ BitArray_toggle (BitArray_t *self, unsigned int index)
 //  0.
 
 bool
-BitArray_check (BitArray_t *self, unsigned int index)
+BitArray_check (uint64_t* self, unsigned int index)
 {
     assert (self);
     assert (index < 64);
-    return (self->array >> index) & 1ull;
+    return (*self >> index) & 1ull;
 }
 
 
@@ -124,7 +73,7 @@ BitArray_check (BitArray_t *self, unsigned int index)
 //  Prints the array in 8-Bit chunks
 
 void
-BitArray_print (BitArray_t *self)
+BitArray_print (uint64_t* self)
 {
     assert (self);
     int index;
@@ -144,27 +93,26 @@ BitArray_print (BitArray_t *self)
 void
 BitArray_test ()
 {
-    BitArray_t BitArray;
-    BitArray.array = 0;
+    uint64_t bitArray = 0;
 
     //  Setting a bit
-    BitArray_set (&BitArray, 0);
-    assert (BitArray.array == 1ull);
-    BitArray_set (&BitArray, 1);
-    assert (BitArray.array == 3ull);
-    BitArray_set (&BitArray, 2);
-    assert (BitArray.array == 7ull);
-    BitArray_print (&BitArray);
+    BitArray_set (&bitArray, 0);
+    assert (bitArray == 1ull);
+    BitArray_set (&bitArray, 1);
+    assert (bitArray == 3ull);
+    BitArray_set (&bitArray, 2);
+    assert (bitArray == 7ull);
+    BitArray_print (&bitArray);
 
     //  Clearing a bit
-    BitArray_clear (&BitArray, 0);
-    assert (BitArray.array == 6ull);
-    BitArray_print (&BitArray);
+    BitArray_clear (&bitArray, 0);
+    assert (bitArray == 6ull);
+    BitArray_print (&bitArray);
 
     //  Toggle a bit
-    BitArray_toggle (&BitArray, 0);
-    assert (BitArray.array == 7ull);
-    BitArray_toggle (&BitArray, 1);
-    assert (BitArray.array == 5ull);
-    BitArray_print (&BitArray);
+    BitArray_toggle (&bitArray, 0);
+    assert (bitArray == 7ull);
+    BitArray_toggle (&bitArray, 1);
+    assert (bitArray == 5ull);
+    BitArray_print (&bitArray);
 }
