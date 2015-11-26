@@ -7,6 +7,10 @@
 .#  This script will generate the following files:
 .#      * $(project.name).c
 .#  ===========================================================================
+.template 0
+project.lorem_ipsum = "\
+Es gibt im Moment in diese Mannschaft, oh, einige Spieler vergessen ihnen Profi was sie sind. Ich lese nicht sehr viele Zeitungen, aber ich habe gehört viele Situationen. Erstens: wir haben nicht offensiv gespielt. Es gibt keine deutsche Mannschaft spielt offensiv und die Name offensiv wie Bayern. Letzte Spiel hatten wir in Platz drei Spitzen: Elber, Jancka und dann Zickler. Wir müssen nicht vergessen Zickler. Zickler ist eine Spitzen mehr, Mehmet eh mehr Basler. Ist klar diese Wörter, ist möglich verstehen, was ich hab gesagt? Danke. Offensiv, offensiv ist wie machen wir in Platz. Zweitens: ich habe erklärt mit diese zwei Spieler: nach Dortmund brauchen vielleicht Halbzeit Pause. Ich habe auch andere Mannschaften gesehen in Europa nach diese Mittwoch. Ich habe gesehen auch zwei Tage die Training. Ein Trainer ist nicht ein Idiot! Ein Trainer sei sehen was passieren in Platz. In diese Spiel es waren zwei, drei diese Spieler waren schwach wie eine Flasche leer! Haben Sie gesehen Mittwoch"
+.endtemplate
 .if !file.exists ("$(project.name:c).c")
 .   output "$(project.name:c).c"
 .   if project.os = "contiki"
@@ -50,11 +54,11 @@ int main()
 .                   elsif attribute.type = "DDS_boolean"
     $(topic.c_name:c)_pub.$(attribute.name:c) = true;
 .                   elsif  attribute.type = "DDS_char"
-.                       if attribute.size = 1
-    $(topic.c_name:c)_pub.$(attribute.name:c) = 'H';
+.                       if attribute.enc_type = "string"
+    strncpy ($(topic.c_name:c)_pub.$(attribute.name:c), \
+        "$(string.substr (project.lorem_ipsum, 0, attribute.size - 1))", $(attribute.size));
 .                       else
-    $(topic.c_name:c)_pub.$(attribute.name:c)[0] = 'H';
-    $(topic.c_name:c)_pub.$(attribute.name:c)[1] = 'W';
+    $(topic.c_name:c)_pub.$(attribute.name:c) = 'H';
 .                       endif
 .                   endif
 .               endfor
@@ -86,9 +90,9 @@ int main()
                    "}\\n"
 .               for topic.attribute
 .                   if ! last()
-                   , $(topic.c_name:c)_sub_p->$(attribute.name)
+                   , $(topic.c_name:c)_sub_p->$(attribute.name:c)
 .                   else
-                   , $(topic.c_name:c)_sub_p->$(attribute.name));
+                   , $(topic.c_name:c)_sub_p->$(attribute.name:c));
 .                   endif
 .               endfor
         }

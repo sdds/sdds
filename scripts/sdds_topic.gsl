@@ -94,17 +94,17 @@ $(project.GENERATED_WARNING_HEADER:)
 #define $(TOPIC.NAME)_H_INC
 
 #include <dds/DDS_DCPS.h>
-
+#include <sdds/Log.h>
 #include <sdds/Topic.h>
 
 struct $(topic.c_name:)
 {
 .   for topic.attribute
     /* $(attribute.description:) */
-.       if attribute.size = 1
-    $(attribute.type:) $(attribute.name:c);
-.       else
+.       if attribute.enc_type = "string"
     $(attribute.type:) $(attribute.name:c)[$(attribute.size + 1)];
+.       else
+    $(attribute.type:) $(attribute.name:c);
 .       endif
 .   endfor
 };
@@ -257,7 +257,7 @@ rc_t TopicMarshalling_$(topic.c_name:)_encode(byte_t* buffer, Data data, size_t*
 	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
 
 .   for topic.attribute
-.       if attribute.size > 1
+.       if attribute.enc_type = "string"
     Marshalling_enc_$(attribute.enc_type)(buffer + *size, real_data->$(attribute.name:c), $(attribute.size));
 .       else
     Marshalling_enc_$(attribute.enc_type)(buffer + *size, &real_data->$(attribute.name:c));
@@ -272,14 +272,14 @@ rc_t TopicMarshalling_$(topic.c_name:)_encode(byte_t* buffer, Data data, size_t*
 rc_t TopicMarshalling_$(topic.c_name:)_decode(byte_t* buffer, Data data, size_t* size)
 {
 	if (*size != $(topic.size))
-		fprintf(stderr, "%s : size mismatch is %zu should be $(size)\\n",__FUNCTION__, *size);
+		Log_warn ("size mismatch is %zu should be $(size)\\n", *size);
 
 	*size = 0;
 
 	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
 
 .   for topic.attribute
-.       if attribute.size > 1
+.       if attribute.enc_type = "string"
     Marshalling_dec_$(attribute.enc_type)(buffer + *size, real_data->$(attribute.name:c), $(attribute.size));
 .       else
     Marshalling_dec_$(attribute.enc_type)(buffer + *size, &real_data->$(attribute.name:c));
