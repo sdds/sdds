@@ -90,7 +90,7 @@ static int create_socket(struct addrinfo *address);
 // for the builtintopic
 // IF BUILTIN
 
-Locator builtinTopicNetAddress;
+Locator_t* builtinTopicNetAddress;
 // ENDIF
 
 size_t Network_size(void) {
@@ -459,10 +459,10 @@ void *recvLoop(void *netBuff) {
 
 		memcpy(&(sloc.addr_storage), &addr, addr_len);
 
-		Locator loc;
+		Locator_t* loc;
 
 		//pthread_mutex_lock(&recv_mutex);
-		if (LocatorDB_findLocator((Locator) &sloc, &loc) != SDDS_RT_OK) {
+		if (LocatorDB_findLocator((Locator_t*) &sloc, &loc) != SDDS_RT_OK) {
 			// not found we need a new one
 			if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
 				Log_error("No free Locator objects\n");
@@ -529,7 +529,7 @@ rc_t Network_send(NetBuffRef_t *buff) {
 	else if (sock_type == SDDS_LOCATOR_TYPE_UNI)
 		sock = net.fd_uni_socket;
 
-	Locator loc = buff->addr;
+	Locator_t* loc = buff->addr;
 
 	while (loc != NULL) {
 
@@ -584,12 +584,12 @@ size_t Network_locSize(void) {
 	return sizeof(struct UDPLocator_t);
 }
 
-rc_t Network_setAddressToLocator(Locator loc, char* endpoint) {
+rc_t Network_setAddressToLocator(Locator_t* loc, char* endpoint) {
     Network_set_locator_endpoint (loc, endpoint, net.port);
 }
 
 rc_t
-Network_set_locator_endpoint (Locator loc, char* endpoint, int port) {
+Network_set_locator_endpoint (Locator_t* loc, char* endpoint, int port) {
     assert (loc);
     assert (endpoint);
     Log_debug ("Set locator endpoint to ip: %s, port: %d\n", endpoint, port);
@@ -649,7 +649,7 @@ Network_set_locator_endpoint (Locator loc, char* endpoint, int port) {
 	return SDDS_RT_OK;
 }
 
-rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr) {
+rc_t Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
 
 	if (loc == NULL || addr == NULL) {
 		return SDDS_RT_BAD_PARAMETER;
@@ -715,7 +715,7 @@ rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr) {
 	return SDDS_RT_OK;
 }
 
-rc_t Network_createLocator(Locator* loc) {
+rc_t Network_createLocator(Locator_t** loc) {
 
 	*loc = Memory_alloc(sizeof(struct UDPLocator_t));
 
@@ -730,7 +730,7 @@ rc_t Network_createLocator(Locator* loc) {
 	PLATFORM_LINUX_SDDS_ADDRESS);
 }
 
-rc_t Network_createMulticastLocator(Locator* loc) {
+rc_t Network_createMulticastLocator(Locator_t** loc) {
 
 	*loc = Memory_alloc(sizeof(struct UDPLocator_t));
 
@@ -745,7 +745,7 @@ rc_t Network_createMulticastLocator(Locator* loc) {
 	PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS);
 }
 
-bool_t Locator_isEqual(Locator l1, Locator l2) {
+bool_t Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 	struct UDPLocator_t *a = (struct UDPLocator_t *) l1;
 	struct UDPLocator_t *b = (struct UDPLocator_t *) l2;
 #if PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET
@@ -776,7 +776,7 @@ bool_t Locator_isEqual(Locator l1, Locator l2) {
 #endif
 }
 
-rc_t Locator_getAddress(Locator l, char *srcAddr) {
+rc_t Locator_getAddress(Locator_t* l, char *srcAddr) {
 	static char srcPort[NI_MAXSERV];
 	struct sockaddr_storage *a = &((struct UDPLocator_t *) l)->addr_storage;
 

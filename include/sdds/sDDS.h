@@ -22,11 +22,6 @@
 
 #include "sdds_types.h"
 
-#ifdef _ECLIPSE_DEV_
-#include "CONSTANTS.h"
-#endif // _ECLIPSE_DEV_
-// special types
-
 rc_t
    sDDS_init (void);
 
@@ -35,12 +30,17 @@ rc_t
    #define SDDS_DATA_READER_MAX_OBJS 64
 #endif
 typedef struct _DataReader_t DataReader_t;
+typedef struct _History_t History_t;
+typedef struct _NetBuffRef_t NetBuffRef_t;
+typedef struct _Sample_t Sample_t;
 typedef struct _Topic_t Topic_t;
 
 //  Class headers
 #include "BitArray.h"
 #include "DataReader.h"
+#include "History.h"
 #include "Log.h"
+#include "NetBuffRef.h"
 #include "Topic.h"
 #include "os-ssal/Task.h"
 

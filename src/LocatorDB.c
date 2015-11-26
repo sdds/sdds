@@ -23,7 +23,7 @@
 struct LocatorDB_t {
 
 	// remember this sould be a pointer!
-	Locator pool[SDDS_NET_MAX_LOCATOR_COUNT];
+	Locator_t* pool[SDDS_NET_MAX_LOCATOR_COUNT];
 	uint8_t freeLoc;
 };
 
@@ -42,7 +42,7 @@ rc_t LocatorDB_init() {
 
 // TODO this should be mutexed!
 // or is only the network able to create new locators?
-rc_t LocatorDB_newLocator(Locator* loc) {
+rc_t LocatorDB_newLocator(Locator_t** loc) {
 //	printf(" !!!!! NEW LOC db.freeLoc = %d\n", db.freeLoc);
 //	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
 //		// check if ref counter is zero
@@ -75,7 +75,7 @@ rc_t LocatorDB_newLocator(Locator* loc) {
 	return SDDS_RT_OK;
 }
 
-rc_t LocatorDB_newMultiLocator(Locator* loc) {
+rc_t LocatorDB_newMultiLocator(Locator_t** loc) {
     if (db.freeLoc == 0) {
 		return SDDS_LOCATORDB_RT_NOFREELOCATORS;
 	}
@@ -97,7 +97,7 @@ rc_t LocatorDB_newMultiLocator(Locator* loc) {
 	return SDDS_RT_OK;
 }
 
-rc_t LocatorDB_newBroadLocator(Locator* loc) {
+rc_t LocatorDB_newBroadLocator(Locator_t** loc) {
     if (db.freeLoc == 0) {
 		return SDDS_LOCATORDB_RT_NOFREELOCATORS;
 	}
@@ -119,7 +119,7 @@ rc_t LocatorDB_newBroadLocator(Locator* loc) {
 	return SDDS_RT_OK;
 }
 
-rc_t LocatorDB_freeLocator(Locator loc) {
+rc_t LocatorDB_freeLocator(Locator_t* loc) {
 	// decrem refcounter if bigger than zero
 	if (loc->refCount > 0) {
 		loc->refCount--;
@@ -137,7 +137,7 @@ rc_t LocatorDB_freeLocator(Locator loc) {
 	return SDDS_RT_OK;
 }
 
-rc_t LocatorDB_isUsedLocator(Locator loc) {
+rc_t LocatorDB_isUsedLocator(Locator_t* loc) {
 	// if ref counter > 0 return yes else no ;)
 	if (loc->refCount > 0)
 		return SDDS_LOCATORDB_RT_ISINUSE;
@@ -146,7 +146,7 @@ rc_t LocatorDB_isUsedLocator(Locator loc) {
 
 }
 
-rc_t LocatorDB_findLocator(Locator toFind, Locator* result) {
+rc_t LocatorDB_findLocator(Locator_t* toFind, Locator_t** result) {
 	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
 		if (Locator_isEqual(toFind, db.pool[i]) == true) {
 			*result = db.pool[i];

@@ -86,12 +86,12 @@ static void sixlowapp_ndp_workaround(ipv6_addr_t *dest);
 
 // for the builtintopic
 // IF BUILTIN
-Locator builtinTopicNetAddress;
+Locator_t* builtinTopicNetAddress;
 // ENDIF
 
 rc_t Network_Multicast_init(void);
-rc_t Network_createLocator(Locator* loc);
-rc_t Network_createMulticastLocator(Locator* loc);
+rc_t Network_createLocator(Locator_t** loc);
+rc_t Network_createMulticastLocator(Locator_t** loc);
 rc_t Network_Multicast_joinMulticastGroup(char *group);
 
 
@@ -272,8 +272,8 @@ void *recvLoop(void *netBuff)
       RiotLocator_t sloc;
       memcpy(&(sloc.addr_storage), &buff->addr, addr_len);
 
-      Locator loc;
-      if (LocatorDB_findLocator((Locator)&sloc, &loc) != SDDS_RT_OK)
+      Locator_t* loc;
+      if (LocatorDB_findLocator((Locator_t*)&sloc, &loc) != SDDS_RT_OK)
       {
         // not found we need a new one
         if (LocatorDB_newLocator(&loc) != SDDS_RT_OK)
@@ -315,7 +315,7 @@ rc_t Network_send(NetBuffRef_t *buff) {
   else if(sock_type == SDDS_LOCATOR_TYPE_UNI)
       sock = net.fd_uni_socket;
 
-  Locator loc = buff->addr;
+  Locator_t* loc = buff->addr;
 
   while (loc != NULL ) {
     ssize_t transmitted;
@@ -371,7 +371,7 @@ size_t Network_locSize(void)
     return sizeof(RiotLocator_t);
 }
 
-rc_t Network_setAddressToLocator(Locator loc, char* addr) 
+rc_t Network_setAddressToLocator(Locator_t* loc, char* addr) 
 {
   if (loc == NULL || addr == NULL) 
   {
@@ -391,7 +391,7 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr)
   return SDDS_RT_OK;
 }
 
-rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr) 
+rc_t Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) 
 {
   if (loc == NULL || addr == NULL) 
   {
@@ -411,7 +411,7 @@ rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr)
   return SDDS_RT_OK;
 }
 
-rc_t Network_createLocator(Locator* loc)
+rc_t Network_createLocator(Locator_t** loc)
 {
   *loc = Memory_alloc(sizeof(RiotLocator_t));
 
@@ -426,7 +426,7 @@ rc_t Network_createLocator(Locator* loc)
   return Network_setAddressToLocator(*loc, PLATFORM_RIOT_SDDS_ADDRESS);
 }
 
-rc_t Network_createMulticastLocator(Locator* loc) 
+rc_t Network_createMulticastLocator(Locator_t** loc) 
 {
   *loc = Memory_alloc(sizeof(RiotLocator_t));
   if(*loc == NULL) 
@@ -439,7 +439,7 @@ rc_t Network_createMulticastLocator(Locator* loc)
   return Network_setMulticastAddressToLocator(*loc, PLATFORM_RIOT_SDDS_BUILTIN_MULTICAST_ADDRESS);
 }
 
-bool_t Locator_isEqual(Locator l1, Locator l2)
+bool_t Locator_isEqual(Locator_t* l1, Locator_t* l2)
 {
   RiotLocator_t* a = (RiotLocator_t *)l1;
   RiotLocator_t* b = (RiotLocator_t *)l2;
@@ -458,7 +458,7 @@ bool_t Locator_isEqual(Locator l1, Locator l2)
 }
 
 
-rc_t Locator_getAddress(Locator l, char *srcAddr) {
+rc_t Locator_getAddress(Locator_t* l, char *srcAddr) {
   RiotLocator_t* rloc = (RiotLocator_t*) l;
   char* ret = inet_ntop(PLATFORM_RIOT_SDDS_PROTOCOL, &(rloc->addr_storage.sin6_addr), srcAddr, IPV6_MAX_ADDR_STR_LEN);
   if(ret == NULL) 

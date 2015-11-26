@@ -8,7 +8,7 @@
 #include "Locator.h"
 #include "LocatorDB.h"
 
-void Locator_upRef(Locator _this) {
+void Locator_upRef(Locator_t* _this) {
 
 	if (_this == NULL) return;
 
@@ -16,7 +16,7 @@ void Locator_upRef(Locator _this) {
 		_this->refCount++;
 	}
 }
-void Locator_downRef(Locator _this) {
+void Locator_downRef(Locator_t* _this) {
 	if (_this == NULL) return;
 
 	if (_this->refCount > 0) {
@@ -27,7 +27,7 @@ void Locator_downRef(Locator _this) {
 	}
 }
 
-rc_t Locator_init(Locator _this) {
+rc_t Locator_init(Locator_t* _this) {
 
 	if (_this == NULL)
 		return SDDS_RT_BAD_PARAMETER;
@@ -42,13 +42,13 @@ rc_t Locator_init(Locator _this) {
 }
 
 
-rc_t Locator_addToList(Locator head, Locator newL) {
+rc_t Locator_addToList(Locator_t* head, Locator_t* newL) {
 
 	if (head == NULL || newL == NULL) {
 		return SDDS_RT_BAD_PARAMETER;
 	}
 
-	Locator tmp = head;
+	Locator_t* tmp = head;
 
 	while (head != NULL) {
 		// locator is allready in the list
@@ -72,13 +72,13 @@ rc_t Locator_addToList(Locator head, Locator newL) {
 	return SDDS_RT_OK;
 }
 
-rc_t Locator_removeFromList(Locator head, Locator toDel) {
+rc_t Locator_removeFromList(Locator_t* head, Locator_t* toDel) {
 
 	if (head == NULL || toDel == NULL)
 		return SDDS_RT_BAD_PARAMETER;
 
-	Locator tmp = NULL;
-	Locator prev = head;
+	Locator_t* tmp = NULL;
+	Locator_t* prev = head;
 
 	while (head != NULL) {
 		// found it
@@ -111,13 +111,13 @@ rc_t Locator_removeFromList(Locator head, Locator toDel) {
 	return SDDS_RT_OK;
 }
 
-rc_t Locator_contains(Locator head, Locator l) {
+rc_t Locator_contains(Locator_t* head, Locator_t* l) {
 
 	if (head == NULL || l == NULL) {
 		return SDDS_RT_BAD_PARAMETER;
 	}
 
-	Locator tmp = head;
+	Locator_t* tmp = head;
 
 	while (head != NULL) {
 		// locator is allready in the list

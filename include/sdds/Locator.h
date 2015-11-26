@@ -29,9 +29,9 @@
 #define SDDS_LOCATOR_TYPE_MULTI		0x01
 #define SDDS_LOCATOR_TYPE_BROAD		0x02
 
-
+typedef struct Locator_t Locator_t;
 struct Locator_t{
-    struct Locator_t* next;
+    Locator_t* next;
     // TODO state reicht nicht ref counter?
     // wie geht das mit den bitmaps?
     // 4 bit refconter?
@@ -41,7 +41,6 @@ struct Locator_t{
     _Bool isSender		: 1;
     uint8_t refCount;
 };
-typedef struct Locator_t* Locator;
 
 
 /**
@@ -50,7 +49,7 @@ typedef struct Locator_t* Locator;
  * @param _this Pointer to the object
  * @return is always SDDS_RT_OK
  */
-rc_t Locator_init(Locator _this);
+rc_t Locator_init(Locator_t* _this);
 
 /**
  * Checks if two Locator instances are equal or the same.
@@ -63,13 +62,13 @@ rc_t Locator_init(Locator _this);
  * @param l2 Second Locator instance
  * @return true or false, dependig if the two instances are equal or not
  */
-bool_t Locator_isEqual(Locator l1, Locator l2);
+bool_t Locator_isEqual(Locator_t* l1, Locator_t* l2);
 
 /**
  * Increments the reference counter of the locator instance.
  * @param _this Poniter to the Locator instance
  */
-void Locator_upRef(Locator _this);
+void Locator_upRef(Locator_t* _this);
 
 
 /**
@@ -78,7 +77,7 @@ void Locator_upRef(Locator _this);
  *
  * @param _this Locator instance, which refcount shall be reduced
  */
-void Locator_downRef(Locator _this);
+void Locator_downRef(Locator_t* _this);
 
 
 /**
@@ -91,7 +90,7 @@ void Locator_downRef(Locator _this);
  * @return SDDS_RT_OK if insert was successful,
  * SDDS_RT_BAD_PARAMETER if one of the parameter is NULL
  */
-rc_t Locator_addToList(Locator head, Locator newL);
+rc_t Locator_addToList(Locator_t* head, Locator_t* newL);
 
 /**
  * Removes a Locator instance from the locator list.
@@ -108,10 +107,10 @@ rc_t Locator_addToList(Locator head, Locator newL);
  * SDDS_RT_FAIL if the given instance was not found in the list,
  * SDDS_RT_BAD_PARAMETER if one of the parameter is NULL
  */
-rc_t Locator_removeFromList(Locator head, Locator toDel);
+rc_t Locator_removeFromList(Locator_t* head, Locator_t* toDel);
 
-rc_t Locator_contains(Locator head, Locator l);
+rc_t Locator_contains(Locator_t* head, Locator_t* l);
 
-rc_t Locator_getAddress(Locator l, char *srcAddr);
+rc_t Locator_getAddress(Locator_t* l, char *srcAddr);
 
 #endif   /* ----- #ifndef LOCATOR_H_INC  ----- */

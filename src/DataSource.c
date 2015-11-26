@@ -74,7 +74,7 @@ static Task sendTask;
 
 DataSource_t *dataSource = &dsStruct;
 
-NetBuffRef_t * findFreeFrame(Locator dest);
+NetBuffRef_t * findFreeFrame(Locator_t* dest);
 rc_t checkSending(NetBuffRef_t *buf);
 
 rc_t BuiltinTopicDomainParticipant_encode(byte_t* buff, Data data, size_t* size);
@@ -174,12 +174,12 @@ DataWriter_t * DataSource_create_datawriter(Topic_t *topic, Qos qos, Listener li
 }
 #endif // SDDS_MAX_DATA_WRITERS
 
-NetBuffRef_t *findFreeFrame(Locator dest) {
+NetBuffRef_t *findFreeFrame(Locator_t* dest) {
 	NetBuffRef_t *buffRef = NULL;
 
 	bool_t sameAddr = false;
 	for (int i = 0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
-		Locator try = dataSource->sender.out[i].addr;
+		Locator_t* try = dataSource->sender.out[i].addr;
 		if (dest != NULL && try != NULL && Locator_isEqual(dest, try)) {
 			buffRef = &(dataSource->sender.out[i]);
 			sameAddr = true;
@@ -259,7 +259,7 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste)
 	NetBuffRef_t *buffRef = NULL;
 	Topic_t *topic = _this->topic;
 	domainid_t domain = topic->domain;
-	Locator dest = topic->dsinks.list;
+	Locator_t* dest = topic->dsinks.list;
 	msec_t latBudDuration = _this->qos.latBudDuration;
 	pointInTime_t deadline;
 	rc_t ret = Time_getCurTime(&deadline);
@@ -313,7 +313,7 @@ rc_t DataSource_writeAddress(DataWriter_t *_this, castType_t castType, addrType_
 	NetBuffRef_t *buffRef = NULL;
 	Topic_t *topic = _this->topic;
 	domainid_t domain = topic->domain;
-	Locator dest = topic->dsinks.list;
+	Locator_t* dest = topic->dsinks.list;
 
 	buffRef = findFreeFrame(dest);
 	buffRef->addr = dest;

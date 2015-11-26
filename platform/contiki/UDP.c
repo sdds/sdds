@@ -34,7 +34,7 @@
 #endif
 
 // IF BUILTIN
-Locator g_builtin_topic_net_address;
+Locator_t* g_builtin_topic_net_address;
 // ENDIF
 
 struct Contiki_Locator {
@@ -87,7 +87,7 @@ void receive(struct simple_udp_connection *connection,
 		uip_ipaddr_t const *src_addr, uint16_t src_port,
 		uip_ipaddr_t const *dest_addr, uint16_t dest_port, uint8_t const *data,
 		uint16_t data_len) {
-	Locator locator;
+	Locator_t* locator;
 	Contiki_Locator_t this_locator;
 	uint16_t i;
 
@@ -122,7 +122,7 @@ void receive(struct simple_udp_connection *connection,
 	//this_locator.port = UIP_UDP_BUF->srcport;
 	this_locator.port = src_port;
 
-	if (LocatorDB_findLocator((Locator) &this_locator, &locator) != SDDS_RT_OK) {
+	if (LocatorDB_findLocator((Locator_t*) &this_locator, &locator) != SDDS_RT_OK) {
 		// the locator is not yet present, create a new one
 		Contiki_Locator contiki_locator;
 
@@ -170,7 +170,7 @@ void receive(struct simple_udp_connection *connection,
 }
 
 rc_t Network_send(NetBuffRef_t *buffer) {
-	Locator loc = buffer->addr;
+	Locator_t* loc = buffer->addr;
 	struct uip_udp_conn *con;
 	int port;
 
@@ -202,7 +202,7 @@ rc_t Network_send(NetBuffRef_t *buffer) {
 	return SDDS_RT_OK;
 }
 
-bool_t Locator_isEqual(Locator locator1, Locator locator2) {
+bool_t Locator_isEqual(Locator_t* locator1, Locator_t* locator2) {
 	Contiki_Locator contiki_locator_1;
 	Contiki_Locator contiki_locator_2;
 
@@ -240,7 +240,7 @@ rc_t Network_getPayloadBegin(size_t *startByte) {
 	return SDDS_RT_OK;
 }
 
-rc_t Network_setAddressToLocator(Locator loc, char* addr) {
+rc_t Network_setAddressToLocator(Locator_t* loc, char* addr) {
 
 	if (loc == NULL || addr == NULL) {
 		return SDDS_RT_BAD_PARAMETER;
@@ -253,7 +253,7 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr) {
 	return SDDS_RT_OK;
 }
 
-rc_t Network_createLocator(Locator* loc) {
+rc_t Network_createLocator(Locator_t** loc) {
 	Contiki_Locator contiki_locator;
 
 	contiki_locator = Memory_alloc(sizeof(Contiki_Locator_t));
@@ -264,7 +264,7 @@ rc_t Network_createLocator(Locator* loc) {
 	}
 	contiki_locator->sdds_locator.next = NULL;
 
-	*loc = (Locator) contiki_locator;
+	*loc = (Locator_t*) contiki_locator;
 
 	// set type for recvLoop
 	(*loc)->type = SDDS_LOCATOR_TYPE_UNI;
@@ -274,7 +274,7 @@ rc_t Network_createLocator(Locator* loc) {
 
 }
 
-rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr) {
+rc_t Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
 	if (loc == NULL || addr == NULL) {
 		return SDDS_RT_BAD_PARAMETER;
 	}
@@ -286,7 +286,7 @@ rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr) {
 	return SDDS_RT_OK;
 }
 
-rc_t Network_createMulticastLocator(Locator* loc) {
+rc_t Network_createMulticastLocator(Locator_t** loc) {
 	Contiki_Locator contiki_locator;
 
 	contiki_locator = Memory_alloc(sizeof(Contiki_Locator_t));
@@ -297,7 +297,7 @@ rc_t Network_createMulticastLocator(Locator* loc) {
 	}
 	contiki_locator->sdds_locator.next = NULL;
 
-	*loc = (Locator) contiki_locator;
+	*loc = (Locator_t*) contiki_locator;
 
 	// set type for recvLoop
 	(*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
@@ -351,7 +351,7 @@ rc_t Network_Multicast_init() {
 	return SDDS_RT_OK;
 }
 
-rc_t Locator_getAddress(Locator l, char *srcAddr) {
+rc_t Locator_getAddress(Locator_t* l, char *srcAddr) {
 	uip_ipaddr_t *addr = &((Contiki_Locator) l)->address;
 	sprintf(srcAddr, "%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
 				((uint8_t *)addr)[0], ((uint8_t *)addr)[1], ((uint8_t *)addr)[2], ((uint8_t *)addr)[3],

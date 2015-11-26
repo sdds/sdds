@@ -80,7 +80,7 @@ void BuiltinTopic_printTopicAddr() {
 rc_t BuiltinTopic_init(void)
 {
 	int ret;
-	Locator l;
+	Locator_t* l;
 
 	BuiltinTopic_participantID = NodeConfig_getNodeID();
 
@@ -462,7 +462,7 @@ DDS_ReturnCode_t DDS_DCPSPublicationDataWriter_write(
 Topic_t * sDDS_DCPSPublicationTopic_create(DDS_DCPSPublication* pool, int count)
 {
 	Topic_t *topic = TopicDB_createTopic();
-	//Locator locator;
+	//Locator_t* locator;
 
 	//Network_createLocator(&locator);
 

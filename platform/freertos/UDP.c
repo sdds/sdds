@@ -30,7 +30,7 @@ struct udp_pcb *unicastConn_pcb;
 struct pbuf *p;
 
 void recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, struct ip_addr *addr, u16_t port){
-	Locator locator;
+	Locator_t* locator;
 	FreeRTOS_Locator_t this_locator;
 	uint16_t i;
 
@@ -48,7 +48,7 @@ void recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, struct ip_addr *addr, 
 	//this_locator.port = UIP_UDP_BUF->srcport;
 	this_locator.port = port;
 
-	if (LocatorDB_findLocator((Locator)&this_locator, &locator) != SDDS_RT_OK)
+	if (LocatorDB_findLocator((Locator_t*)&this_locator, &locator) != SDDS_RT_OK)
 	{
 		// the locator is not yet present, create a new one
 		FreeRTOS_Locator freertos_locator;
@@ -104,7 +104,7 @@ rc_t Network_init(void) {
 }
 
 rc_t Network_send(NetBuffRef_t *buffer) {
-	Locator loc = buffer->addr;
+	Locator_t* loc = buffer->addr;
 
 	while (loc != NULL ) {
 		struct ip_addr address;
@@ -128,7 +128,7 @@ rc_t Network_send(NetBuffRef_t *buffer) {
 	return SDDS_RT_OK;
 }
 
-bool_t Locator_isEqual(Locator locator1, Locator locator2) {
+bool_t Locator_isEqual(Locator_t* locator1, Locator_t* locator2) {
 	FreeRTOS_Locator freertos_locator_1;
 	FreeRTOS_Locator freertos_locator_2;
 
@@ -170,7 +170,7 @@ rc_t Network_getPayloadBegin(size_t *startByte) {
 	return SDDS_RT_OK;
 }
 
-rc_t Network_setAddressToLocator(Locator loc, char* addr) {
+rc_t Network_setAddressToLocator(Locator_t* loc, char* addr) {
 	if (loc == NULL || addr == NULL) {
 		return SDDS_RT_BAD_PARAMETER;
 	}
@@ -201,7 +201,7 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr) {
 	return SDDS_RT_OK;
 }
 
-rc_t Network_createLocator(Locator* locator) {
+rc_t Network_createLocator(Locator_t** locator) {
 	FreeRTOS_Locator freertos_locator;
 
 	freertos_locator = Memory_alloc(sizeof(FreeRTOS_Locator_t));
@@ -213,20 +213,20 @@ rc_t Network_createLocator(Locator* locator) {
 	}
 	freertos_locator->sdds_locator.next = NULL;
 
-	*locator = (Locator) freertos_locator;
+	*locator = (Locator_t*) freertos_locator;
 
 	return Network_setAddressToLocator(*locator, PLATFORM_RTOS_SDDS_ADDRESS);
 }
 
-rc_t Network_createMulticastLocator(Locator* loc) {
+rc_t Network_createMulticastLocator(Locator_t** loc) {
 	return Network_setMulticastAddressToLocator(*loc,
 	PLATFORM_RTOS_SDDS_BUILTIN_MULTICAST_ADDRESS);
 }
 
-rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr) {
+rc_t Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
 	return SDDS_RT_OK;
 }
 
-rc_t Locator_getAddress(Locator l, char *srcAddr) {
+rc_t Locator_getAddress(Locator_t* l, char *srcAddr) {
 	return SDDS_RT_OK;
 }

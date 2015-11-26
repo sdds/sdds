@@ -72,7 +72,7 @@ typedef struct DDS_DCPSParticipant_t DDS_DCPSParticipant;
 
 struct SDDS_DCPSParticipant_t {
 	struct DDS_DCPSParticipant_t data;
-	Locator addr;
+	Locator_t* addr;
 };
 typedef struct SDDS_DCPSParticipant_t SDDS_DCPSParticipant;
 
@@ -148,7 +148,7 @@ typedef struct DDS_DCPSSubscription_t DDS_DCPSSubscription;
 
 struct SDDS_DCPSSubscription_t {
 	struct DDS_DCPSSubscription_t data;
-	Locator addr;
+	Locator_t* addr;
 };
 typedef struct SDDS_DCPSSubscription_t SDDS_DCPSSubscription;
 

@@ -43,11 +43,11 @@ typedef struct LocatorDB_t* LocatorDB;
 
 rc_t LocatorDB_init(void);
 
-rc_t LocatorDB_newLocator(Locator* loc);
-rc_t LocatorDB_findLocator(Locator toFind, Locator* loc);
-rc_t LocatorDB_freeLocator(Locator loc);
-rc_t LocatorDB_isUsedLocator(Locator loc);
-rc_t LocatorDB_newMultiLocator(Locator* loc);
+rc_t LocatorDB_newLocator(Locator_t** loc);
+rc_t LocatorDB_findLocator(Locator_t* toFind, Locator_t** loc);
+rc_t LocatorDB_freeLocator(Locator_t* loc);
+rc_t LocatorDB_isUsedLocator(Locator_t* loc);
+rc_t LocatorDB_newMultiLocator(Locator_t** loc);
 
 
 
