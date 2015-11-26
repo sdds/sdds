@@ -34,7 +34,7 @@ rc_t Marshalling_dec_SubMsg(byte_t* buff, uint8_t type, uint8_t* value)
 
     decode(buff, &read, sizeof(uint8_t));
     if (( read & 0x0f) != type){
-	return SDDS_RT_FAIL;
+	   return SDDS_RT_FAIL;
     }
     *value = (read >> 4) & 0x0f;
 

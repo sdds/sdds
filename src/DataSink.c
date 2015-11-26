@@ -44,6 +44,7 @@ rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size);
 rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) {
 	uint8_t index;
 	for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
+		Log_debug("search for Topic %d in reader with id %d\n", id, DataReader_id (dataSink->readers[index]));
 		if (dataSink->readers[index]
         &&  DataReader_topic (dataSink->readers[index])->id == id) {
 			if (st != NULL) {
@@ -57,6 +58,7 @@ rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) 
 			return SDDS_RT_OK;
 		}
 	}
+	Log_error("Can't find the Topic\n");
 	return SDDS_RT_FAIL;
 }
 #endif
@@ -78,8 +80,10 @@ static void getAddress(NetBuffRef_t *buff) {
 rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 	rc_t ret;
 
-	if (buff == NULL)
+	if (buff == NULL){
+		Log_error("the netbuffer is a NULL reference\n");
 		return SDDS_RT_FAIL;
+	}
 
 	// process the frame
 	// parse the header
@@ -90,8 +94,8 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 		// done reset the buffer
 
 		NetBuffRef_renew(buff);
-
-		return SDDS_RT_FAIL;
+		Log_error("invalid SNPS headder\n");
+		return SDDS_RT_FAIL;	
 	}
 
 	// should be NULL!
@@ -120,11 +124,14 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 			break;
 		case (SDDS_SNPS_T_TOPIC):
 			// check data
-
 			submitData();
 
-			SNPS_readTopic(buff, &topic);
-
+			ret = SNPS_readTopic(buff, &topic);
+			if(ret != SDDS_RT_OK){
+				Log_error("Can't read Topic \n");
+				return SDDS_RT_FAIL;
+			}
+			Log_debug("read topic %d\n", topic);
 			// check topic
 			checkTopic(buff, topic);
 
@@ -132,14 +139,14 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 		case (SDDS_SNPS_T_DATA):
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 			// check data
-
 			if (DataSink_getTopic(NULL, topic, NULL) == SDDS_RT_OK) {
 				submitData();
-
 				ret = parseData(buff);
 
-				if (ret != SDDS_RT_OK)
+				if (ret != SDDS_RT_OK){
+					Log_error("Can't prase data\n");
 					return SDDS_RT_FAIL;
+				}
 			}
 			else {
                 Log_debug ("Discard submessage\n");
