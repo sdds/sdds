@@ -124,7 +124,7 @@ rc_t Network_Multicast_joinMulticastGroup(char *group) {
 	/* Accept multicast from any interface */
 	if ((multicastRequest.ipv6mr_interface = if_nametoindex("usb0")) < 0)
 	{
-		printf("Ignoring unknown interface: %s: %s\n", "usb0", strerror(errno));
+		Log_info ("Ignoring unknown interface: %s: %s\n", "usb0", strerror(errno));
 		multicastRequest.ipv6mr_interface = 0;
 	}
 
@@ -161,8 +161,7 @@ rc_t Network_Multicast_init() {
 		return SDDS_RT_FAIL;
 	}
 
-	printf("Using %s\n",
-			multicastAddr->ai_family == PF_INET6 ? "IPv6" : "IPv4");
+	Log_info ("Using %s\n", multicastAddr->ai_family == PF_INET6 ? "IPv6" : "IPv4");
 
 	/* Create socket for sending multicast datagrams */
 	if ((net.fd_multi_socket = socket(multicastAddr->ai_family, multicastAddr->ai_socktype, 0))
@@ -175,11 +174,11 @@ rc_t Network_Multicast_init() {
 	unsigned int outif;
 	if ((outif = if_nametoindex(PLATFORM_LINUX_SDDS_IFACE)) < 0)
 	{
-		printf("Ignoring unknown interface: %s: %s\n", PLATFORM_LINUX_SDDS_IFACE, strerror(errno));
+		Log_info ("Ignoring unknown interface: %s: %s\n", PLATFORM_LINUX_SDDS_IFACE, strerror(errno));
 		outif = 0;
 	}
 	if (setsockopt(net.fd_multi_socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, &outif, sizeof(outif)) != 0) {
-		printf("Could not join the multicast group: %s\n", strerror(errno));
+		Log_info ("Could not join the multicast group: %s\n", strerror(errno));
 		return SDDS_RT_FAIL;;
 	}
 
@@ -240,7 +239,7 @@ rc_t Network_Multicast_init() {
 		Log_error("%d ERROR: getsockopt() failed\n", __LINE__);
 		return SDDS_RT_FAIL;
 	}
-	printf("tried to set socket receive buffer from %d to %d, got %d\n",
+	Log_info ("tried to set socket receive buffer from %d to %d, got %d\n",
 			dfltrcvbuf, PLATFORM_LINUX_MULTICAST_SO_RCVBUF, optval);
 
 	Network_Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS);
@@ -288,7 +287,6 @@ rc_t Network_init(void) {
 		Log_error("can't obtain suitable addresses for listening\n");
 		return -1;
 	}
-	//printf("%i bytes empfangen\n", (int)recv_size);
 	// implicit call of the network receive handler
 	// should start from now ;)
 
@@ -449,7 +447,7 @@ void *recvLoop(void *netBuff) {
 			continue;
 		}
 
-		printf("[%u]%i bytes empfangen\n", sock_type, (int) recv_size);
+		Log_info ("[%u]%i bytes empfangen\n", sock_type, (int) recv_size);
 
 		// implicit call of the network receive handler
 		// should start from now ;)
@@ -491,18 +489,16 @@ void *recvLoop(void *netBuff) {
 //		else if (sock_type == SDDS_LOCATOR_TYPE_UNI)
 //			inBuff.addr = loc;
 
-#ifdef PRINT_RECVBUF
-		printf("recvBuffer: \n");
+		Log_debug ("recvBuffer: \n");
 		for (int i =0; i< recv_size; i++) {
 
 			for (ssize_t i = 0; i < recv_size; i++)
 			{
-				printf("0x%02x ", (uint8_t)buff->buff_start[i]);
+				Log_debug ("0x%02x ", (uint8_t)buff->buff_start[i]);
 			}
 
-			printf("\n");
+			Log_debug ("\n");
 		}
-#endif
 
 		//pthread_mutex_lock(&recv_mutex);
 
@@ -534,10 +530,6 @@ rc_t Network_send(NetBuffRef_t *buff) {
 		sock = net.fd_uni_socket;
 
 	Locator loc = buff->addr;
-
-//	printf("========== send NetBuff ==========\n");
-//	NetBuffRef_print(buff);
-//	printf("========== END NetBuff =======\n");
 
 	while (loc != NULL) {
 
