@@ -19,8 +19,8 @@
 
 #ifndef  DATASOURCE_H_INC_
 #define  DATASOURCE_H_INC_
-#include "Topic.h"
 #include "sDDS.h"
+#include "Topic.h"
 #include "SourceQos.h"
 #include "NetBuffRef.h"
 #include "BuiltinTopic.h"

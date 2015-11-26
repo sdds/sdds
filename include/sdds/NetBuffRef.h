@@ -38,7 +38,7 @@ struct _NetBuffRef_t{
     pointInTime_t  sendDeadline;
 
     // state of the frame
-    struct Locator_t* addr;
+    Locator_t* addr;
     Topic_t *curTopic;
     domainid_t curDomain;
 };

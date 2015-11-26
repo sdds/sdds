@@ -38,7 +38,7 @@ Locator_t* g_builtin_topic_net_address;
 // ENDIF
 
 struct Contiki_Locator {
-	struct Locator_t sdds_locator;
+	Locator_t sdds_locator;
 	uip_ipaddr_t address;
 	uint16_t port;
 };

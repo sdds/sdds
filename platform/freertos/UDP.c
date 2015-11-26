@@ -16,7 +16,7 @@
 
 struct FreeRTOS_Locator
 {
-	struct Locator_t sdds_locator;
+	Locator_t sdds_locator;
 	struct ip_addr address;
 	uint16_t port;
 };

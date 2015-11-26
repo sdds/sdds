@@ -55,7 +55,7 @@ struct Network_t {
 
 struct AutobestLocator_str
 {
-  struct Locator_t loc;
+  Locator_t loc;
   ip_addr_t addr_storage;
   int port;
 };
@@ -247,7 +247,7 @@ void *recvLoop(void *netBuff)
     int port;
 
     // Check the dummy locator for uni or multicast socket
-    struct Locator_t *l = (struct Locator_t *) buff->addr;
+    Locator_t *l = (Locator_t *) buff->addr;
     conn_type = l->type;
     
     if(conn_type == SDDS_LOCATOR_TYPE_MULTI) 
@@ -339,7 +339,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
   printf("========== END NetBuff =======\n");*/
 
   // Check the locator for uni or multicast socket
-  struct Locator_t *loc = (struct Locator_t *) buff->addr;
+  Locator_t *loc = (Locator_t *) buff->addr;
   conn_type = loc->type;
   // add locator to the netbuffref
   if(conn_type == SDDS_LOCATOR_TYPE_MULTI) {

@@ -39,6 +39,7 @@ typedef struct _Topic_t Topic_t;
 #include "BitArray.h"
 #include "DataReader.h"
 #include "History.h"
+#include "Locator.h"
 #include "Log.h"
 #include "NetBuffRef.h"
 #include "Topic.h"

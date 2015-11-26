@@ -74,7 +74,7 @@ struct Network_t {
 };
 
 struct UDPLocator_t {
-	struct Locator_t loc;
+	Locator_t loc;
 	struct sockaddr_storage addr_storage;
 };
 
@@ -419,7 +419,7 @@ void *recvLoop(void *netBuff) {
 	int count = 0;
 
 	// Check the dummy locator for uni or multicast socket
-	struct Locator_t *l = (struct Locator_t *) buff->addr;
+	Locator_t *l = (Locator_t *) buff->addr;
 	sock_type = l->type;
 
 	if (sock_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -521,7 +521,7 @@ rc_t Network_send(NetBuffRef_t *buff) {
 	unsigned int sock_type;
 
 	// Check the locator for uni or multicast socket
-	struct Locator_t *l = (struct Locator_t *) buff->addr;
+	Locator_t *l = (Locator_t *) buff->addr;
 	sock_type = l->type;
 	// add locator to the netbuffref
 	if (sock_type == SDDS_LOCATOR_TYPE_MULTI)
