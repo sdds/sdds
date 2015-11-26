@@ -98,7 +98,7 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 
 		NetBuffRef_renew(buff);
 		Log_error("invalid SNPS headder\n");
-		return SDDS_RT_FAIL;	
+		return SDDS_RT_FAIL;
 	}
 
 	// should be NULL!
