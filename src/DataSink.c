@@ -205,22 +205,22 @@ DataSink_create_datareader (Topic_t *topic, Qos qos, Listener listener, StatusMa
 	qos = qos;
 	sm = sm;
 
-    DataReader_t *reader = NULL;
     uint8_t index;
     for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
         //  Check if object at index has been allocated
         if (!BitArray_check (&self->allocated_readers, index)) {
             //  Allocate object at index
             BitArray_set (&self->allocated_readers, index);
-            reader = &self->readers[index];
+            DataReader_t *reader = &self->readers[index];
             // Initialize object properties
             reader->id = index;
             reader->topic = topic;
             reader->on_data_avail_listener = NULL;
+            Log_debug ("Create data reader with id %d\n", DataReader_id (reader));
+            return reader;
         }
     }
-    Log_debug ("Create data reader with id %d\n", DataReader_id (reader));
-	return reader;
+	return NULL;
 }
 #endif
 
