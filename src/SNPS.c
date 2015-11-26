@@ -255,6 +255,7 @@ rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic)
 		subMsg_t type;
 		ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_EXTENDED, &type);
 		if (ret != SDDS_RT_OK) {
+			Log_error("Error while try to marshalling submessage\n");
 			return SDDS_RT_FAIL;
 		}
 		if (type != SDDS_SNPS_EXTSUBMSG_TOPIC) {
