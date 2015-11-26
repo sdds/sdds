@@ -18,7 +18,9 @@
 #include <lwip/netif.h>
 #include <lwip/err.h>
 
-#define PLATFORM_AUTOBEST_IPV6_MAX_CHAR_LEN 45
+#ifdef UTILS_DEBUG
+#define PLATFORM_AUTOBEST_IPV6_MAX_CHAR_LEN 46
+#endif
 
 #ifndef PLATFORM_AUTOBEST_SDDS_PORT
 #define PLATFORM_AUTOBEST_SDDS_PORT 23234
@@ -251,12 +253,12 @@ void *recvLoop(void *netBuff)
     if(conn_type == SDDS_LOCATOR_TYPE_MULTI) 
     {
         conn = net.fd_multi_conn; 
-        port = PLATFORM_AUTOBEST_SDDS_PORT + PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PORT_OFF;
+        //port = PLATFORM_AUTOBEST_SDDS_PORT + PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PORT_OFF;
     }
     else if(conn_type == SDDS_LOCATOR_TYPE_UNI)
     {
         conn = net.fd_uni_conn;
-        port = PLATFORM_AUTOBEST_SDDS_PORT;
+        //port = PLATFORM_AUTOBEST_SDDS_PORT;
     }
 
     while (true)
@@ -275,16 +277,17 @@ void *recvLoop(void *netBuff)
         sys_task_terminate();
         sys_abort();
       }
-      printf("[%u]%i bytes empfangen\n", conn_type, (int) recv_size);
       if(recv_size == 0){
         Log_debug( "No data!\n");
+        netbuf_delete(lwip_netbuf);
         continue;
       }
+      Log_debug("[%u]%i bytes empfangen\n", conn_type, (int) recv_size);
       
       memcpy(buff->buff_start, data, recv_size);
-      
       AutobestLocator_t sloc;
-      memcpy(&(sloc.addr_storage), &lwip_netbuf->addr, sizeof(ip_addr_t));
+      memcpy(&(sloc.addr_storage), netbuf_fromaddr(lwip_netbuf), sizeof(ip_addr_t));
+      port = netbuf_fromport(lwip_netbuf);
       sloc.port = port;
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET6
       sloc.addr_storage.type =  IPADDR_TYPE_V6;
@@ -295,6 +298,7 @@ void *recvLoop(void *netBuff)
         // not found we need a new one
         if (LocatorDB_newLocator(&loc) != SDDS_RT_OK)
         {
+          netbuf_delete(lwip_netbuf);
           continue;
         }
         memcpy(&((AutobestLocator_t *)loc)->addr_storage, &lwip_netbuf->addr, sizeof(ip_addr_t));
@@ -309,13 +313,13 @@ void *recvLoop(void *netBuff)
       loc->isSender = true;
       loc->type = conn_type;
          
-
-      if(conn_type == SDDS_LOCATOR_TYPE_MULTI){
+      buff->addr = loc;
+      /*if(conn_type == SDDS_LOCATOR_TYPE_MULTI){
         multiInBuff.addr = loc;
       }
       else if(conn_type == SDDS_LOCATOR_TYPE_UNI){
         inBuff.addr = loc;
-      }
+      }*/
       
       DataSink_processFrame(buff);
       LocatorDB_freeLocator(loc);
@@ -327,8 +331,8 @@ rc_t Network_send(NetBuffRef_t* buff) {
   struct netconn* conn;
   unsigned int conn_type;
   unsigned int port = 0;
-  struct netbuf* netbuf;
-  void* data; 
+  struct netbuf* netbuf = NULL;
+  void* data = NULL; 
 
   /*printf("========== send NetBuff ==========\n");
   NetBuffRef_print(buff);
@@ -349,14 +353,27 @@ rc_t Network_send(NetBuffRef_t* buff) {
     err_t err;
     ip_addr_t* addr = (ip_addr_t*) &(((AutobestLocator_t *) loc)->addr_storage);
     netbuf = netbuf_new();
+    if(netbuf == NULL){
+      Log_error("Can't alloc netbuffer:\n");
+      return SDDS_RT_FAIL;
+    }
     data = netbuf_alloc(netbuf, buff->curPos); 
+    if(data == NULL){
+      Log_error("Can't alloc databuffer:\n");
+      return SDDS_RT_FAIL;
+    }
     memcpy (data, buff->buff_start, buff->curPos);
     err = netconn_sendto(conn, netbuf, addr, ((AutobestLocator_t *) loc)->port);
     netbuf_delete(netbuf); 
     if (err != ERR_OK ) {
       Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
       return SDDS_RT_FAIL;
-    } 
+    }
+#ifdef UTILS_DEBUG
+    char a[PLATFORM_AUTOBEST_IPV6_MAX_CHAR_LEN];
+    Locator_getAddress(loc, a);
+    Log_debug("Sendet to %s\n", a);
+#endif
     loc = loc->next;
 
   }
@@ -414,16 +431,17 @@ rc_t Network_setAddressToLocator(Locator loc, char* addr)
 #else
 #error "Only AF_INET and AF_INET6 are understood protocols."
 #endif
-  ip_addr_t*  ip4_addr=  &aloc->addr_storage;
   if(ret != 1)
   {
+    Log_error("Faild to convert address %s\n", addr);
     return SDDS_RT_FAIL;
   }
-
   aloc->port = PLATFORM_AUTOBEST_SDDS_PORT;
-  char a[PLATFORM_AUTOBEST_IPV6_MAX_CHAR_LEN +1];
+#ifdef UTILS_DEBUG
+  char a[PLATFORM_AUTOBEST_IPV6_MAX_CHAR_LEN];
   ret = Locator_getAddress(loc, a);
   Log_debug("Connection from %s\n", a);
+#endif
   return SDDS_RT_OK;
 }
 
@@ -446,13 +464,12 @@ rc_t Network_setMulticastAddressToLocator(Locator loc, char* addr)
 #endif
   if(ret != 1)
   {
-    Log_error("Faild to cover address: %s \n", addr);
+    Log_error("Faild to convert address: %s \n", addr);
     return SDDS_RT_FAIL;
   }
+  aloc->port = PLATFORM_AUTOBEST_SDDS_PORT + PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PORT_OFF;
   char* address_buffer = inet6_ntoa(aloc->addr_storage);
   Log_debug("created a locator for [%s]\n", address_buffer);
-  aloc->port = PLATFORM_AUTOBEST_SDDS_PORT + PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PORT_OFF;
-
   return SDDS_RT_OK;
 }
 
