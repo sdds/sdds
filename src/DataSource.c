@@ -210,6 +210,11 @@ NetBuffRef_t *findFreeFrame(Locator dest) {
 	return buffRef;
 }
 
+void
+checkSendingWrapper(void *buf) {
+    checkSending ((NetBuffRef_t*) buf);
+}
+
 rc_t checkSending(NetBuffRef_t *buf) {
 	pointInTime_t curTime;
 	Time_getCurTime(&curTime);
@@ -233,7 +238,7 @@ rc_t checkSending(NetBuffRef_t *buf) {
 	}
 	else {
 
-		Task_init(sendTask, checkSending, (void *)buf);
+		Task_init (sendTask, checkSendingWrapper, (void*) buf);
 		if (Task_start(sendTask, (buf->sendDeadline - curTime), 0, SDDS_SSW_TaskMode_single) != SDDS_RT_OK) {
 			Log_error("Task_start failed\n");
 		}
