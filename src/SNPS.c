@@ -39,7 +39,7 @@ rc_t _writeBasicTopic(NetBuffRef_t *ref, topicid_t topic);
 rc_t _writeExtTopic(NetBuffRef_t *ref, topicid_t topic);
 #endif
 
-
+// evaluates the type of the next submessage
 rc_t SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type)
 {
 
@@ -48,7 +48,7 @@ rc_t SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type)
 
     // it is a basic submessage: sub msg id == sub msg id
     // if id == 15 => extended
-    if ((read & 0x0f) < 15){
+    if ((read & 0x0f) < SDDS_SNPS_SUBMSG_EXTENDED){
     	*type = (read & 0x0f);
     	return SDDS_RT_OK;
     }
@@ -68,9 +68,32 @@ rc_t SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type)
 	case (SDDS_SNPS_EXTSUBMSG_TSDDS):
 	    *type = SDDS_SNPS_T_TSDDS;
 	    break;
-	case (SDDS_SNPS_EXTSUBMSG_TOPIC):
-			// its an topic ...
-		*type = SDDS_SNPS_T_TOPIC;
+	case (SDDS_SNPS_EXTSUBMSG_ADDR16):
+	    *type = SDDS_SNPS_T_ADDR16;
+	    break;
+	case (SDDS_SNPS_EXTSUBMSG_CRC):
+	    *type = SDDS_SNPS_T_CRC;
+	    break;
+	case (SDDS_SNPS_EXTSUBMSG_TSUSEC):
+	    *type = SDDS_SNPS_T_TSUSEC;
+	    break;
+	case (SDDS_SNPS_EXTSUBMSG_TSMSEC):
+	    *type = SDDS_SNPS_T_TSMSEC;
+	    break;
+	case (SDDS_SNPS_EXTSUBMSG_SEQNRBIG):
+	    *type = SDDS_SNPS_T_SEQNRBIG;
+	    break;
+	case (SDDS_SNPS_EXTSUBMSG_SEQNRSMALL):
+	    *type = SDDS_SNPS_T_SEQNRSMALL;
+	    break;
+	case (SDDS_SNPS_EXTSUBMSG_SEQNRHUGE):
+	    *type = SDDS_SNPS_T_SEQNRHUGE;
+	    break;
+	case (SDDS_SNPS_EXTSUBMSG_FRAG):
+		*type = SDDS_SNPS_T_FRAG;
+		break;
+	case (SDDS_SNPS_EXTSUBMSG_FRAGNACK):
+		*type = SDDS_SNPS_T_FRAGNACK;
 		break;
 	case (SDDS_SNPS_EXTSUBMSG_EXTENDED):
 	    // read the next byte etc
@@ -86,8 +109,13 @@ rc_t SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type)
     return SDDS_RT_OK;
 }
 
+// discards the next submessage
 rc_t SNPS_discardSubMsg(NetBuffRef_t *ref)
 {
+    if (ref->subMsgCount <= 0){
+        return SDDS_RT_FAIL;
+    }
+
     uint8_t read;
     Marshalling_dec_uint8(START, &read);
 
@@ -96,26 +124,25 @@ rc_t SNPS_discardSubMsg(NetBuffRef_t *ref)
     ref->subMsgCount--;
     ref->curPos += 1;
 
-    switch ((read & 0x0f)){
-	// data field. pos counter + lenght and submsg
+    switch (read & 0x0f){
+	// data field. pos counter + length and submsg
 	case (SDDS_SNPS_SUBMSG_DATA):
 	    ref->curPos += ((read >> 4) & 0x0f);
 	    return SDDS_RT_OK;
-	    // simple timestamp pos counter + 2 byte and submsg
+
+        // simple timestamp pos counter + 2 byte and submsg
 	case (SDDS_SNPS_SUBMSG_TS):
 	    ref->curPos += 2;
 	    return SDDS_RT_OK;
 
-	    // extended submsg eval later
+	// extended submsg eval later
 	case (SDDS_SNPS_SUBMSG_EXTENDED):
 	    break;
 
-	    // normale submsg with the size of 8 bit
+	// normal submsg with the size of 8 bit like SEQNR
 	default:
 	    return SDDS_RT_OK;
     }
-
-
 
     // it is an extended submessage
     // eval the next 4 bits
@@ -125,12 +152,23 @@ rc_t SNPS_discardSubMsg(NetBuffRef_t *ref)
 	case (SDDS_SNPS_EXTSUBMSG_NACK):
 	case (SDDS_SNPS_EXTSUBMSG_SEP):
 	    break;
-	case (SDDS_SNPS_EXTSUBMSG_TOPIC): // ext topic has 2 bytes
-		ref->curPos += 2;
-		break;
 	case (SDDS_SNPS_EXTSUBMSG_TSDDS):
 	    // 1 byte header + 2 x 4 byte sec and nanosec
 	    ref->curPos += 8;
+	    break;
+	case (SDDS_SNPS_EXTSUBMSG_ADDR16):
+	case (SDDS_SNPS_EXTSUBMSG_CRC):
+	case (SDDS_SNPS_EXTSUBMSG_TSUSEC):
+	case (SDDS_SNPS_EXTSUBMSG_TSMSEC):
+	case (SDDS_SNPS_EXTSUBMSG_SEQNRBIG):
+	case (SDDS_SNPS_EXTSUBMSG_SEQNRSMALL):
+	case (SDDS_SNPS_EXTSUBMSG_SEQNRHUGE):
+	    break;
+	case (SDDS_SNPS_EXTSUBMSG_TOPIC): // ext topic has 2 bytes
+		ref->curPos += 2;
+		break;
+	case (SDDS_SNPS_EXTSUBMSG_FRAG):
+	case (SDDS_SNPS_EXTSUBMSG_FRAGNACK):
 	    break;
 	case (SDDS_SNPS_EXTSUBMSG_EXTENDED):
 	    // TODO
@@ -255,7 +293,6 @@ rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic)
 		subMsg_t type;
 		ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_EXTENDED, &type);
 		if (ret != SDDS_RT_OK) {
-			Log_error("Error while try to marshalling submessage\n");
 			return SDDS_RT_FAIL;
 		}
 		if (type != SDDS_SNPS_EXTSUBMSG_TOPIC) {
