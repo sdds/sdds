@@ -18,7 +18,6 @@ typedef uint8_t SSW_TaskMode_t;
 struct Task_struct;
 typedef struct Task_struct* Task;
 
-
 /**
  * Should be called at the init phase
  */
