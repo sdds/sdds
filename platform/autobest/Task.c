@@ -20,6 +20,7 @@ struct Task_struct{
     SSW_TaskMode_t mode;
     struct Task_struct* next;
     struct Task_struct* prev;
+    bool isActive;
 };
 
 #define STACK_SIZE 1024
@@ -31,7 +32,7 @@ static bool isTaskListEmpty;
 
 static void addTask(struct Task_struct* t);
 static void stopTask(struct Task_struct* t);
-static void deleteTask(struct Task_struct* t);
+static inline void deleteTask(struct Task_struct* t);
 static inline void doMng(void);
 static void checkFireTimes(void);
 
@@ -70,6 +71,7 @@ ssw_rc_t TaskMng_init(void){
 
 Task Task_create(void){
     Task t = Memory_alloc(sizeof(struct Task_struct));
+    t->isActive = false;
     return t;
 }
 
@@ -93,6 +95,7 @@ ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mo
     _this->timeout = (usec * TASK_MNG_MUL_USEC_TO_NANO_SEC) + (sec * TASK_MNG_MUL_SEC_TO_NANO_SEC);
     _this->fireTime = systemTime + _this->timeout;
     _this->mode = mode;
+    _this->isActive = true;
     addTask(_this);
     return SDDS_SSW_RT_OK;
 }
@@ -101,7 +104,10 @@ ssw_rc_t Task_stop(Task _this){
     if (_this == NULL){
        return SDDS_SSW_RT_FAIL;
     }
-    stopTask(_this);
+    if( _this->isActive){
+        stopTask(_this);
+        _this->isActive = false;
+    }
     return SDDS_SSW_RT_OK;
 }
 
@@ -135,7 +141,7 @@ static void stopTask(struct Task_struct* t){
     }
 }
 
-static void deleteTask(struct Task_struct* t){
+static inline void deleteTask(struct Task_struct* t){
     stopTask(t);
     Memory_free(t);
 }
