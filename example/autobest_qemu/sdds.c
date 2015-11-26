@@ -15,7 +15,13 @@ void* do_receive(void* foo);
 int main(void)
 {
 
-	sDDS_init();
+
+	rc_t ret = sDDS_init();
+	if(ret != SDDS_RT_OK){
+		sys_task_terminate();
+    	sys_abort();
+		return -1;
+	}
 	Log_setLvl(0);
 	printf("Initilaized sDDS\n");
 	Ipc ipc_data_used;
@@ -57,7 +63,7 @@ void* do_receive(void* foo)
 
 	for (;;)
 	{
-		DDS_ReturnCode_t ret = DDS_IpcDataReader_take_next_sample(g_Ipc_reader, &data_used_ptr, NULL);
+		DDS_ReturnCode_t ret = DDS_IpcDataReader_take_next_sample(g_Ipc_reader, &data_used_ptr, NULL); 
 
 		if (ret == DDS_RETCODE_NO_DATA)
 		{
