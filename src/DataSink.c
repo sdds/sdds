@@ -49,9 +49,7 @@ DataSink_getTopic (DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) {
 	uint8_t index;
 	for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
 		if (BitArray_check (&self->allocated_readers, index)
-        &&  DataReader_topic (&self->readers[index])->id == id) {
-		if (dataSink->readers[index]
-        &&  DataReader_topic (dataSink->readers[index])->id == id) {
+    &&  DataReader_topic (&self->readers[index])->id == id) {
 			if (st != NULL) {
 				st->key = DataReader_id (&self->readers[index]);
 				st->participant_key = BuiltinTopic_participantID;
