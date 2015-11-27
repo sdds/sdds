@@ -71,7 +71,7 @@ void* do_receive(void* foo)
 		}
 		else
 		{
-			printf("received: %d\n ",data_used.value );
+			printf("received: %x\n ",data_used.value );
 		}
 	}
 }
