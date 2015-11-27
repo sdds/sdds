@@ -70,13 +70,6 @@ void BuiltinTopic_printSubPool() {
 	}
 }
 
-void BuiltinTopic_printTopicAddr() {
-	printf("---------> g_DCPSParticipant_topic %p\n", g_DCPSParticipant_topic);
-	printf("---------> g_DCPSPublication_topic %p\n", g_DCPSPublication_topic);
-	printf("---------> g_DCPSSubscription_topic %p\n", g_DCPSSubscription_topic);
-	printf("---------> g_DCPSTopic_topic %p\n", g_DCPSTopic_topic);
-}
-
 rc_t BuiltinTopic_init(void)
 {
 	int ret;

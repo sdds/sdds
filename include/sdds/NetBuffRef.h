@@ -22,7 +22,7 @@
 #include "sdds_types.h"
 #include "sDDS.h"
 #include "NetFrameBuff.h"
-#include "TimeMng.h"
+#include "os-ssal/TimeMng.h"
 #include "Topic.h"
 
 struct Locator_t;
@@ -35,8 +35,11 @@ struct _NetBuffRef_t{
     uint8_t curPos;
 
     // QOS part
-    pointInTime_t  sendDeadline;
-
+#if SDDS_QOS_DW_LARBUD < 65536
+    time16_t  sendDeadline;
+#else
+    time32_t  sendDeadline;
+#endif
     // state of the frame
     Locator_t* addr;
     Topic_t *curTopic;
