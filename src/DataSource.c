@@ -304,6 +304,15 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 		return SDDS_RT_FAIL;
 	}
 
+<<<<<<< HEAD
+=======
+#ifdef QOS_RELIABILITY
+	if (SNPS_writeSeqNr(buffRef, buffRef->seqNr) != SDDS_RT_OK) {
+        return SDDS_RT_FAIL;
+    }
+#endif
+
+>>>>>>> Problem: SNPS.c/.h had not included all submsg-types, function for
 	Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 	// return 0;
 
