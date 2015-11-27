@@ -13,7 +13,7 @@
         Includes are processed first, so XML in included files will be
         part of the XML tree
     -->
-    <include filename = "../topics/ipc.xml" />
+    <include filename = "../topics/beta.xml" />
 
-    <role topic = "ipc" type = "publisher" />
+    <role topic = "beta" type = "publisher" />
 </project>
