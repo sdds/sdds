@@ -296,7 +296,7 @@ rc_t Network_init(void) {
 
 	if (net.fd_uni_socket < 0) {
 		freeaddrinfo(address);
-		return -1;
+		return SDDS_RT_FAIL;
 	}
 
 	// free up address
@@ -488,17 +488,6 @@ void *recvLoop(void *netBuff) {
 //			multiInBuff.addr = loc;
 //		else if (sock_type == SDDS_LOCATOR_TYPE_UNI)
 //			inBuff.addr = loc;
-
-		Log_debug ("recvBuffer: \n");
-		for (int i =0; i< recv_size; i++) {
-
-			for (ssize_t i = 0; i < recv_size; i++)
-			{
-				Log_debug ("0x%02x ", (uint8_t)buff->buff_start[i]);
-			}
-
-			Log_debug ("\n");
-		}
 
 		//pthread_mutex_lock(&recv_mutex);
 

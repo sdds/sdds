@@ -21,7 +21,7 @@
 #define  SNPS_H_INC
 
 #include "sdds_types.h"
-#include "TimeMng.h"
+#include "os-ssal/TimeMng.h"
 #include "NetBuffRef.h"
 #include "TopicMarshalling.h"
 

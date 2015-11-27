@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  SourceQos.h
+ *       Filename:  Qos.h
  *
  *    Description:  structure to hold the qos properties regarding a dw
  *
@@ -16,10 +16,23 @@
  * =====================================================================================
  */
 
-#ifndef  SOURCEQOS_INC
-#define  SOURCEQOS_INC
+#ifndef  QOS_INC
+#define  QOS_INC
 #include "sdds_types.h"
-#include "TimeMng.h"
+#include "os-ssal/TimeMng.h"
+
+#ifndef SDDS_QOS_LATBUD_COMM
+#define SDDS_QOS_LATBUD_COMM 0
+#endif
+
+#ifndef SDDS_QOS_LATBUD_READ
+#define SDDS_QOS_LATBUD_READ 0
+#endif
+
+#ifndef SDDS_QOS_DW_LATBUD
+#define SDDS_QOS_DW_LATBUD 0
+#endif
+
 
 #define SDDS_SOURCEQOS_SM_TSSIMPLE 0x01
 #define SDDS_SOURCEQOS_SM_SEQNESIMPLE 0x02
@@ -27,8 +40,12 @@
 #define SDDS_SOURCEQOS_SM_NACK 0x08
 
 struct SourceQos_t{
-    msec_t latBudDuration;
+#if SDDS_QOS_DW_LATBUD < 65536
+    msecu16_t latBudDuration;
+#else
+    msecu32_t latBudDuration;
+#endif
     uint8_t subMsgNeeded;
 };
 typedef struct SourceQos_t* SourceQos;
-#endif   /* ----- #ifndef SOURCEQOS_INC  ----- */
+#endif   /* ----- #ifndef QOS_INC  ----- */
