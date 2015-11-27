@@ -87,12 +87,15 @@ BitArray_print (uint64_t* self)
 }
 
 
+#ifdef SDDS_SELFTEST
 //  ----------------------------------------------------------------------------
 //  Selftest of this class
 
 void
 BitArray_test ()
 {
+    printf ("BitArray: ");
+
     uint64_t bitArray = 0;
 
     //  Setting a bit
@@ -102,17 +105,17 @@ BitArray_test ()
     assert (bitArray == 3ull);
     BitArray_set (&bitArray, 2);
     assert (bitArray == 7ull);
-    BitArray_print (&bitArray);
 
     //  Clearing a bit
     BitArray_clear (&bitArray, 0);
     assert (bitArray == 6ull);
-    BitArray_print (&bitArray);
 
     //  Toggle a bit
     BitArray_toggle (&bitArray, 0);
     assert (bitArray == 7ull);
     BitArray_toggle (&bitArray, 1);
     assert (bitArray == 5ull);
-    BitArray_print (&bitArray);
+
+    printf ("OK\n");
 }
+#endif
