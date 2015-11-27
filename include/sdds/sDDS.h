@@ -38,7 +38,7 @@ typedef struct _Topic_t Topic_t;
 //  Class headers
 #include "BitArray.h"
 #include "DataReader.h"
-#include "History.h"
+//#include "History.h"
 #include "Locator.h"
 #include "Log.h"
 #include "NetBuffRef.h"
