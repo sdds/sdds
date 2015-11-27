@@ -40,9 +40,11 @@ bool
 void
    BitArray_print (uint64_t *self);
 
+#ifdef SDDS_SELFTEST
 //  Selftest of this class
 void
    BitArray_test ();
+#endif
 
 #ifdef __cplusplus
 }
