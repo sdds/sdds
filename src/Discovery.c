@@ -56,7 +56,7 @@ static void Discovery_receive_SubscriptionTopics();
 
 static rc_t Discovery_addParticipant(SDDS_DCPSParticipant *p);
 static rc_t Discovery_handleParticipant(SDDS_DCPSParticipant p);
-static rc_t Discovery_addRemoteDataSink(Locator l, Topic_t *topic);
+static rc_t Discovery_addRemoteDataSink(Locator_t* l, Topic_t *topic);
 
 /************************************************************************************/
 /*									Implementierung									*/
@@ -109,10 +109,10 @@ static rc_t Discovery_handleParticipant(SDDS_DCPSParticipant p) {
 	return ret;
 }
 
-static rc_t Discovery_addRemoteDataSink(Locator l, Topic_t *topic) {
+static rc_t Discovery_addRemoteDataSink(Locator_t* l, Topic_t *topic) {
 	rc_t ret;
 
-	Locator loc;
+	Locator_t* loc;
 	ret = Network_createMulticastLocator(&loc);
 	ret = Network_setMulticastAddressToLocator(loc, SDDS_BUILTIN_SUB_PUB_ADDRESS);
 

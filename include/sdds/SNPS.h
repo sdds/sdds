@@ -126,4 +126,7 @@ rc_t SNPS_readHeader(NetBuffRef_t *ref);
 rc_t SNPS_readDomain(NetBuffRef_t *ref, domainid_t* domain);
 rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic);
 rc_t SNPS_readData (NetBuffRef_t *ref, TopicMarshalling_decode_fn decode_fn, Data data);
+
+rc_t SNPS_IPv6_str2Addr(char *charAddr, uint8_t *byteAddr, uint8_t *addrLen);
+rc_t SNPS_IPv6_addr2Str(uint8_t *byteAddr, char *charAddr);
 #endif   /* ----- #ifndef SNPS_H_INC  ----- */
