@@ -37,9 +37,24 @@ void Log_setLvl(int lvl)
     logLvl = lvl;
 }
 #ifndef UTILS_NO_LOGGING
-void _log_debug(const char* fnk, ...)
+void _log_trace(const char* fnk, ...)
 {
     if (logLvl < 1 ) {
+        va_list arg;
+        char* string;
+        va_start(arg, fnk);
+
+        string = va_arg(arg, char*);
+        PRINTF("TRACE: %s() : ", fnk);
+
+        vprintf(string, arg);
+        va_end(arg);
+    }
+}
+
+void _log_debug(const char* fnk, ...)
+{
+    if (logLvl < 2 ) {
         va_list arg;
         char* string;
         va_start(arg, fnk);
@@ -54,7 +69,7 @@ void _log_debug(const char* fnk, ...)
 
 void _log_info(const char* fnk, ...)
 {
-    if (logLvl < 2) {
+    if (logLvl < 3) {
         va_list arg;
         char* string;
         va_start(arg, fnk);
@@ -70,7 +85,7 @@ void _log_info(const char* fnk, ...)
 
 void _log_warn(const char* fnk, ...)
 {
-    if (logLvl < 3) {
+    if (logLvl < 4) {
         va_list arg;
         char* string;
         va_start(arg, fnk);
@@ -85,7 +100,7 @@ void _log_warn(const char* fnk, ...)
 
 void _log_error(const char* fnk, ...)
 {
-    if (logLvl < 4){
+    if (logLvl < 5){
         va_list arg;
         char* string;
         va_start(arg, fnk);
@@ -100,7 +115,7 @@ void _log_error(const char* fnk, ...)
 
 void _log_panic(const char* fnk, ...)
 {
-    if (logLvl < 5) {
+    if (logLvl < 6) {
         va_list arg;
         char* string;
         va_start(arg, fnk);
