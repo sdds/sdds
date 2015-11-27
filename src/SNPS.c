@@ -39,8 +39,12 @@ rc_t _writeBasicTopic(NetBuffRef_t *ref, topicid_t topic);
 rc_t _writeExtTopic(NetBuffRef_t *ref, topicid_t topic);
 #endif
 
-// evaluates the type of the next submessage
-rc_t SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type)
+//  -----------------------------------------------------------------------------
+//  Reads the type of the next SubMsg of the given NetBuffRef_t* and writes
+//  the subMsg-type in the given subMsg_t*. Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type)
 {
 
     uint8_t read;
@@ -80,11 +84,11 @@ rc_t SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type)
 	case (SDDS_SNPS_EXTSUBMSG_TSMSEC):
 	    *type = SDDS_SNPS_T_TSMSEC;
 	    break;
-	case (SDDS_SNPS_EXTSUBMSG_SEQNRBIG):
-	    *type = SDDS_SNPS_T_SEQNRBIG;
-	    break;
 	case (SDDS_SNPS_EXTSUBMSG_SEQNRSMALL):
 	    *type = SDDS_SNPS_T_SEQNRSMALL;
+	    break;
+	case (SDDS_SNPS_EXTSUBMSG_SEQNRBIG):
+	    *type = SDDS_SNPS_T_SEQNRBIG;
 	    break;
 	case (SDDS_SNPS_EXTSUBMSG_SEQNRHUGE):
 	    *type = SDDS_SNPS_T_SEQNRHUGE;
@@ -109,8 +113,12 @@ rc_t SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type)
     return SDDS_RT_OK;
 }
 
-// discards the next submessage
-rc_t SNPS_discardSubMsg(NetBuffRef_t *ref)
+//  -----------------------------------------------------------------------------
+//  Discards the next SubMsg of the given NetBuffRef_t* and iterates to the next.
+//  Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_discardSubMsg(NetBuffRef_t *ref)
 {
     if (ref->subMsgCount <= 0){
         return SDDS_RT_FAIL;
@@ -151,6 +159,8 @@ rc_t SNPS_discardSubMsg(NetBuffRef_t *ref)
 	case (SDDS_SNPS_EXTSUBMSG_ACK):
 	case (SDDS_SNPS_EXTSUBMSG_NACK):
 	case (SDDS_SNPS_EXTSUBMSG_SEP):
+	    // TODO
+	    return SDDS_RT_FAIL;
 	    break;
 	case (SDDS_SNPS_EXTSUBMSG_TSDDS):
 	    // 1 byte header + 2 x 4 byte sec and nanosec
@@ -160,15 +170,25 @@ rc_t SNPS_discardSubMsg(NetBuffRef_t *ref)
 	case (SDDS_SNPS_EXTSUBMSG_CRC):
 	case (SDDS_SNPS_EXTSUBMSG_TSUSEC):
 	case (SDDS_SNPS_EXTSUBMSG_TSMSEC):
-	case (SDDS_SNPS_EXTSUBMSG_SEQNRBIG):
+	    // TODO
+	    return SDDS_RT_FAIL;
+		break;
 	case (SDDS_SNPS_EXTSUBMSG_SEQNRSMALL):
+		ref->curPos += 1;
+		break;
+	case (SDDS_SNPS_EXTSUBMSG_SEQNRBIG):
+		ref->curPos += 2;
+		break;
 	case (SDDS_SNPS_EXTSUBMSG_SEQNRHUGE):
+		ref->curPos += 3;
 	    break;
 	case (SDDS_SNPS_EXTSUBMSG_TOPIC): // ext topic has 2 bytes
 		ref->curPos += 2;
 		break;
 	case (SDDS_SNPS_EXTSUBMSG_FRAG):
 	case (SDDS_SNPS_EXTSUBMSG_FRAGNACK):
+	    // TODO
+	    return SDDS_RT_FAIL;
 	    break;
 	case (SDDS_SNPS_EXTSUBMSG_EXTENDED):
 	    // TODO
@@ -183,7 +203,12 @@ rc_t SNPS_discardSubMsg(NetBuffRef_t *ref)
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_gotoNextSubMsg(NetBuffRef_t *buff, subMsg_t type)
+//  -----------------------------------------------------------------------------
+//  Iterates the given NetBuffRef_t* to the next subMsg-type appearance of
+//  the given subMsg_t. Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_gotoNextSubMsg(NetBuffRef_t *buff, subMsg_t type)
 {
 	subMsg_t readType;
 	while (buff->subMsgCount > 0){
@@ -199,7 +224,12 @@ rc_t SNPS_gotoNextSubMsg(NetBuffRef_t *buff, subMsg_t type)
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_initFrame(NetBuffRef_t *ref)
+//  -----------------------------------------------------------------------------
+//  Sets the current SDDS_NET_VERSION and the current number of subMsgs in the
+//  given NetBuffRef_t*. Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_initFrame(NetBuffRef_t *ref)
 {
     // write header
     version_t v = SDDS_NET_VERSION;
@@ -211,13 +241,19 @@ rc_t SNPS_initFrame(NetBuffRef_t *ref)
 
     return SDDS_RT_OK;
 }
-rc_t SNPS_readHeader(NetBuffRef_t *ref)
+
+//  -----------------------------------------------------------------------------
+//  Checks SDDS_NET_Version and reads number of subMsgs of the given NetBuffRef_t*.
+//  Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_readHeader(NetBuffRef_t *ref)
 {
     version_t v;
     Marshalling_dec_uint8(ref->buff_start, &v);
     ref->curPos += sizeof(version_t);
     if (v != SDDS_NET_VERSION){
-	return SDDS_RT_FAIL;
+	    return SDDS_RT_FAIL;
     }
     Marshalling_dec_uint8(START, &(ref->subMsgCount));
     ref->curPos += sizeof(uint8_t);
@@ -225,14 +261,24 @@ rc_t SNPS_readHeader(NetBuffRef_t *ref)
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_updateHeader(NetBuffRef_t *ref)
+//  -----------------------------------------------------------------------------
+//  Updates the number of subMsgs to the current number of subMsms in the given
+//  NetBuffRef_t*, returns SDDS_RT_OK ob success.
+
+rc_t
+SNPS_updateHeader(NetBuffRef_t *ref)
 {
     Marshalling_enc_uint8( (ref->buff_start + sizeof(version_t)), &(ref->subMsgCount));
 
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeDomain(NetBuffRef_t *ref, domainid_t domain)
+//  -----------------------------------------------------------------------------
+//  Writes a domain-submessage with given domainid_t in the given NetbuffRef_t*.
+//  Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_writeDomain(NetBuffRef_t *ref, domainid_t domain)
 {
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_DOMAIN, (uint8_t)domain);
     ref->curPos += 1;
@@ -240,7 +286,14 @@ rc_t SNPS_writeDomain(NetBuffRef_t *ref, domainid_t domain)
 
     return SDDS_RT_OK;
 }
-rc_t SNPS_readDomain(NetBuffRef_t *ref, domainid_t* domain)
+
+//  -----------------------------------------------------------------------------
+//  Reads the domain-id of the given NetBuffRef_t* and sets the id
+//  in the given domainid_t*. Iterates to the next subMsg,
+//  returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_readDomain(NetBuffRef_t *ref, domainid_t* domain)
 {
     Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_DOMAIN, (uint8_t*)domain);
     ref->curPos += 1;
@@ -249,7 +302,13 @@ rc_t SNPS_readDomain(NetBuffRef_t *ref, domainid_t* domain)
     return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeTopic(NetBuffRef_t *ref, topicid_t topic)
+//  -----------------------------------------------------------------------------
+//  Writes a topic-submessage with given topicid_t in the given NetbuffRef_t*,
+//  depending wether the topic is basic or extended.
+//  Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_writeTopic(NetBuffRef_t *ref, topicid_t topic)
 {
 #ifdef SDDS_EXTENDED_TOPIC_SUPPORT
 	if (topic > 15) {
@@ -259,7 +318,13 @@ rc_t SNPS_writeTopic(NetBuffRef_t *ref, topicid_t topic)
 
     return _writeBasicTopic(ref, topic);
 }
-rc_t _writeBasicTopic(NetBuffRef_t *ref, topicid_t topic)
+
+//  -----------------------------------------------------------------------------
+//  Writes a basicTopic-submessage with given topicid_t in the
+//  given NetbuffRef_t*. Returns SDDS_RT_OK on success.
+
+rc_t
+_writeBasicTopic(NetBuffRef_t *ref, topicid_t topic)
 {
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_TOPIC, (uint8_t)topic);
     ref->curPos +=1;
@@ -267,8 +332,14 @@ rc_t _writeBasicTopic(NetBuffRef_t *ref, topicid_t topic)
 
 	return SDDS_RT_OK;
 }
+
+//  -----------------------------------------------------------------------------
+//  Writes an extendedTopic-submessage with given topicid_t in the
+//  given NetbuffRef_t*. Returns SDDS_RT_OK on success.
+
 #ifdef SDDS_EXTENDED_TOPIC_SUPPORT
-rc_t _writeExtTopic(NetBuffRef_t *ref, topicid_t topic)
+rc_t
+_writeExtTopic(NetBuffRef_t *ref, topicid_t topic)
 {
 	// write the header of an extended submessage of the type topic
 	Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_EXTENDED, SDDS_SNPS_EXTSUBMSG_TOPIC);
@@ -282,7 +353,14 @@ rc_t _writeExtTopic(NetBuffRef_t *ref, topicid_t topic)
 }
 #endif
 
-rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic)
+
+//  -----------------------------------------------------------------------------
+//  Reads the topic-id of the given NetbuffRef_t* and writes it in the
+//  given uint8_t*, iterates to the next submessage.
+//  Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic)
 {
 	rc_t ret;
 	ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_TOPIC, (uint8_t*)topic);
@@ -312,6 +390,11 @@ rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic)
     return SDDS_RT_OK;
 }
 
+//  -----------------------------------------------------------------------------
+//  Writes the given Data in the given NetBuffRef_t*. Uses the given
+//  TopicMarshalling_encode_fn to encode the (extended)data in the message.
+//  Returns SDDS_RT_OK on success.
+
 rc_t
 SNPS_writeData (NetBuffRef_t *ref, TopicMarshalling_encode_fn encode_fn, Data d)
 {
@@ -334,6 +417,11 @@ SNPS_writeData (NetBuffRef_t *ref, TopicMarshalling_encode_fn encode_fn, Data d)
     return SDDS_RT_OK;
 }
 
+//  -----------------------------------------------------------------------------
+//  Reads the data of the given NetBuffRef_t* and writes it in the given Data.
+//  Uses the given TopicMarshalling_decode_fn to decode the (extended)data.
+//  Iterates to next submessage, returns SDDS_RT_OK on success.
+
 rc_t
 SNPS_readData (NetBuffRef_t *ref, TopicMarshalling_decode_fn decode_fn, Data data)
 {
@@ -350,7 +438,42 @@ SNPS_readData (NetBuffRef_t *ref, TopicMarshalling_decode_fn decode_fn, Data dat
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_char2Hex(char c, uint8_t *h) {
+//  -----------------------------------------------------------------------------
+//  Writes the the least significant 4-bits of the given uint8_t in the given
+//  NetBuffRef_t*. Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_writeSeqNr (NetBuffRef_t *ref, uint8_t seqNr)
+{
+    Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, (uint8_t)seqNr);
+    ref->curPos += 1;
+    ref->subMsgCount +=1;
+
+    return SDDS_RT_OK;
+}
+
+rc_t
+SNPS_readSeqNr (NetBuffRef_t *ref, uint8_t* seqNr)
+{
+    Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, (uint8_t*) seqNr);
+
+    ref->curPos += 1;
+    ref->subMsgCount -= 1;
+
+    return SDDS_RT_OK;
+}
+
+//rc_t SNPS_writeSeqNrSmall(NetBuffRef_t *ref);
+//rc_t SNPS_writeSeqNrBig(NetBuffRef_t *ref);
+//rc_t SNPS_writeSeqNrHUGE(NetBuffRef_t *ref);
+
+//  -----------------------------------------------------------------------------
+//  Converts the given char to hex and writes it in the uint8_t*.
+//  Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_char2Hex(char c, uint8_t *h)
+{
 	switch (c) {
 	case '0':
 		h[0] = 0x0;
@@ -425,7 +548,14 @@ rc_t SNPS_char2Hex(char c, uint8_t *h) {
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_IPv6_str2Addr(char *charAddr, uint8_t *byteAddr, uint8_t *addrLen) {
+//  -----------------------------------------------------------------------------
+//  Converts a given char-representation of an IPV6 address of the
+//  given char* into the given uint8_t* in byte-representation.
+//  Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_IPv6_str2Addr(char *charAddr, uint8_t *byteAddr, uint8_t *addrLen)
+{
 	uint8_t tmpAddrLen = (SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE  * 2);
 	uint8_t tmpAddr[tmpAddrLen];
 	uint8_t tmpAddrPos = tmpAddrLen-1;
@@ -506,7 +636,14 @@ rc_t SNPS_IPv6_str2Addr(char *charAddr, uint8_t *byteAddr, uint8_t *addrLen) {
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_IPv6_addr2Str(uint8_t *byteAddr, char *charAddr) {
+//  -----------------------------------------------------------------------------
+//  Converts a given byte-representation of an IPV6 address of the
+//  given uint8_t* into the given char* in char-representation.
+//  Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_IPv6_addr2Str(uint8_t *byteAddr, char *charAddr)
+{
 	/*
 	 * replace from z_zoor for autobest port
      * offset:       0         1
@@ -539,7 +676,14 @@ rc_t SNPS_IPv6_addr2Str(uint8_t *byteAddr, char *charAddr) {
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_writeAddress(NetBuffRef_t *ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen) {
+//  -----------------------------------------------------------------------------
+//  Writes the given uint8_t* address of the given addrType_t and the
+//  uint8_t length, casted with the matching castType_t in the given NetBuffRef_t*.
+//  Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_writeAddress(NetBuffRef_t *ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen)
+{
 	rc_t ret = 0;
 
 	Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMGS_ADDR, addrLen);
@@ -556,7 +700,13 @@ rc_t SNPS_writeAddress(NetBuffRef_t *ref, castType_t castType, addrType_t addrTy
 	return SDDS_RT_OK;
 }
 
-rc_t SNPS_readAddress(NetBuffRef_t *ref, castType_t *addrCast, addrType_t *addrType, char *addr)
+//  -----------------------------------------------------------------------------
+//  Reads the address of the given NetBuffRef_t* and writes the matching pieces
+//  of information in the castType_t*, addType_t* and the address int the char*.
+//  Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_readAddress(NetBuffRef_t *ref, castType_t *addrCast, addrType_t *addrType, char *addr)
 {
 	rc_t ret;
 	uint8_t addrLen;
@@ -595,7 +745,8 @@ rc_t SNPS_readAddress(NetBuffRef_t *ref, castType_t *addrCast, addrType_t *addrT
 }
 
 /*
-rc_t SNPS_writeTSsimple(NetBuffRef_t *ref, TimeStampSimple_t* ts)
+rc_t
+SNPS_writeTSsimple(NetBuffRef_t *ref, TimeStampSimple_t* ts)
 {
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_TS, ts->firstField);
     ref->curPos += 1;
@@ -611,16 +762,12 @@ rc_t SNPS_writeTSsimple(NetBuffRef_t *ref, TimeStampSimple_t* ts)
 }
 */
 //rc_t SNPS_writeStatus(NetBuffRef_t *ref);
-//rc_t SNPS_writeSeqNr(NetBuffRef_t *ref);
 //rc_t SNPS_writeAckSeq(NetBuffRef_t *ref);
 //rc_t SNPS_writeNackSeq(NetBuffRef_t *ref);
 //rc_t SNPS_writeNack(NetBuffRef_t *ref);
 //rc_t SNPS_writeAck(NetBuffRef_t *ref);
 //rc_t SNPS_writeTSuSec(NetBuffRef_t *ref);
 //rc_t SNPS_writeTSmSec(NetBuffRef_t *ref);
-//rc_t SNPS_writeSeqNrBig(NetBuffRef_t *ref);
-//rc_t SNPS_writeSeqNrSmall(NetBuffRef_t *ref);
-//rc_t SNPS_writeSeqNrHUGE(NetBuffRef_t *ref);
 //rc_t SNPS_writeTSDDS(NetBuffRef_t *ref);
 //rc_t SNPS_wrieSep(NetBuffRef_t *ref);
 //rc_t SNPS_writeAddressess(NetBuffRef_t *ref);

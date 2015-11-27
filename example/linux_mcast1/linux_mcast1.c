@@ -1,4 +1,5 @@
 #include "linux_mcast1_sdds_impl.h"
+#include "unistd.h"
 
 int main()
 {
@@ -6,7 +7,7 @@ int main()
 
 	sDDS_init();
 	Log_setLvl(0);
- 
+
     Ipc ipc_pub;
     ipc_pub.value = 0xAFFE;
 

@@ -271,7 +271,6 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste)
 	// to do exact calculation
 	deadline += (latBudDuration - SDDS_QOS_LATBUD_COMM - SDDS_QOS_LATBUD_READ);
 
-
 	buffRef = findFreeFrame(dest);
 	buffRef->addr = dest;
 
@@ -299,6 +298,11 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste)
 		return SDDS_RT_FAIL;
 	}
 
+#ifdef QOS_RELIABILITY
+	if (SNPS_writeSeqNr(buffRef, buffRef->seqNr) != SDDS_RT_OK) {
+        return SDDS_RT_FAIL;
+    }
+#endif
 
 	Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 	// return 0;

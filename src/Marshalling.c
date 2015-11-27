@@ -28,6 +28,7 @@ rc_t Marshalling_enc_SubMsg(byte_t* buff, uint8_t type, uint8_t value)
     encode(buff, &write, sizeof(uint8_t));
     return SDDS_RT_OK;
 }
+
 rc_t Marshalling_dec_SubMsg(byte_t* buff, uint8_t type, uint8_t* value)
 {
     uint8_t read;

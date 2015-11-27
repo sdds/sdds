@@ -55,8 +55,8 @@ typedef uint8_t castType_t;
 #define SDDS_SNPS_T_CRC 		   22
 #define SDDS_SNPS_T_TSUSEC		   33
 #define SDDS_SNPS_T_TSMSEC		   34
-#define SDDS_SNPS_T_SEQNRBIG		35
-#define SDDS_SNPS_T_SEQNRSMALL	36
+#define SDDS_SNPS_T_SEQNRSMALL	35
+#define SDDS_SNPS_T_SEQNRBIG		36
 #define SDDS_SNPS_T_SEQNRHUGE	   37
 #define SDDS_SNPS_T_FRAG   	   38
 #define SDDS_SNPS_T_FRAGNACK	   39
@@ -82,8 +82,8 @@ typedef uint8_t castType_t;
 #define SDDS_SNPS_EXTSUBMSG_CRC		   0x05
 #define SDDS_SNPS_EXTSUBMSG_TSUSEC     0x06
 #define SDDS_SNPS_EXTSUBMSG_TSMSEC     0x07
-#define SDDS_SNPS_EXTSUBMSG_SEQNRBIG   0x08
-#define SDDS_SNPS_EXTSUBMSG_SEQNRSMALL 0x09
+#define SDDS_SNPS_EXTSUBMSG_SEQNRSMALL 0x08
+#define SDDS_SNPS_EXTSUBMSG_SEQNRBIG   0x09
 #define SDDS_SNPS_EXTSUBMSG_SEQNRHUGE  0x0A
 #define SDDS_SNPS_EXTSUBMSG_TOPIC	   0x0B
 #define SDDS_SNPS_EXTSUBMSG_FRAG       0x0C
@@ -103,36 +103,107 @@ struct SNPS_Address {
 };
 typedef struct SNPS_Address SNPS_Address_t;
 
-rc_t SNPS_evalSubMsg(NetBuffRef_t *ref, subMsg_t* type);
-rc_t SNPS_discardSubMsg(NetBuffRef_t *ref);
+rc_t
+SNPS_evalSubMsg (NetBuffRef_t *ref, subMsg_t* type);
+
+rc_t
+SNPS_discardSubMsg (NetBuffRef_t *ref);
+
 // go to next occurence of the sub msg type provided, but not parse the submsg!
-rc_t SNPS_gotoNextSubMsg(NetBuffRef_t *buff, subMsg_t type);
+rc_t
+SNPS_gotoNextSubMsg (NetBuffRef_t *buff, subMsg_t type);
 
-rc_t SNPS_initFrame(NetBuffRef_t *ref);
-rc_t SNPS_updateHeader(NetBuffRef_t *ref);
-rc_t SNPS_writeDomain(NetBuffRef_t *ref, domainid_t domain);
-rc_t SNPS_writeTopic(NetBuffRef_t *ref, topicid_t topic);
-rc_t SNPS_writeData(NetBuffRef_t *ref, TopicMarshalling_encode_fn encode_fn, Data);
-rc_t SNPS_writeTSsimple(NetBuffRef_t *ref, TimeStampSimple_t* ts);
-rc_t SNPS_writeStatus(NetBuffRef_t *ref);
-rc_t SNPS_writeSeqNr(NetBuffRef_t *ref);
-rc_t SNPS_writeAckSeq(NetBuffRef_t *ref);
-rc_t SNPS_writeNackSeq(NetBuffRef_t *ref);
-rc_t SNPS_writeNack(NetBuffRef_t *ref);
-rc_t SNPS_writeAck(NetBuffRef_t *ref);
-rc_t SNPS_writeTSuSec(NetBuffRef_t *ref);
-rc_t SNPS_writeTSmSec(NetBuffRef_t *ref);
-rc_t SNPS_writeSeqNrBig(NetBuffRef_t *ref);
-rc_t SNPS_writeSeqNrSmall(NetBuffRef_t *ref);
-rc_t SNPS_writeSeqNrHUGE(NetBuffRef_t *ref);
-rc_t SNPS_writeTSDDS(NetBuffRef_t *ref);
-rc_t SNPS_writeSep(NetBuffRef_t *ref);
+rc_t
+SNPS_initFrame (NetBuffRef_t *ref);
 
-rc_t SNPS_writeAddress(NetBuffRef_t *ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen);
-rc_t SNPS_readAddress(NetBuffRef_t *ref, castType_t *addrCast, addrType_t *addrType, char *addr);
+rc_t
+SNPS_updateHeader (NetBuffRef_t *ref);
 
-rc_t SNPS_readHeader(NetBuffRef_t *ref);
-rc_t SNPS_readDomain(NetBuffRef_t *ref, domainid_t* domain);
-rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic);
-rc_t SNPS_readData (NetBuffRef_t *ref, TopicMarshalling_decode_fn decode_fn, Data data);
+rc_t
+SNPS_writeDomain (NetBuffRef_t *ref, domainid_t domain);
+
+rc_t
+SNPS_writeTopic (NetBuffRef_t *ref, topicid_t topic);
+
+rc_t
+SNPS_writeData (NetBuffRef_t *ref, TopicMarshalling_encode_fn encode_fn, Data);
+
+rc_t
+SNPS_writeTSsimple (NetBuffRef_t *ref, TimeStampSimple_t* ts);
+
+rc_t
+SNPS_writeStatus (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeSeqNr (NetBuffRef_t *ref, uint8_t seqNr);
+
+rc_t
+SNPS_writeSeqNrBig (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeSeqNrSmall (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeSeqNrHUGE (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeAckSeq (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeNackSeq (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeNack (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeAck (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeTSuSec (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeTSmSec (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeTSDDS (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeSep (NetBuffRef_t *ref);
+
+rc_t
+SNPS_writeAddress (NetBuffRef_t *ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen);
+
+rc_t
+SNPS_readAddress (NetBuffRef_t *ref, castType_t *addrCast, addrType_t *addrType, char *addr);
+
+rc_t
+SNPS_readHeader (NetBuffRef_t *ref);
+
+rc_t
+SNPS_readDomain (NetBuffRef_t *ref, domainid_t* domain);
+
+rc_t
+SNPS_readTopic (NetBuffRef_t *ref, topicid_t* topic);
+
+rc_t
+SNPS_readData (NetBuffRef_t *ref, TopicMarshalling_decode_fn decode_fn, Data data);
+
+rc_t
+SNPS_readSeqNr (NetBuffRef_t* ref, uint8_t* seqNr);
+
+rc_t
+SNPS_readSeqNrBig (NetBuffRef_t* ref, uint8_t* seqNr);
+
+rc_t
+SNPS_readSeqNrSmall (NetBuffRef_t *ref, uint16_t* seqNr);
+
+rc_t
+SNPS_readSeqNrHUGE (NetBuffRef_t *ref, uint32_t* seqNr);
+
+rc_t
+SNPS_char2Hex(char c, uint8_t *h);
+
+rc_t
+SNPS_IPv6_str2Addr(char *charAddr, uint8_t *byteAddr, uint8_t *addrLen);
+
 #endif   /* ----- #ifndef SNPS_H_INC  ----- */

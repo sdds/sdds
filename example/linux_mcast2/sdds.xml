@@ -3,8 +3,8 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "tap1"
-    ip = "fe80::20"
+    iface = "eth0"
+    ip = "fe80::219:99ff:fede:9b09"
     port = "23234"
     >
     Linux basic example with beta topic

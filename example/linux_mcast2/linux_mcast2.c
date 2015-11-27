@@ -1,4 +1,5 @@
 #include "linux_mcast2_sdds_impl.h"
+#include "unistd.h"
 
 int main()
 {
@@ -6,7 +7,7 @@ int main()
 
 	sDDS_init();
 	Log_setLvl(0);
- 
+
     Beta beta_sub;
     Beta *beta_sub_p = &beta_sub;
 

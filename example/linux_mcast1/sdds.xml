@@ -4,7 +4,7 @@
     endian = "little"
     os = "linux"
     iface = "eth0"
-    ip = "fe80::a00:27ff:feb5:8352"
+    ip = "fe80::219:99ff:fede"
     port = "23234"
     >
     Linux multicast discovery example with beta topic.
