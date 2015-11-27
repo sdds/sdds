@@ -21,7 +21,7 @@
 #define  DATASOURCE_H_INC_
 #include "sDDS.h"
 #include "Topic.h"
-#include "SourceQos.h"
+#include "Qos.h"
 #include "NetBuffRef.h"
 #include "BuiltinTopic.h"
 

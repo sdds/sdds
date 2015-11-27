@@ -14,136 +14,138 @@
 #include <stdio.h>
 #include <string.h>
 
-struct Task_struct{
+struct Task_struct {
 
-    timer_t timer;
-    struct sigevent evp;
+	timer_t timer;
+	struct sigevent evp;
 
-    void(*cb)(void* obj);
-    void* data;
-    SDDS_usec_t interval;
-    SSW_TaskMode_t mode;
-
+	void (*cb)(void* obj);
+	void* data;
+	SDDS_usec_t interval;
+	SSW_TaskMode_t mode;
 };
 
 /**
  * Should be called at the init phase
  */
-ssw_rc_t TaskMng_init(void)
-{
+ssw_rc_t TaskMng_init(void) {
 
-    return SDDS_SSW_RT_OK;
+	return SDDS_SSW_RT_OK;
 }
 
-Task Task_create(void)
-{
-    Task t = malloc(sizeof(struct Task_struct));
-    return t;
+Task Task_create(void) {
+	Task t = malloc(sizeof(struct Task_struct));
+	return t;
 }
 
-void Task_callback(union sigval v){
-    Task t = (Task) v.sival_ptr;
+void Task_callback(union sigval v) {
+	Task t = (Task) v.sival_ptr;
 
-    t->cb(t->data);
+	t->cb(t->data);
 }
 
-static void                         /* Thread notification function */
+static void /* Thread notification function */
 threadFunc(union sigval sv) {
 	printf("hello task\n");
+}
+
+ssw_rc_t Task_setCallback(Task _this, void (*callback)(void* obj), void* data) {
+	if (_this == NULL || callback == NULL) {
+		return SDDS_SSW_RT_FAIL;
+	}
+
+	_this->cb = callback;
+	_this->data = data;
+
+	return SDDS_SSW_RT_OK;
 }
 
 /**
  * inits a task with a callback function etc
  */
-ssw_rc_t Task_init(Task _this, void(*callback)(void* obj), void* data)
-{
-    if (_this == NULL || callback == NULL){
-	return SDDS_SSW_RT_FAIL;
-    }
-    int rc;
+ssw_rc_t Task_init(Task _this, void (*callback)(void* obj), void* data) {
+	int rc;
 
-    _this->cb = callback;
-    _this->data = data;
+	// init the signal structure
+	memset(&(_this->evp), 0, sizeof(struct sigevent));
 
-    // init the signal structure
-    memset(&(_this->evp), 0, sizeof(struct sigevent));
+	// call the callback fkt in a new thread
+	_this->evp.sigev_notify = SIGEV_THREAD;
+	// use this internal callback
+	_this->evp.sigev_notify_function = Task_callback;
+	// no thread attributes
+	_this->evp.sigev_notify_attributes = NULL;
 
-    // call the callback fkt in a new thread
-    _this->evp.sigev_notify = SIGEV_THREAD;
-    // use this internal callback
-    _this->evp.sigev_notify_function = Task_callback;
-    // no thread attributes
-    _this->evp.sigev_notify_attributes = NULL;
+	// arg for the callback is the task structure
+	_this->evp.sigev_value.sival_ptr = &(_this->timer);
 
-    // arg for the callback is the task structure
-    _this->evp.sigev_value.sival_ptr = &(_this->timer);
+	rc = timer_create(CLOCK_REALTIME, &(_this->evp), &(_this->timer));
+	if (rc != 0) {
+		return SDDS_SSW_RT_FAIL;
+	}
 
-    rc = timer_create(CLOCK_REALTIME, &(_this->evp), &(_this->timer));
-    if (rc != 0){
-    	return SDDS_SSW_RT_FAIL;
-    }
+	_this->cb = callback;
+	_this->data = data;
 
-    return SDDS_SSW_RT_OK;
+	return SDDS_SSW_RT_OK;
 }
 
-ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode)
-{
-    if (_this == NULL){
-    	return SDDS_SSW_RT_FAIL;
-    }
+ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec,
+		SSW_TaskMode_t mode) {
+	if (_this == NULL) {
+		return SDDS_SSW_RT_FAIL;
+	}
 
-    struct timespec intv = {0,0};
-    struct timespec value = {0,0};
+	struct timespec intv;
+	struct timespec value;
 
-	value.tv_nsec = usec *1000;
+	value.tv_nsec = usec * 1000;
 	value.tv_sec = sec;
 
-	if (mode == SDDS_SSW_TaskMode_single){
-
-	} else if (mode == SDDS_SSW_TaskMode_repeat){
-		intv.tv_nsec = usec *1000;
+	if (mode == SDDS_SSW_TaskMode_single) {
+		intv.tv_nsec = 0;
+		intv.tv_sec = 0;
+	} else if (mode == SDDS_SSW_TaskMode_repeat) {
+		intv.tv_nsec = usec * 1000;
 		intv.tv_sec = sec;
-    } else {
-    	return SDDS_SSW_RT_FAIL;
-    }
-    struct itimerspec timer = {intv, value};
-
-    int rc = timer_settime(_this->timer, 0, &timer, NULL);
-    if (rc != 0){
-    	return SDDS_SSW_RT_FAIL;
-    }
-
-    return SDDS_SSW_RT_OK;
-}
-ssw_rc_t Task_stop(Task _this)
-{
-
-	if (_this == NULL || _this->timer == 0){
+	} else {
 		return SDDS_SSW_RT_FAIL;
-    }
-    // stop the timer
-    struct itimerspec timer;
-    memset(&timer, 0, sizeof(struct itimerspec));
-    int rc = timer_settime(_this->timer, 0, &timer, NULL);
+	}
+	struct itimerspec timer = { intv, value };
 
-    if (rc != 0){
-    	return SDDS_SSW_RT_FAIL;
-    }
+	int rc = timer_settime(_this->timer, 0, &timer, NULL);
+	if (rc != 0) {
+		return SDDS_SSW_RT_FAIL;
+	}
 
-    return SDDS_SSW_RT_OK;
+	return SDDS_SSW_RT_OK;
+}
+ssw_rc_t Task_stop(Task _this) {
+
+	if (_this == NULL || _this->timer == 0) {
+		return SDDS_SSW_RT_FAIL;
+	}
+	// stop the timer
+	struct itimerspec timer;
+	memset(&timer, 0, sizeof(struct itimerspec));
+	int rc = timer_settime(_this->timer, 0, &timer, NULL);
+
+	if (rc != 0) {
+		return SDDS_SSW_RT_FAIL;
+	}
+
+	return SDDS_SSW_RT_OK;
 }
 
-ssw_rc_t Task_delete(Task _this)
-{
-    if (_this == NULL){
-	return SDDS_SSW_RT_FAIL;
-    }
-    Task_stop(_this);
+ssw_rc_t Task_delete(Task _this) {
+	if (_this == NULL) {
+		return SDDS_SSW_RT_FAIL;
+	}
+	Task_stop(_this);
 
-    free(_this);
+	free(_this);
 
-    return SDDS_SSW_RT_OK;
+	return SDDS_SSW_RT_OK;
 
 }
-
 

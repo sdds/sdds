@@ -1,12 +1,15 @@
+#include <unistd.h>
 #include "linux_mcast2_sdds_impl.h"
 
 int main()
 {
 	DDS_ReturnCode_t ret;
 
-	sDDS_init();
+	if (sDDS_init() == SDDS_RT_FAIL) {
+		return 1;
+	}
 	Log_setLvl(0);
- 
+
     Beta beta_sub;
     Beta *beta_sub_p = &beta_sub;
 

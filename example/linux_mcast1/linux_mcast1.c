@@ -5,7 +5,9 @@ int main()
 {
 	DDS_ReturnCode_t ret;
 
-	sDDS_init();
+	if (sDDS_init() == SDDS_RT_FAIL) {
+		return 1;
+	}
 	Log_setLvl(0);
 
     Beta beta_pub;
@@ -15,9 +17,8 @@ int main()
 
     for (;;) {
         ret = DDS_BetaDataWriter_write (g_Beta_writer, &beta_pub, NULL);
-        if (ret != DDS_RETCODE_OK) {
+        if (ret != DDS_RETCODE_OK)
             printf ("Failed to send topic beta\n");
-		}
 
         sleep (1);
     }
