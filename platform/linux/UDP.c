@@ -110,8 +110,7 @@ rc_t Network_Multicast_joinMulticastGroup(char *group) {
 	 */
 	struct ipv6_mreq multicastRequest; /* Multicast address join structure */
 
-	if ((status = getaddrinfo(group, multicastPort, &hints,
-				&mReq)) != 0) {
+	if ((status = getaddrinfo(group, multicastPort, &hints, &mReq)) != 0) {
 		Log_error("ERROR: setsockopt() failed\n");
 		return SDDS_RT_FAIL;
 	}
@@ -122,14 +121,13 @@ rc_t Network_Multicast_joinMulticastGroup(char *group) {
 			sizeof(multicastRequest.ipv6mr_multiaddr));
 
 	/* Accept multicast from any interface */
-	if ((multicastRequest.ipv6mr_interface = if_nametoindex("usb0")) < 0)
-	{
+	if ((multicastRequest.ipv6mr_interface = if_nametoindex("usb0")) < 0) {
 		Log_info ("Ignoring unknown interface: %s: %s\n", "usb0", strerror(errno));
 		multicastRequest.ipv6mr_interface = 0;
 	}
 
 	/* Join the multicast address */
-	if (setsockopt(net.fd_multi_socket, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP,
+	if (setsockopt(net.fd_multi_socket, IPPROTO_IPV6, IPV6_JOIN_GROUP,
 			(char*) &multicastRequest, sizeof(multicastRequest)) != 0) {
 		Log_error("ERROR: setsockopt() failed\n");
 		return SDDS_RT_FAIL;
