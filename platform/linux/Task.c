@@ -49,12 +49,7 @@ threadFunc(union sigval sv) {
 	printf("hello task\n");
 }
 
-ssw_rc_t Task_setCallback(Task _this, void (*callback)(void* obj), void* data) {
-	if (_this == NULL || callback == NULL) {
-		return SDDS_SSW_RT_FAIL;
-	}
-
-	_this->cb = callback;
+ssw_rc_t Task_setData(Task _this, void* data) {
 	_this->data = data;
 
 	return SDDS_SSW_RT_OK;
@@ -65,6 +60,11 @@ ssw_rc_t Task_setCallback(Task _this, void (*callback)(void* obj), void* data) {
  */
 ssw_rc_t Task_init(Task _this, void (*callback)(void* obj), void* data) {
 	int rc;
+	if (_this == NULL || callback == NULL) {
+		return SDDS_SSW_RT_FAIL;
+	}
+
+	_this->cb = callback;
 
 	// init the signal structure
 	memset(&(_this->evp), 0, sizeof(struct sigevent));
@@ -84,15 +84,12 @@ ssw_rc_t Task_init(Task _this, void (*callback)(void* obj), void* data) {
 		return SDDS_SSW_RT_FAIL;
 	}
 
-	_this->cb = callback;
-	_this->data = data;
-
 	return SDDS_SSW_RT_OK;
 }
 
 ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec,
 		SSW_TaskMode_t mode) {
-	if (_this == NULL) {
+	if (_this == NULL || _this->cb == NULL) {
 		return SDDS_SSW_RT_FAIL;
 	}
 

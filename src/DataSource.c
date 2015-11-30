@@ -118,7 +118,7 @@ rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 
 rc_t DataSource_init(void) {
 	sendTask = Task_create();
-	ssw_rc_t ret = Task_init(sendTask, NULL, NULL);
+	ssw_rc_t ret = Task_init(sendTask, checkSendingWrapper, NULL);
 	if (ret == SDDS_SSW_RT_FAIL) {
 		Log_error("Task_init failed\n");
 		return SDDS_RT_FAIL;
@@ -240,7 +240,8 @@ rc_t checkSending(NetBuffRef_t *buf) {
 
 		return SDDS_RT_OK;
 	} else {
-		Task_setCallback(sendTask, checkSendingWrapper, (void*) buf);
+		Task_stop(sendTask);
+		Task_setData(sendTask, (void*) buf);
 		if (Task_start(sendTask, 0, (buf->sendDeadline - time),
 		SDDS_SSW_TaskMode_single) != SDDS_RT_OK) {
 			Log_error("Task_start failed\n");
