@@ -47,7 +47,7 @@ void* TaskMngLoop(void* foo){
 }
 
 ssw_rc_t Task_setData(Task _this, void* data) {
-    if (_this == NULL || data == NULL) {
+    if (_this == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
     _this->data = data;
