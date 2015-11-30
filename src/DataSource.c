@@ -298,11 +298,12 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste)
 		return SDDS_RT_FAIL;
 	}
 
-#ifdef QOS_RELIABILITY
-	if (SNPS_writeSeqNr(buffRef, buffRef->seqNr) != SDDS_RT_OK) {
+//#ifdef QOS_RELIABILITY
+    // nicht buffRef, sondern DW->seqNr
+	if (SNPS_writeSeqNr(buffRef, 10) != SDDS_RT_OK) {
         return SDDS_RT_FAIL;
     }
-#endif
+//#endif
 
 	Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 	// return 0;

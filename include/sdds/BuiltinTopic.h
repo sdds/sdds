@@ -190,6 +190,7 @@ rc_t BuiltinTopic_writeTopics2Buf(NetBuffRef_t *buf);
 rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef_t *buf);
 rc_t BuiltinTopic_writeDataReaders2Buf(NetBuffRef_t *buf);
 
+
 bool BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID);
 
 void BuiltinTopic_printSubPool();
