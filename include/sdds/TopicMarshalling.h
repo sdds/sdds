@@ -21,7 +21,7 @@
 #define  TOPICMARSHALLING_H_INC
 
 #ifdef SDDS_PLATFORM_autobest
-#ifndef stderr 
+#ifndef stderr
 #define stderr 2
 #endif
 #define fprintf(a, b, args...) printf(b, ##args)
