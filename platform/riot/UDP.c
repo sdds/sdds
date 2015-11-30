@@ -133,7 +133,7 @@ rc_t Network_init(void)
     exit(-1);
   }
 
-#ifdef _MULTICAST
+#ifdef FEATURE_SDDS_MULTICAST_ENABLED
   Network_Multicast_init();
 #endif
 

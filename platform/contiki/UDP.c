@@ -76,7 +76,7 @@ rc_t Network_init(void) {
 			receive) != 1)
 		return 1;
 
-#ifdef _MULTICAST
+#ifdef FEATURE_SDDS_MULTICAST_ENABLED
 	Network_Multicast_init();
 #endif
 
