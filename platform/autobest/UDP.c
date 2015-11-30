@@ -119,7 +119,7 @@ rc_t Network_init(void)
   }
 
 
-#ifdef FEATURE_SDDS_MULTICAST
+#ifdef FEATURE_SDDS_MULTICAST_ENABLED
   ret = Network_Multicast_init();
   if(ret != SDDS_RT_OK){
     sys_task_terminate();
