@@ -304,11 +304,30 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 		return SDDS_RT_FAIL;
 	}
 
-#ifdef QOS_RELIABILITY
-    // nicht buffRef, sondern DW->seqNr
-	if (SNPS_writeSeqNr(buffRef, 10) != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
-    }
+#ifdef SDDS_QOS_RELIABILITY
+    #if SDDS_QOS_RELIABILITY_KIND == KIND_BESTEFFORT
+        #if SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_NORMAL
+	    if (SNPS_writeSeqNr(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
+            return SDDS_RT_FAIL;
+        }
+        #elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+	    if (SNPS_writeSeqNrSmall(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
+            return SDDS_RT_FAIL;
+        }
+        #elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+	    if (SNPS_writeSeqNrBig(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
+            return SDDS_RT_FAIL;
+        }
+        #elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+	    if (SNPS_writeSeqNrHUGE(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
+            return SDDS_RT_FAIL;
+        }
+        #endif
+    _this->qos.seqNr++;
+
+    #else
+        //TODO
+    #endif
 #endif
 
 	Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
