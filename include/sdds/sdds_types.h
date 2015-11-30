@@ -77,13 +77,18 @@ typedef double                  float64_t;
 #include <stdint.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include <string.h>
 #include <assert.h>
-#ifndef __int8_t_defined
-#define __int8_t_defined
-typedef char 			int8_t;
-typedef short int 	int16_t;
-typedef int 			int32_t;
-typedef long int 		int64_t;
+
+/*#ifndef __int8_t_defined*/
+/*#define __int8_t_defined*/
+/*typedef char 			int8_t;*/
+/*typedef short int 	int16_t;*/
+/*typedef int 			int32_t;*/
+/*typedef long int 		int64_t;*/
+/*#endif*/
+#ifndef  IPV6_JOIN_GROUP      /* APIv0 compatibility */
+#define  IPV6_JOIN_GROUP      IPV6_ADD_MEMBERSHIP
 #endif
 
 typedef unsigned char	bool_t;
@@ -93,10 +98,10 @@ typedef float			   float32_t;
 typedef double			   float64_t;
 typedef long double		float128_t;
 
-#ifndef __size_t
-#define __size_t__
-typedef unsigned int 	size_t;
-#endif
+/*#ifndef __size_t*/
+/*#define __size_t__*/
+/*typedef unsigned int 	size_t;*/
+/*#endif*/
 #endif   /* TYPE_DEFINES_x86 */
 
 #ifndef NULL
