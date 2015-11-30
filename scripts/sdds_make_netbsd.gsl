@@ -96,7 +96,7 @@ code:
 	\$(shell ./generate.sh)
 
 clean:
-	\$(RM) ./\$(APPLICATION_NAME)
+	\$(RM) ./\$(APPLICATION_NAME) ./\$(APPLICATION_NAME).bin
 	\$(RM) \$(CLEAN)
 	\$(RM) \$(SDDS_OBJS) \$(SDDS_OBJS_DEPEND)
 	\$(RM) -rf \$(SDDS_OBJDIR)

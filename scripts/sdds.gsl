@@ -38,6 +38,8 @@ project.generated_warning_header ?= "\
 .gsl from "sdds_constants.gsl"
 .if project.os = "linux"
 .   gsl from "sdds_make_linux.gsl"
+.elsif project.os = "netbsd"
+.   gsl from "sdds_make_netbsd.gsl"
 .elsif project.os = "contiki"
 .   gsl from "sdds_make_contiki.gsl"
 .else
