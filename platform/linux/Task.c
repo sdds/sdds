@@ -50,6 +50,10 @@ threadFunc(union sigval sv) {
 }
 
 ssw_rc_t Task_setData(Task _this, void* data) {
+	if (_this == NULL) {
+		return SDDS_SSW_RT_FAIL;
+	}
+
 	_this->data = data;
 
 	return SDDS_SSW_RT_OK;
