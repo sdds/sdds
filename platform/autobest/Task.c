@@ -95,7 +95,7 @@ ssw_rc_t Task_init(Task _this, void(*callback)(void* obj), void* data){
 }
 
 ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode){
-    if(_this->cb != NULL && _this != NULL){
+    if(_this->cb == NULL || _this == NULL){
         return SDDS_SSW_RT_FAIL;
     }
     time_t systemTime = sys_gettime();
