@@ -10,7 +10,7 @@
 #define TASK_MNG_TASK_ID 3
 #define TASK_MNG_MUL_SEC_TO_NANO_SEC 1000000000ULL
 #define TASK_MNG_MUL_USEC_TO_NANO_SEC 1000UL
-
+#define TASK_MNG_PRI 102
 
 struct Task_struct{
     void(*cb)(void* obj);
@@ -46,6 +46,15 @@ void* TaskMngLoop(void* foo){
     return NULL;
 }
 
+ssw_rc_t Task_setData(Task _this, void* data) {
+    if (_this == NULL || data == NULL) {
+        return SDDS_SSW_RT_FAIL;
+    }
+    _this->data = data;
+    return SDDS_SSW_RT_OK;
+}
+
+
 /**
  * Should be called at the init phase
  */
@@ -59,7 +68,7 @@ ssw_rc_t TaskMng_init(void){
     memset(taskList, 0, sizeof(struct Task_struct));
 
     unsigned int err;
-    err = sys_task_create(TASK_MNG_TASK_ID, 102, TaskMngLoop,
+    err = sys_task_create(TASK_MNG_TASK_ID, TASK_MNG_PRI, TaskMngLoop,
                           &stack_task_mng[STACK_SIZE], NULL, NULL);
     if(err != E_OK){
         Log_error("can't create Task for TaskMng\n");
@@ -79,11 +88,6 @@ Task Task_create(void){
  * inits a task with a callback function etc
  */
 ssw_rc_t Task_init(Task _this, void(*callback)(void* obj), void* data){
-    if (_this == NULL || callback == NULL)
-    {
-        return SDDS_SSW_RT_FAIL;
-    }
-
     _this->cb = callback;
     _this->data = data;
 
@@ -91,6 +95,9 @@ ssw_rc_t Task_init(Task _this, void(*callback)(void* obj), void* data){
 }
 
 ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode){
+    if(_this->cb != NULL && _this != NULL){
+        return SDDS_SSW_RT_FAIL;
+    }
     time_t systemTime = sys_gettime();
     _this->timeout = (usec * TASK_MNG_MUL_USEC_TO_NANO_SEC) + (sec * TASK_MNG_MUL_SEC_TO_NANO_SEC);
     _this->fireTime = systemTime + _this->timeout;
@@ -104,7 +111,7 @@ ssw_rc_t Task_stop(Task _this){
     if (_this == NULL){
        return SDDS_SSW_RT_FAIL;
     }
-    if( _this->isActive){
+    if(_this->isActive){
         stopTask(_this);
         _this->isActive = false;
     }
@@ -153,26 +160,17 @@ static inline void doMng(){
 }
 
 static void checkFireTimes(){
-    //Log_debug("call\n");
     struct Task_struct* itterator;
-    //Log_debug("init itterator\n");
     itterator = taskList->next;
-    //Log_debug("get system time\n");
     time_t systemTime = sys_gettime();
     while(itterator != NULL){
-        //Log_debug("check to fire the task with timeout: %llu and function: %p\n", itterator->timeout, itterator->cb);
         if(itterator->fireTime < systemTime){
-            //Log_debug("Task needs to be fired\n");
-            //Log_debug("check if the Task is periodic:\n");
             if(itterator->mode == SDDS_SSW_TaskMode_repeat){
-                //Log_debug("yes:\n set his firetime to the new val\n");
                 itterator->fireTime = systemTime + itterator->timeout;
             }
-            //Log_debug("start the task with timeout: %llu\n", itterator->timeout);
             itterator->cb(itterator->data);
             bool lastElement = itterator->next == NULL;
             if(itterator->mode == SDDS_SSW_TaskMode_single){
-                //Log_debug("Delete non periodic task\n");
                 deleteTask(itterator);
             }
             if(lastElement){

@@ -4,7 +4,7 @@
     endian = "little"
     os = "linux"
     iface = "tap1"
-    ip = "fe80::3407:d8ff:fe6b:44fe"
+    ip = "fe80::8ca5:62ff:fe1f:c850"
     port = "23234"
     >
     Linux multicast discovery example with ipc topic.
