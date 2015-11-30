@@ -245,8 +245,8 @@ rc_t checkSending(NetBuffRef_t *buf) {
 		}
 
 #ifdef UTILS_DEBUG
-		Log_debug("Test startet, timer: %d\n", (buf->sendDeadline - curTime));
-		Log_debug("%d > %d\n", buf->sendDeadline, curTime);
+		Log_debug("Test startet, timer: %d\n", (buf->sendDeadline - time));
+		Log_debug("%d > %d\n", buf->sendDeadline, time);
 #endif
 		return SDDS_RT_FAIL;
 	}
