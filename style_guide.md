@@ -819,7 +819,7 @@ In C89 projects the syntax for all comments SHALL be the C `/* ... */` style.
 
 * When possible in-line comments shall start at column 33.
 
-* In in-line comments, the `*` or `/*` shall be followed by two spaces.
+* In in-line comments, the `//` or `/*` shall be followed by two spaces.
 
 * Every function shall have a multi-line comment header that briefly explains its purpose.
 * Method comment headers SHALL be preceded by a line of hyphens ending at column 78.
