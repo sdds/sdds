@@ -104,6 +104,7 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 	// should be NULL!
 	msg = NULL;
 	topicid_t topic;
+    uint8_t seq;
 
 	while (buff->subMsgCount > 0) {
 		// get sum msg id
@@ -164,6 +165,10 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 			break;
         case (SDDS_SNPS_T_TSSIMPLE) :
         case (SDDS_SNPS_T_STATUS) :
+        case (SDDS_SNPS_T_SEQNR) :
+            SNPS_readSeqNr(buff, &seq);
+            printf("seqNr: %d\n", seq);
+            break;
 		default:
 			// go to next submsg
 			// unknown content

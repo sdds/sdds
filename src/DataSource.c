@@ -207,7 +207,7 @@ void checkSendingWrapper(void *buf) {
 }
 
 rc_t checkSending(NetBuffRef_t *buf) {
-#if SDDS_QOS_DW_LATBUD < 65536 
+#if SDDS_QOS_DW_LATBUD < 65536
 	time16_t time;
 	Time_getTime16(&time);
 #else
@@ -264,7 +264,7 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 	msecu16_t latBudDuration = _this->qos.latBudDuration;
 	time16_t deadline;
 	rc_t ret = Time_getTime16(&deadline);
-#else 
+#else
 	msecu32_t latBudDuration = _this->qos.latBudDuration;
 	time32_t deadline;
 	rc_t ret = Time_getTime32(&deadline);
@@ -304,15 +304,13 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 		return SDDS_RT_FAIL;
 	}
 
-<<<<<<< HEAD
-=======
 #ifdef QOS_RELIABILITY
-	if (SNPS_writeSeqNr(buffRef, buffRef->seqNr) != SDDS_RT_OK) {
+    // nicht buffRef, sondern DW->seqNr
+	if (SNPS_writeSeqNr(buffRef, 10) != SDDS_RT_OK) {
         return SDDS_RT_FAIL;
     }
 #endif
 
->>>>>>> Problem: SNPS.c/.h had not included all submsg-types, function for
 	Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 	// return 0;
 
