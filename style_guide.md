@@ -811,7 +811,7 @@ Comments on code SHALL be used lightly and where necessary.
 
 In C99 projects the syntax for comments is:
 
-* In-line comments SHALL use the C++ `*` style.
+* In-line comments SHALL use the C++ `//` style.
 
 * Multi-line comments MAY use the C `/* ... */` style or MAY use the C++ style.
 
