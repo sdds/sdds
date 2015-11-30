@@ -180,7 +180,7 @@ SNPS_discardSubMsg(NetBuffRef_t *ref)
 		ref->curPos += 2;
 		break;
 	case (SDDS_SNPS_EXTSUBMSG_SEQNRHUGE):
-		ref->curPos += 3;
+		ref->curPos += 4;
 	    break;
 	case (SDDS_SNPS_EXTSUBMSG_TOPIC): // ext topic has 2 bytes
 		ref->curPos += 2;
@@ -438,34 +438,137 @@ SNPS_readData (NetBuffRef_t *ref, TopicMarshalling_decode_fn decode_fn, Data dat
 	return SDDS_RT_OK;
 }
 
+#if defined SDDS_QOS_RELIABILITY
 //  -----------------------------------------------------------------------------
-//  Writes the the least significant 4-bits of the given uint8_t in the given
-//  NetBuffRef_t*. Returns SDDS_RT_OK on success.
+//  Writes the least significant 4-bits of the given sequencenumber
+//  in the given NetBuffRef_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_writeSeqNr (NetBuffRef_t *ref, uint8_t seqNr)
+SNPS_writeSeqNr (NetBuffRef_t* ref, seqNr_t seqNr)
 {
-    Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, (uint8_t)seqNr);
+    rc_t ret = SDDS_RT_FAIL;
+
+    ret = Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, (uint8_t)seqNr);
     ref->curPos += 1;
     ref->subMsgCount +=1;
 
-    return SDDS_RT_OK;
+    return ret;
 }
 
+//  -----------------------------------------------------------------------------
+//  Writes the given sequencenumber (1 byte size) of in the given
+//  NetBuffRef_t*. Returns SDDS_RT_OK on success.
+
 rc_t
-SNPS_readSeqNr (NetBuffRef_t *ref, uint8_t* seqNr)
+SNPS_writeSeqNrSmall (NetBuffRef_t* ref, seqNr_t seqNr)
 {
-    Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, (uint8_t*) seqNr);
+    rc_t ret = SDDS_RT_FAIL;
+
+    ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRSMALL, (byte_t*)&seqNr, 0);
+    ref->curPos += 2;
+    ref->subMsgCount +=1;
+
+    return ret;
+}
+
+//  -----------------------------------------------------------------------------
+//  Writes the given sequencenumber (2 byte size) of in the given
+//  NetBuffRef_t*. Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_writeSeqNrBig (NetBuffRef_t* ref, seqNr_t seqNr)
+{
+    rc_t ret = SDDS_RT_FAIL;
+
+    ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRBIG, (byte_t*)&seqNr, 0);
+    ref->curPos += 3;
+    ref->subMsgCount +=1;
+
+    return ret;
+}
+
+//  -----------------------------------------------------------------------------
+//  Writes the given sequencenumber (4 byte size) of in the given
+//  NetBuffRef_t*. Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_writeSeqNrHUGE (NetBuffRef_t* ref, seqNr_t seqNr)
+{
+    rc_t ret = SDDS_RT_FAIL;
+
+    ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRHUGE, (byte_t*)&seqNr, 0);
+    ref->curPos += 5;
+    ref->subMsgCount +=1;
+
+    return ret;
+}
+
+//  -----------------------------------------------------------------------------
+//  Reads a sequencenumber (4-bit size) from the given NetBuffRef_t* and writes
+//  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_readSeqNr (NetBuffRef_t* ref, seqNr_t* seqNr)
+{
+    rc_t ret = SDDS_RT_FAIL;
+
+    ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, (uint8_t*) seqNr);
 
     ref->curPos += 1;
     ref->subMsgCount -= 1;
 
-    return SDDS_RT_OK;
+    return ret;
 }
 
-//rc_t SNPS_writeSeqNrSmall(NetBuffRef_t *ref);
-//rc_t SNPS_writeSeqNrBig(NetBuffRef_t *ref);
-//rc_t SNPS_writeSeqNrHUGE(NetBuffRef_t *ref);
+//  -----------------------------------------------------------------------------
+//  Reads a sequencenumber (1 byte size) from the given NetBuffRef_t* and writes
+//  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_readSeqNrSmall (NetBuffRef_t *ref, seqNr_t* seqNr)
+{
+    rc_t ret = SDDS_RT_FAIL;
+
+    ret = Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRSMALL, (uint8_t*) seqNr, 0);
+
+    ref->curPos += 2;
+    ref->subMsgCount -= 1;
+
+    return ret;
+}
+
+//  -----------------------------------------------------------------------------
+//  Reads a sequencenumber (2 byte size) from the given NetBuffRef_t* and writes
+//  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_readSeqNrBig (NetBuffRef_t *ref, seqNr_t* seqNr)
+{
+    rc_t ret = SDDS_RT_FAIL;
+    ret = Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRBIG, (byte_t*) seqNr, 0);
+
+    ref->curPos += 3;
+    ref->subMsgCount -= 1;
+
+    return ret;
+}
+
+//  -----------------------------------------------------------------------------
+//  Reads a sequencenumber (4 byte size) from the given NetBuffRef_t* and writes
+//  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
+
+rc_t
+SNPS_readSeqNrHUGE (NetBuffRef_t *ref, seqNr_t* seqNr)
+{
+    rc_t ret = SDDS_RT_FAIL;
+    ret = Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRHUGE, (byte_t*) seqNr, 0);
+
+    ref->curPos += 5;
+    ref->subMsgCount -= 1;
+
+    return ret;
+}
+#endif // Qos Reliability
 
 //  -----------------------------------------------------------------------------
 //  Converts the given char to hex and writes it in the uint8_t*.

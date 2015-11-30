@@ -24,6 +24,7 @@
 #include "os-ssal/TimeMng.h"
 #include "NetBuffRef.h"
 #include "TopicMarshalling.h"
+#include "Qos.h"
 
 typedef uint8_t subMsg_t;
 typedef uint8_t addrType_t;
@@ -119,19 +120,18 @@ rc_t SNPS_writeTopic(NetBuffRef_t *ref, topicid_t topic);
 rc_t SNPS_writeData(NetBuffRef_t *ref, TopicMarshalling_encode_fn encode_fn, Data);
 rc_t SNPS_writeTSsimple(NetBuffRef_t *ref, TimeStampSimple_t* ts);
 rc_t SNPS_writeStatus(NetBuffRef_t *ref);
-rc_t SNPS_writeSeqNr (NetBuffRef_t *ref, uint8_t seqNr);
-rc_t SNPS_writeSeqNrBig (NetBuffRef_t *ref);
-rc_t SNPS_writeSeqNrSmall (NetBuffRef_t *ref);
-rc_t SNPS_writeSeqNrHUGE (NetBuffRef_t *ref);
+#if defined SDDS_QOS_RELIABILITY
+rc_t SNPS_writeSeqNr (NetBuffRef_t* ref, seqNr_t seqNr);
+rc_t SNPS_writeSeqNrSmall (NetBuffRef_t* ref, seqNr_t seqNr);
+rc_t SNPS_writeSeqNrBig (NetBuffRef_t* ref, seqNr_t seqNr);
+rc_t SNPS_writeSeqNrHUGE (NetBuffRef_t* ref, seqNr_t seqNr);
+#endif
 rc_t SNPS_writeAckSeq(NetBuffRef_t *ref);
 rc_t SNPS_writeNackSeq(NetBuffRef_t *ref);
 rc_t SNPS_writeNack(NetBuffRef_t *ref);
 rc_t SNPS_writeAck(NetBuffRef_t *ref);
 rc_t SNPS_writeTSuSec(NetBuffRef_t *ref);
 rc_t SNPS_writeTSmSec(NetBuffRef_t *ref);
-rc_t SNPS_writeSeqNrBig(NetBuffRef_t *ref);
-rc_t SNPS_writeSeqNrSmall(NetBuffRef_t *ref);
-rc_t SNPS_writeSeqNrHUGE(NetBuffRef_t *ref);
 rc_t SNPS_writeTSDDS(NetBuffRef_t *ref);
 rc_t SNPS_writeSep(NetBuffRef_t *ref);
 rc_t SNPS_writeAddress(NetBuffRef_t *ref, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen);
@@ -140,10 +140,12 @@ rc_t SNPS_readAddress(NetBuffRef_t *ref, castType_t *addrCast, addrType_t *addrT
 rc_t SNPS_readHeader(NetBuffRef_t *ref);
 rc_t SNPS_readDomain(NetBuffRef_t *ref, domainid_t* domain);
 rc_t SNPS_readTopic(NetBuffRef_t *ref, topicid_t* topic);
-rc_t SNPS_readSeqNr (NetBuffRef_t* ref, uint8_t* seqNr);
-rc_t SNPS_readSeqNrBig (NetBuffRef_t* ref, uint8_t* seqNr);
-rc_t SNPS_readSeqNrSmall (NetBuffRef_t *ref, uint16_t* seqNr);
-rc_t SNPS_readSeqNrHUGE (NetBuffRef_t *ref, uint32_t* seqNr);
+#if defined SDDS_QOS_RELIABILITY
+rc_t SNPS_readSeqNr (NetBuffRef_t* ref, seqNr_t* seqNr);
+rc_t SNPS_readSeqNrSmall (NetBuffRef_t* ref, seqNr_t* seqNr);
+rc_t SNPS_readSeqNrBig (NetBuffRef_t* ref, seqNr_t* seqNr);
+rc_t SNPS_readSeqNrHUGE (NetBuffRef_t* ref, seqNr_t* seqNr);
+#endif
 rc_t SNPS_readData (NetBuffRef_t *ref, TopicMarshalling_decode_fn decode_fn, Data data);
 
 rc_t SNPS_IPv6_str2Addr(char *charAddr, uint8_t *byteAddr, uint8_t *addrLen);
