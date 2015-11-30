@@ -35,7 +35,11 @@ typedef struct _DataSink_t DataSink_t;
 extern DataSink_t *dataSink;
 
 rc_t DataSink_init(void);
-DataReader_t * DataSink_create_datareader(Topic_t *topic, Qos qos, Listener listener, StatusMask sm);
+
+//  Obtain an instance of DataReader
+DataReader_t *
+DataSink_create_datareader (Topic_t *topic, Qos qos, Listener listener, StatusMask sm);
+
 rc_t DataSink_processFrame(NetBuffRef_t *buff);
 
 rc_t DataSink_printAddr();

@@ -108,8 +108,13 @@ struct $(topic.c_name:)
 .       endif
 .   endfor
 };
-
 typedef struct $(topic.c_name:) $(topic.c_name:);
+
+Sample_t $(topic.c_name)_samples_pool[50];
+static $(topic.c_name:) $(topic.c_name)_sample_data[50];
+
+DDS_ReturnCode_t
+$(topic.c_name:)_init ();
 
 #ifdef SDDS_TOPIC_HAS_PUB
 DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
@@ -179,6 +184,15 @@ extern "C"
 
 
 rc_t TopicMarshalling_$(topic.c_name:)_cpy(Data dest, Data source);
+
+DDS_ReturnCode_t
+$(topic.c_name:)_init ()
+{
+   int index;
+   for (index = 0; index < 50; index++) {
+      $(topic.c_name)_samples_pool[index].data = &$(topic.c_name)_sample_data[index];
+   }
+}
 
 #ifdef SDDS_TOPIC_HAS_PUB
 

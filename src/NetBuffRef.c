@@ -67,7 +67,7 @@ void NetBuffRef_print(NetBuffRef_t *_this)
 	printf("  %2i ", i);
     }
     printf("\n\t");
-    for (int i = 0; i < _this->curPos; i++){
+    for (int i = 0; i < _this->frame_start->size; i++){
 	printf("0x%02x ", (uint8_t)(_this->buff_start[i]));
     }
     printf("\n");

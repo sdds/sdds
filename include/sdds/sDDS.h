@@ -32,17 +32,24 @@ rc_t
 typedef struct _DataReader_t DataReader_t;
 typedef struct _History_t History_t;
 typedef struct _NetBuffRef_t NetBuffRef_t;
+typedef struct _Locator_t Locator_t;
 typedef struct _Sample_t Sample_t;
 typedef struct _Topic_t Topic_t;
+typedef struct TimeStampSimple_struct TimeStampSimple_t;
+
+//  Abstraction
+#include "os-ssal/Task.h"
+#include "os-ssal/TimeMng.h"
 
 //  Class headers
 #include "BitArray.h"
+#include "NetBuffRef.h"
+#include "History.h"
 #include "DataReader.h"
-//#include "History.h"
 #include "Locator.h"
 #include "Log.h"
-#include "NetBuffRef.h"
+#include "Sample.h"
+#include "SNPS.h"
 #include "Topic.h"
-#include "os-ssal/Task.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */

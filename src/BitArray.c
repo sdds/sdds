@@ -69,6 +69,7 @@ BitArray_check (uint64_t* self, unsigned int index)
 }
 
 
+#ifdef UTILS_DEBUG
 //  ----------------------------------------------------------------------------
 //  Prints the array in 8-Bit chunks
 
@@ -85,6 +86,7 @@ BitArray_print (uint64_t* self)
     }
     printf ("\n}\n");
 }
+#endif
 
 
 #ifdef SDDS_SELFTEST

@@ -523,7 +523,6 @@ rc_t Network_send(NetBuffRef_t *buff) {
 		ssize_t transmitted;
 		struct sockaddr *addr =
 				(struct sockaddr *) &((struct UDPLocator_t *) loc)->addr_storage;
-
 		transmitted = sendto(sock, buff->buff_start, buff->curPos, 0, addr,
 				sizeof(struct sockaddr_storage));
 

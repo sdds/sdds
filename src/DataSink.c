@@ -49,7 +49,7 @@ DataSink_getTopic (DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) {
 	uint8_t index;
 	for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
 		if (BitArray_check (&self->allocated_readers, index)
-    &&  DataReader_topic (&self->readers[index])->id == id) {
+        &&  DataReader_topic (&self->readers[index])->id == id) {
 			if (st != NULL) {
 				st->key = DataReader_id (&self->readers[index]);
 				st->participant_key = BuiltinTopic_participantID;
@@ -66,6 +66,20 @@ DataSink_getTopic (DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) {
 }
 #endif
 
+DataReader_t *
+DataSink_DataReader_by_topic (topicid_t id)
+{
+	uint8_t index;
+	for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
+		if (BitArray_check (&self->allocated_readers, index)
+        &&  DataReader_topic (&self->readers[index])->id == id) {
+            return &self->readers[index];
+        }
+	}
+    return NULL;
+}
+
+
 rc_t DataSink_getAddr(SNPS_Address_t *address) {
 	address->addrType = addr.addrType;
 	address->addrCast = addr.addrCast;
@@ -81,16 +95,11 @@ static void getAddress(NetBuffRef_t *buff) {
 }
 
 rc_t DataSink_processFrame(NetBuffRef_t *buff) {
-	rc_t ret;
-
-	if (buff == NULL){
-		Log_error("the netbuffer is a NULL reference\n");
-		return SDDS_RT_FAIL;
-	}
+    assert (buff);
 
 	// process the frame
 	// parse the header
-
+	rc_t ret;
 	ret = SNPS_readHeader(buff);
 
 	if (ret != SDDS_RT_OK) {
@@ -98,7 +107,7 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 
 		NetBuffRef_renew(buff);
 		Log_error("invalid SNPS headder\n");
-		return SDDS_RT_FAIL;	
+		return SDDS_RT_FAIL;
 	}
 
 	// should be NULL!
@@ -114,7 +123,6 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 		switch (type) {
 		case (SDDS_SNPS_T_DOMAIN):
 			// check data
-
 			submitData();
 
 			domainid_t domain;
@@ -141,15 +149,19 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 			break;
 		case (SDDS_SNPS_T_DATA):
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-			// check data
 			if (DataSink_getTopic(NULL, topic, NULL) == SDDS_RT_OK) {
+                // check data
 				submitData();
-				ret = parseData(buff);
+				/*ret = parseData(buff);*/
 
 				if (ret != SDDS_RT_OK){
-					Log_error("Can't prase data\n");
+					Log_error("Can't parse data\n");
 					return SDDS_RT_FAIL;
 				}
+                //  Write to new History
+                DataReader_t *dataReader = DataSink_DataReader_by_topic (topic);
+                History_t *history = DataReader_history (dataReader);
+                ret = sdds_History_enqueue (history, buff);
 			}
 			else {
                 Log_debug ("Discard submessage\n");

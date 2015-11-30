@@ -36,9 +36,11 @@ void
 bool
    BitArray_check (uint64_t *self, unsigned int index);
 
+#ifdef UTILS_DEBUG
 //  Prints the array in 8-Bit chunks
 void
    BitArray_print (uint64_t *self);
+#endif
 
 #ifdef SDDS_SELFTEST
 //  Selftest of this class

@@ -26,6 +26,7 @@ struct _DataReader_t {
 	Topic_t *topic;
 	unsigned int id :4;
 	On_Data_Avail_Listener on_data_avail_listener;
+   History_t history;
 };
 
 //  Tries to take a sample from the data readers history. The provided
@@ -45,8 +46,11 @@ rc_t
 unsigned int
    DataReader_id (DataReader_t *self);
 
-Topic_t *
+Topic_t*
    DataReader_topic (DataReader_t *self);
+
+History_t*
+   DataReader_history (DataReader_t *self);
 
 #ifdef __cplusplus
 }
