@@ -24,23 +24,78 @@ void decode(byte_t* buff, byte_t* d, size_t size);
 
 rc_t Marshalling_enc_SubMsg(byte_t* buff, uint8_t type, uint8_t value)
 {
-    uint8_t write = (type | (value << 4));
-    encode(buff, &write, sizeof(uint8_t));
+    uint8_t subMsgFirstByte = (type | (value << 4));
+    encode(buff, &subMsgFirstByte, sizeof(uint8_t));
+    return SDDS_RT_OK;
+}
+
+rc_t Marshalling_enc_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size)
+{
+    size = size; // maybe needed sometime for submessages of undefined length
+    uint8_t subMsgFirstByte = (SDDS_SNPS_SUBMSG_EXTENDED | ((0x0f & type) << 4));
+    //SDDS_SNPS_EXTSUBMSG_SEQNRSMALL
+    encode(buff, &subMsgFirstByte, sizeof(uint8_t));
+    buff++;
+
+    switch (type){
+    case SDDS_SNPS_EXTSUBMSG_SEQNRSMALL:
+        encode(buff, value, sizeof(uint8_t));
+        break;
+    case SDDS_SNPS_EXTSUBMSG_SEQNRBIG:
+        encode(buff, value, sizeof(uint16_t));
+        break;
+    case SDDS_SNPS_EXTSUBMSG_SEQNRHUGE:
+        encode(buff, value, sizeof(uint32_t));
+        break;
+    default: // should never happen
+        return SDDS_RT_FAIL;
+    }
+
     return SDDS_RT_OK;
 }
 
 rc_t Marshalling_dec_SubMsg(byte_t* buff, uint8_t type, uint8_t* value)
 {
-    uint8_t read;
+    uint8_t subMsgFirstByte;
 
-    decode(buff, &read, sizeof(uint8_t));
-    if (( read & 0x0f) != type){
+    decode(buff, &subMsgFirstByte, sizeof(uint8_t));
+    if (( subMsgFirstByte & 0x0f) != type){
 	   return SDDS_RT_FAIL;
     }
-    *value = (read >> 4) & 0x0f;
+    *value = (subMsgFirstByte >> 4) & 0x0f;
 
     return SDDS_RT_OK;
 }
+
+rc_t Marshalling_dec_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size)
+{
+    size = size; // maybe needed sometime for submessages of undefined length
+    uint8_t subMsgFirstByte;
+
+    decode(buff, &subMsgFirstByte, sizeof(uint8_t));
+    if (( subMsgFirstByte & 0xf0 == (type<<4) )){
+	    return SDDS_RT_FAIL;
+    }
+    buff++;
+
+    switch (type){
+    case SDDS_SNPS_EXTSUBMSG_SEQNRSMALL:
+        decode(buff, value, sizeof(uint8_t));
+        break;
+    case SDDS_SNPS_EXTSUBMSG_SEQNRBIG:
+        decode(buff, value, sizeof(uint16_t));
+        break;
+    case SDDS_SNPS_EXTSUBMSG_SEQNRHUGE:
+        decode(buff, value, sizeof(uint32_t));
+        break;
+    // TODO implement other extended submsgs
+    default:
+        return SDDS_RT_FAIL;
+    }
+
+    return SDDS_RT_OK;
+}
+
 rc_t Marshalling_enc_bool(byte_t* buff, bool_t* d)
 {
     encode(buff, (byte_t*)d, sizeof(bool_t));
