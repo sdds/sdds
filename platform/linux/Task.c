@@ -122,7 +122,6 @@ ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec,
 	return SDDS_SSW_RT_OK;
 }
 ssw_rc_t Task_stop(Task _this) {
-
 	if (_this == NULL || _this->timer == 0) {
 		return SDDS_SSW_RT_FAIL;
 	}
