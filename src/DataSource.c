@@ -66,9 +66,6 @@ NetBuffRef_t * findFreeFrame(Locator_t* dest);
 rc_t checkSending(NetBuffRef_t *buf);
 void checkSendingWrapper(void *buf);
 
-rc_t BuiltinTopicDomainParticipant_encode(byte_t* buff, Data data, size_t* size);
-rc_t BuiltinTopicDataWriter_encode(byte_t* buff, Data data, size_t* size);
-
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) {
 	int i;
@@ -147,9 +144,9 @@ rc_t DataSource_init(void) {
 #if SDDS_MAX_DATA_WRITERS > 0
 DataWriter_t * DataSource_create_datawriter(Topic_t *topic, Qos qos,
 		Listener list, StatusMask mask) {
-	qos = qos;
-	list = list;
-	mask = mask;
+	(void) qos;
+	(void) list;
+	(void) mask;
 
 	DataWriter_t *dw = NULL;
 
@@ -258,7 +255,7 @@ rc_t checkSending(NetBuffRef_t *buf) {
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 
-	waste = waste;
+	(void) waste;
 	NetBuffRef_t *buffRef = NULL;
 	Topic_t *topic = _this->topic;
 	domainid_t domain = topic->domain;
@@ -343,79 +340,3 @@ rc_t DataSource_writeAddress(DataWriter_t *_this, castType_t castType, addrType_
 	return SDDS_RT_OK;
 }
 #endif
-
-/*
- // impl for BuiltinTopic
- rc_t BuiltinTopic_publishAll(void)
- {
-
- // get new buffer
- NetBuffRef_t *buf = NULL;
-
- buf = findFreeFrame(builtinTopicNetAddress);
- if (buf == NULL){
- return SDDS_RT_FAIL;
- }
- // write domain
- if (buf->curDomain != SDDS_DOMAIN_DEFAULT){
- SNPS_writeDomain(buf, SDDS_DOMAIN_DEFAULT);
- buf->curDomain = SDDS_DOMAIN_DEFAULT;
- }
-
- // write dps
- BuiltinTopic_writeDomainParticipant2Buf(buf);
- // write topics
- BuiltinTopic_writeTopics2Buf(buf);
- // write datawriter
- BuiltinTopic_writeDataWriters2Buf(buf);
- // write datareader
- BuiltinTopic_writeDataReaders2Buf(buf);
- // send buffer
- return checkSending(buf);
-
- }
-
- rc_t BuiltinTopic_writeDomainParticipant2Buf(NetBuffRef_t *buf)
- {
- SNPS_writeTopic(buf, SDDS_BUILTINTOPIC_PARTICIPANT_TOPIC_ID);
-
- // for each? not yet TODO
- SNPS_writeData(buf, BuiltinTopicDomainParticipant_encode, NULL);
-
- return SDDS_RT_OK;
- }
-
- rc_t BuiltinTopicDomainParticipant_encode(byte_t* buff, Data data, size_t* size)
- {
- // no content, just a '' here  i am''
- *size = 0;
-
- return SDDS_RT_OK;
- }
-
- rc_t BuiltinTopic_writeDataWriters2Buf(NetBuffRef_t *buf)
- {
- // write topic id
- SNPS_writeTopic(buf, SDDS_BUILTINTOPIC_PUBLICATION_TOPIC_ID);
- // datasample for earch datawriter
- for (uint8_t i = 0;
- i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
- i++)
- {
- SNPS_writeData(buf, BuiltinTopicDataWriter_encode, (Data) &(dataSource->writers[i]));
- }
- return SDDS_RT_OK;
- }
-
- rc_t BuiltinTopicDataWriter_encode(byte_t* buff, Data data, size_t* size)
- {
- DataWriter_t *dw = (DataWriter) data;
- *size = 0;
- Marshalling_enc_uint8(buff+(*size), &(dw->topic->domain));
- *size += sizeof(domainid_t);
- Marshalling_enc_uint8(buff+(*size), &(dw->topic->id));
- *size += sizeof(topicid_t);
-
- return SDDS_RT_OK;
- }
- */
