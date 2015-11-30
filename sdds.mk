@@ -40,11 +40,10 @@ SDDS_OBJS := $(SDDS_SRC_OBJS) $(SDDS_PLATFORM_OBJS) #$(SDDS_DRIVER_OBJS)
 SDDS_OBJS_DEPEND := $(patsubst %.o, %.d, $(SDDS_OBJS))
 
 ifeq ($(SDDS_PLATFORM),linux)
-CFLAGS += -std=c99
 # required for some socket API
 CFLAGS += -D_DEFAULT_SOURCE
 
-CFLAGS += -pthread
+CFLAGS += -std=c99 -pthread
 LDLIBS += -lpthread
 endif
 

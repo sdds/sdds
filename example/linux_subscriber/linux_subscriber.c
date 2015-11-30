@@ -1,12 +1,15 @@
+#include <unistd.h>
 #include "linux_subscriber_sdds_impl.h"
 
 int main()
 {
 	DDS_ReturnCode_t ret;
 
-	sDDS_init();
+	if (sDDS_init() == SDDS_RT_FAIL) {
+		return 1;
+	}
 	Log_setLvl(0);
- 
+
     Ipc ipc_sub;
     Ipc *ipc_sub_p = &ipc_sub;
 

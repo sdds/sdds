@@ -39,8 +39,11 @@ $(LOCAL_CONSTANTS):
 	touch $(LOCAL_CONSTANTS)
 
 CFLAGS += -I.
-CFLAGS += -O0 -ggdb3
-LDLIBS += -lpthread
+CFLAGS += -O0 -ggdb3 -Werror
+# required for timer_t (POSIX.1b (real-time extensions))
+# and getline
+CFLAGS += -D_POSIX_C_SOURCE=200809L
+LDLIBS += -lrt
 
 $(SDDS_OBJDIR)/%.o: %.c
 	echo $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)

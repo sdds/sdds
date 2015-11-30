@@ -79,6 +79,8 @@ typedef double                  float64_t;
 #include <inttypes.h>
 #include <string.h>
 #include <assert.h>
+#include <signal.h>
+#include <time.h>
 
 /*#ifndef __int8_t_defined*/
 /*#define __int8_t_defined*/
