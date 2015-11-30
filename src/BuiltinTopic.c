@@ -174,7 +174,7 @@ rc_t BuiltinTopic_init(void)
 	}
 #endif
 
-#ifndef _MULTICAST
+#ifndef FEATURE_SDDS_MULTICAST_ENABLED
 	// TO DO
 #endif
 
