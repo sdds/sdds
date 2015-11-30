@@ -154,7 +154,7 @@ rc_t BuiltinTopic_init(void)
 	return ret;
 	Locator_downRef(l);
 
-#ifdef _MULTICAST
+#ifdef FEATURE_SDDS_MULTICAST
 	uint8_t addrLen;
 	ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_MULTICAST_ADDRESS, generalByteAddr, &addrLen);
 	if (ret != SDDS_RT_OK) {
@@ -223,7 +223,7 @@ DDS_ReturnCode_t DDS_DCPSParticipantDataWriter_write(
 		addrType = SDDS_SNPS_ADDR_IPV4;
 #endif
 
-#ifdef _MULTICAST
+#ifdef FEATURE_SDDS_MULTICAST
 		castType = SDDS_SNPS_CAST_MULTICAST;
 		addr = subPubByteAddr;
 		addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
@@ -577,7 +577,7 @@ DDS_ReturnCode_t DDS_DCPSSubscriptionDataWriter_write(
 		addrType = SDDS_SNPS_ADDR_IPV4;
 #endif
 
-#ifdef _MULTICAST
+#ifdef FEATURE_SDDS_MULTICAST
 		castType = SDDS_SNPS_CAST_MULTICAST;
 		addr = generalByteAddr;
 		addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;

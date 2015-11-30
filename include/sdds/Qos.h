@@ -33,12 +33,6 @@
 #define SDDS_QOS_DW_LATBUD 0
 #endif
 
-
-#define SDDS_SOURCEQOS_SM_TSSIMPLE 0x01
-#define SDDS_SOURCEQOS_SM_SEQNESIMPLE 0x02
-#define SDDS_SOURCEQOS_SM_ACK 0x04
-#define SDDS_SOURCEQOS_SM_NACK 0x08
-
 struct SourceQos_t{
 #if SDDS_QOS_DW_LATBUD < 65536
     msecu16_t latBudDuration;
@@ -48,4 +42,6 @@ struct SourceQos_t{
     uint8_t subMsgNeeded;
 };
 typedef struct SourceQos_t* SourceQos;
+
+
 #endif   /* ----- #ifndef QOS_INC  ----- */
