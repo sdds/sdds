@@ -31,7 +31,7 @@ rc_t Marshalling_enc_SubMsg(byte_t* buff, uint8_t type, uint8_t value)
 
 rc_t Marshalling_enc_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size)
 {
-    size = size; // maybe needed sometime for submessages of undefined length
+    (void) size; // maybe needed sometime for submessages of undefined length
     uint8_t subMsgFirstByte = (SDDS_SNPS_SUBMSG_EXTENDED | ((0x0f & type) << 4));
     //SDDS_SNPS_EXTSUBMSG_SEQNRSMALL
     encode(buff, &subMsgFirstByte, sizeof(uint8_t));
@@ -69,7 +69,7 @@ rc_t Marshalling_dec_SubMsg(byte_t* buff, uint8_t type, uint8_t* value)
 
 rc_t Marshalling_dec_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size)
 {
-    size = size; // maybe needed sometime for submessages of undefined length
+    (void) size; // maybe needed sometime for submessages of undefined length
     uint8_t subMsgFirstByte;
 
     decode(buff, &subMsgFirstByte, sizeof(uint8_t));
