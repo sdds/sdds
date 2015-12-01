@@ -1,6 +1,7 @@
 #include "messung1_linux_sdds_impl.h"
 #include "alpha-ds.h"
 #include "Log.h"
+#include <unistd.h>
 
 int main() {
 	sDDS_init();

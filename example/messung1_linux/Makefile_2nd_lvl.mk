@@ -39,7 +39,7 @@ $(LOCAL_CONSTANTS):
 	touch $(LOCAL_CONSTANTS)
 
 CFLAGS += -I.
-CFLAGS += -O0 -ggdb3
+CFLAGS += -O0 -ggdb3 -Werror
 LDLIBS += -lpthread
 
 $(SDDS_OBJDIR)/%.o: %.c
