@@ -17,6 +17,7 @@
  */
 
 #include "DataSink.h"
+#include "Qos.h"
 
 struct _DataSink_t {
 	DataReader_t readers[SDDS_DATA_READER_MAX_OBJS];
@@ -98,12 +99,15 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 
 		NetBuffRef_renew(buff);
 		Log_error("invalid SNPS headder\n");
-		return SDDS_RT_FAIL;	
+		return SDDS_RT_FAIL;
 	}
 
 	// should be NULL!
 	msg = NULL;
 	topicid_t topic;
+#if defined SDDS_QOS_RELIABILITY
+    seqNr_t seq;
+#endif
 
 	while (buff->subMsgCount > 0) {
 		// get sum msg id
@@ -164,6 +168,25 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 			break;
         case (SDDS_SNPS_T_TSSIMPLE) :
         case (SDDS_SNPS_T_STATUS) :
+#if defined SDDS_QOS_RELIABILITY
+        case (SDDS_SNPS_T_SEQNR) :
+            SNPS_readSeqNr(buff, &seq);
+            printf("seqNr normal: %d\n", seq);
+            break;
+        case (SDDS_SNPS_T_SEQNRSMALL) :
+            SNPS_readSeqNrSmall(buff, &seq);
+            printf("seqNr Small: %d\n", seq);
+            break;
+        case (SDDS_SNPS_T_SEQNRBIG) :
+            SNPS_readSeqNrBig(buff, &seq);
+            printf("seqNr Big: %d\n", seq);
+            break;
+        case (SDDS_SNPS_T_SEQNRHUGE) :
+            SNPS_readSeqNrHUGE(buff, &seq);
+            printf("seqNr Huge: %d\n", seq);
+            break;
+#endif
+
 		default:
 			// go to next submsg
 			// unknown content

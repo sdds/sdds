@@ -48,5 +48,7 @@ rc_t Marshalling_dec_string(byte_t* buff, uint8_t* d, int size);
 
 
 rc_t Marshalling_enc_SubMsg(byte_t* buff, uint8_t type, uint8_t value);
+rc_t Marshalling_enc_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size);
+rc_t Marshalling_dec_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size);
 rc_t Marshalling_dec_SubMsg(byte_t* buff, uint8_t type, uint8_t* value);
 #endif   /* ----- #ifndef MARSHALLING_H_INC  ----- */
