@@ -61,13 +61,28 @@ Task Task_create(void) {
  * inits a task with a callback function etc
  */
 ssw_rc_t Task_init(Task _this, void(*callback)(void* obj), void* data) {
+	if (_this == NULL || _this->cb == NULL) {
+		return SDDS_SSW_RT_FAIL;
+	}
 	_this->cb = callback;
 	_this->data = data;
 
 	return SDDS_SSW_RT_OK;
 }
 
+ssw_rc_t Task_setData(Task _this,  void* data) {
+	if (_this == NULL) {
+		return SDDS_SSW_RT_FAIL;
+	}
+	_this->data = data;
+
+	return SDDS_SSW_RT_OK;
+}
+
 ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode) {
+	if (_this == NULL || _this->cb == NULL) {
+		return SDDS_SSW_RT_FAIL;
+	}
 	_this->usec_interval = usec;
 	_this->sec_interval = sec * CLOCK_SECOND;
 	_this->mode = mode;
@@ -78,12 +93,18 @@ ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mo
 }
 
 ssw_rc_t Task_stop(Task _this) {
+	if (_this == NULL) {
+		return SDDS_SSW_RT_FAIL;
+	}
 	etimer_stop(&(_this->timer));
 
 	return SDDS_SSW_RT_OK;
 }
 
 ssw_rc_t Task_delete(Task _this) {
+	if (_this == NULL) {
+		return SDDS_SSW_RT_FAIL;
+	}
 	Task it = Task_list;
 
 	if (it == NULL) {

@@ -36,6 +36,8 @@ struct TimeStampSimple_struct{
 };
 typedef struct TimeStampSimple_struct TimeStampSimple_t;
 
+rc_t TimeMng_init();
+
 rc_t Time_getTime16(time16_t* time);
 rc_t Time_remainMSec16(time16_t* refTime, msec16_t* remainingMSec);
 

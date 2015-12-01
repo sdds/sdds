@@ -3,8 +3,8 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "usb0"
-    ip = "fe80::12:13ff:fe14:1516"
+    iface = "eth0"
+    ip = "fe80::219:99ff:fede"
     port = "23234"
     >
     Linux multicast discovery example with beta topic.

@@ -1,17 +1,17 @@
 <domain id = "1">
-    <topic name = "alpha" domain = "1" id = "10">
+    <topic name = "alpha" domain = "1" id = "A">
         Alpha messung topic.
         <attribute name = "value" type = "DDS_char">Any char value</attribute>
     </topic>
-    <topic name = "beta" domain = "0" id = "11">
+    <topic name = "beta" domain = "1" id = "B">
         Beta messung topic.
         <attribute name = "value" type = "DDS_char">Any char value</attribute>
     </topic>
-    <topic name = "gamma" domain = "0" id = "12">
+    <topic name = "gamma" domain = "1" id = "C">
         Gamma messung topic.
         <attribute name = "value" type = "DDS_char">Any char value</attribute>
     </topic>
-    <topic name = "delta" domain = "0" id = "13">
+    <topic name = "delta" domain = "1" id = "D">
         Delta messung topic.
         <attribute name = "value" type = "DDS_char">Any char value</attribute>
     </topic>

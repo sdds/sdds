@@ -114,6 +114,9 @@ rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 #endif
 
 rc_t DataSource_init(void) {
+	if (TimeMng_init() != SDDS_RT_OK) {
+		return SDDS_RT_FAIL;
+	}
 	sendTask = Task_create();
 	ssw_rc_t ret = Task_init(sendTask, checkSendingWrapper, NULL);
 	if (ret == SDDS_SSW_RT_FAIL) {
@@ -160,8 +163,9 @@ DataWriter_t * DataSource_create_datawriter(Topic_t *topic, Qos qos,
 	dw->id = (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
 	dataSource->remaining_datawriter--;
 
+#ifdef SDDS_QOS_LATENCYBUDGET
 	dw->qos.latBudDuration = SDDS_QOS_DW_LATBUD;
-
+#endif
 	return dw;
 }
 #endif // SDDS_MAX_DATA_WRITERS
@@ -207,6 +211,7 @@ void checkSendingWrapper(void *buf) {
 }
 
 rc_t checkSending(NetBuffRef_t *buf) {
+#ifdef SDDS_QOS_LATENCYBUDGET
 #if SDDS_QOS_DW_LATBUD < 65536
 	time16_t time;
 	Time_getTime16(&time);
@@ -218,7 +223,7 @@ rc_t checkSending(NetBuffRef_t *buf) {
 	if (buf->sendDeadline <= time) {
 
 		Task_stop(sendTask);
-
+#endif
 		// update header
 		SNPS_updateHeader(buf);
 
@@ -236,6 +241,7 @@ rc_t checkSending(NetBuffRef_t *buf) {
 		}
 
 		return SDDS_RT_OK;
+#ifdef SDDS_QOS_LATENCYBUDGET
 	} else {
 		Task_stop(sendTask);
 		Task_setData(sendTask, (void*) buf);
@@ -250,6 +256,7 @@ rc_t checkSending(NetBuffRef_t *buf) {
 #endif
 		return SDDS_RT_FAIL;
 	}
+#endif
 }
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
@@ -260,6 +267,8 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 	Topic_t *topic = _this->topic;
 	domainid_t domain = topic->domain;
 	Locator_t* dest = topic->dsinks.list;
+
+#ifdef SDDS_QOS_LATENCYBUDGET
 #if SDDS_QOS_DW_LATBUD < 65536
 	msecu16_t latBudDuration = _this->qos.latBudDuration;
 	time16_t deadline;
@@ -276,10 +285,10 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 
 	// to do exact calculation
 	deadline += (latBudDuration - SDDS_QOS_LATBUD_COMM - SDDS_QOS_LATBUD_READ);
-
+#endif
 	buffRef = findFreeFrame(dest);
 	buffRef->addr = dest;
-
+#ifdef SDDS_QOS_LATENCYBUDGET
 	//  If new deadline is earlier
 	if ((buffRef->sendDeadline == 0)) {
 		buffRef->sendDeadline = deadline;
@@ -287,6 +296,7 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 
 #ifdef UTILS_DEBUG
 	Log_debug("sendDeadline: %d\n", buffRef->sendDeadline);
+#endif
 #endif
 
 	if (buffRef->curDomain != domain) {
@@ -303,6 +313,32 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 		// something went wrong oO
 		return SDDS_RT_FAIL;
 	}
+
+#ifdef SDDS_QOS_RELIABILITY
+    #if SDDS_QOS_RELIABILITY_KIND == KIND_BESTEFFORT
+        #if SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_NORMAL
+	    if (SNPS_writeSeqNr(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
+            return SDDS_RT_FAIL;
+        }
+        #elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+	    if (SNPS_writeSeqNrSmall(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
+            return SDDS_RT_FAIL;
+        }
+        #elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+	    if (SNPS_writeSeqNrBig(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
+            return SDDS_RT_FAIL;
+        }
+        #elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+	    if (SNPS_writeSeqNrHUGE(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
+            return SDDS_RT_FAIL;
+        }
+        #endif
+    _this->qos.seqNr++;
+
+    #else
+        //TODO
+    #endif
+#endif
 
 	Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 	// return 0;
