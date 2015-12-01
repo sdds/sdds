@@ -1,5 +1,5 @@
 <domain id = "1">
-    <topic name = "alpha" domain = "1" id = "10">
+    <topic name = "alpha" domain = "1" id = "A">
         Alpha testing topic.
         <attribute name = "value" type = "DDS_char">Any char value</attribute>
     </topic>
