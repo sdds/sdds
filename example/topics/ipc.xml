@@ -1,5 +1,5 @@
 <domain id = "1">
-    <topic name = "ipc" domain = "1" id = "88">
+    <topic name = "ipc" domain = "1" id = "5">
         IPC test topic.
         <attribute name = "value" type = "DDS_unsigned_short">Any short value</attribute>
     </topic>
