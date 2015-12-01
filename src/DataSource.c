@@ -114,6 +114,9 @@ rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 #endif
 
 rc_t DataSource_init(void) {
+	if (TimeMng_init() != SDDS_RT_OK) {
+		return SDDS_RT_FAIL;
+	}
 	sendTask = Task_create();
 	ssw_rc_t ret = Task_init(sendTask, checkSendingWrapper, NULL);
 	if (ret == SDDS_SSW_RT_FAIL) {

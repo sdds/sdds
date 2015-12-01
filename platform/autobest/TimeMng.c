@@ -5,6 +5,10 @@
 
 #define TIME_MNG_DIV_SIFT_TO_SEC 20
 
+rc_t TimeMng_init() {
+	return SDDS_RT_OK;
+}
+
 rc_t Time_getTime32(time32_t* time) {
 	time_t systemTime = sys_gettime();
 
