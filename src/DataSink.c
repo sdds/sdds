@@ -208,8 +208,8 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
 DataReader_t *
 DataSink_create_datareader (Topic_t *topic, Qos qos, Listener listener, StatusMask sm)
 {
-	qos = qos;
-	sm = sm;
+	(void) qos;
+	(void) sm;
 
     uint8_t index;
     for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
