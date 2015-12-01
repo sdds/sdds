@@ -163,8 +163,9 @@ DataWriter_t * DataSource_create_datawriter(Topic_t *topic, Qos qos,
 	dw->id = (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
 	dataSource->remaining_datawriter--;
 
+#ifdef SDDS_QOS_LATENCYBUDGET
 	dw->qos.latBudDuration = SDDS_QOS_DW_LATBUD;
-
+#endif
 	return dw;
 }
 #endif // SDDS_MAX_DATA_WRITERS
@@ -210,6 +211,7 @@ void checkSendingWrapper(void *buf) {
 }
 
 rc_t checkSending(NetBuffRef_t *buf) {
+#ifdef SDDS_QOS_LATENCYBUDGET
 #if SDDS_QOS_DW_LATBUD < 65536
 	time16_t time;
 	Time_getTime16(&time);
@@ -221,7 +223,7 @@ rc_t checkSending(NetBuffRef_t *buf) {
 	if (buf->sendDeadline <= time) {
 
 		Task_stop(sendTask);
-
+#endif
 		// update header
 		SNPS_updateHeader(buf);
 
@@ -239,6 +241,7 @@ rc_t checkSending(NetBuffRef_t *buf) {
 		}
 
 		return SDDS_RT_OK;
+#ifdef SDDS_QOS_LATENCYBUDGET
 	} else {
 		Task_stop(sendTask);
 		Task_setData(sendTask, (void*) buf);
@@ -253,6 +256,7 @@ rc_t checkSending(NetBuffRef_t *buf) {
 #endif
 		return SDDS_RT_FAIL;
 	}
+#endif
 }
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
@@ -263,6 +267,8 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 	Topic_t *topic = _this->topic;
 	domainid_t domain = topic->domain;
 	Locator_t* dest = topic->dsinks.list;
+
+#ifdef SDDS_QOS_LATENCYBUDGET
 #if SDDS_QOS_DW_LATBUD < 65536
 	msecu16_t latBudDuration = _this->qos.latBudDuration;
 	time16_t deadline;
@@ -279,10 +285,10 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 
 	// to do exact calculation
 	deadline += (latBudDuration - SDDS_QOS_LATBUD_COMM - SDDS_QOS_LATBUD_READ);
-
+#endif
 	buffRef = findFreeFrame(dest);
 	buffRef->addr = dest;
-
+#ifdef SDDS_QOS_LATENCYBUDGET
 	//  If new deadline is earlier
 	if ((buffRef->sendDeadline == 0)) {
 		buffRef->sendDeadline = deadline;
@@ -290,6 +296,7 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 
 #ifdef UTILS_DEBUG
 	Log_debug("sendDeadline: %d\n", buffRef->sendDeadline);
+#endif
 #endif
 
 	if (buffRef->curDomain != domain) {

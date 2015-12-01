@@ -21,16 +21,18 @@
 #include "sdds_types.h"
 #include "os-ssal/TimeMng.h"
 
-#ifndef SDDS_QOS_LATBUD_COMM
-#define SDDS_QOS_LATBUD_COMM 0
-#endif
+#ifdef SDDS_QOS_LATENCYBUDGET
+	#ifndef SDDS_QOS_LATBUD_COMM
+	#define SDDS_QOS_LATBUD_COMM 0
+	#endif
 
-#ifndef SDDS_QOS_LATBUD_READ
-#define SDDS_QOS_LATBUD_READ 0
-#endif
+	#ifndef SDDS_QOS_LATBUD_READ
+	#define SDDS_QOS_LATBUD_READ 0
+	#endif
 
-#ifndef SDDS_QOS_DW_LATBUD
-#define SDDS_QOS_DW_LATBUD 0
+	#ifndef SDDS_QOS_DW_LATBUD
+	#define SDDS_QOS_DW_LATBUD 0
+	#endif
 #endif
 
 #if defined SDDS_QOS_RELIABILITY
@@ -55,10 +57,12 @@
 #endif
 
 struct SourceQos_t{
+#ifdef SDDS_QOS_LATENCYBUDGET
 #if SDDS_QOS_DW_LATBUD < 65536
     msecu16_t latBudDuration;
 #else
     msecu32_t latBudDuration;
+#endif
 #endif
 
 #if defined SDDS_QOS_RELIABILITY
