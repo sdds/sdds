@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
+#include "Log.h"
 
 struct Task_struct {
 
@@ -23,6 +25,7 @@ struct Task_struct {
 	void* data;
 	SDDS_usec_t interval;
 	SSW_TaskMode_t mode;
+	bool active;
 };
 
 /**
@@ -42,6 +45,7 @@ void Task_callback(union sigval v) {
 	Task t = (Task) v.sival_ptr;
 
 	t->cb(t->data);
+	t->active = false;
 }
 
 static void /* Thread notification function */
@@ -83,6 +87,8 @@ ssw_rc_t Task_init(Task _this, void (*callback)(void* obj), void* data) {
 	// arg for the callback is the task structure
 	_this->evp.sigev_value.sival_ptr = &(_this->timer);
 
+	_this->active = false;
+
 	rc = timer_create(CLOCK_REALTIME, &(_this->evp), &(_this->timer));
 	if (rc != 0) {
 		return SDDS_SSW_RT_FAIL;
@@ -91,34 +97,37 @@ ssw_rc_t Task_init(Task _this, void (*callback)(void* obj), void* data) {
 	return SDDS_SSW_RT_OK;
 }
 
-ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec,
+ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_msec_t msec,
 		SSW_TaskMode_t mode) {
 	if (_this == NULL || _this->cb == NULL) {
 		return SDDS_SSW_RT_FAIL;
 	}
 
-	struct timespec intv;
-	struct timespec value;
+	if (!_this->active) {
+		struct timespec intv;
+		struct timespec value;
 
-	value.tv_nsec = usec * 1000;
-	value.tv_sec = sec;
+		value.tv_nsec = msec * 1000000;
+		value.tv_sec = sec;
 
-	if (mode == SDDS_SSW_TaskMode_single) {
-		intv.tv_nsec = 0;
-		intv.tv_sec = 0;
-	} else if (mode == SDDS_SSW_TaskMode_repeat) {
-		intv.tv_nsec = usec * 1000;
-		intv.tv_sec = sec;
-	} else {
-		return SDDS_SSW_RT_FAIL;
+		if (mode == SDDS_SSW_TaskMode_single) {
+			intv.tv_nsec = 0;
+			intv.tv_sec = 0;
+		} else if (mode == SDDS_SSW_TaskMode_repeat) {
+			intv.tv_nsec = msec * 1000000;
+			intv.tv_sec = sec;
+		} else {
+			return SDDS_SSW_RT_FAIL;
+		}
+		struct itimerspec timer = { intv, value };
+
+		int rc = timer_settime(_this->timer, 0, &timer, NULL);
+		if (rc != 0) {
+			Log_debug("errno: %s\n", strerror(errno));
+			return SDDS_SSW_RT_FAIL;
+		}
+		_this->active = true;
 	}
-	struct itimerspec timer = { intv, value };
-
-	int rc = timer_settime(_this->timer, 0, &timer, NULL);
-	if (rc != 0) {
-		return SDDS_SSW_RT_FAIL;
-	}
-
 	return SDDS_SSW_RT_OK;
 }
 ssw_rc_t Task_stop(Task _this) {
@@ -133,7 +142,7 @@ ssw_rc_t Task_stop(Task _this) {
 	if (rc != 0) {
 		return SDDS_SSW_RT_FAIL;
 	}
-
+	_this->active = false;
 	return SDDS_SSW_RT_OK;
 }
 
