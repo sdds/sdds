@@ -24,6 +24,7 @@
 #include "NetBuffRef.h"
 #include "Network.h"
 #include "Marshalling.h"
+#include "os-ssal/Task.h"
 
 #ifndef SDDS_PLATFORM_autobest
 #include <stdlib.h>
@@ -95,18 +96,18 @@ rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 
 	for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
 			i++) {
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+	#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 		if (!BuildinTopic_isBuiltinTopic(dataSource->writers[i].topic->id,
 						dataSource->writers[i].topic->domain)) {
-#endif
+	#endif
 			pt[*len].key = dataSource->writers[i].id;
 			pt[*len].participant_key = BuiltinTopic_participantID;
 			pt[*len].topic_id = dataSource->writers[i].topic->id;
 
 			(*len)++;
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+	#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 		}
-#endif
+	#endif
 	}
 
 	return SDDS_RT_OK;
@@ -163,9 +164,9 @@ DataWriter_t * DataSource_create_datawriter(Topic_t *topic, Qos qos,
 	dw->id = (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
 	dataSource->remaining_datawriter--;
 
-#ifdef SDDS_QOS_LATENCYBUDGET
+	#ifdef SDDS_QOS_LATENCYBUDGET
 	dw->qos.latBudDuration = SDDS_QOS_DW_LATBUD;
-#endif
+	#endif
 	return dw;
 }
 #endif // SDDS_MAX_DATA_WRITERS
@@ -207,22 +208,31 @@ NetBuffRef_t *findFreeFrame(Locator_t* dest) {
 }
 
 void checkSendingWrapper(void *buf) {
+	Log_debug("callback\n");
 	checkSending((NetBuffRef_t*) buf);
 }
 
 rc_t checkSending(NetBuffRef_t *buf) {
 #ifdef SDDS_QOS_LATENCYBUDGET
-#if SDDS_QOS_DW_LATBUD < 65536
+	#if SDDS_QOS_DW_LATBUD < 65536
 	time16_t time;
 	Time_getTime16(&time);
-#else
+	#else
 	time32_t time;
 	Time_getTime32(&time);
-#endif
+	#endif
 
-	if (buf->sendDeadline <= time) {
-
+	if ((buf->sendDeadline <= time) || (SDDS_NET_MAX_BUF_SIZE <= buf->curPos)) {
 		Task_stop(sendTask);
+		if (buf->sendDeadline >= time) {
+			Log_debug("OK: deadline: %d >= time: %d\n", buf->sendDeadline, time);
+		}
+		else if ((buf->sendDeadline < time) && (buf->addr == NULL)) {
+			Log_debug("OK: deadline: %d < time: %d --> No dst address\n", buf->sendDeadline, time);
+		}
+		else {
+			Log_debug("ERROR: deadline: %d < time: %d\n", buf->sendDeadline, time);
+		}
 #endif
 		// update header
 		SNPS_updateHeader(buf);
@@ -232,29 +242,42 @@ rc_t checkSending(NetBuffRef_t *buf) {
 			if (Network_send(buf) != SDDS_RT_OK) {
 				return SDDS_RT_FAIL;
 			}
-
 			// is frame is send free the buffer
 			NetBuffRef_renew(buf);
-		} else if (SDDS_NET_MAX_BUF_SIZE <= buf->curPos) {
-			Log_debug("NetBuff overrun\n");
-			NetBuffRef_renew(buf);
+		}
+		else {
+			buf->sendDeadline = 0;
 		}
 
 		return SDDS_RT_OK;
+	}
 #ifdef SDDS_QOS_LATENCYBUDGET
-	} else {
+	else {
 		Task_stop(sendTask);
 		Task_setData(sendTask, (void*) buf);
-		if (Task_start(sendTask, 0, (buf->sendDeadline - time),
-		SDDS_SSW_TaskMode_single) != SDDS_RT_OK) {
+#if SDDS_QOS_DW_LATBUD < 65536
+		msecu16_t taskTime;
+		uint16_t taskSec;
+		msecu16_t taskMSec;
+#else
+		msecu32_t taskTime;
+		uint32_t taskSec;
+		msecu32_t taskMSec;
+#endif
+		taskTime = (buf->sendDeadline - time);
+		taskSec = taskTime / 1000;
+		taskMSec = taskTime % 1000;
+		ssw_rc_t ret = Task_start(sendTask, taskSec, taskMSec, SDDS_SSW_TaskMode_single);
+		if (ret != SDDS_RT_OK) {
 			Log_error("Task_start failed\n");
+			return SDDS_RT_FAIL;
 		}
 
 #ifdef UTILS_DEBUG
 		Log_debug("Test startet, timer: %d\n", (buf->sendDeadline - time));
 		Log_debug("%d > %d\n", buf->sendDeadline, time);
 #endif
-		return SDDS_RT_FAIL;
+		return SDDS_RT_DEFERRED;
 	}
 #endif
 }
@@ -267,21 +290,22 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 	Topic_t *topic = _this->topic;
 	domainid_t domain = topic->domain;
 	Locator_t* dest = topic->dsinks.list;
+	rc_t ret;
 
 #ifdef SDDS_QOS_LATENCYBUDGET
-#if SDDS_QOS_DW_LATBUD < 65536
+	#if SDDS_QOS_DW_LATBUD < 65536
 	msecu16_t latBudDuration = _this->qos.latBudDuration;
 	time16_t deadline;
-	rc_t ret = Time_getTime16(&deadline);
-#else
+	ret = Time_getTime16(&deadline);
+	#else
 	msecu32_t latBudDuration = _this->qos.latBudDuration;
 	time32_t deadline;
 	rc_t ret = Time_getTime32(&deadline);
-#endif
+	#endif
 
-#ifdef UTILS_DEBUG
+	#ifdef UTILS_DEBUG
 	Log_debug("dw ID: %d, latBud: %d time: %d\n", _this->id, _this->qos.latBudDuration, deadline);
-#endif
+	#endif
 
 	// to do exact calculation
 	deadline += (latBudDuration - SDDS_QOS_LATBUD_COMM - SDDS_QOS_LATBUD_READ);
@@ -292,11 +316,8 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 	//  If new deadline is earlier
 	if ((buffRef->sendDeadline == 0)) {
 		buffRef->sendDeadline = deadline;
+		Log_debug("sendDeadline: %d\n", buffRef->sendDeadline);
 	}
-
-#ifdef UTILS_DEBUG
-	Log_debug("sendDeadline: %d\n", buffRef->sendDeadline);
-#endif
 #endif
 
 	if (buffRef->curDomain != domain) {
@@ -343,7 +364,13 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 	Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 	// return 0;
 
-	return checkSending(buffRef);
+	ret = checkSending(buffRef);
+	if (ret == SDDS_RT_FAIL) {
+		return ret;
+	}
+	else {
+		return SDDS_RT_OK;
+	}
 }
 #endif // SDDS_TOPIC_HAS_SUB
 
