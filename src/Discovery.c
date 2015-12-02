@@ -24,6 +24,8 @@ extern "C"
 #include <sdds/sDDS.h>
 #include <sdds/Log.h>
 
+#include <dds/DDS_DCPS.h>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -133,7 +135,7 @@ static void Discovery_sendParticipantTopics(void *data) {
 	p.key = BuiltinTopic_participantID;
 
 	if (DDS_DCPSParticipantDataWriter_write(g_DCPSParticipant_writer, &p,
-	NULL) != DDS_RETCODE_OK) {
+	NULL) == DDS_RETCODE_ERROR) {
 		// handle error
 		Log_error("Send participant topic failed.\n");
 	}
@@ -152,7 +154,7 @@ static void Discovery_sendPublicationTopics(void *data) {
 		for (i = 0; i < len; i++) {
 			if (DDS_DCPSPublicationDataWriter_write(g_DCPSPublication_writer,
 					&pubT[i],
-					NULL) != DDS_RETCODE_OK) {
+					NULL) == DDS_RETCODE_ERROR) {
 				// handle error
 				Log_error("Send publication topic failed.\n");
 			}
@@ -174,7 +176,7 @@ static void Discovery_sendSubscriptionTopics(topicid_t topicID) {
 	if (ret == SDDS_RT_OK) {
 		if (DDS_DCPSSubscriptionDataWriter_write(g_DCPSSubscription_writer,
 				(DDS_DCPSSubscription *) &st_data_used,
-				NULL) != DDS_RETCODE_OK) {
+				NULL) == DDS_RETCODE_ERROR) {
 			// handle error
 			Log_error("Send subscription topic failed.\n");
 		}
