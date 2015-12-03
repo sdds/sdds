@@ -22,16 +22,14 @@
 struct _DataSink_t {
 	DataReader_t readers[SDDS_DATA_READER_MAX_OBJS];
     uint64_t allocated_readers;
+    SNPS_Address_t addr;
 };
 static DataSink_t _dataSink;
 static DataSink_t *self = &_dataSink;
 
-static Msg_t *msg;
-static SNPS_Address_t addr;
+//  Forward declarations of internal helper functions
 
-rc_t parseData(NetBuffRef_t *buff);
-rc_t submitData(void);
-rc_t checkDomain(NetBuffRef_t *buff, domainid_t domain);
+rc_t checkDomain(NetBuffRef_t *buff);
 rc_t checkTopic(NetBuffRef_t *buff, topicid_t topic);
 rc_t BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size);
 
@@ -67,6 +65,7 @@ DataSink_getTopic (DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic) {
 }
 #endif
 
+
 DataReader_t *
 DataSink_DataReader_by_topic (topicid_t id)
 {
@@ -82,101 +81,82 @@ DataSink_DataReader_by_topic (topicid_t id)
 
 
 rc_t DataSink_getAddr(SNPS_Address_t *address) {
-	address->addrType = addr.addrType;
-	address->addrCast = addr.addrCast;
-	memcpy(address->addr, addr.addr, SDDS_SNPS_ADDR_STR_LENGTH);
+	address->addrType = self->addr.addrType;
+	address->addrCast = self->addr.addrCast;
+	memcpy(address->addr, self->addr.addr, SDDS_SNPS_ADDR_STR_LENGTH);
 	return SDDS_RT_OK;
 }
 
 static void getAddress(NetBuffRef_t *buff) {
-	memset(addr.addr, 0, SDDS_SNPS_ADDR_STR_LENGTH);
-	addr.addrType = 0;
-	addr.addrCast = 0;
-	SNPS_readAddress(buff, &addr.addrCast, &addr.addrType, addr.addr);
+	memset(self->addr.addr, 0, SDDS_SNPS_ADDR_STR_LENGTH);
+	self->addr.addrType = 0;
+	self->addr.addrCast = 0;
+	SNPS_readAddress(buff, &self->addr.addrCast, &self->addr.addrType, self->addr.addr);
 }
 
-rc_t DataSink_processFrame(NetBuffRef_t *buff) {
-    assert (buff);
+//  ---------------------------------------------------------------------------
+//  Processes a SNPS message by reading through all submessages. Will enqueue a
+//  Sample into a DataReader's History. Returns OK if successful, otherwise
+//  FAIL.
 
-	// process the frame
-	// parse the header
+rc_t
+DataSink_processFrame(NetBuffRef_t *buff) {
+    assert (buff);
+	//  Parse the header
 	rc_t ret;
 	ret = SNPS_readHeader(buff);
-
-	if (ret != SDDS_RT_OK) {
-		// done reset the buffer
-
+	if (ret == SDDS_RT_FAIL) {
+		//  Reset the buffer
 		NetBuffRef_renew(buff);
-		Log_error("invalid SNPS headder\n");
-		return SDDS_RT_FAIL;
+		Log_error("Invalid SNPS header\n");
+		return ret;
 	}
-
-	// should be NULL!
-	msg = NULL;
-	topicid_t topic;
 #if defined SDDS_QOS_RELIABILITY
     seqNr_t seq;
 #endif
-
+	topicid_t topic_id;
 	while (buff->subMsgCount > 0) {
-		// get sum msg id
 		subMsg_t type;
-
 		SNPS_evalSubMsg(buff, &type);
-
 		switch (type) {
 		case (SDDS_SNPS_T_DOMAIN):
-			// check data
-			submitData();
-
-			domainid_t domain;
-
-			SNPS_readDomain(buff, &domain);
-
-			// check domain
-			checkDomain(buff, domain);
-
+			ret = checkDomain(buff);
+			if (ret == SDDS_RT_FAIL) {
+				Log_error("Invalid domain!\n");
+				return ret;
+			}
 			break;
 		case (SDDS_SNPS_T_TOPIC):
-			// check data
-			submitData();
-
-			ret = SNPS_readTopic(buff, &topic);
-			if(ret != SDDS_RT_OK){
-				Log_error("Can't read Topic \n");
-				return SDDS_RT_FAIL;
+			ret = SNPS_readTopic(buff, &topic_id);
+			if (ret == SDDS_RT_FAIL){
+				Log_error("Can't read Topic\n");
+				return ret;
 			}
-			Log_debug("read topic %d\n", topic);
-			// check topic
-			checkTopic(buff, topic);
-
+			Log_debug("Read topic %d\n", topic_id);
+			checkTopic(buff, topic_id);
 			break;
 		case (SDDS_SNPS_T_DATA):
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-			if (DataSink_getTopic(NULL, topic, NULL) == SDDS_RT_OK) {
-                // check data
-				submitData();
-				/*ret = parseData(buff);*/
-
-				if (ret != SDDS_RT_OK){
-					Log_error("Can't parse data\n");
-					return SDDS_RT_FAIL;
-				}
-                //  Write to new History
-                DataReader_t *dataReader = DataSink_DataReader_by_topic (topic);
-                History_t *history = DataReader_history (dataReader);
+            {
+                DataReader_t *data_reader = DataSink_DataReader_by_topic (topic_id);
+                if (data_reader == NULL) {
+                    Log_error("Couĺdn't get Data Reader for topic id %d: Discard submessage\n", topic_id);
+                    SNPS_discardSubMsg(buff);
+                    return SDDS_RT_FAIL;
+                }
+                History_t *history = DataReader_history (data_reader);
                 ret = sdds_History_enqueue (history, buff);
-			}
-			else {
-                Log_debug ("Discard submessage\n");
-				SNPS_discardSubMsg(buff);
-			}
+                if (ret == SDDS_RT_FAIL){
+                    Log_warn("Can't parse data: Discard submessage\n");
+                    SNPS_discardSubMsg(buff);
+                    return SDDS_RT_FAIL;
+                }
+            }
 #endif
 			break;
 		case (SDDS_SNPS_T_ADDRESS):
-
+            //  Write address into global variable
 			getAddress(buff);
-
 			break;
         case (SDDS_SNPS_T_TSSIMPLE) :
         case (SDDS_SNPS_T_STATUS) :
@@ -198,39 +178,32 @@ rc_t DataSink_processFrame(NetBuffRef_t *buff) {
             printf("seqNr Huge: %d\n", seq);
             break;
 #endif
-
 		default:
-			// go to next submsg
-			// unknown content
-
-            Log_debug ("Discard submessage\n");
+			//  Go to next submessage
+            Log_warn ("Invalid submessage type %d: Discard submessage\n", type);
 			SNPS_discardSubMsg(buff);
-
 			break;
 		}
-
 	}
-	// submit the last decoded msg
-
-	submitData();
-
-	// done reset the buffer
+	// Reset the buffer
 	NetBuffRef_renew(buff);
 
-	// ggf send events to the applications
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+	// Send event notifications
     uint8_t index;
 	for (index = 0;	index < SDDS_DATA_READER_MAX_OBJS; index++) {
-		DataReader_t *dr = &self->readers[index];
-        if (!dr)
+		DataReader_t *data_reader = &self->readers[index];
+        if (!data_reader) {
             continue;
-
-		int tpc = DataReader_topic (dr)->id;
-		if ((topic == tpc) && DataReader_on_data_avail_listener (dr)) {
-            On_Data_Avail_Listener on_data_avail_listener = DataReader_on_data_avail_listener (dr);
-            on_data_avail_listener (dr);
-		}
-	}
+        }
+		int tpc = DataReader_topic (data_reader)->id;
+		if ((topic_id == tpc) && DataReader_on_data_avail_listener (data_reader)) {
+            On_Data_Avail_Listener on_data_avail_listener =
+               DataReader_on_data_avail_listener (data_reader);
+            //  Notify listener
+            on_data_avail_listener (data_reader);
+        }
+    }
 #endif
 	return SDDS_RT_OK;
 }
@@ -266,44 +239,14 @@ DataSink_create_datareader (Topic_t *topic, Qos qos, Listener listener, StatusMa
 #endif
 
 
-rc_t submitData(void) {
-	if (msg != NULL) {
-		// add msg to topic incomming queue
-		// msg->dir = SDDS_MSG_DIR_INCOMMING;
-		// msg->isRead = false;
-		// msg->isNew = true;
-		// TODO
-		// impl of app  callback
-		msg = NULL;
-	}
-	return SDDS_RT_OK;
-}
-
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t parseData(NetBuffRef_t *buff) {
-    assert (buff);
-    assert (buff->curTopic);
-
-	Topic_t *topic = buff->curTopic;
-	//  Get msg from topic
-	if (Topic_getFreeMsg (topic, &msg) != SDDS_RT_OK) {
-		SNPS_discardSubMsg (buff);
-		return SDDS_RT_FAIL;
-	}
-	//  Parse data
-	Data newData;
-	Msg_getData (msg, &newData);
-	return SNPS_readData (buff, topic->Data_decode, newData);
-}
-#endif
-
-rc_t checkDomain(NetBuffRef_t *buff, domainid_t domain) {
+rc_t checkDomain(NetBuffRef_t *buff) {
+    domainid_t domain;
+    SNPS_readDomain(buff, &domain);
 	if (TopicDB_checkDomain(domain) == false) {
 		SNPS_gotoNextSubMsg(buff, SDDS_SNPS_T_DOMAIN);
 	} else {
 		buff->curDomain = domain;
 	}
-
 	return SDDS_RT_OK;
 }
 

@@ -50,7 +50,7 @@ sdds_History_setup (History_t* self, Sample_t* samples, unsigned int depth)
 //  in case of RELIABILITY reliable until samples are taken out.
 
 rc_t
-sdds_History_enqueue (History_t* self, NetBuffRef_t *buff)
+sdds_History_enqueue (History_t* self, NetBuffRef_t* buff)
 {
     assert (self);
     assert (buff);
@@ -60,7 +60,10 @@ sdds_History_enqueue (History_t* self, NetBuffRef_t *buff)
     }
     //  Insert sample into queue
 	Topic_t *topic = buff->curTopic;
-    SNPS_readData (buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+    rc_t ret = SNPS_readData (buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+    if (ret == SDDS_RT_FAIL) {
+        return ret;
+    }
     self->samples[self->in_needle].instance = buff->addr;
     //  Move the input needle to the next free slot. If the input needle is at
     //  the end of the array move it to the beginning.

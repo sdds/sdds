@@ -22,7 +22,6 @@ extern "C" {
 struct _Sample_t {
    void* data;        //  Sample data
    Locator_t *instance;
-   TimeStampSimple_t source_timestamp;
 };
 
 #ifdef __cplusplus

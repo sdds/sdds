@@ -23,31 +23,20 @@ DataReader_take_next_sample (DataReader_t *self, Data* data, DataInfo info)
     assert (self);
     assert (data);
 	(void) info;
-	/*Msg_t *msg = NULL;*/
-
-    //  If there a no data in the history return immediately
-	/*rc_t ret = Topic_getNextMsg (self->topic, &msg);*/
-
 	//  Check if buffer is provided
     if (*data) {
-		//  Copy the data
-		/*Data newData;*/
-		/*Msg_getData(msg, &newData);*/
-
         Sample_t* sample = sdds_History_dequeue (DataReader_history (self));
         if (sample == NULL)
             return SDDS_RT_NODATA;
 		(self->topic->Data_cpy)(*data, (Data) sample->data);
-		//  Free the msg
-		/*Msg_init(msg, NULL);*/
+        //  TODO Sample infos
+        return SDDS_RT_OK;
 	}
     else {
 		//  TODO Implement loan
 		Log_error ("No buffer for datasample is provided. Data is lost\n");
 		return SDDS_RT_FAIL;
 	}
-	//  TODO Sample infos
-	return SDDS_RT_OK;
 }
 
 On_Data_Avail_Listener
