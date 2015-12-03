@@ -110,8 +110,8 @@ struct $(topic.c_name:)
 };
 typedef struct $(topic.c_name:) $(topic.c_name:);
 
-Sample_t $(topic.c_name)_samples_pool[SDDS_TOPIC_APP_MSG_COUNT];
-static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_TOPIC_APP_MSG_COUNT];
+Sample_t $(topic.c_name)_samples_pool[SDDS_QOS_HISTORY_DEPTH];
+static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_QOS_HISTORY_DEPTH];
 
 DDS_ReturnCode_t
 $(topic.c_name:)_init ();
@@ -189,7 +189,7 @@ DDS_ReturnCode_t
 $(topic.c_name:)_init ()
 {
    int index;
-   for (index = 0; index < 50; index++) {
+   for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
       $(topic.c_name)_samples_pool[index].data = &$(topic.c_name)_sample_data[index];
    }
 }

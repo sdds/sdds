@@ -51,6 +51,10 @@ $(project.GENERATED_WARNING_HEADER:)
 #define SDDS_NET_MAX_LOCATOR_COUNT 20
 #endif /* SDDS_NET_MAX_LOCATOR_COUNT */
 
+#ifndef SDDS_QOS_HISTORY_DEPTH
+#define SDDS_QOS_HISTORY_DEPTH 20
+#endif
+
 #define SDDS_QOS_DW1_LATBUD 100
 #define SDDS_QOS_DW2_LATBUD 500
 .if count (project.role, role.type = "subscriber")
