@@ -105,13 +105,12 @@ Task_init(Task _this, void (* callback)(void* obj), void* data) {
 }
 
 
-ssw_rc_t 
-Task_start(Task _this, uint8_t sec, sSDDS_msec_t msec, SSW_TaskMode_t mode){
+Task_start(Task _this, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode){
     if(_this->cb == NULL || _this == NULL){
         return SDDS_SSW_RT_FAIL;
     }
     time_t systemTime = sys_gettime();
-    _this->timeout = (usec * TASK_MNG_MUL_USEC_TO_NANO_SEC) + (sec * TASK_MNG_MUL_SEC_TO_NANO_SEC);
+    _this->timeout = (msec * TASK_MNG_MUL_MSEC_TO_NANO_SEC) + (sec * TASK_MNG_MUL_SEC_TO_NANO_SEC);
     _this->fireTime = systemTime + _this->timeout;
     _this->mode = mode;
     _this->isActive = true;
