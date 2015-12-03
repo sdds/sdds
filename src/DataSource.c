@@ -96,18 +96,18 @@ rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len) {
 
 	for (i = 0; i < (SDDS_MAX_DATA_WRITERS - dataSource->remaining_datawriter);
 			i++) {
-	#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 		if (!BuildinTopic_isBuiltinTopic(dataSource->writers[i].topic->id,
 						dataSource->writers[i].topic->domain)) {
-	#endif
+#endif
 			pt[*len].key = dataSource->writers[i].id;
 			pt[*len].participant_key = BuiltinTopic_participantID;
 			pt[*len].topic_id = dataSource->writers[i].topic->id;
 
 			(*len)++;
-	#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 		}
-	#endif
+#endif
 	}
 
 	return SDDS_RT_OK;
@@ -214,13 +214,13 @@ void checkSendingWrapper(void *buf) {
 
 rc_t checkSending(NetBuffRef_t *buf) {
 #ifdef SDDS_QOS_LATENCYBUDGET
-	#if SDDS_QOS_DW_LATBUD < 65536
+#if SDDS_QOS_DW_LATBUD < 65536
 	time16_t time;
 	Time_getTime16(&time);
-	#else
+#else
 	time32_t time;
 	Time_getTime32(&time);
-	#endif
+#endif
 
 	if ((buf->sendDeadline <= time) || (SDDS_NET_MAX_BUF_SIZE <= buf->curPos)) {
 		Task_stop(sendTask);
@@ -250,8 +250,8 @@ rc_t checkSending(NetBuffRef_t *buf) {
 		}
 
 		return SDDS_RT_OK;
-	}
 #ifdef SDDS_QOS_LATENCYBUDGET
+	}
 	else {
 		Task_stop(sendTask);
 		Task_setData(sendTask, (void*) buf);
@@ -336,27 +336,27 @@ rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste) {
 	}
 
 #ifdef SDDS_QOS_RELIABILITY
-    #if SDDS_QOS_RELIABILITY_KIND == KIND_BESTEFFORT
-        #if SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_NORMAL
+#if SDDS_QOS_RELIABILITY_KIND == KIND_BESTEFFORT
+#if SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_NORMAL
 	    if (SNPS_writeSeqNr(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
             return SDDS_RT_FAIL;
         }
-        #elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+#elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 	    if (SNPS_writeSeqNrSmall(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
             return SDDS_RT_FAIL;
         }
-        #elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+#elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BIG
 	    if (SNPS_writeSeqNrBig(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
             return SDDS_RT_FAIL;
         }
-        #elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+#elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
 	    if (SNPS_writeSeqNrHUGE(buffRef, _this->qos.seqNr) != SDDS_RT_OK) {
             return SDDS_RT_FAIL;
         }
-        #endif
+#endif
     _this->qos.seqNr++;
 
-    #else
+#else
         //TODO
     #endif
 #endif
