@@ -3,13 +3,13 @@
  *
  *       Filename:  LocatorDB.h
  *
- *    Description:  LocatorDB class manages the Locator object within the 
- *    systems. It holds a pool for locator objects that might be used for 
+ *    Description:  LocatorDB class manages the Locator object within the
+ *    systems. It holds a pool for locator objects that might be used for
  *    incoming packates.
- *    This class is a singelton withing the system, therefor no this reference 
- *    is needed as parameter for the methodes. But the init methode have to be 
+ *    This class is a singelton withing the system, therefor no this reference
+ *    is needed as parameter for the methodes. But the init methode have to be
  *    called in the init phase of the middleware.
- *    Some of the methodes are abstract and have to be implemented in the 
+ *    Some of the methodes are abstract and have to be implemented in the
  *    generaded code!
  *
  *        Version:  1.0
@@ -41,13 +41,19 @@ typedef struct LocatorDB_t* LocatorDB;
 
 
 
-rc_t LocatorDB_init(void);
+rc_t
+LocatorDB_init(void);
 
-rc_t LocatorDB_newLocator(Locator_t** loc);
-rc_t LocatorDB_findLocator(Locator_t* toFind, Locator_t** loc);
-rc_t LocatorDB_freeLocator(Locator_t* loc);
-rc_t LocatorDB_isUsedLocator(Locator_t* loc);
-rc_t LocatorDB_newMultiLocator(Locator_t** loc);
+rc_t
+LocatorDB_newLocator(Locator_t** loc);
+rc_t
+LocatorDB_findLocator(Locator_t* toFind, Locator_t** loc);
+rc_t
+LocatorDB_freeLocator(Locator_t* loc);
+rc_t
+LocatorDB_isUsedLocator(Locator_t* loc);
+rc_t
+LocatorDB_newMultiLocator(Locator_t** loc);
 
 
 

@@ -15,7 +15,8 @@
 
 typedef uint16_t SSW_NodeID_t;
 
-SSW_NodeID_t NodeConfig_getNodeID();
+SSW_NodeID_t
+NodeConfig_getNodeID();
 
 
 #endif /* NODECONFIG_H_ */

@@ -27,29 +27,41 @@ struct Network_t;
 
 typedef struct Network_t* Network;
 
-rc_t Network_init(void);
+rc_t
+Network_init(void);
 
-size_t Network_size(void);
-
-rc_t Network_send(NetBuffRef_t *buff);
-
-void Network_recvFrameHandler(Network _this);
-
-rc_t Network_getFrameBuff(NetFrameBuff* buff);
-rc_t Network_getPayloadBegin(size_t* startByte);
-
-rc_t Network_createLocator(Locator_t** loc);
-rc_t Network_createMulticastLocator(Locator_t** loc);
-rc_t Network_setMulticastAddressToLocator(Locator_t* loc, char* addr);
-
-size_t Network_locSize(void);
+size_t
+Network_size(void);
 
 rc_t
-Network_set_locator_endpoint (Locator_t* loc, char* addr, int port);
+Network_send(NetBuffRef_t* buff);
 
-rc_t Network_setAddressToLocator(Locator_t* loc, char* addr);
+void
+Network_recvFrameHandler(Network _this);
 
-rc_t Network_getSrcAddr(char *addr, int addr_len, char *port,
-		int port_len);
+rc_t
+Network_getFrameBuff(NetFrameBuff* buff);
+rc_t
+Network_getPayloadBegin(size_t* startByte);
+
+rc_t
+Network_createLocator(Locator_t** loc);
+rc_t
+Network_createMulticastLocator(Locator_t** loc);
+rc_t
+Network_setMulticastAddressToLocator(Locator_t* loc, char* addr);
+
+size_t
+Network_locSize(void);
+
+rc_t
+Network_set_locator_endpoint(Locator_t* loc, char* addr, int port);
+
+rc_t
+Network_setAddressToLocator(Locator_t* loc, char* addr);
+
+rc_t
+Network_getSrcAddr(char* addr, int addr_len, char* port,
+                   int port_len);
 
 #endif   /* ----- #ifndef NETWORK_H_INC  ----- */

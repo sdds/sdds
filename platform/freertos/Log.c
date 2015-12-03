@@ -21,18 +21,18 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#define PRINTF(FORMAT,args...) printf_P(PSTR(FORMAT),##args)
+#define PRINTF(FORMAT, args ...) printf_P(PSTR(FORMAT), ## args)
 
 // 0 all, 1
 static int logLvl =0;
 
-void Log_setLvl(int lvl)
-{
+void
+Log_setLvl(int lvl) {
     logLvl = lvl;
 }
 #ifndef UTILS_NO_LOGGING
-void _log_trace(const char* fnk, ...)
-{
+void
+_log_trace(const char* fnk, ...) {
     if (logLvl < 1 ) {
         va_list arg;
         char* string;
@@ -41,28 +41,28 @@ void _log_trace(const char* fnk, ...)
         string = va_arg(arg, char*);
         fprintf(stderr, "TRACE: %s() : ", fnk);
 
-        vfprintf(stderr,string, arg);
+        vfprintf(stderr, string, arg);
         va_end(arg);
     }
 }
 
-void _log_debug(const char* fnk, ...)
-{
+void
+_log_debug(const char* fnk, ...) {
     if (logLvl < 2 ) {
         va_list arg;
         char* string;
         va_start(arg, fnk);
 
         string = va_arg(arg, char*);
-        fprintf(stderr,"DEBUG: %s() : ", fnk);
+        fprintf(stderr, "DEBUG: %s() : ", fnk);
 
-        vfprintf(stderr,string, arg);
+        vfprintf(stderr, string, arg);
         va_end(arg);
     }
 }
 
-void _log_info(const char* fnk, ...)
-{
+void
+_log_info(const char* fnk, ...) {
     if (logLvl < 3) {
         va_list arg;
         char* string;
@@ -70,58 +70,56 @@ void _log_info(const char* fnk, ...)
 
         string = va_arg(arg, char*);
 
-        fprintf(stderr,"INFO: %s() : ", fnk);
-        vfprintf(stderr,string, arg);
+        fprintf(stderr, "INFO: %s() : ", fnk);
+        vfprintf(stderr, string, arg);
 
         va_end(arg);
     }
 }
 
-void _log_warn(const char* fnk, ...)
-{
+void
+_log_warn(const char* fnk, ...) {
     if (logLvl < 4) {
         va_list arg;
         char* string;
         va_start(arg, fnk);
 
         string = va_arg(arg, char*);
-        fprintf(stderr,"WARN: %s() : ", fnk);
+        fprintf(stderr, "WARN: %s() : ", fnk);
 
-        vfprintf(stderr,string, arg);
+        vfprintf(stderr, string, arg);
         va_end(arg);
     }
 }
 
-void _log_error(const char* fnk, ...)
-{
-    if (logLvl < 5){
+void
+_log_error(const char* fnk, ...) {
+    if (logLvl < 5) {
         va_list arg;
         char* string;
         va_start(arg, fnk);
 
         string = va_arg(arg, char*);
-        fprintf(stderr,"ERROR: %s() : ", fnk);
+        fprintf(stderr, "ERROR: %s() : ", fnk);
 
-        vfprintf(stderr,string, arg);
+        vfprintf(stderr, string, arg);
         va_end(arg);
     }
 }
 
-void _log_panic(const char* fnk, ...)
-{
+void
+_log_panic(const char* fnk, ...) {
     if (logLvl < 6) {
         va_list arg;
         char* string;
         va_start(arg, fnk);
 
         string = va_arg(arg, char*);
-        fprintf(stderr,"PANIC: %s() : ", fnk);
+        fprintf(stderr, "PANIC: %s() : ", fnk);
 
-        vfprintf(stderr,string, arg);
+        vfprintf(stderr, string, arg);
         va_end(arg);
         abort();
     }
 }
 #endif
-
-

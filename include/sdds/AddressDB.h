@@ -22,16 +22,18 @@
 
 #include "Locator.h"
 
-struct AddressDB_t{
+struct AddressDB_t {
     uint8_t count;
     Locator next = NULL;
 };
 
 typedef struct AddressDB_t* AddressDB;
 
-AddressDB AddressDB_create();
-rc_t AddressDB_add(AddressDB _this, Locator loc);
-rc_t AddressDB_del(AddressDB _this, Locator loc);
+AddressDB
+AddressDB_create();
+rc_t
+AddressDB_add(AddressDB _this, Locator loc);
+rc_t
+AddressDB_del(AddressDB _this, Locator loc);
 
 #endif   /* ----- #ifndef ADDRESSDB_H_INC  ----- */
-

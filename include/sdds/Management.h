@@ -39,7 +39,8 @@ extern Management management;
  * Init function for the gloal management system of sdds
  * Have to be called at the initialization of the system
  */
-rc_t Management_init(void);
+rc_t
+Management_init(void);
 
 #endif
 

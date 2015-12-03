@@ -12,11 +12,15 @@
 struct Mutex_t;
 typedef struct Mutex_t* Mutex;
 
-Mutex Mutex_create(void);
+Mutex
+Mutex_create(void);
 
-ssw_rc_t Mutex_init(Mutex mutex);
+ssw_rc_t
+Mutex_init(Mutex mutex);
 
-ssw_rc_t Mutex_up(Mutex mutex);
-ssw_rc_t Mutex_down(Mutex mutex);
+ssw_rc_t
+Mutex_up(Mutex mutex);
+ssw_rc_t
+Mutex_down(Mutex mutex);
 
 #endif /* MUTEX_H_ */

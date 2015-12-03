@@ -21,28 +21,35 @@
  * (see BitCloud User Guide)
  */
 
-int sdds_app_run(void);
+int
+sdds_app_run(void);
 
 /**
  * Initializes the application
  */
-int sdds_app_init(void);
+int
+sdds_app_init(void);
 
 /*
  * Function for reinitialisation. for example after a power shortage
  */
-int sdds_app_reInit(void);
+int
+sdds_app_reInit(void);
 
 /**
  * function for the application code regarding an poweroff event
  */
 
-int sdds_app_poweroff(void);
+int
+sdds_app_poweroff(void);
 
-int sdds_app_tmpMsg(NetBuffRef buf);
+int
+sdds_app_tmpMsg(NetBuffRef buf);
 
-void sdds_app_sendOK(void);
-void sdds_app_fail(void);
+void
+sdds_app_sendOK(void);
+void
+sdds_app_fail(void);
 
 
 #endif /* SDDS_ZIGBEE_H_ */

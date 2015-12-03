@@ -6,7 +6,7 @@
     This file is part of sDDS:
     http://wwwvs.cs.hs-rm.de.
     =========================================================================
-*/
+ */
 
 #include "sDDS.h"
 
@@ -14,9 +14,8 @@
 //  Initialize this class
 
 rc_t
-BitArray_init ()
-{
-	return SDDS_RT_OK;
+BitArray_init() {
+    return SDDS_RT_OK;
 }
 
 
@@ -24,10 +23,9 @@ BitArray_init ()
 //  Sets the bit at index to 1.
 
 void
-BitArray_set (uint64_t* self, unsigned int index)
-{
-    assert (self);
-    assert (index < 64);
+BitArray_set(uint64_t* self, unsigned int index) {
+    assert(self);
+    assert(index < 64);
     *self |= 1ull << index;
 }
 
@@ -36,10 +34,9 @@ BitArray_set (uint64_t* self, unsigned int index)
 //  Sets the bit at index to 0.
 
 void
-BitArray_clear (uint64_t* self, unsigned int index)
-{
-    assert (self);
-    assert (index < 64);
+BitArray_clear(uint64_t* self, unsigned int index) {
+    assert(self);
+    assert(index < 64);
     *self &= ~(1ull << index);
 }
 
@@ -48,10 +45,9 @@ BitArray_clear (uint64_t* self, unsigned int index)
 //  Toggles the bit at index
 
 void
-BitArray_toggle (uint64_t* self, unsigned int index)
-{
-    assert (self);
-    assert (index < 64);
+BitArray_toggle(uint64_t* self, unsigned int index) {
+    assert(self);
+    assert(index < 64);
     *self ^= 1ull << index;
 }
 
@@ -61,10 +57,9 @@ BitArray_toggle (uint64_t* self, unsigned int index)
 //  0.
 
 bool
-BitArray_check (uint64_t* self, unsigned int index)
-{
-    assert (self);
-    assert (index < 64);
+BitArray_check(uint64_t* self, unsigned int index) {
+    assert(self);
+    assert(index < 64);
     return (*self >> index) & 1ull;
 }
 
@@ -74,17 +69,17 @@ BitArray_check (uint64_t* self, unsigned int index)
 //  Prints the array in 8-Bit chunks
 
 void
-BitArray_print (uint64_t* self)
-{
-    assert (self);
+BitArray_print(uint64_t* self) {
+    assert(self);
     int index;
-    printf ("BitArray: {");
+    printf("BitArray: {");
     for (index = 63; index >= 0; index--) {
-        if ((index + 1) % 8 == 0)
-            printf ("\n%d   ", ((index + 1) / 8) - 1);
-        printf ("%d ", BitArray_check (self, index) ? 1 : 0);
+        if ((index + 1) % 8 == 0) {
+            printf("\n%d   ", ((index + 1) / 8) - 1);
+        }
+        printf("%d ", BitArray_check(self, index) ? 1 : 0);
     }
-    printf ("\n}\n");
+    printf("\n}\n");
 }
 #endif
 
@@ -94,30 +89,29 @@ BitArray_print (uint64_t* self)
 //  Selftest of this class
 
 void
-BitArray_test ()
-{
-    printf ("BitArray: ");
+BitArray_test() {
+    printf("BitArray: ");
 
     uint64_t bitArray = 0;
 
     //  Setting a bit
-    BitArray_set (&bitArray, 0);
-    assert (bitArray == 1ull);
-    BitArray_set (&bitArray, 1);
-    assert (bitArray == 3ull);
-    BitArray_set (&bitArray, 2);
-    assert (bitArray == 7ull);
+    BitArray_set(&bitArray, 0);
+    assert(bitArray == 1ull);
+    BitArray_set(&bitArray, 1);
+    assert(bitArray == 3ull);
+    BitArray_set(&bitArray, 2);
+    assert(bitArray == 7ull);
 
     //  Clearing a bit
-    BitArray_clear (&bitArray, 0);
-    assert (bitArray == 6ull);
+    BitArray_clear(&bitArray, 0);
+    assert(bitArray == 6ull);
 
     //  Toggle a bit
-    BitArray_toggle (&bitArray, 0);
-    assert (bitArray == 7ull);
-    BitArray_toggle (&bitArray, 1);
-    assert (bitArray == 5ull);
+    BitArray_toggle(&bitArray, 0);
+    assert(bitArray == 7ull);
+    BitArray_toggle(&bitArray, 1);
+    assert(bitArray == 5ull);
 
-    printf ("OK\n");
+    printf("OK\n");
 }
 #endif

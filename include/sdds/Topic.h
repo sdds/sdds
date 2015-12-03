@@ -24,11 +24,11 @@
 #include "Locator.h"
 #include "Msg.h"
 
-struct datasources{
+struct datasources {
     Locator_t* list;
     uint8_t count;
 };
-struct datasinks{
+struct datasinks {
     Locator_t* list;
     uint8_t count;
 };
@@ -36,7 +36,7 @@ struct _Topic_t {
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
     struct datasinks dsinks;
-    rc_t (*Data_encode)(byte_t* buff, Data data, size_t* size);
+    rc_t (* Data_encode)(byte_t* buff, Data data, size_t* size);
 #endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
@@ -45,20 +45,24 @@ struct _Topic_t {
 
     struct MsgPool msg;
 
-    rc_t (*Data_decode)(byte_t* buff, Data data, size_t* size);
-    rc_t (*Data_cpy)(Data dest, Data source);
+    rc_t (* Data_decode)(byte_t* buff, Data data, size_t* size);
+    rc_t (* Data_cpy)(Data dest, Data source);
 
     domainid_t domain;
     topicid_t id;
-};				/* ----------  end of struct Topic  ---------- */
+};                              /* ----------  end of struct Topic  ----------
+                                   */
 
 typedef struct _Topic_t Topic_t;
 
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t Topic_getFreeMsg(Topic_t *_this, Msg_t **msg);
-rc_t Topic_getNextMsg(Topic_t *_this, Msg_t **msg);
-rc_t Topic_getUnreadMsgCount(Topic_t *_this, uint8_t* count);
+rc_t
+Topic_getFreeMsg(Topic_t* _this, Msg_t** msg);
+rc_t
+Topic_getNextMsg(Topic_t* _this, Msg_t** msg);
+rc_t
+Topic_getUnreadMsgCount(Topic_t* _this, uint8_t* count);
 #endif
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
@@ -70,7 +74,8 @@ rc_t Topic_getUnreadMsgCount(Topic_t *_this, uint8_t* count);
  * @param addr Locator object of the remote node
  * @return SDDS return code @see rc_t
  */
-rc_t Topic_addRemoteDataSink(Topic_t *_this, Locator_t* addr);
+rc_t
+Topic_addRemoteDataSink(Topic_t* _this, Locator_t* addr);
 #endif
 
 #if defined (SDDS_TOPIC_HAS_PUB) && (SDDS_TOPIC_DYNAMIC)
@@ -83,7 +88,8 @@ rc_t Topic_addRemoteDataSink(Topic_t *_this, Locator_t* addr);
  * @param addr Locator object to remove
  * @return sdds return code @see rc_t
  */
-rc_t Topic_removeRemoteDataSink(Topic_t *_this, Locator_t* addr);
+rc_t
+Topic_removeRemoteDataSink(Topic_t* _this, Locator_t* addr);
 #endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
@@ -95,7 +101,8 @@ rc_t Topic_removeRemoteDataSink(Topic_t *_this, Locator_t* addr);
  * @param addr Locator object of the remote node
  * @return sdds return code @see rc_t
  */
-rc_t Topic_addRemoteDataSource(Topic_t *_this, Locator_t* addr);
+rc_t
+Topic_addRemoteDataSource(Topic_t* _this, Locator_t* addr);
 #endif
 
 #if defined (SDDS_TOPIC_HAS_SUB) && (SDDS_TOPIC_DYNAMIC)
@@ -107,7 +114,8 @@ rc_t Topic_addRemoteDataSource(Topic_t *_this, Locator_t* addr);
  * @param addr Locator object to remove
  * @return sdds return code @see rc_t
  */
-rc_t Topic_removeRemoteDataSink(Topic_t *_this, Locator_t* addr);
+rc_t
+Topic_removeRemoteDataSink(Topic_t* _this, Locator_t* addr);
 #endif
 
 //rc_t Topic_addRemoteDataSink(Topic _this, Locator_t* addr);

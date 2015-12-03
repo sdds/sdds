@@ -21,12 +21,12 @@
 #define  LOG_H_INC
 
 #ifdef UTILS_NO_LOGGING
-#define Log_trace(args...)
-#define Log_debug(args...)
-#define Log_info(args...)
-#define Log_warn(args...)
-#define Log_error(args...)
-#define Log_PANIC(args...)
+#define Log_trace(args ...)
+#define Log_debug(args ...)
+#define Log_info(args ...)
+#define Log_warn(args ...)
+#define Log_error(args ...)
+#define Log_PANIC(args ...)
 #endif
 
 
@@ -36,29 +36,36 @@
 #ifndef SDDS_PLATFORM_autobest
 #include <stdlib.h>
 #endif
-#define Log_trace(args...) _log_trace(__FUNCTION__,##args);
-#define Log_debug(args...) _log_debug(__FUNCTION__,##args);
-#define Log_info(args...) _log_info(__FUNCTION__,##args);
-#define Log_warn(args...) _log_warn(__FUNCTION__,##args);
-#define Log_error(args...) _log_error(__FUNCTION__,##args);
-#define Log_PANIC(args...) _log_panic(__FUNCTION__,##args);
+#define Log_trace(args ...) _log_trace(__FUNCTION__, ## args);
+#define Log_debug(args ...) _log_debug(__FUNCTION__, ## args);
+#define Log_info(args ...) _log_info(__FUNCTION__, ## args);
+#define Log_warn(args ...) _log_warn(__FUNCTION__, ## args);
+#define Log_error(args ...) _log_error(__FUNCTION__, ## args);
+#define Log_PANIC(args ...) _log_panic(__FUNCTION__, ## args);
 
-void _log_trace(const char* fnk, ...);
-void _log_debug(const char* fnk, ...);
-void _log_info(const char* fnk, ...);
-void _log_warn(const char* fnk, ...);
-void _log_error(const char* fnk, ...);
-void _log_panic(const char* fnk, ...);
+void
+_log_trace(const char* fnk, ...);
+void
+_log_debug(const char* fnk, ...);
+void
+_log_info(const char* fnk, ...);
+void
+_log_warn(const char* fnk, ...);
+void
+_log_error(const char* fnk, ...);
+void
+_log_panic(const char* fnk, ...);
 
-void Log_setLvl(int lvl);
+void
+Log_setLvl(int lvl);
 
-#define LOG_ASSERT(cond)\
-           do { if (!(cond)) {             \
-              fprintf(stderr, "ASSERT FAILS in function %s in line %d \n", \
-              __FUNCTION__, __LINE__);                                                                        \
-              assert(cond);                                                                                           \
-              exit(-1);                                                                                                       \
-           }}while(0);
+#define LOG_ASSERT(cond) \
+    do { if (!(cond)) {             \
+             fprintf(stderr, "ASSERT FAILS in function %s in line %d \n", \
+                     __FUNCTION__, __LINE__);                                                                        \
+             assert(cond);                                                                                           \
+             exit(-1);                                                                                                       \
+         }} while(0);
 
 #endif
 #endif   /* ----- #ifndef LOG_H_INC  ----- */

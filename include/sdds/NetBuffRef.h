@@ -27,7 +27,7 @@
 
 struct Locator_t;
 
-struct _NetBuffRef_t{
+struct _NetBuffRef_t {
     uint8_t subMsgCount;
 
     NetFrameBuff frame_start;
@@ -36,21 +36,24 @@ struct _NetBuffRef_t{
 
     // QOS part
 #if SDDS_QOS_DW_LARBUD < 65536
-    time16_t  sendDeadline;
+    time16_t sendDeadline;
 #else
-    time32_t  sendDeadline;
+    time32_t sendDeadline;
 #endif
     // state of the frame
     Locator_t* addr;
-    Topic_t *curTopic;
+    Topic_t* curTopic;
     domainid_t curDomain;
 };
 typedef struct _NetBuffRef_t NetBuffRef_t;
 
-rc_t NetBuffRef_init(NetBuffRef_t *_this);
-rc_t NetBuffRef_renew(NetBuffRef_t *_this);
+rc_t
+NetBuffRef_init(NetBuffRef_t* _this);
+rc_t
+NetBuffRef_renew(NetBuffRef_t* _this);
 
 #ifdef UTILS_DEBUG
-void NetBuffRef_print(NetBuffRef_t *_this);
+void
+NetBuffRef_print(NetBuffRef_t* _this);
 #endif
 #endif   /* ----- #ifndef NETBUFFREF_H_INC  ----- */

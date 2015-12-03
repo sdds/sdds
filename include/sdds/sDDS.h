@@ -23,11 +23,11 @@
 #include "sdds_types.h"
 
 rc_t
-   sDDS_init (void);
+sDDS_init(void);
 
 //  Forward declaration of classes
 #ifndef SDDS_DATA_READER_MAX_OBJS
-   #define SDDS_DATA_READER_MAX_OBJS 64
+#define SDDS_DATA_READER_MAX_OBJS 64
 #endif
 typedef struct _DataReader_t DataReader_t;
 typedef struct _History_t History_t;

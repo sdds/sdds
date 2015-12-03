@@ -15,7 +15,8 @@
  * Event service API
  */
 
-ssw_rc_t Event_init(void);
+ssw_rc_t
+Event_init(void);
 
 
 #endif /* EVENT_H_ */

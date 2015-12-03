@@ -12,8 +12,8 @@
 #define TASK_MNG_MUL_USEC_TO_NANO_SEC 1000UL
 #define TASK_MNG_PRI 102
 
-struct Task_struct{
-    void(*cb)(void* obj);
+struct Task_struct {
+    void (* cb)(void* obj);
     void* data;
     timeout_t timeout;
     time_t fireTime;
@@ -30,23 +30,30 @@ static struct Task_struct* taskList;
 static struct Task_struct* taskLast;
 static bool isTaskListEmpty;
 
-static void addTask(struct Task_struct* t);
-static void stopTask(struct Task_struct* t);
-static inline void deleteTask(struct Task_struct* t);
-static inline void doMng(void);
-static void checkFireTimes(void);
+static void
+addTask(struct Task_struct* t);
+static void
+stopTask(struct Task_struct* t);
+static inline void
+deleteTask(struct Task_struct* t);
+static inline void
+doMng(void);
+static void
+checkFireTimes(void);
 
-void* TaskMngLoop(void* foo){
+void*
+TaskMngLoop(void* foo) {
     (void)foo;
 
-    for(;;){
+    for(;; ) {
         doMng();
         sys_sleep(TASK_MNG_TICK);
     }
     return NULL;
 }
 
-ssw_rc_t Task_setData(Task _this, void* data) {
+ssw_rc_t
+Task_setData(Task _this, void* data) {
     if (_this == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
@@ -58,11 +65,12 @@ ssw_rc_t Task_setData(Task _this, void* data) {
 /**
  * Should be called at the init phase
  */
-ssw_rc_t TaskMng_init(void){
+ssw_rc_t
+TaskMng_init(void) {
     taskList = (struct Task_struct*)Memory_alloc(sizeof(struct Task_struct));
     taskLast = taskList;
     isTaskListEmpty = true;
-    if(taskList == NULL){
+    if(taskList == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
     memset(taskList, 0, sizeof(struct Task_struct));
@@ -70,7 +78,7 @@ ssw_rc_t TaskMng_init(void){
     unsigned int err;
     err = sys_task_create(TASK_MNG_TASK_ID, TASK_MNG_PRI, TaskMngLoop,
                           &stack_task_mng[STACK_SIZE], NULL, NULL);
-    if(err != E_OK){
+    if(err != E_OK) {
         Log_error("can't create Task for TaskMng\n");
         return SDDS_SSW_RT_FAIL;
     }
@@ -78,7 +86,8 @@ ssw_rc_t TaskMng_init(void){
     return SDDS_SSW_RT_OK;
 }
 
-Task Task_create(void){
+Task
+Task_create(void) {
     Task t = Memory_alloc(sizeof(struct Task_struct));
     t->isActive = false;
     return t;
@@ -87,15 +96,17 @@ Task Task_create(void){
 /**
  * inits a task with a callback function etc
  */
-ssw_rc_t Task_init(Task _this, void(*callback)(void* obj), void* data){
+ssw_rc_t
+Task_init(Task _this, void (* callback)(void* obj), void* data) {
     _this->cb = callback;
     _this->data = data;
 
     return SDDS_SSW_RT_OK;
 }
 
-ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode){
-    if(_this->cb == NULL || _this == NULL){
+ssw_rc_t
+Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode) {
+    if(_this->cb == NULL || _this == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
     time_t systemTime = sys_gettime();
@@ -107,27 +118,30 @@ ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mo
     return SDDS_SSW_RT_OK;
 }
 
-ssw_rc_t Task_stop(Task _this){
-    if (_this == NULL){
-       return SDDS_SSW_RT_FAIL;
+ssw_rc_t
+Task_stop(Task _this) {
+    if (_this == NULL) {
+        return SDDS_SSW_RT_FAIL;
     }
-    if(_this->isActive){
+    if(_this->isActive) {
         stopTask(_this);
         _this->isActive = false;
     }
     return SDDS_SSW_RT_OK;
 }
 
-ssw_rc_t Task_delete(Task _this){
-    if (_this == NULL){
-	   return SDDS_SSW_RT_FAIL;
+ssw_rc_t
+Task_delete(Task _this) {
+    if (_this == NULL) {
+        return SDDS_SSW_RT_FAIL;
     }
     deleteTask(_this);
     return SDDS_SSW_RT_OK;
 }
 
 
-static void addTask(struct Task_struct* t){
+static void
+addTask(struct Task_struct* t) {
     taskLast->next = t;
     t->next = NULL;
     t->prev = taskLast;
@@ -135,45 +149,49 @@ static void addTask(struct Task_struct* t){
     isTaskListEmpty = false;
 }
 
-static void stopTask(struct Task_struct* t){
+static void
+stopTask(struct Task_struct* t) {
     t->prev->next = t->next;
-    if(t->next != NULL){
+    if(t->next != NULL) {
         t->next->prev = t->prev;
     }
-    if(t == taskLast){
+    if(t == taskLast) {
         taskLast = t->prev;
     }
-    if(t->prev == taskList && t->next == NULL){
+    if(t->prev == taskList && t->next == NULL) {
         isTaskListEmpty = true;
     }
 }
 
-static inline void deleteTask(struct Task_struct* t){
+static inline void
+deleteTask(struct Task_struct* t) {
     stopTask(t);
     Memory_free(t);
 }
 
-static inline void doMng(){
-    if(!isTaskListEmpty){
+static inline void
+doMng() {
+    if(!isTaskListEmpty) {
         checkFireTimes();
     }
 }
 
-static void checkFireTimes(){
+static void
+checkFireTimes() {
     struct Task_struct* itterator;
     itterator = taskList->next;
     time_t systemTime = sys_gettime();
-    while(itterator != NULL){
-        if(itterator->fireTime < systemTime){
-            if(itterator->mode == SDDS_SSW_TaskMode_repeat){
+    while(itterator != NULL) {
+        if(itterator->fireTime < systemTime) {
+            if(itterator->mode == SDDS_SSW_TaskMode_repeat) {
                 itterator->fireTime = systemTime + itterator->timeout;
             }
             itterator->cb(itterator->data);
             bool lastElement = itterator->next == NULL;
-            if(itterator->mode == SDDS_SSW_TaskMode_single){
+            if(itterator->mode == SDDS_SSW_TaskMode_single) {
                 deleteTask(itterator);
             }
-            if(lastElement){
+            if(lastElement) {
                 break;
             }
         }

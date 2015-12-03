@@ -32,20 +32,24 @@
 
 struct _DataSink_t;
 typedef struct _DataSink_t DataSink_t;
-extern DataSink_t *dataSink;
+extern DataSink_t* dataSink;
 
-rc_t DataSink_init(void);
+rc_t
+DataSink_init(void);
 
 //  Obtain an instance of DataReader
-DataReader_t *
-DataSink_create_datareader (Topic_t *topic, Qos qos, Listener listener, StatusMask sm);
+DataReader_t*
+DataSink_create_datareader(Topic_t* topic, Qos qos, Listener listener, StatusMask sm);
 
-rc_t DataSink_processFrame(NetBuffRef_t *buff);
+rc_t
+DataSink_processFrame(NetBuffRef_t* buff);
 
-rc_t DataSink_printAddr();
-rc_t DataSink_getAddr(struct SNPS_Address *address);
+rc_t
+DataSink_printAddr();
+rc_t
+DataSink_getAddr(struct SNPS_Address* address);
 
-rc_t DataSink_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic);
+rc_t
+DataSink_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic);
 
 #endif   /* ----- #ifndef DATASINK_H_INC  ----- */
-

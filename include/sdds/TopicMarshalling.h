@@ -3,7 +3,7 @@
  *
  *       Filename:  TopicMarshalling.h
  *
- *    Description:  interface for the marshalling of the data assigend to a 
+ *    Description:  interface for the marshalling of the data assigend to a
  *    topic
  *
  *        Version:  1.0
@@ -24,7 +24,7 @@
 #ifndef stderr
 #define stderr 2
 #endif
-#define fprintf(a, b, args...) printf(b, ##args)
+#define fprintf(a, b, args ...) printf(b, ## args)
 #endif
 
 #include "sdds_types.h"

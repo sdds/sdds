@@ -10,9 +10,10 @@
 #include "gen_constants.h"
 
 
-SSW_NodeID_t NodeConfig_getNodeID(void) {
-	SSW_NodeID_t nodeID = 0;
+SSW_NodeID_t
+NodeConfig_getNodeID(void) {
+    SSW_NodeID_t nodeID = 0;
 
-	nodeID = HW_ADDR5 | (HW_ADDR4 << 8);
-	return nodeID;
+    nodeID = HW_ADDR5 | (HW_ADDR4 << 8);
+    return nodeID;
 }

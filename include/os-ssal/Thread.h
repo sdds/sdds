@@ -24,17 +24,24 @@
 struct Thread_t;
 typedef struct Thread_t* Thread;
 
-Thread Thread_create(void);
+Thread
+Thread_create(void);
 
 // interface for the to run method attachable to a thread
 // Second parameter is the assorizated object, that the uses the thread
-ssw_rc_t Thread_function(Thread _this, void* object);
+ssw_rc_t
+Thread_function(Thread _this, void* object);
 
-ssw_rc_t Thread_init(Thread _this, void*(*function)(void* object), void* obj);
+ssw_rc_t
+Thread_init(Thread _this, void*(*function)(void* object), void* obj);
 
-ssw_rc_t Thread_run(Thread _this);
-ssw_rc_t Thread_stop(Thread _this);
-ssw_rc_t Thread_usleep(Thread _this, uint16_t usecSleep);
-ssw_rc_t Thread_sleep(Thread _this, uint16_t secSleep);
+ssw_rc_t
+Thread_run(Thread _this);
+ssw_rc_t
+Thread_stop(Thread _this);
+ssw_rc_t
+Thread_usleep(Thread _this, uint16_t usecSleep);
+ssw_rc_t
+Thread_sleep(Thread _this, uint16_t secSleep);
 
 #endif   /* ----- #ifndef THREAD_H_INC  ----- */

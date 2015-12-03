@@ -20,14 +20,14 @@
 #define  SENDSTATE_INC
 #include "sdds_types.h"
 
-#define SDDS_SENDSTATE_FRESH	0
-#define SDDS_SENDSTATE_ADDR	1
-#define SDDS_SENDSTATE_DOMAIN	2
-#define SDDS_SENDSTATE_TOPIC	3
-#define SDDS_SENDSTATE_DATA	4
+#define SDDS_SENDSTATE_FRESH    0
+#define SDDS_SENDSTATE_ADDR     1
+#define SDDS_SENDSTATE_DOMAIN   2
+#define SDDS_SENDSTATE_TOPIC    3
+#define SDDS_SENDSTATE_DATA     4
 
 
-struct SendState_t{
+struct SendState_t {
     uint8_t state;
 };
 

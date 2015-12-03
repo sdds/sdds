@@ -26,11 +26,16 @@
 #include "Topic.h"
 #include "NetBuffRef.h"
 
-bool_t TopicDB_checkDomain(domainid_t domain);
-Topic_t * TopicDB_getTopic(topicid_t topic);
-bool_t TopicDB_checkTopic(topicid_t topic);
-Topic_t * TopicDB_createTopic(void);
+bool_t
+TopicDB_checkDomain(domainid_t domain);
+Topic_t*
+TopicDB_getTopic(topicid_t topic);
+bool_t
+TopicDB_checkTopic(topicid_t topic);
+Topic_t*
+TopicDB_createTopic(void);
 
-rc_t TopicDB_publishBuiltinTopic(NetBuffRef_t *buf);
+rc_t
+TopicDB_publishBuiltinTopic(NetBuffRef_t* buf);
 
 #endif   /* ----- #ifndef TOPICDB_H_INC  ----- */

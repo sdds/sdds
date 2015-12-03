@@ -6,15 +6,15 @@
     This file is part of sDDS:
     http://wwwvs.cs.hs-rm.de.
     =========================================================================
-*/
+ */
 
 /*
-@header
+   @header
     History - This class queues samples of one instance for either a DataReader
               or a DataWriter.
-@discuss
-@end
-*/
+   @discuss
+   @end
+ */
 
 #include "sDDS.h"
 
@@ -23,8 +23,7 @@
 //  Initializes this class
 
 rc_t
-sdds_History_init ()
-{
+sdds_History_init() {
     return SDDS_RT_OK;
 }
 
@@ -32,10 +31,9 @@ sdds_History_init ()
 //  Setup an instance of this class
 
 rc_t
-sdds_History_setup (History_t* self, Sample_t* samples, unsigned int depth)
-{
-    assert (self);
-    assert (samples);
+sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth) {
+    assert(self);
+    assert(samples);
     self->samples = samples;
     self->depth = depth;
     self->in_needle = 0;
@@ -50,17 +48,16 @@ sdds_History_setup (History_t* self, Sample_t* samples, unsigned int depth)
 //  in case of RELIABILITY reliable until samples are taken out.
 
 rc_t
-sdds_History_enqueue (History_t* self, NetBuffRef_t* buff)
-{
-    assert (self);
-    assert (buff);
+sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
+    assert(self);
+    assert(buff);
     //  Queue is full.
     if (self->in_needle == self->depth) {
         return SDDS_RT_FAIL;
     }
     //  Insert sample into queue
-	Topic_t *topic = buff->curTopic;
-    rc_t ret = SNPS_readData (buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+    Topic_t* topic = buff->curTopic;
+    rc_t ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
     if (ret == SDDS_RT_FAIL) {
         return ret;
     }
@@ -89,15 +86,14 @@ sdds_History_enqueue (History_t* self, NetBuffRef_t* buff)
 //  the history is not empty, otherwise NULL.
 
 Sample_t*
-sdds_History_dequeue (History_t* self)
-{
-    assert (self);
+sdds_History_dequeue(History_t* self) {
+    assert(self);
     //  Queue is empty.
     if (self->out_needle == self->depth) {
         return NULL;
     }
     //  Remove sample from
-    Sample_t *sample = &self->samples[self->out_needle];
+    Sample_t* sample = &self->samples[self->out_needle];
     //  Move the output needle to the next sample slot. If the output needle is
     //  at the end of the array move it to the beginning.
     unsigned int out_needle_prev = self->out_needle;
@@ -117,13 +113,10 @@ sdds_History_dequeue (History_t* self)
 }
 
 void
-sdds_History_print (History_t *self)
-{
-    printf ("History {\n");
-    printf ("    depth: %d,\n", self->depth);
-    printf ("    in needle: %d,\n", self->in_needle);
-    printf ("    out needle: %d,\n", self->out_needle);
-    printf ("}\n");
+sdds_History_print(History_t* self) {
+    printf("History {\n");
+    printf("    depth: %d,\n", self->depth);
+    printf("    in needle: %d,\n", self->in_needle);
+    printf("    out needle: %d,\n", self->out_needle);
+    printf("}\n");
 }
-
-

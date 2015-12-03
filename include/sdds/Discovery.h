@@ -7,6 +7,7 @@
 #include "DataSink.h"
 
 
-rc_t Discovery_init();
+rc_t
+Discovery_init();
 
-#endif	/* __DISCOVERY_H__ */
+#endif  /* __DISCOVERY_H__ */

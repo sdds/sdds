@@ -6,7 +6,7 @@
     This file is part of sDDS:
     http://wwwvs.cs.hs-rm.de.
     =========================================================================
-*/
+ */
 
 #ifndef __SAMPLE_H_INCLUDED__
 #define __SAMPLE_H_INCLUDED__
@@ -20,8 +20,8 @@ extern "C" {
 //  Structure of this class
 
 struct _Sample_t {
-   void* data;        //  Sample data
-   Locator_t *instance;
+    void* data;       //  Sample data
+    Locator_t* instance;
 };
 
 #ifdef __cplusplus

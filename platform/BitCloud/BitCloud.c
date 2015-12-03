@@ -34,39 +34,54 @@
  * Declaration of local methodes
  */
 
-void BitCloud_AppTimer_fired(void);
+void
+BitCloud_AppTimer_fired(void);
 
 
 // state methodes
 
-void BitCloud_State_set(ZigBeeState_t);
+void
+BitCloud_State_set(ZigBeeState_t);
 
-void BitCloud_State_initSystem(void);
-void BitCloud_State_waitToStart(void);
-void BitCloud_State_joinNetwork(void);
-void BitCloud_State_executeTask(void);
+void
+BitCloud_State_initSystem(void);
+void
+BitCloud_State_waitToStart(void);
+void
+BitCloud_State_joinNetwork(void);
+void
+BitCloud_State_executeTask(void);
 
 // send methodes impl in sdds specific impl file
-rc_t BitCloud_Network_State_INIT_send(NetBuffRef buff);
-rc_t BitCloud_Network_State_NETJOINING_send(NetBuffRef buff);
-rc_t BitCloud_Network_State_NET_send(NetBuffRef buff);
+rc_t
+BitCloud_Network_State_INIT_send(NetBuffRef buff);
+rc_t
+BitCloud_Network_State_NETJOINING_send(NetBuffRef buff);
+rc_t
+BitCloud_Network_State_NET_send(NetBuffRef buff);
 
 // process frame meth, impl in sdds specific impl file
-extern rc_t BitCloud_sdds_processFrame(APS_DataInd_t *indDat);
+extern rc_t
+BitCloud_sdds_processFrame(APS_DataInd_t* indDat);
 
-extern rc_t BitCloud_sdds_setDataRequestAddr(APS_DataReq_t* dr, Locator loc);
+extern rc_t
+BitCloud_sdds_setDataRequestAddr(APS_DataReq_t* dr, Locator loc);
 
 // zigbee specific
 
-static void ZDO_StartNetworkConf(ZDO_StartNetworkConf_t *confirmInfo);
-static void APS_DataConf(APS_DataConf_t *confInfo);
+static void
+ZDO_StartNetworkConf(ZDO_StartNetworkConf_t* confirmInfo);
+static void
+APS_DataConf(APS_DataConf_t* confInfo);
 
 #ifdef _COORDINATOR_
-void APS_DataIndCoord(APS_DataInd_t *indData);
+void
+APS_DataIndCoord(APS_DataInd_t* indData);
 #endif
 
 #if defined(_ROUTER_) || defined(_ENDDEVICE_)
-void APS_DataIncoming(APS_DataInd_t *indData);
+void
+APS_DataIncoming(APS_DataInd_t* indData);
 #endif
 
 struct Network_t {
@@ -81,8 +96,8 @@ struct Network_t {
     HAL_AppTimer_t sDDSTaskTimer;
 #endif
 
-    void (*BitCloud_State_handle)(void);
-    rc_t (*send)(NetBuffRef);
+    void (* BitCloud_State_handle)(void);
+    rc_t (* send)(NetBuffRef);
 
     APS_DataReq_t dataRequest;
     bool dataRequestInProcess;
@@ -94,58 +109,58 @@ struct Network_t {
     DeviceType_t appDeviceType;
 
     // network infos
-    ShortAddr_t 	nodeAddr;
-    ShortAddr_t		parentAddr;
-    PanId_t		panID;
-    uint8_t		workingChannel;
+    ShortAddr_t nodeAddr;
+    ShortAddr_t parentAddr;
+    PanId_t panID;
+    uint8_t workingChannel;
 };
 
 
 
 static struct Network_t net = {
-	.zState = ZIGBEE_STATE_INITIAL,
-	.appState = APP_STATE_STOP,
-	.BitCloud_State_handle =  BitCloud_State_initSystem
+    .zState = ZIGBEE_STATE_INITIAL,
+    .appState = APP_STATE_STOP,
+    .BitCloud_State_handle =  BitCloud_State_initSystem
 };
 
 
 
-void APL_TaskHandler(void)
-{
+void
+APL_TaskHandler(void) {
     // run methode depending of state
 
     net.BitCloud_State_handle();
 
 }
 
-void BitCloud_State_set(ZigBeeState_t state)
-{
-    switch (state){
-	case (ZIGBEE_STATE_INITIAL):
-		net.zState = ZIGBEE_STATE_INITIAL;
-		net.BitCloud_State_handle = BitCloud_State_initSystem;
-		net.send = BitCloud_Network_State_INIT_send;
-		break;
-	case (ZIGBEE_STATE_NETWORK_JOINING):
-		net.zState = ZIGBEE_STATE_NETWORK_JOINING;
-		net.BitCloud_State_handle = BitCloud_State_joinNetwork;
-		net.send = BitCloud_Network_State_NETJOINING_send;
-		break;
-	case (ZIGBEE_STATE_NETWORK_JOINED):
-	   net.zState = ZIGBEE_STATE_NETWORK_JOINED;
-	   net.BitCloud_State_handle = BitCloud_State_executeTask;
-	   net.send = BitCloud_Network_State_NET_send;
-	   break;
-	default:
-	    net.zState = ZIGBEE_STATE_INITIAL;
-	    net.BitCloud_State_handle = BitCloud_State_initSystem;
-	    net.send = BitCloud_Network_State_INIT_send;
+void
+BitCloud_State_set(ZigBeeState_t state) {
+    switch (state) {
+    case (ZIGBEE_STATE_INITIAL):
+        net.zState = ZIGBEE_STATE_INITIAL;
+        net.BitCloud_State_handle = BitCloud_State_initSystem;
+        net.send = BitCloud_Network_State_INIT_send;
+        break;
+    case (ZIGBEE_STATE_NETWORK_JOINING):
+        net.zState = ZIGBEE_STATE_NETWORK_JOINING;
+        net.BitCloud_State_handle = BitCloud_State_joinNetwork;
+        net.send = BitCloud_Network_State_NETJOINING_send;
+        break;
+    case (ZIGBEE_STATE_NETWORK_JOINED):
+        net.zState = ZIGBEE_STATE_NETWORK_JOINED;
+        net.BitCloud_State_handle = BitCloud_State_executeTask;
+        net.send = BitCloud_Network_State_NET_send;
+        break;
+    default:
+        net.zState = ZIGBEE_STATE_INITIAL;
+        net.BitCloud_State_handle = BitCloud_State_initSystem;
+        net.send = BitCloud_Network_State_INIT_send;
     }
 
 }
 
-void BitCloud_State_initSystem(void)
-{
+void
+BitCloud_State_initSystem(void) {
     // do something with the display or the leds
     visualizeAppStarting();
 
@@ -201,8 +216,8 @@ void BitCloud_State_initSystem(void)
     CS_WriteParameter(CS_DEVICE_TYPE_ID, &(net.appDeviceType));
 
     //  we want unique aka coordinator assigned addresses
-	bool b = true;
-	CS_WriteParameter(CS_NWK_UNIQUE_ADDR_ID, &b);
+    bool b = true;
+    CS_WriteParameter(CS_NWK_UNIQUE_ADDR_ID, &b);
 
 #ifdef _ENDDEVICE_
     bool rxOnWhenIdleFlag = false;
@@ -235,17 +250,18 @@ void BitCloud_State_initSystem(void)
 
 
     // init default zigbee data request
-    net.dataRequest.profileId 		    = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_PROFILE_ID;
+    net.dataRequest.profileId               = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_PROFILE_ID;
     net.dataRequest.dstAddrMode             = APS_SHORT_ADDRESS;
     net.dataRequest.dstAddress.shortAddress = CPU_TO_LE16(0);
     net.dataRequest.dstEndpoint             = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_ENDPOINT_ID;
     net.dataRequest.clusterId               = CPU_TO_LE16(PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_CLUSTER_ID);
     net.dataRequest.srcEndpoint             = PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_ENDPOINT_ID;
 //    net.dataRequest.asduLength              = sizeof(dirtyAppMessage.data);
-//    net.dataRequest.asdu                    = (uint8_t *)(&dirtyAppMessage.data);
+//    net.dataRequest.asdu                    = (uint8_t
+// *)(&dirtyAppMessage.data);
 //    net.dataRequest.txOptions.acknowledgedTransmission = 1;
     net.dataRequest.txOptions.fragmentationPermitted = 0;
- #ifdef _HIGH_SECURITY_
+#ifdef _HIGH_SECURITY_
     net.dataRequest.txOptions.securityEnabledTransmission = 1;
 #endif
     net.dataRequest.radius                  = 0;
@@ -283,10 +299,11 @@ void BitCloud_State_initSystem(void)
     SYS_PostTask(APL_TASK_ID);
 
 }
-void BitCloud_State_waitToStart(void);
+void
+BitCloud_State_waitToStart(void);
 
-void BitCloud_State_joinNetwork(void)
-{
+void
+BitCloud_State_joinNetwork(void) {
 #ifdef _ENDDEVICE_
 #else
     // stop app timer
@@ -303,84 +320,84 @@ void BitCloud_State_joinNetwork(void)
 
 }
 
-void BitCloud_AppTimer_fired(void)
-{
-    if (net.appState == APP_STATE_IDLE){
-	net.appState = APP_STATE_RUN;
+void
+BitCloud_AppTimer_fired(void) {
+    if (net.appState == APP_STATE_IDLE) {
+        net.appState = APP_STATE_RUN;
     }
     SYS_PostTask(APL_TASK_ID);
 }
 
 // execute application task
-void BitCloud_State_executeTask(void)
-{
-	switch (net.appState)
-	{
-		case APP_STATE_RECEIVEDFRAME:
+void
+BitCloud_State_executeTask(void) {
+    switch (net.appState)
+    {
+    case APP_STATE_RECEIVEDFRAME:
 #ifndef _ENDDEVICE_
-			HAL_StopAppTimer(&net.appTaskTimer);
+        HAL_StopAppTimer(&net.appTaskTimer);
 #endif
-			//BitCloud_SDDSFRAME_process();
-			net.appState = APP_STATE_IDLE;
+        //BitCloud_SDDSFRAME_process();
+        net.appState = APP_STATE_IDLE;
 #ifndef _ENDDEVICE_
-			HAL_StartAppTimer(&net.appTaskTimer);
+        HAL_StartAppTimer(&net.appTaskTimer);
 #endif
-			break;
+        break;
 
-		case APP_STATE_STOP:
-			break;
+    case APP_STATE_STOP:
+        break;
 
-		case APP_STATE_IDLE:
-			break;
+    case APP_STATE_IDLE:
+        break;
 
-		case APP_STATE_RUN:
+    case APP_STATE_RUN:
 #ifndef _ENDDEVICE_
-			HAL_StopAppTimer(&net.appTaskTimer);
+        HAL_StopAppTimer(&net.appTaskTimer);
 #endif
 
-			// run application task
-			sdds_app_run();
-			net.appState = APP_STATE_IDLE;
+        // run application task
+        sdds_app_run();
+        net.appState = APP_STATE_IDLE;
 #ifndef _ENDDEVICE_
-			HAL_StartAppTimer(&net.appTaskTimer);
+        HAL_StartAppTimer(&net.appTaskTimer);
 #endif
-			break;
+        break;
 
-		case APP_STATE_SENDING:
-			break;
+    case APP_STATE_SENDING:
+        break;
 
-		default:
-			break;
-	}
+    default:
+        break;
+    }
 
-	SYS_PostTask(APL_TASK_ID);
+    SYS_PostTask(APL_TASK_ID);
 }
 
 
 #ifdef _COORDINATOR_
 // send data to uart etc pp
-void APS_DataIndCoord(APS_DataInd_t *indData)
-{
-  visualizeAirRxFinished();
+void
+APS_DataIndCoord(APS_DataInd_t* indData) {
+    visualizeAirRxFinished();
 
 //  APL_WRITE_LOG(0x62)
 //  appSendMessageToUsart((AppMessage_t *)indData->asdu);
 }
 #endif
 #ifndef _COORDINATOR_// TODO call network incoming method
-void APS_DataIncoming(APS_DataInd_t *indData)
-{
+void
+APS_DataIncoming(APS_DataInd_t* indData) {
 
 
     // check frame
-    if (indData->status != APS_SUCCESS_STATUS){
-	return ;
+    if (indData->status != APS_SUCCESS_STATUS) {
+        return;
     }
 
     // check sdds msg
-    if (indData->clusterId != PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_CLUSTER_ID ||
-	    indData->profileId != PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_PROFILE_ID){
-	return ;
+    if (  indData->clusterId != PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_CLUSTER_ID
+       || indData->profileId != PLATFORM_BITCLOUD_SDDS_ZIGBEE_APP_PROFILE_ID) {
+        return;
     }
 
     // delegate the further processing to the sdds specific impl
@@ -392,84 +409,85 @@ void APS_DataIncoming(APS_DataInd_t *indData)
 
 
 
-static void ZDO_StartNetworkConf(ZDO_StartNetworkConf_t *confirmInfo)
-{
+static void
+ZDO_StartNetworkConf(ZDO_StartNetworkConf_t* confirmInfo) {
     // check if joining a network was a sucess
     if (confirmInfo->status == ZDO_SUCCESS_STATUS) {
-	// set new state, we are in a network now :)
-	BitCloud_State_set(ZIGBEE_STATE_NETWORK_JOINED);
+        // set new state, we are in a network now :)
+        BitCloud_State_set(ZIGBEE_STATE_NETWORK_JOINED);
 
-	// visualize we are in a network now ..
-	visualizeNwkStarted();
+        // visualize we are in a network now ..
+        visualizeNwkStarted();
 
-	// extract some infos
-	// TODO should create a locator obj?
-	net.panID	= confirmInfo->PANId;
-	net.nodeAddr	= confirmInfo->shortAddr;
+        // extract some infos
+        // TODO should create a locator obj?
+        net.panID       = confirmInfo->PANId;
+        net.nodeAddr    = confirmInfo->shortAddr;
 
-	net.parentAddr	= confirmInfo->parentAddr;
+        net.parentAddr  = confirmInfo->parentAddr;
 
-	net.workingChannel = confirmInfo->activeChannel;
-	// register endpoint
-	// register the endpoint description
-	APS_RegisterEndpointReq(&(net.endpointParams));
+        net.workingChannel = confirmInfo->activeChannel;
+        // register endpoint
+        // register the endpoint description
+        APS_RegisterEndpointReq(&(net.endpointParams));
 
-	// start app task
+        // start app task
 #ifdef _ENDDEVICE_
 #else
-	// start the application
-	net.appState = APP_STATE_IDLE;
-	HAL_StartAppTimer(&(net.appTaskTimer));
+        // start the application
+        net.appState = APP_STATE_IDLE;
+        HAL_StartAppTimer(&(net.appTaskTimer));
 #endif
     }
     SYS_PostTask(APL_TASK_ID);
 
 }
 
-void ZDO_MgmtNwkUpdateNotf(ZDO_MgmtNwkUpdateNotf_t *nwkParams)
-{
+void
+ZDO_MgmtNwkUpdateNotf(ZDO_MgmtNwkUpdateNotf_t* nwkParams) {
     nwkParams = nwkParams;
 
 }
 
-static void APS_DataConf(APS_DataConf_t *confInfo)
-{
+static void
+APS_DataConf(APS_DataConf_t* confInfo) {
 
     // check the success of the last sending
     if (confInfo->status == APS_SUCCESS_STATUS) {
-	visualizeAirTxFInished();
-	net.appState = APP_STATE_IDLE;
-	net.dataRequestInProcess = false;
-	sdds_app_sendOK();
-    } else {
-	// TODO ehmm? we should do something ...
-	net.appState = APP_STATE_IDLE;
-	net.dataRequestInProcess = false;
+        visualizeAirTxFInished();
+        net.appState = APP_STATE_IDLE;
+        net.dataRequestInProcess = false;
+        sdds_app_sendOK();
+    }
+    else {
+        // TODO ehmm? we should do something ...
+        net.appState = APP_STATE_IDLE;
+        net.dataRequestInProcess = false;
     }
 
 }
 
-rc_t Network_send(NetBuffRef buff)
-{
+rc_t
+Network_send(NetBuffRef buff) {
 
     return net.send(buff);
 }
 
 
-rc_t BitCloud_Network_State_INIT_send(NetBuffRef buff)
-{
+rc_t
+BitCloud_Network_State_INIT_send(NetBuffRef buff) {
     buff = buff;
     return SDDS_RT_FAIL;
 }
-rc_t BitCloud_Network_State_NETJOINING_send(NetBuffRef buff)
-{
+rc_t
+BitCloud_Network_State_NETJOINING_send(NetBuffRef buff) {
     buff = buff;
     return SDDS_RT_FAIL;
 }
-rc_t BitCloud_Network_State_NET_send(NetBuffRef buff)
-{
-    if (net.dataRequestInProcess == true){
-	return 1;
+rc_t
+BitCloud_Network_State_NET_send(NetBuffRef buff) {
+    if (net.dataRequestInProcess == true) {
+        return 1;
     }
 
 
@@ -479,7 +497,7 @@ rc_t BitCloud_Network_State_NET_send(NetBuffRef buff)
 
 
     // not ack with broadcast!
-   // net.dataRequest.txOptions.acknowledgedTransmission = 1;
+    // net.dataRequest.txOptions.acknowledgedTransmission = 1;
 
     // set size
     net.dataRequest.asduLength =  (uint16_t) buff->curPos;
@@ -502,32 +520,32 @@ rc_t BitCloud_Network_State_NET_send(NetBuffRef buff)
 
 #ifdef _BINDING_
 /***********************************************************************************
-  Stub for ZDO Binding Indication
+   Stub for ZDO Binding Indication
 
-  Parameters:
+   Parameters:
     bindInd - indication
 
-  Return:
+   Return:
     none
 
- ***********************************************************************************/
-void ZDO_BindIndication(ZDO_BindInd_t *bindInd)
-{
-  (void)bindInd;
+***********************************************************************************/
+void
+ZDO_BindIndication(ZDO_BindInd_t* bindInd) {
+    (void)bindInd;
 }
 
 /***********************************************************************************
-  Stub for ZDO Unbinding Indication
+   Stub for ZDO Unbinding Indication
 
-  Parameters:
+   Parameters:
     unbindInd - indication
 
-  Return:
+   Return:
     none
 
- ***********************************************************************************/
-void ZDO_UnbindIndication(ZDO_UnbindInd_t *unbindInd)
-{
-  (void)unbindInd;
+***********************************************************************************/
+void
+ZDO_UnbindIndication(ZDO_UnbindInd_t* unbindInd) {
+    (void)unbindInd;
 }
 #endif //_BINDING_

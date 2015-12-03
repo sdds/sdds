@@ -20,19 +20,19 @@
 
 #include <stdio.h>
 #include <stdarg.h>
- #include <api_calls.h>
+#include <api_calls.h>
 
 
 // 0 all, 1
 static int logLvl =0;
 
-void Log_setLvl(int lvl)
-{
+void
+Log_setLvl(int lvl) {
     logLvl = lvl;
 }
 #ifndef UTILS_NO_LOGGING
-void _log_trace(const char* fnk, ...)
-{
+void
+_log_trace(const char* fnk, ...) {
     if (logLvl < 1 ) {
         va_list arg;
         char* string;
@@ -46,8 +46,8 @@ void _log_trace(const char* fnk, ...)
     }
 }
 
-void _log_debug(const char* fnk, ...)
-{
+void
+_log_debug(const char* fnk, ...) {
     if (logLvl < 2 ) {
         va_list arg;
         char* string;
@@ -61,8 +61,8 @@ void _log_debug(const char* fnk, ...)
     }
 }
 
-void _log_info(const char* fnk, ...)
-{
+void
+_log_info(const char* fnk, ...) {
     if (logLvl < 3) {
         va_list arg;
         char* string;
@@ -77,8 +77,8 @@ void _log_info(const char* fnk, ...)
     }
 }
 
-void _log_warn(const char* fnk, ...)
-{
+void
+_log_warn(const char* fnk, ...) {
     if (logLvl < 4) {
         va_list arg;
         char* string;
@@ -92,9 +92,9 @@ void _log_warn(const char* fnk, ...)
     }
 }
 
-void _log_error(const char* fnk, ...)
-{
-    if (logLvl < 5){
+void
+_log_error(const char* fnk, ...) {
+    if (logLvl < 5) {
         va_list arg;
         char* string;
         va_start(arg, fnk);
@@ -107,8 +107,8 @@ void _log_error(const char* fnk, ...)
     }
 }
 
-void _log_panic(const char* fnk, ...)
-{
+void
+_log_panic(const char* fnk, ...) {
     if (logLvl < 6) {
         va_list arg;
         char* string;
@@ -123,5 +123,3 @@ void _log_panic(const char* fnk, ...)
     }
 }
 #endif
-
-

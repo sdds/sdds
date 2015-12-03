@@ -34,18 +34,24 @@ typedef struct _DataWriter_t DataWriter_t;
 struct _DataSource_t;
 typedef struct _DataSource_t DataSource_t;
 
-extern DataSource_t *dataSource;
+extern DataSource_t* dataSource;
 
-rc_t DataSource_init(void);
+rc_t
+DataSource_init(void);
 
-DataWriter_t * DataSource_create_datawriter(Topic_t *topic, Qos qos, Listener list, StatusMask mask);
-rc_t DataSource_writeAddress(DataWriter_t *_this, castType_t castType, addrType_t addrType, uint8_t *addr, uint8_t addrLen);
+DataWriter_t*
+DataSource_create_datawriter(Topic_t* topic, Qos qos, Listener list, StatusMask mask);
+rc_t
+DataSource_writeAddress(DataWriter_t* _this, castType_t castType, addrType_t addrType, uint8_t* addr, uint8_t addrLen);
 
-rc_t DataSource_getDataWrites(DDS_DCPSPublication *pt, int *len);
-rc_t DataSource_getTopic(DDS_DCPSSubscription *st, topicid_t id, Topic_t **topic);
+rc_t
+DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len);
+rc_t
+DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic);
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t DataSource_write(DataWriter_t *_this, Data data, void* waste);
+rc_t
+DataSource_write(DataWriter_t* _this, Data data, void* waste);
 #endif// SDDS_TOPIC_HAS_SUB
 
 

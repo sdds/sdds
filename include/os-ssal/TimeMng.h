@@ -28,7 +28,7 @@ typedef uint32_t time32_t;
 typedef int32_t msec32_t;
 typedef uint32_t msecu32_t;
 
-struct TimeStampSimple_struct{
+struct TimeStampSimple_struct {
     // use only the first 4 bit!
     uint8_t firstField;
     uint8_t secondField;
@@ -36,12 +36,17 @@ struct TimeStampSimple_struct{
 };
 typedef struct TimeStampSimple_struct TimeStampSimple_t;
 
-rc_t TimeMng_init();
+rc_t
+TimeMng_init();
 
-rc_t Time_getTime16(time16_t* time);
-rc_t Time_remainMSec16(time16_t* refTime, msec16_t* remainingMSec);
+rc_t
+Time_getTime16(time16_t* time);
+rc_t
+Time_remainMSec16(time16_t* refTime, msec16_t* remainingMSec);
 
-rc_t Time_getTime32(time32_t* time);
-rc_t Time_remainMSec32(time32_t* refTime, msec32_t* remainingMSec);
+rc_t
+Time_getTime32(time32_t* time);
+rc_t
+Time_remainMSec32(time32_t* refTime, msec32_t* remainingMSec);
 
 #endif   /* ----- #ifndef TIMEMNG_T_INC  ----- */

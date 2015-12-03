@@ -21,9 +21,13 @@
 
 #include "sdds_types.h"
 
-rc_t FreshFrame_readSubMsg(NetBuffRef buff);
-rc_t DomainSet_readSubMsg(NetBuffRef buff);
-rc_t TopicSet_readSubMsg(NetBuffRef buff);
-rc_t DataSet_readSubMsg(NetBuffRef buff);
+rc_t
+FreshFrame_readSubMsg(NetBuffRef buff);
+rc_t
+DomainSet_readSubMsg(NetBuffRef buff);
+rc_t
+TopicSet_readSubMsg(NetBuffRef buff);
+rc_t
+DataSet_readSubMsg(NetBuffRef buff);
 
 #endif   /* ----- #ifndef RECVSTATEMACHINE_H_INC  ----- */

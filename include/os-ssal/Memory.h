@@ -22,10 +22,13 @@
 #include "sdds/sdds_types.h"
 #include "SSW.h"
 
-ssw_rc_t Memory_init(void);
+ssw_rc_t
+Memory_init(void);
 
-void* Memory_alloc(size_t size);
+void*
+Memory_alloc(size_t size);
 
-void Memory_free(void* ptr);
+void
+Memory_free(void* ptr);
 
 #endif   /* ----- #ifndef MEMORY_H_INC  ----- */
