@@ -14,7 +14,6 @@ ALL_OBJS += $(IMPL_DEPEND_OBJS)
 ALL_OBJS += $(SDDS_OBJDIR)/sdds.o
 
 SDDS_CONSTANTS_FILE := gen_constants.h
-#COMPILE.c := $(CROSS)gcc -c
 CC = $(CROSS)gcc
 LD = $(CROSS)ld
 
@@ -40,7 +39,12 @@ CFLAGS += $(INCLUDES)
 CFLAGS += -std=c99
 CFLAGS += -ffreestanding
 
-CFLAGS += -ggdb3
+ifeq ("$(DEBUG)", "no")
+CFLAGS += -DNDEBUG
+CFLAGS += -O2 -fomit-frame-pointer
+else
+CFLAGS += -g
+endif
 CFLAGS += $(AUTOBEST_CFLAGS)
 
 LDFLAGS := -r

@@ -3,8 +3,8 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "tap1"
-    ip = "fe80::dcfb:f6ff:fe0c:16be" 
+    iface = "eth0"
+    ip = "fe80::a00:27ff:feb5:8352" 
     port = "23234"
     >
     Linux multicast discovery example with ipc topic.
