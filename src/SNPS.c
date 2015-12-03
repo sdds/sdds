@@ -15,15 +15,10 @@
  *
  * =====================================================================================
  */
-#include "SNPS.h"
-#include "Marshalling.h"
-#include "Log.h"
+#include "sDDS.h"
 #include "Network.h"
 #include "Discovery.h"
 #include "Locator.h"
-#include <sdds/Log.h>
-
-#include <string.h>
 
 #define SNPS_MULTICAST_COMPRESSION_FRST_NIBBLE                  0
 #define SNPS_MULTICAST_COMPRESSION_SCND_NIBBLE                  1

@@ -71,7 +71,5 @@ struct SourceQos_t {
 
     uint8_t subMsgNeeded;
 };
-typedef struct SourceQos_t* SourceQos;
-
 
 #endif   /* ----- #ifndef QOS_INC  ----- */

@@ -30,9 +30,11 @@ sDDS_init(void);
 #define SDDS_DATA_READER_MAX_OBJS 64
 #endif
 typedef struct _DataReader_t DataReader_t;
+typedef struct _DataWriter_t DataWriter_t;
 typedef struct _History_t History_t;
 typedef struct _NetBuffRef_t NetBuffRef_t;
 typedef struct _Locator_t Locator_t;
+typedef struct SourceQos_t SourceQos_t;
 typedef struct _Sample_t Sample_t;
 typedef struct _Topic_t Topic_t;
 typedef struct TimeStampSimple_struct TimeStampSimple_t;
@@ -43,13 +45,16 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 
 //  Class headers
 #include "BitArray.h"
+#include "Qos.h"
+#include "Marshalling.h"
+#include "SNPS.h"
 #include "NetBuffRef.h"
 #include "History.h"
 #include "DataReader.h"
+#include "DataWriter.h"
 #include "Locator.h"
 #include "Log.h"
 #include "Sample.h"
-#include "SNPS.h"
 #include "Topic.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */

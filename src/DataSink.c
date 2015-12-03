@@ -144,7 +144,8 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             {
                 DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
                 if (data_reader == NULL) {
-                    Log_error("Couĺdn't get Data Reader for topic id %d: Discard submessage\n", topic_id);
+                    Log_error("Couĺdn't get Data Reader for topic id %d: "
+                              "Discard submessage\n", topic_id);
                     SNPS_discardSubMsg(buff);
                     return SDDS_RT_FAIL;
                 }

@@ -20,11 +20,8 @@
 #ifndef  SNPS_H_INC
 #define  SNPS_H_INC
 
-#include "sdds_types.h"
-#include "os-ssal/TimeMng.h"
-#include "NetBuffRef.h"
+#include "sDDS.h"
 #include "TopicMarshalling.h"
-#include "Qos.h"
 
 typedef uint8_t subMsg_t;
 typedef uint8_t addrType_t;

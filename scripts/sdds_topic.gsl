@@ -165,7 +165,9 @@ extern "C"
 #include <os-ssal/Memory.h>
 
 #include <sdds/DataSink.h>
+#include <sdds/DataReader.h>
 #include <sdds/DataSource.h>
+#include <sdds/DataWriter.h>
 #include <sdds/LocatorDB.h>
 #include <sdds/Marshalling.h>
 #include <sdds/Network.h>
@@ -226,7 +228,7 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
     const DDS_InstanceHandle_t  handle
 )
 {
-	rc_t ret = DataSource_write((DataWriter_t *) _this, (Data)instance_data, (void*) handle);
+	rc_t ret = DataWriter_write((DataWriter_t *) _this, (Data)instance_data, (void*) handle);
 
 	if (ret == SDDS_RT_OK)
 		return DDS_RETCODE_OK;

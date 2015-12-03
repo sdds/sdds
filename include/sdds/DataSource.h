@@ -27,10 +27,6 @@
 
 #define SDDS_DATASOURCE_OK 0
 
-
-struct _DataWriter_t;
-typedef struct _DataWriter_t DataWriter_t;
-
 struct _DataSource_t;
 typedef struct _DataSource_t DataSource_t;
 

@@ -22,13 +22,7 @@
 
 #include "sDDS.h"
 #include "BuiltinTopic.h"
-/*#include "Log.h"*/
-#include "Marshalling.h"
-#include "NetBuffRef.h"
-#include "SNPS.h"
 #include "TopicDB.h"
-
-#include <string.h>
 
 struct _DataSink_t;
 typedef struct _DataSink_t DataSink_t;
