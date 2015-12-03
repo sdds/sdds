@@ -31,7 +31,7 @@ Task Task_create(void);
 ssw_rc_t Task_init(Task _this, void(*callback)(void* obj), void* data);
 ssw_rc_t Task_setData(Task _this, void* data);
 
-ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode);
+ssw_rc_t Task_start(Task _this, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode);
 ssw_rc_t Task_stop(Task _this);
 ssw_rc_t Task_delete(Task _this);
 
