@@ -229,9 +229,6 @@ Here is a template file header for an LGPL open source project:
 ```c
 /**  
  *  ============================================================================
- *  @file
- *  @author
- *
  *  @section DESCRIPTION
  *  Description of the class
  *
@@ -389,7 +386,7 @@ This SHOULD be defined as follows:
  *  Structure of our class
  */
 struct mymod {
-    <type> <name>; /**< description */
+    <type> <name>; ///< description
 };
 ```
 
@@ -465,8 +462,7 @@ The constructor SHALL take this general form:
 ```c
 //  Create a new myp_mymod instance
 myp_mymod_t*
-myp_mymod_new(<arguments>)
-{
+myp_mymod_new(<arguments>) {
     assert(object_allocation);
     uint8_t index;
     for (index = 0; index < MYP_MYMOD_MAX_OBJS; index++) {
@@ -500,8 +496,7 @@ The destructor SHALL take this general form:
 ```c
 //  Destroy a myp_mymod instance
 void
-myp_mymod_destroy(myp_mymod_t** self_p)
-{
+myp_mymod_destroy(myp_mymod_t** self_p) {
     assert(self_p);
     if (*self_p) {
         myp_mymod_t* self = *self_p;
@@ -563,8 +558,7 @@ Such a container class SHALL keep the list cursor position in the instance, and 
 //  Return first item in the list or null if the list is empty
 
 item_t*
-myp_mymod_first(myp_mymod_t* self)
-{
+myp_mymod_first(myp_mymod_t* self) {
     assert(self);
     //  Reset cursor to first item in list
     return item;
@@ -573,8 +567,7 @@ myp_mymod_first(myp_mymod_t* self)
 //  Return next item in the list or null if there are no more items
 
 item_t*
-myp_mymod_next(myp_mymod_t* self)
-{
+myp_mymod_next(myp_mymod_t* self) {
     assert(self);
     //  Move cursor to next item in list
     return item;
@@ -604,8 +597,7 @@ To return the value of a property the class SHALL define an accessor method like
 ```c
 //  Return the value of myprop
 <type>
-myp_mymod_myprop(myp_mymod_t* self)
-{
+myp_mymod_myprop(myp_mymod_t* self) {
     assert(self);
     return self->myprop;
 }
@@ -616,8 +608,7 @@ To write the value of a property, if this is permitted, the class SHALL define a
 ```c
 //  Set the value of myprop
 void
-myp_mymod_set_myprop(myp_mymod_t* self, <type> myprop)
-{
+myp_mymod_set_myprop(myp_mymod_t* self, <type> myprop) {
     assert(self);
     self->myprop = myprop;
 }
