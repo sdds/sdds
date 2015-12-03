@@ -104,7 +104,7 @@ Task_init(Task _this, void (* callback)(void* obj), void* data) {
     return SDDS_SSW_RT_OK;
 }
 
-
+ssw_rc_t
 Task_start(Task _this, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode){
     if(_this->cb == NULL || _this == NULL){
         return SDDS_SSW_RT_FAIL;
