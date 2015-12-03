@@ -314,7 +314,7 @@ recvLoop(void* netBuff) {
         loc->isEmpty = false;
         loc->isSender = true;
         loc->type = conn_type;
-         
+        
         buff->addr = loc;
       
         ret = DataSink_processFrame(buff);
