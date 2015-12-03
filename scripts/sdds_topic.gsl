@@ -110,8 +110,8 @@ struct $(topic.c_name:)
 };
 typedef struct $(topic.c_name:) $(topic.c_name:);
 
-Sample_t $(topic.c_name)_samples_pool[50];
-static $(topic.c_name:) $(topic.c_name)_sample_data[50];
+Sample_t $(topic.c_name)_samples_pool[SDDS_TOPIC_APP_MSG_COUNT];
+static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_TOPIC_APP_MSG_COUNT];
 
 DDS_ReturnCode_t
 $(topic.c_name:)_init ();
