@@ -245,6 +245,7 @@ void *recvLoop(void *netBuff)
     u16_t recv_size;
     err_t err;
     int port;
+    rc_t ret;
 
     // Check the dummy locator for uni or multicast socket
     Locator_t *l = (Locator_t *) buff->addr;
@@ -314,14 +315,11 @@ void *recvLoop(void *netBuff)
       loc->type = conn_type;
          
       buff->addr = loc;
-      /*if(conn_type == SDDS_LOCATOR_TYPE_MULTI){
-        multiInBuff.addr = loc;
-      }
-      else if(conn_type == SDDS_LOCATOR_TYPE_UNI){
-        inBuff.addr = loc;
-      }*/
       
-      DataSink_processFrame(buff);
+      ret = DataSink_processFrame(buff);
+      if(ret != SDDS_RT_OK){
+        Log_debug ("Failed to process frame\n");
+      }
       LocatorDB_freeLocator(loc);
     }    
     return SDDS_RT_OK;
@@ -333,10 +331,6 @@ rc_t Network_send(NetBuffRef_t* buff) {
   unsigned int port = 0;
   struct netbuf* netbuf = NULL;
   void* data = NULL; 
-
-  /*printf("========== send NetBuff ==========\n");
-  NetBuffRef_print(buff);
-  printf("========== END NetBuff =======\n");*/
 
   // Check the locator for uni or multicast socket
   Locator_t *loc = (Locator_t *) buff->addr;
