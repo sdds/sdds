@@ -145,9 +145,10 @@ Discovery_sendPublicationTopics(void* data) {
     if (ret == SDDS_RT_OK) {
         int i;
         for (i = 0; i < len; i++) {
-            if (DDS_DCPSPublicationDataWriter_write(g_DCPSPublication_writer,
+            DDS_ReturnCode_t r = DDS_DCPSPublicationDataWriter_write(g_DCPSPublication_writer,
                                                     &pubT[i],
-                                                    NULL) == DDS_RETCODE_ERROR) {
+                                                    NULL);
+            if (r == DDS_RETCODE_ERROR) {
                 // handle error
                 Log_error("Send publication topic failed.\n");
             }

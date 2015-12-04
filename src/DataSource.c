@@ -217,6 +217,7 @@ checkSending(NetBuffRef_t* buf) {
     if (buf->addr != NULL) {
 
         if (Network_send(buf) != SDDS_RT_OK) {
+        	Log_error("Network_send failed\n");
             return SDDS_RT_FAIL;
         }
         //  If frame was sent, free the buffer.

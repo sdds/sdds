@@ -12,33 +12,37 @@ extern "C"
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 
 DDS_Topic g_DCPSParticipant_topic;
-SDDS_DCPSParticipant g_DCPSParticipant_pool[SDDS_TOPIC_APP_MSG_COUNT];
+Sample_t dcps_participant_samples_pool[SDDS_QOS_HISTORY_DEPTH];
+static SDDS_DCPSParticipant dcps_participant_sample_data[SDDS_QOS_HISTORY_DEPTH];
 DDS_DataReader g_DCPSParticipant_reader;
 DDS_DataWriter g_DCPSParticipant_writer;
 
 DDS_Topic g_DCPSTopic_topic;
-DDS_DCPSTopic g_DCPSTopic_pool[SDDS_TOPIC_APP_MSG_COUNT];
+Sample_t dcps_topic_samples_pool[SDDS_QOS_HISTORY_DEPTH];
+static DDS_DCPSTopic dcps_topic_sample_data[SDDS_QOS_HISTORY_DEPTH];
 DDS_DataReader g_DCPSTopic_reader;
 DDS_DataWriter g_DCPSTopic_writer;
 
 DDS_Topic g_DCPSPublication_topic;
-DDS_DCPSPublication g_DCPSPublication_pool[SDDS_TOPIC_APP_MSG_COUNT];
+Sample_t dcps_publication_samples_pool[SDDS_QOS_HISTORY_DEPTH];
+static DDS_DCPSPublication dcps_publication_sample_data[SDDS_QOS_HISTORY_DEPTH];
 DDS_DataReader g_DCPSPublication_reader;
 DDS_DataWriter g_DCPSPublication_writer;
 
 DDS_Topic g_DCPSSubscription_topic;
-SDDS_DCPSSubscription g_DCPSSubscription_pool[SDDS_TOPIC_APP_MSG_COUNT];
+Sample_t dcps_subscription_samples_pool[SDDS_QOS_HISTORY_DEPTH];
+static SDDS_DCPSSubscription dcps_subscription_sample_data[SDDS_QOS_HISTORY_DEPTH];
 DDS_DataReader g_DCPSSubscription_reader;
 DDS_DataWriter g_DCPSSubscription_writer;
 
 Topic_t*
-sDDS_DCPSParticipantTopic_create(SDDS_DCPSParticipant* pool, int count);
+sDDS_DCPSParticipantTopic_create();
 Topic_t*
-sDDS_DCPSTopicTopic_create(DDS_DCPSTopic* pool, int count);
+sDDS_DCPSTopicTopic_create();
 Topic_t*
-sDDS_DCPSPublicationTopic_create(DDS_DCPSPublication* pool, int count);
+sDDS_DCPSPublicationTopic_create();
 Topic_t*
-sDDS_DCPSSubscriptionTopic_create(SDDS_DCPSSubscription* pool, int count);
+sDDS_DCPSSubscriptionTopic_create();
 
 static uint8_t generalByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
 static uint8_t participantByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
@@ -49,23 +53,24 @@ static uint8_t topicByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
 * Initialize *
 **************/
 
-void
-BuiltinTopic_printSubPool() {
-    for (int i = 0; i < SDDS_TOPIC_APP_MSG_COUNT; i++) {
-        printf("-----------------------> TEST.topic_id %d\n", g_DCPSSubscription_pool[i].data.topic_id);
-        printf("-----------------------> TEST.addr %p\n", g_DCPSSubscription_pool[i].addr);
-    }
-}
-
 rc_t
 BuiltinTopic_init(void) {
     int ret;
     Locator_t* l;
 
+    int index;
+    for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
+        dcps_participant_samples_pool[index].data = &dcps_participant_sample_data[index];
+        dcps_topic_samples_pool[index].data = &dcps_topic_sample_data[index];
+        dcps_publication_samples_pool[index].data = &dcps_publication_sample_data[index];
+        dcps_subscription_samples_pool[index].data = &dcps_subscription_sample_data[index];
+    }
+
     BuiltinTopic_participantID = NodeConfig_getNodeID();
 
-    g_DCPSParticipant_topic = sDDS_DCPSParticipantTopic_create(g_DCPSParticipant_pool, SDDS_TOPIC_APP_MSG_COUNT);
-    g_DCPSParticipant_reader = DataSink_create_datareader(g_DCPSParticipant_topic, NULL, NULL /*&sdds_listener*/, NULL);
+    g_DCPSParticipant_topic = sDDS_DCPSParticipantTopic_create();
+    g_DCPSParticipant_reader = DataSink_create_datareader(g_DCPSParticipant_topic, NULL, NULL, NULL);
+    sdds_History_setup (DataReader_history (g_DCPSParticipant_reader), dcps_participant_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSParticipant_writer = DataSource_create_datawriter(g_DCPSParticipant_topic, NULL, NULL, NULL);
 
     ret = LocatorDB_newMultiLocator(&l);
@@ -86,8 +91,9 @@ BuiltinTopic_init(void) {
     }
     Locator_downRef(l);
 
-    g_DCPSTopic_topic = sDDS_DCPSTopicTopic_create(g_DCPSTopic_pool, SDDS_TOPIC_APP_MSG_COUNT);
-    g_DCPSTopic_reader = DataSink_create_datareader(g_DCPSTopic_topic, NULL, NULL /*&sdds_listener*/, NULL);
+    g_DCPSTopic_topic = sDDS_DCPSTopicTopic_create();
+    g_DCPSTopic_reader = DataSink_create_datareader(g_DCPSTopic_topic, NULL, NULL, NULL);
+    sdds_History_setup (DataReader_history (g_DCPSTopic_reader), dcps_topic_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSTopic_writer = DataSource_create_datawriter(g_DCPSTopic_topic, NULL, NULL, NULL);
 
     ret = LocatorDB_newMultiLocator(&l);
@@ -108,8 +114,9 @@ BuiltinTopic_init(void) {
     }
     Locator_downRef(l);
 
-    g_DCPSPublication_topic = sDDS_DCPSPublicationTopic_create(g_DCPSPublication_pool, SDDS_TOPIC_APP_MSG_COUNT);
-    g_DCPSPublication_reader = DataSink_create_datareader(g_DCPSPublication_topic, NULL, NULL /*&sdds_listener*/, NULL);
+    g_DCPSPublication_topic = sDDS_DCPSPublicationTopic_create();
+    g_DCPSPublication_reader = DataSink_create_datareader(g_DCPSPublication_topic, NULL, NULL, NULL);
+    sdds_History_setup (DataReader_history (g_DCPSPublication_reader), dcps_publication_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSPublication_writer = DataSource_create_datawriter(g_DCPSPublication_topic, NULL, NULL, NULL);
 
     ret = LocatorDB_newMultiLocator(&l);
@@ -130,8 +137,9 @@ BuiltinTopic_init(void) {
     }
     Locator_downRef(l);
 
-    g_DCPSSubscription_topic = sDDS_DCPSSubscriptionTopic_create(g_DCPSSubscription_pool, SDDS_TOPIC_APP_MSG_COUNT);
-    g_DCPSSubscription_reader = DataSink_create_datareader(g_DCPSSubscription_topic, NULL, NULL /*&sdds_listener*/, NULL);
+    g_DCPSSubscription_topic = sDDS_DCPSSubscriptionTopic_create();
+    g_DCPSSubscription_reader = DataSink_create_datareader(g_DCPSSubscription_topic, NULL, NULL, NULL);
+    sdds_History_setup (DataReader_history (g_DCPSSubscription_reader), dcps_subscription_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSSubscription_writer = DataSource_create_datawriter(g_DCPSSubscription_topic, NULL, NULL, NULL);
 
     ret = LocatorDB_newMultiLocator(&l);
@@ -232,21 +240,17 @@ DDS_DCPSParticipantDataWriter_write(
     addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
 #endif
 
-    rc_t ret = DataSource_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
-    ret = DataSource_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
-    if (ret == SDDS_RT_OK) {
+    rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
+    ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
+    if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
         return DDS_RETCODE_OK;
     }
     return DDS_RETCODE_ERROR;
 }
 
 Topic_t*
-sDDS_DCPSParticipantTopic_create(SDDS_DCPSParticipant* pool, int count) {
+sDDS_DCPSParticipantTopic_create() {
     Topic_t* topic = TopicDB_createTopic();
-
-    for (int i = 0; i < count; i++) {
-        Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
-    }
 
     topic->Data_encode = TopicMarshalling_DCPSParticipant_encode;
     //topic->dsinks.list = locator;
@@ -350,9 +354,9 @@ DDS_DCPSTopicDataWriter_write(
                               const DDS_DCPSTopic* instance_data,
                               const DDS_InstanceHandle_t handle
                               ) {
-    rc_t ret = DataSource_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
+    rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
-    if (ret == SDDS_RT_OK) {
+    if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
         return DDS_RETCODE_OK;
     }
 
@@ -360,12 +364,8 @@ DDS_DCPSTopicDataWriter_write(
 }
 
 Topic_t*
-sDDS_DCPSTopicTopic_create(DDS_DCPSTopic* pool, int count) {
+sDDS_DCPSTopicTopic_create() {
     Topic_t* topic = TopicDB_createTopic();
-
-    for (int i = 0; i < count; i++) {
-        Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
-    }
 
     topic->Data_encode = TopicMarshalling_DCPSTopic_encode;
     topic->Data_decode = TopicMarshalling_DCPSTopic_decode;
@@ -460,9 +460,9 @@ DDS_DCPSPublicationDataWriter_write(
                                     const DDS_DCPSPublication* instance_data,
                                     const DDS_InstanceHandle_t handle
                                     ) {
-    rc_t ret = DataSource_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
+    rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
-    if (ret == SDDS_RT_OK) {
+    if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
         return DDS_RETCODE_OK;
     }
 
@@ -470,15 +470,8 @@ DDS_DCPSPublicationDataWriter_write(
 }
 
 Topic_t*
-sDDS_DCPSPublicationTopic_create(DDS_DCPSPublication* pool, int count) {
+sDDS_DCPSPublicationTopic_create() {
     Topic_t* topic = TopicDB_createTopic();
-    //Locator_t* locator;
-
-    //Network_createLocator(&locator);
-
-    for (int i = 0; i < count; i++) {
-        Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
-    }
 
     topic->Data_encode = TopicMarshalling_DCPSPublication_encode;
     //topic->dsinks.list = locator;
@@ -609,10 +602,10 @@ DDS_DCPSSubscriptionDataWriter_write(
     addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
 #endif
 
-    rc_t ret = DataSource_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
-    ret = DataSource_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
+    rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
+    ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
-    if (ret == SDDS_RT_OK) {
+    if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
         return DDS_RETCODE_OK;
     }
 
@@ -620,12 +613,8 @@ DDS_DCPSSubscriptionDataWriter_write(
 }
 
 Topic_t*
-sDDS_DCPSSubscriptionTopic_create(SDDS_DCPSSubscription* pool, int count) {
+sDDS_DCPSSubscriptionTopic_create() {
     Topic_t* topic = TopicDB_createTopic();
-
-    for (int i = 0; i < count; i++) {
-        Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
-    }
 
     topic->Data_encode = TopicMarshalling_DCPSSubscription_encode;
 

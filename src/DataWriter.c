@@ -70,6 +70,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* waste) {
 
     if (SNPS_writeData(buffRef, topic->Data_encode, data) != SDDS_RT_OK) {
         // something went wrong oO
+    	Log_error("SNPS_writeData failed\n");
         return SDDS_RT_FAIL;
     }
 
@@ -115,7 +116,7 @@ DataWriter_writeAddress(DataWriter_t* self,
                         uint8_t addrLen) {
     assert (self);
     NetBuffRef_t* buffRef = NULL;
-    Topic_t* topic = _this->topic;
+    Topic_t* topic = self->topic;
     domainid_t domain = topic->domain;
     Locator_t* dest = topic->dsinks.list;
 
