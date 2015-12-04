@@ -219,12 +219,25 @@ checkSending(NetBuffRef_t* buf) {
         if (Network_send(buf) != SDDS_RT_OK) {
             return SDDS_RT_FAIL;
         }
-        // is frame is send free the buffer
+        //  If frame was sent, free the buffer.
         NetBuffRef_renew(buf);
     }
+    //  If latencyBudget is active, don't discard the buffer right away.
+#ifdef SDDS_QOS_LATENCYBUDGET
+    //  Discard the buffer, if the buffer is full and no one there to send.
+    else if (SDDS_NET_MAX_BUF_SIZE <= buf->curPos) {
+    	NetBuffRef_renew(buf);
+    }
+    //  If the buffer is not full jet, just reset the deadline.
     else {
         buf->sendDeadline = 0;
     }
+#else
+	//  If latencyBudget is not active, discard the message right away.
+    else {
+		NetBuffRef_renew(buf);
+    }
+#endif
 
     return SDDS_RT_OK;
 #ifdef SDDS_QOS_LATENCYBUDGET

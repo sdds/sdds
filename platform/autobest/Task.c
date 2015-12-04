@@ -9,7 +9,7 @@
 #define TASK_MNG_TICK 1000
 #define TASK_MNG_TASK_ID 3
 #define TASK_MNG_MUL_SEC_TO_NANO_SEC 1000000000ULL
-#define TASK_MNG_MUL_USEC_TO_NANO_SEC 1000UL
+#define TASK_MNG_MUL_MSEC_TO_NANO_SEC 1000000UL
 #define TASK_MNG_PRI 102
 
 struct Task_struct {
@@ -105,12 +105,12 @@ Task_init(Task _this, void (* callback)(void* obj), void* data) {
 }
 
 ssw_rc_t
-Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode) {
-    if(_this->cb == NULL || _this == NULL) {
+Task_start(Task _this, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode){
+    if(_this->cb == NULL || _this == NULL){
         return SDDS_SSW_RT_FAIL;
     }
     time_t systemTime = sys_gettime();
-    _this->timeout = (usec * TASK_MNG_MUL_USEC_TO_NANO_SEC) + (sec * TASK_MNG_MUL_SEC_TO_NANO_SEC);
+    _this->timeout = (msec * TASK_MNG_MUL_MSEC_TO_NANO_SEC) + (sec * TASK_MNG_MUL_SEC_TO_NANO_SEC);
     _this->fireTime = systemTime + _this->timeout;
     _this->mode = mode;
     _this->isActive = true;

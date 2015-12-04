@@ -67,7 +67,7 @@ void* do_receive(void* foo)
 
 		if (ret == DDS_RETCODE_NO_DATA)
 		{
-			Thread_sleep(NULL, 2);
+			Thread_sleep(NULL, 1);
 		}
 		else
 		{

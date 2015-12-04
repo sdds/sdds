@@ -241,6 +241,7 @@ recvLoop(void* netBuff) {
     u16_t recv_size;
     err_t err;
     int port;
+    rc_t ret;
 
     // Check the dummy locator for uni or multicast socket
     Locator_t* l = (Locator_t*) buff->addr;
@@ -301,68 +302,61 @@ recvLoop(void* netBuff) {
         netbuf_delete(lwip_netbuf);
         // up ref counter
         Locator_upRef(loc);
-
+  
         loc->isEmpty = false;
         loc->isSender = true;
         loc->type = conn_type;
-
+        
         buff->addr = loc;
-        /*if(conn_type == SDDS_LOCATOR_TYPE_MULTI){
-           multiInBuff.addr = loc;
-           }
-           else if(conn_type == SDDS_LOCATOR_TYPE_UNI){
-           inBuff.addr = loc;
-           }*/
-
-        DataSink_processFrame(buff);
+      
+        ret = DataSink_processFrame(buff);
+        if(ret != SDDS_RT_OK){
+          Log_debug ("Failed to process frame\n");
+        }
         LocatorDB_freeLocator(loc);
-    }
+    }    
     return SDDS_RT_OK;
 }
 
-rc_t
-Network_send(NetBuffRef_t* buff) {
-    struct netconn* conn;
-    unsigned int conn_type;
-    unsigned int port = 0;
-    struct netbuf* netbuf = NULL;
-    void* data = NULL;
+rc_t Network_send(NetBuffRef_t* buff) {
+  struct netconn* conn;
+  unsigned int conn_type;
+  unsigned int port = 0;
+  struct netbuf* netbuf = NULL;
+  void* data = NULL; 
 
-    /*printf("========== send NetBuff ==========\n");
-       NetBuffRef_print(buff);
-       printf("========== END NetBuff =======\n");*/
+  // Check the locator for uni or multicast socket
+  Locator_t *loc = (Locator_t *) buff->addr;
+  conn_type = loc->type;
+  // add locator to the netbuffref
+  if(conn_type == SDDS_LOCATOR_TYPE_MULTI) {
+    conn = net.fd_multi_conn;
+  }
+  else if(conn_type == SDDS_LOCATOR_TYPE_UNI){
+    conn = net.fd_uni_conn;
+  }
 
-    // Check the locator for uni or multicast socket
-    Locator_t* loc = (Locator_t*) buff->addr;
-    conn_type = loc->type;
-    // add locator to the netbuffref
-    if(conn_type == SDDS_LOCATOR_TYPE_MULTI) {
-        conn = net.fd_multi_conn;
+  while (loc != NULL ) {
+    err_t err;
+    ip_addr_t* addr = (ip_addr_t*) &(((AutobestLocator_t *) loc)->addr_storage);
+    netbuf = netbuf_new();
+    if(netbuf == NULL){
+      Log_error("Can't alloc netbuffer:\n");
+      return SDDS_RT_FAIL;
     }
-    else if(conn_type == SDDS_LOCATOR_TYPE_UNI) {
-        conn = net.fd_uni_conn;
+    data = netbuf_alloc(netbuf, buff->curPos); 
+    if(data == NULL){
+      Log_error("Can't alloc databuffer:\n");
+      return SDDS_RT_FAIL;
+    }
+    memcpy (data, buff->buff_start, buff->curPos);
+    err = netconn_sendto(conn, netbuf, addr, ((AutobestLocator_t *) loc)->port);
+    netbuf_delete(netbuf); 
+    if (err != ERR_OK ) {
+      Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
+      return SDDS_RT_FAIL;
     }
 
-    while (loc != NULL ) {
-        err_t err;
-        ip_addr_t* addr = (ip_addr_t*) &(((AutobestLocator_t*) loc)->addr_storage);
-        netbuf = netbuf_new();
-        if(netbuf == NULL) {
-            Log_error("Can't alloc netbuffer:\n");
-            return SDDS_RT_FAIL;
-        }
-        data = netbuf_alloc(netbuf, buff->curPos);
-        if(data == NULL) {
-            Log_error("Can't alloc databuffer:\n");
-            return SDDS_RT_FAIL;
-        }
-        memcpy(data, buff->buff_start, buff->curPos);
-        err = netconn_sendto(conn, netbuf, addr, ((AutobestLocator_t*) loc)->port);
-        netbuf_delete(netbuf);
-        if (err != ERR_OK ) {
-            Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
-            return SDDS_RT_FAIL;
-        }
 #ifdef UTILS_DEBUG
         char a[PLATFORM_AUTOBEST_IPV6_MAX_CHAR_LEN];
         Locator_getAddress(loc, a);

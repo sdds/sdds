@@ -3,12 +3,13 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "tap1"
-    ip = "fe80::8ca5:62ff:fe1f:c850"
+    iface = "eth0"
+    ip = "fe80::a00:27ff:feb5:8352" 
     port = "23234"
     >
     Linux multicast discovery example with ipc topic.
-
+    <!-- eth0 fe80::a00:27ff:feb5:8352  -->
+    <!-- eth1 fe80::a00:27ff:feea:1434  -->
     <!--
         Includes are processed first, so XML in included files will be
         part of the XML tree
