@@ -44,6 +44,7 @@ ifeq ($(SDDS_PLATFORM),linux)
 CFLAGS += -D_DEFAULT_SOURCE
 
 CFLAGS += -std=c99 -pthread
+CFLAGS += -O0 -ggdb3 -Werror
 LDLIBS += -lpthread
 endif
 
