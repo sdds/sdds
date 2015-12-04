@@ -19,8 +19,6 @@
 
 #ifndef  MSG_INC
 #define  MSG_INC
-#include "sdds_types.h"
-#include "gen_constants.h"
 
 #define SDDS_MSG_DIR_UNSPEZ     0
 #define SDDS_MSG_DIR_INCOMMING  1

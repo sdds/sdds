@@ -25,10 +25,6 @@
 #ifndef  LOCATORDB_H_INC
 #define  LOCATORDB_H_INC
 
-#include <stdio.h>
-#include "Locator.h"
-#include "sdds_types.h"
-
 struct LocatorDB_t;
 typedef struct LocatorDB_t* LocatorDB;
 

@@ -3,31 +3,7 @@ extern "C"
 {
 #endif
 
-#include "BuiltinTopic.h"
-#include "DataSource.h"
-#include "Discovery.h"
-#include "Debug.h"
-#include "DataSink.h"
-
-#include "os-ssal/NodeConfig.h"
-#include "os-ssal/Thread.h"
-#include "os-ssal/Memory.h"
-#include "os-ssal/Task.h"
-
-#include <sdds/DataSink.h>
-#include <sdds/DataSource.h>
-#include <sdds/LocatorDB.h>
-#include <sdds/Marshalling.h>
-#include <sdds/Network.h>
-#include <sdds/TopicDB.h>
-#include <sdds/TopicMarshalling.h>
-#include <sdds/sDDS.h>
-#include <sdds/Log.h>
-
-#include <dds/DDS_DCPS.h>
-
-#include <stdio.h>
-#include <string.h>
+#include "sDDS.h"
 
 #ifdef __cplusplus
 }

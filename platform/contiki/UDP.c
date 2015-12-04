@@ -1,10 +1,4 @@
-#include <os-ssal/Memory.h>
-
-#include <sdds/DataSink.h>
-#include <sdds/Log.h>
-#include <sdds/LocatorDB.h>
-#include <sdds/NetBuffRef.h>
-#include <sdds/sdds_types.h>
+#include "sDDS.h"
 
 #include <contiki.h>
 #include <contiki-net.h>

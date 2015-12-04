@@ -19,11 +19,6 @@
 
 #ifndef  NETBUFFREF_H_INC
 #define  NETBUFFREF_H_INC
-#include "sdds_types.h"
-#include "sDDS.h"
-#include "NetFrameBuff.h"
-#include "os-ssal/TimeMng.h"
-#include "Topic.h"
 
 struct Locator_t;
 
@@ -45,7 +40,6 @@ struct _NetBuffRef_t {
     Topic_t* curTopic;
     domainid_t curDomain;
 };
-typedef struct _NetBuffRef_t NetBuffRef_t;
 
 rc_t
 NetBuffRef_init(NetBuffRef_t* _this);

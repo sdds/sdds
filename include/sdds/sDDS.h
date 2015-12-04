@@ -20,6 +20,7 @@
 #ifndef  SDDS_H_INC
 #define  SDDS_H_INC
 
+#include "gen_constants.h"
 #include "sdds_types.h"
 
 rc_t
@@ -33,6 +34,7 @@ typedef struct _DataReader_t DataReader_t;
 typedef struct _DataWriter_t DataWriter_t;
 typedef struct _History_t History_t;
 typedef struct _NetBuffRef_t NetBuffRef_t;
+typedef struct NetFrameBuff_t* NetFrameBuff;
 typedef struct _Locator_t Locator_t;
 typedef struct SourceQos_t SourceQos_t;
 typedef struct _Sample_t Sample_t;
@@ -41,20 +43,40 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 
 //  Abstraction
 #include "os-ssal/Task.h"
+#include "os-ssal/Thread.h"
 #include "os-ssal/TimeMng.h"
+#include "os-ssal/Memory.h"
+#include "os-ssal/NodeConfig.h"
+#include "os-ssal/SSW.h"
+#include "dds/DDS_DCPS.h"
 
 //  Class headers
+#include "Debug.h"
 #include "BitArray.h"
 #include "Qos.h"
 #include "Marshalling.h"
 #include "SNPS.h"
+#include "NetFrameBuff.h"
 #include "NetBuffRef.h"
+#include "Network.h"
 #include "History.h"
 #include "DataReader.h"
 #include "DataWriter.h"
+#include "DataSink.h"
+#include "Msg.h"
+#include "DataSource.h"
 #include "Locator.h"
+#include "LocatorDB.h"
 #include "Log.h"
 #include "Sample.h"
+#include "TopicDB.h"
 #include "Topic.h"
+#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
+#include "Discovery.h"
+#endif
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+#include "BuiltinTopic.h"
+#endif
+#include "Management.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */

@@ -19,10 +19,6 @@
 #ifndef  NETWORK_H_INC
 #define  NETWORK_H_INC
 
-#include "sdds_types.h"
-#include "NetBuffRef.h"
-#include "Locator.h"
-
 struct Network_t;
 
 typedef struct Network_t* Network;

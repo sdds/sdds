@@ -9,15 +9,6 @@
 #ifndef BUILTINTOPIC_H_
 #define BUILTINTOPIC_H_
 
-#include "sdds_types.h"
-#include "Locator.h"
-#include "LocatorDB.h"
-#include "dds/DDS_DCPS.h"
-#include "NetBuffRef.h"
-#include "Network.h"
-#include "os-ssal/NodeConfig.h"
-#include "SNPS.h"
-
 #ifndef SDDS_BUILTIN_MULTICAST_ADDRESS
 #define SDDS_BUILTIN_MULTICAST_ADDRESS          "ff02::10"
 #endif

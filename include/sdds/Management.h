@@ -8,9 +8,6 @@
 #ifndef MANAGEMENT_H_
 #define MANAGEMENT_H_
 
-#include "sdds_types.h"
-#include "os-ssal/Task.h"
-
 #if 0
 
 struct PubMng_t {

@@ -17,22 +17,11 @@
  */
 
 #include "sDDS.h"
-#include "DataSource.h"
-#include "Log.h"
-#include "Qos.h"
-#include "SNPS.h"
-#include "NetBuffRef.h"
-#include "Network.h"
-#include "Marshalling.h"
-#include "os-ssal/Task.h"
 
 #ifndef SDDS_PLATFORM_autobest
 #include <stdlib.h>
 #endif
 #include <string.h>
-
-// IF BUILTINTOPIC
-#include "BuiltinTopic.h"
 
 struct _InstantSender_t {
     NetBuffRef_t highPrio;
@@ -51,12 +40,10 @@ struct _DataSource_t {
 static DataSource_t dsStruct;
 static Task sendTask;
 
-DataSource_t* self = &dsStruct;
+static DataSource_t* self = &dsStruct;
 
 //  Forward declarations of internal helper functions
 
-NetBuffRef_t*
-findFreeFrame(Locator_t* dest);
 rc_t
 checkSending(NetBuffRef_t* buf);
 void

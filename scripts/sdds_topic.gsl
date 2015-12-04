@@ -93,9 +93,7 @@ $(project.GENERATED_WARNING_HEADER:)
 #ifndef $(TOPIC.NAME)_H_INC
 #define $(TOPIC.NAME)_H_INC
 
-#include <dds/DDS_DCPS.h>
-#include <sdds/Log.h>
-#include <sdds/Topic.h>
+#include <sdds/sDDS.h>
 
 struct $(topic.c_name:)
 {
@@ -161,18 +159,6 @@ extern "C"
 #endif
 
 #include "$(topic.c_name)-ds.h"
-
-#include <os-ssal/Memory.h>
-
-#include <sdds/DataSink.h>
-#include <sdds/DataReader.h>
-#include <sdds/DataSource.h>
-#include <sdds/DataWriter.h>
-#include <sdds/LocatorDB.h>
-#include <sdds/Marshalling.h>
-#include <sdds/Network.h>
-#include <sdds/TopicDB.h>
-#include <sdds/TopicMarshalling.h>
 
 #include <stdio.h>
 #include <string.h>

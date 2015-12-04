@@ -25,24 +25,6 @@ $(project.GENERATED_WARNING_HEADER:)
 #ifndef $(PROJECT.NAME)_SDDS_IMPL_H_INC
 #define $(PROJECT.NAME)_SDDS_IMPL_H_INC
 
-#include "gen_constants.h"
-
-#include <dds/DDS_DCPS.h>
-#include <os-ssal/Memory.h>
-#include <os-ssal/NodeConfig.h>
-#include <sdds/DataSink.h>
-#include <sdds/DataSource.h>
-#include <sdds/LocatorDB.h>
-#include <sdds/Log.h>
-#include <sdds/Network.h>
-#include <sdds/sDDS.h>
-#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-#include <sdds/Discovery.h>
-#endif
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-#include <sdds/BuiltinTopic.h>
-#endif
-
 .for project.topic
 #include "$(topic.c_name)-ds.h"
 .endfor
@@ -137,7 +119,7 @@ sDDS_init (void)
     g_$(topic.c_name:)_topic = sDDS_$(topic.c_name:)Topic_create(g_$(topic.c_name:)_pool, SDDS_TOPIC_APP_MSG_COUNT);
 .   if count (project.role, role.topic = topic.name & role.type = "subscriber")
     g_$(topic.c_name:)_reader = DataSink_create_datareader(g_$(topic.c_name:)_topic, NULL, NULL, NULL);
-    sdds_History_setup (DataReader_history (g_$(topic.c_name:)_reader), $(topic.c_name)_samples_pool, 64);
+    sdds_History_setup (DataReader_history (g_$(topic.c_name:)_reader), $(topic.c_name)_samples_pool, SDDS_QOS_HISTORY_DEPTH);
 .   endif
 .   if count (project.role, role.topic = topic.name & role.type = "publisher")
     g_$(topic.c_name:)_writer = DataSource_create_datawriter(g_$(topic.c_name:)_topic, NULL, NULL, NULL);

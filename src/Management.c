@@ -5,9 +5,7 @@
  *      Author: kai
  */
 
-#include "Management.h"
-#include "os-ssal/SSW.h"
-#include "BuiltinTopic.h"
+#include "sDDS.h"
 
 #if 0
 static struct Management_t staticMng;

@@ -15,16 +15,8 @@
  *
  * =====================================================================================
  */
-#include "Locator.h"
-#include "LocatorDB.h"
-#include "Network.h"
-#include "Log.h"
-#include "os-ssal/Memory.h"
-#include "NetBuffRef.h"
-#include "DataSink.h"
-#include "sdds_types.h"
-#include "BuiltinTopic.h"
-#include "gen_constants.h"
+
+#include "sDDS.h"
 
 #include <stdlib.h>
 #include <stdio.h>

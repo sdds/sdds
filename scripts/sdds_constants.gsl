@@ -77,7 +77,7 @@ $(project.GENERATED_WARNING_HEADER:)
 #define SDDS_MNG_WORKER_CYCLE_TIME 10000
 #define SDDS_MNG_BUILTINT_PUBCYCLE_PRESCALER 2
 
-.if count (project.topic)
+.if count (project.topic) > 15
 #define SDDS_EXTENDED_TOPIC_SUPPORT
 .endif
 

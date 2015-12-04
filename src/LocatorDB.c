@@ -16,9 +16,7 @@
  * =====================================================================================
  */
 
-#include "LocatorDB.h"
-#include "Locator.h"
-#include "Network.h"
+#include "sDDS.h"
 
 struct LocatorDB_t {
 

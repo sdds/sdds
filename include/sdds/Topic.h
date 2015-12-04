@@ -19,10 +19,6 @@
 #ifndef  TOPIC_H_INC
 #define  TOPIC_H_INC
 
-#include "sDDS.h"
-#include "sdds_types.h"
-#include "Locator.h"
-#include "Msg.h"
 
 struct datasources {
     Locator_t* list;

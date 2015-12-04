@@ -22,6 +22,5 @@ struct NetFrameBuff_t
 {
     size_t size;
 };
-typedef struct NetFrameBuff_t* NetFrameBuff;
 
 #endif   /* ----- #ifndef NETBUFF_H_INC  ----- */

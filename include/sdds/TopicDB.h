@@ -20,12 +20,6 @@
 #ifndef  TOPICDB_H_INC
 #define  TOPICDB_H_INC
 
-#include <stdio.h>
-#include <string.h>
-#include "sdds_types.h"
-#include "Topic.h"
-#include "NetBuffRef.h"
-
 bool_t
 TopicDB_checkDomain(domainid_t domain);
 Topic_t*

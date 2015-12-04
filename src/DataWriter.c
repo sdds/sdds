@@ -11,6 +11,13 @@
 
 #include "sDDS.h"
 
+//  Forward declarations of internal helper functions
+
+NetBuffRef_t*
+findFreeFrame(Locator_t* dest);
+rc_t
+checkSending(NetBuffRef_t* buf);
+
 rc_t
 DataWriter_init () {
     return SDDS_RT_OK;

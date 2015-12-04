@@ -15,11 +15,7 @@
  *
  * =====================================================================================
  */
-#include "TopicDB.h"
-#include "sdds_types.h"
-#include "BuiltinTopic.h"
-#include "Marshalling.h"
-#include "SNPS.h"
+#include "sDDS.h"
 
 struct _TopicDB_t {
     Topic_t db[SDDS_TOPIC_MAX_COUNT];

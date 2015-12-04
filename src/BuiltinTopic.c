@@ -3,25 +3,7 @@ extern "C"
 {
 #endif
 
-#include "BuiltinTopic.h"
-#include "DataSource.h"
-#include "DataSink.h"
-#include "SNPS.h"
-
-#include <os-ssal/Memory.h>
-
-#include <sdds/DataSink.h>
-#include <sdds/DataSource.h>
-#include <sdds/LocatorDB.h>
-#include <sdds/Marshalling.h>
-#include <sdds/Network.h>
-#include <sdds/TopicDB.h>
-#include <sdds/TopicMarshalling.h>
-#include <sdds/sDDS.h>
-#include <sdds/Log.h>
-
-#include <stdio.h>
-#include <string.h>
+#include "sDDS.h"
 
 #ifdef __cplusplus
 }

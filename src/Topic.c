@@ -15,9 +15,8 @@
  *
  * =====================================================================================
  */
-#include "Topic.h"
-#include "sdds_types.h"
-#include "Msg.h"
+
+#include "sDDS.h"
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t

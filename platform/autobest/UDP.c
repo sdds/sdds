@@ -1,14 +1,6 @@
-#include <os-ssal/Memory.h>
-#include <os-ssal/Thread.h>
+#include "sDDS.h"
 #include <stdio.h>
 #include <string.h>
-
-#include <sdds/DataSink.h>
-#include <sdds/Log.h>
-#include <sdds/LocatorDB.h>
-#include <sdds/NetBuffRef.h>
-#include <sdds/sdds_types.h>
-#include <gen_constants.h>
 
 #include <api_calls.h>
 #include <lwip/opt.h>

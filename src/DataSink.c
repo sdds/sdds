@@ -16,8 +16,7 @@
  * =====================================================================================
  */
 
-#include "DataSink.h"
-#include "Qos.h"
+#include "sDDS.h"
 
 struct _DataSink_t {
     DataReader_t readers[SDDS_DATA_READER_MAX_OBJS];
