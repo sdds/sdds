@@ -58,7 +58,7 @@ Task_setData(Task _this, void* data) {
         return SDDS_SSW_RT_FAIL;
     }
     _this->data = data;
-    return SDDS_SSW_RT_OK;
+    return SDDS_RT_OK;
 }
 
 
@@ -71,7 +71,7 @@ TaskMng_init(void) {
     taskLast = taskList;
     isTaskListEmpty = true;
     if(taskList == NULL) {
-        return SDDS_SSW_RT_FAIL;
+        return SDDS_RT_FAIL;
     }
     memset(taskList, 0, sizeof(struct Task_struct));
 
@@ -83,7 +83,7 @@ TaskMng_init(void) {
         return SDDS_SSW_RT_FAIL;
     }
 
-    return SDDS_SSW_RT_OK;
+    return SDDS_RT_OK;
 }
 
 Task
@@ -101,13 +101,13 @@ Task_init(Task _this, void (* callback)(void* obj), void* data) {
     _this->cb = callback;
     _this->data = data;
 
-    return SDDS_SSW_RT_OK;
+    return SDDS_RT_OK;
 }
 
 ssw_rc_t
 Task_start(Task _this, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode){
     if(_this->cb == NULL || _this == NULL){
-        return SDDS_SSW_RT_FAIL;
+        return SDDS_RT_FAIL;
     }
     time_t systemTime = sys_gettime();
     _this->timeout = (msec * TASK_MNG_MUL_MSEC_TO_NANO_SEC) + (sec * TASK_MNG_MUL_SEC_TO_NANO_SEC);
@@ -115,19 +115,19 @@ Task_start(Task _this, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode){
     _this->mode = mode;
     _this->isActive = true;
     addTask(_this);
-    return SDDS_SSW_RT_OK;
+    return SDDS_RT_OK;
 }
 
 ssw_rc_t
 Task_stop(Task _this) {
     if (_this == NULL) {
-        return SDDS_SSW_RT_FAIL;
+        return SDDS_RT_OK;
     }
     if(_this->isActive) {
         stopTask(_this);
         _this->isActive = false;
     }
-    return SDDS_SSW_RT_OK;
+    return SDDS_RT_OK;
 }
 
 ssw_rc_t
@@ -136,7 +136,7 @@ Task_delete(Task _this) {
         return SDDS_SSW_RT_FAIL;
     }
     deleteTask(_this);
-    return SDDS_SSW_RT_OK;
+    return SDDS_RT_OK;
 }
 
 
