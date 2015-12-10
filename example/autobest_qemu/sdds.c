@@ -6,15 +6,14 @@
 #include <Log.h>
 
 #include <api_calls.h>
+#include <trace_api.h>
 
-#define SLEEP_TIMEOUT_NSEC 2000000
+#define SLEEP_TIMEOUT_NSEC 2000000ULL
 
 int main(void);
 void* do_receive(void* foo);
 
-int main(void)
-{
-
+int main(void){
 
 	rc_t ret = sDDS_init();
 	if(ret != SDDS_RT_OK){
@@ -56,22 +55,24 @@ int main(void)
 }
 
 
-void* do_receive(void* foo)
-{
+void* do_receive(void* foo){
 	Ipc data_used;
 	Ipc* data_used_ptr = &data_used;
 
-	for (;;)
-	{
+	for (;;){
 		DDS_ReturnCode_t ret = DDS_IpcDataReader_take_next_sample(g_Ipc_reader, &data_used_ptr, NULL); 
 
-		if (ret == DDS_RETCODE_NO_DATA)
-		{
-			Thread_sleep(NULL, 1);
+		if (ret == DDS_RETCODE_NO_DATA){
+/*#ifndef NDEBUG
+			trace_test(AUTOBETS_ETHERNET_IN_EVENT);
+#endif*/
+			//Thread_sleep(NULL, 1);
+			sys_sleep(SLEEP_TIMEOUT_NSEC);
 		}
-		else
-		{
-			printf("received: %x\n ",data_used.value );
+		else{
+			printf("received: %x\n",data_used.value );
+
 		}
+		
 	}
 }

@@ -88,29 +88,52 @@ sDDS_init (void)
     rc_t ret;
     //  Initializes all sDDS classes is defined in sDDS.c
     //  Must be first as all other classes depend on it
-    if (BitArray_init () == SDDS_RT_FAIL) {
-        return SDDS_RT_FAIL;
+    ret = BitArray_init();
+    if (ret == SDDS_RT_FAIL) {
+        goto exit;
     }
     // Initalize classes
-    ret = Memory_init ();
-    if (ret == SDDS_RT_FAIL) goto exit;
-	ret = LocatorDB_init ();
-    if (ret == SDDS_RT_FAIL) goto exit;
-	ret = DataSource_init ();
-    if (ret == SDDS_RT_FAIL) goto exit;
-	ret = DataSink_init ();
-    if (ret == SDDS_RT_FAIL) goto exit;
-	ret = sdds_History_init ();
-    if (ret == SDDS_RT_FAIL) goto exit;
-	ret = Network_init ();
-    if (ret == SDDS_RT_FAIL) goto exit;
+    ret = Memory_init();
+    if (ret == SDDS_RT_FAIL){ 
+        goto exit;
+    }
+	ret = LocatorDB_init();
+    if (ret == SDDS_RT_FAIL){ 
+        goto exit;
+    }
+	ret = DataSource_init();
+    if (ret == SDDS_RT_FAIL){ 
+        goto exit;
+    }
+	ret = DataSink_init();
+    if (ret == SDDS_RT_FAIL){ 
+        goto exit;
+    }
+	ret = sdds_History_init();
+    if (ret == SDDS_RT_FAIL){ 
+        goto exit;
+    }
+	ret = Network_init();
+    if (ret == SDDS_RT_FAIL){ 
+        goto exit;
+    }
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-	ret = BuiltinTopic_init ();
-    if (ret == SDDS_RT_FAIL) goto exit;
+	ret = BuiltinTopic_init();
+    if (ret == SDDS_RT_FAIL){ 
+        goto exit;
+    }
 #endif
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-	ret = Discovery_init ();
-    if (ret == SDDS_RT_FAIL) goto exit;
+	ret = Discovery_init();
+    if (ret == SDDS_RT_FAIL){ 
+        goto exit;
+    }
+#endif
+#ifdef FEATURE_SDDS_TRACEING_ENABLED
+    ret = Trace_init();
+    if (ret == SDDS_RT_FAIL){ 
+        goto exit;
+    }
 #endif
 
 	Locator_t* l;

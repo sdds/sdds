@@ -1,4 +1,5 @@
 #include <os-ssal/Trace.h>
+#include <local_constants.h>
 
 #include <api_calls.h>
 

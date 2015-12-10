@@ -43,6 +43,7 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 
 //  Abstraction
 #include "os-ssal/Task.h"
+#include "os-ssal/Trace.h"
 #include "os-ssal/Thread.h"
 #include "os-ssal/TimeMng.h"
 #include "os-ssal/Memory.h"
