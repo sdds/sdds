@@ -114,9 +114,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         Log_error("Invalid SNPS header\n");
         return ret;
     }
-#if defined SDDS_QOS_RELIABILITY
-    seqNr_t seq;
-#endif
+
     topicid_t topic_id;
     while (buff->subMsgCount > 0) {
         subMsg_t type;
@@ -164,22 +162,31 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             break;
         case (SDDS_SNPS_T_TSSIMPLE):
         case (SDDS_SNPS_T_STATUS):
-#if defined SDDS_QOS_RELIABILITY
-        case (SDDS_SNPS_T_SEQNR):
-            SNPS_readSeqNr(buff, &seq);
-            printf("seqNr normal: %d\n", seq);
+
+#if defined SDDS_HAS_QOS_RELIABILITY
+        case (SDDS_SNPS_T_SEQNR): {
+            uint8_t seqNr;
+            SNPS_readSeqNr(buff, &seqNr);
+            printf("seqNr normal: %d\n", seqNr);
+            }
             break;
-        case (SDDS_SNPS_T_SEQNRSMALL):
-            SNPS_readSeqNrSmall(buff, &seq);
-            printf("seqNr Small: %d\n", seq);
+        case (SDDS_SNPS_T_SEQNRSMALL): {
+            uint8_t seqNr;
+            SNPS_readSeqNrSmall(buff, &seqNr);
+            printf("seqNr Small: %d\n", seqNr);
+            }
             break;
-        case (SDDS_SNPS_T_SEQNRBIG):
-            SNPS_readSeqNrBig(buff, &seq);
-            printf("seqNr Big: %d\n", seq);
+        case (SDDS_SNPS_T_SEQNRBIG): {
+            uint16_t seqNr;
+            SNPS_readSeqNrBig(buff, &seqNr);
+            printf("seqNr Big: %d\n", seqNr);
+            }
             break;
-        case (SDDS_SNPS_T_SEQNRHUGE):
-            SNPS_readSeqNrHUGE(buff, &seq);
-            printf("seqNr Huge: %d\n", seq);
+        case (SDDS_SNPS_T_SEQNRHUGE): {
+            uint32_t seqNr;
+            SNPS_readSeqNrHUGE(buff, &seqNr);
+            printf("seqNr Huge: %d\n", seqNr);
+            }
             break;
 #endif
         default:

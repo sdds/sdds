@@ -74,31 +74,25 @@ DataWriter_write(DataWriter_t* self, Data data, void* waste) {
         return SDDS_RT_FAIL;
     }
 
-#ifdef SDDS_QOS_RELIABILITY
-#if SDDS_QOS_RELIABILITY_KIND == KIND_BESTEFFORT
-#if SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_NORMAL
-    if (SNPS_writeSeqNr(buffRef, self->qos.seqNr) != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
+#ifdef SDDS_HAS_QOS_RELIABILITY
+    printf("writer_seqNrBitSize: %d\n", topic->seqNrBitSize);
+    switch (topic->seqNrBitSize){
+    case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
+        SNPS_writeSeqNr(buffRef, self->seqNr);
+        break;
+    case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
+        SNPS_writeSeqNrSmall(buffRef, self->seqNr);
+        break;
+    case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
+        SNPS_writeSeqNrBig(buffRef, self->seqNr);
+        break;
+    case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
+        SNPS_writeSeqNrHUGE(buffRef, self->seqNr);
+        break;
     }
-#elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
-    if (SNPS_writeSeqNrSmall(buffRef, self->qos.seqNr) != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
-    }
-#elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BIG
-    if (SNPS_writeSeqNrBig(buffRef, self->qos.seqNr) != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
-    }
-#elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
-    if (SNPS_writeSeqNrHUGE(buffRef, self->qos.seqNr) != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
-    }
+    self->seqNr++;
 #endif
-    self->qos.seqNr++;
 
-#else
-    //TODO
-#endif
-#endif
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
     ret = checkSending(buffRef);
