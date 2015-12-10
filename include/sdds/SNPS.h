@@ -126,15 +126,15 @@ rc_t
 SNPS_writeTSsimple(NetBuffRef_t* ref, TimeStampSimple_t* ts);
 rc_t
 SNPS_writeStatus(NetBuffRef_t* ref);
-#if defined SDDS_QOS_RELIABILITY
+#if defined SDDS_HAS_QOS_RELIABILITY
 rc_t
-SNPS_writeSeqNr(NetBuffRef_t* ref, seqNr_t seqNr);
+SNPS_writeSeqNr(NetBuffRef_t* ref, uint8_t seqNr);
 rc_t
-SNPS_writeSeqNrSmall(NetBuffRef_t* ref, seqNr_t seqNr);
+SNPS_writeSeqNrSmall(NetBuffRef_t* ref, uint8_t seqNr);
 rc_t
-SNPS_writeSeqNrBig(NetBuffRef_t* ref, seqNr_t seqNr);
+SNPS_writeSeqNrBig(NetBuffRef_t* ref, uint16_t seqNr);
 rc_t
-SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, seqNr_t seqNr);
+SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, uint32_t seqNr);
 #endif
 rc_t
 SNPS_writeAckSeq(NetBuffRef_t* ref);
@@ -163,15 +163,15 @@ rc_t
 SNPS_readDomain(NetBuffRef_t* ref, domainid_t* domain);
 rc_t
 SNPS_readTopic(NetBuffRef_t* ref, topicid_t* topic);
-#if defined SDDS_QOS_RELIABILITY
+#if defined SDDS_HAS_QOS_RELIABILITY
 rc_t
-SNPS_readSeqNr(NetBuffRef_t* ref, seqNr_t* seqNr);
+SNPS_readSeqNr(NetBuffRef_t* ref, uint8_t* seqNr);
 rc_t
-SNPS_readSeqNrSmall(NetBuffRef_t* ref, seqNr_t* seqNr);
+SNPS_readSeqNrSmall(NetBuffRef_t* ref, uint8_t* seqNr);
 rc_t
-SNPS_readSeqNrBig(NetBuffRef_t* ref, seqNr_t* seqNr);
+SNPS_readSeqNrBig(NetBuffRef_t* ref, uint16_t* seqNr);
 rc_t
-SNPS_readSeqNrHUGE(NetBuffRef_t* ref, seqNr_t* seqNr);
+SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr);
 #endif
 rc_t
 SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data);
@@ -180,4 +180,4 @@ rc_t
 SNPS_IPv6_str2Addr(char* charAddr, uint8_t* byteAddr, uint8_t* addrLen);
 rc_t
 SNPS_IPv6_addr2Str(uint8_t* byteAddr, char* charAddr);
-#endif   /* ----- #ifndef SNPS_H_INC  ----- */
+#endif   /* ----- #ifmplete_start_auto_complete)ndef SNPS_H_INC  ----- */

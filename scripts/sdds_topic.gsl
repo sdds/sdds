@@ -69,8 +69,30 @@ function resolve_topic_type (topic)
     endfor
 endfunction
 
+function resolve_topic_config (topic)
+    for my.topic.config
+        if config.type = "qos_reliability"
+            config.seqNrBitSize ?= ""
+            if reliabilitySeqnrSize = "basic"
+                config.seqNrBitSize = "4"
+            elsif reliabilitySeqnrSize = "small"
+                config.seqNrBitSize = "8"
+            elsif reliabilitySeqnrSize = "big"
+                config.seqNrBitSize = "16"
+            elsif reliabilitySeqnrSize = "small"
+                config.seqNrBitSize = "32"
+            else
+                echo "E: Invalid size '$(config.reliabilitySeqnrSize)' for config '$(config.type)' in topic $(topic.name:)"
+            endif
+        else
+            echo "E: Invalid config '$(config.type)' in topic $(topic.name:)"
+        endif
+    endfor
+endfunction
+
 for project.topic
     resolve_topic_type (topic)
+    resolve_topic_config (topic)
 endfor
 
 .endtemplate
@@ -241,6 +263,14 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 	topic->domain = SDDS_DOMAIN;
 	topic->id = SDDS_TOPIC;
 	topic->Data_cpy = TopicMarshalling_$(topic.c_name:)_cpy;
+
+.   for topic.config
+.       if config.type = "qos_reliability"
+#ifdef SDDS_HAS_QOS_RELIABILITY
+topic->seqNrBitSize = $(seqNrBitSize:);
+#endif
+.       endif
+.   endfor
 
 	return topic;
 }

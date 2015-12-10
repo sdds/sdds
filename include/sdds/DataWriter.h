@@ -23,6 +23,11 @@ struct _DataWriter_t {
     SourceQos_t qos;
     unsigned int id : 4;
     History_t history;
+
+#if defined SDDS_HAS_QOS_RELIABILITY
+   uint32_t seqNr;
+#endif
+
 };
 
 rc_t

@@ -46,6 +46,11 @@ struct _Topic_t {
 
     domainid_t domain;
     topicid_t id;
+
+#if defined SDDS_HAS_QOS_RELIABILITY
+    uint8_t seqNrBitSize;
+#endif
+
 };                              /* ----------  end of struct Topic  ----------
                                    */
 
