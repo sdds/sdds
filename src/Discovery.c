@@ -48,7 +48,7 @@ static rc_t
 Discovery_addRemoteDataSink(Locator_t* l, Topic_t* topic);
 
 /***********************************************************************************
-                                                                        Implementierung									
+                                                                        Implementierung
   ***********************************************************************************/
 
 static rc_t
@@ -95,7 +95,6 @@ Discovery_handleParticipant(SDDS_DCPSParticipant p) {
         }
 
     }
-
     Locator_downRef(p.addr);
 
     return ret;
@@ -107,7 +106,12 @@ Discovery_addRemoteDataSink(Locator_t* l, Topic_t* topic) {
 
     Locator_t* loc;
     ret = Network_createMulticastLocator(&loc);
+    if (ret != SDDS_RT_OK)
+        return ret;
+
     ret = Network_setMulticastAddressToLocator(loc, SDDS_BUILTIN_SUB_PUB_ADDRESS);
+    if (ret != SDDS_RT_OK)
+        return ret;
 
     if (!Locator_isEqual(l, loc)) {
         ret = Topic_addRemoteDataSink(topic, l);
@@ -145,6 +149,9 @@ Discovery_sendPublicationTopics(void* data) {
     if (ret == SDDS_RT_OK) {
         int i;
         for (i = 0; i < len; i++) {
+            Log_debug("Send (publication):[%u][%x] topic:%u\n",
+                      pubT[i].key, pubT[i].participant_key,
+                      pubT[i].topic_id);
             DDS_ReturnCode_t r = DDS_DCPSPublicationDataWriter_write(g_DCPSPublication_writer,
                                                     &pubT[i],
                                                     NULL);
@@ -170,6 +177,9 @@ Discovery_sendSubscriptionTopics(topicid_t topicID) {
     ret = DataSink_getTopic((DDS_DCPSSubscription*) &st_data_used,
                             topicID, NULL);
     if (ret == SDDS_RT_OK) {
+        Log_debug("Send (subscription):[%u][%x] topic:%u\n",
+                  st_data_used.data.key, st_data_used.data.participant_key,
+                  st_data_used.data.topic_id);
         if (DDS_DCPSSubscriptionDataWriter_write(g_DCPSSubscription_writer,
                                                  (DDS_DCPSSubscription*) &st_data_used,
                                                  NULL) == DDS_RETCODE_ERROR) {

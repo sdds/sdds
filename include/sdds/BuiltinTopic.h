@@ -22,7 +22,7 @@
 #endif
 
 #ifndef SDDS_BUILTIN_TOPIC_ADDRESS
-#define SDDS_BUILTIN_TOPIC_ADDRESS                      "ff02::50"
+#define SDDS_BUILTIN_TOPIC_ADDRESS              "ff02::50"
 #endif
 
 /* The last character is used for the terminating \0 */
