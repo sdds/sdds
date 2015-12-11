@@ -800,7 +800,6 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
     ref->curPos +=1;
 
     if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
-//	if (addrLen == 0) {
         ret = Locator_getAddress(ref->addr, addr);
     }
     else {

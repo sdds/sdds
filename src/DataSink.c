@@ -62,7 +62,7 @@ DataSink_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
             return SDDS_RT_OK;
         }
     }
-    Log_error("Can't find the Topic\n");
+    Log_debug("No DataReader found that listens for topics with id %d\n", id);
     return SDDS_RT_FAIL;
 }
 #endif
@@ -141,7 +141,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             {
                 DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
                 if (data_reader == NULL) {
-                    Log_error("Couĺdn't get Data Reader for topic id %d: "
+                    Log_debug("Couĺdn't get Data Reader for topic id %d: "
                               "Discard submessage\n", topic_id);
                     SNPS_discardSubMsg(buff);
                     return SDDS_RT_FAIL;

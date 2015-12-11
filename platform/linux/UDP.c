@@ -20,7 +20,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -49,7 +48,7 @@
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS           SDDS_BUILTIN_SUB_PUB_ADDRESS
 
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF 20
-#define PLATFORM_LINUX_MULTICAST_SO_RCVBUF 1200000
+#define PLATFORM_LINUX_MULTICAST_SO_RCVBUF SDDS_NET_MAX_BUF_SIZE
 
 #ifndef PLATFORM_LINUX_SDDS_ADDRESS
 #define PLATFORM_LINUX_SDDS_ADDRESS "::"
@@ -60,9 +59,10 @@
 struct Network_t {
     int fd_uni_socket;
     int fd_multi_socket;
-    int port;
     pthread_t recvThread;
     pthread_t multiRecvThread;
+    int port;
+    char sender_host[NI_MAXHOST];   //  IP address of the last received packet
 };
 
 struct UDPLocator_t {
@@ -92,46 +92,45 @@ Network_size(void) {
     return sizeof(struct Network_t);
 }
 
+
 rc_t
-Network_Multicast_joinMulticastGroup(char* group) {
-    struct addrinfo* mReq;     /* Multicast Address */
-    char multicastPort[PLATFORM_LINUX_IPV6_MAX_CHAR_LEN];
-    struct addrinfo hints = { 0 };     /* Hints for name lookup */
-    int status;
-
-    sprintf(multicastPort, "%d", (net.port + PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF));
-
-    /* Join the multicast group. We do this seperately depending on whether we
-     * are using IPv4 or IPv6.
-     */
-    struct ipv6_mreq multicastRequest;     /* Multicast address join structure
-                                              */
-
-    if ((status = getaddrinfo(group, multicastPort, &hints, &mReq)) != 0) {
-        Log_error("ERROR: setsockopt() failed\n");
+Network_Multicast_joinMulticastGroup(char* multicast_group_ip) {
+    struct addrinfo* multicast_address;
+    char multicast_port[PLATFORM_LINUX_IPV6_MAX_CHAR_LEN];
+    sprintf(multicast_port, "%d", (net.port + PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF));
+    //  Get the multicast address for the provided multicast group ip
+    if (getaddrinfo(multicast_group_ip, multicast_port, NULL, &multicast_address) != 0) {
+        Log_error("%d ERROR: setsockopt() failed: %s\n", __LINE__, strerror(errno));
         return SDDS_RT_FAIL;
     }
 
-    /* Specify the multicast group */
-    memcpy(&multicastRequest.ipv6mr_multiaddr,
-           &((struct sockaddr_in6*) (mReq->ai_addr))->sin6_addr,
-           sizeof(multicastRequest.ipv6mr_multiaddr));
+    //  Copy the multicast address to the multicast request
+    struct ipv6_mreq multicast_request;
+    memcpy(&multicast_request.ipv6mr_multiaddr,
+           &((struct sockaddr_in6*) (multicast_address->ai_addr))->sin6_addr,
+           sizeof(multicast_request.ipv6mr_multiaddr));
 
-    /* Accept multicast from any interface */
-    if ((multicastRequest.ipv6mr_interface = if_nametoindex("usb0")) < 0) {
-        Log_info("Ignoring unknown interface: %s: %s\n", "usb0", strerror(errno));
-        multicastRequest.ipv6mr_interface = 0;
+    //  Try to get scope index for our interface
+    if ((multicast_request.ipv6mr_interface = if_nametoindex(PLATFORM_LINUX_SDDS_IFACE)) < 0) {
+        Log_warn("Couldn't get scope index for interface: %s: %s\n",
+                 PLATFORM_LINUX_SDDS_IFACE,
+                 strerror(errno));
+        //  If scope index couldn't be obtained accept multicast from any
+        //  interface
+        multicast_request.ipv6mr_interface = 0;
     }
 
-    /* Join the multicast address */
-    if (setsockopt(net.fd_multi_socket, IPPROTO_IPV6, IPV6_JOIN_GROUP,
-                   (char*) &multicastRequest, sizeof(multicastRequest)) != 0) {
-        Log_error("ERROR: setsockopt() failed\n");
+    //  Join the multicast group
+    if (setsockopt(net.fd_multi_socket,
+                   IPPROTO_IPV6, IPV6_JOIN_GROUP,
+                   (char*) &multicast_request,
+                   sizeof(multicast_request)) != 0) {
+        Log_error("%d ERROR: setsockopt() failed: %s\n", __LINE__, strerror(errno));
         return SDDS_RT_FAIL;
     }
-
     return SDDS_RT_OK;
 }
+
 
 rc_t
 Network_Multicast_init() {
@@ -232,7 +231,7 @@ Network_Multicast_init() {
     optval = PLATFORM_LINUX_MULTICAST_SO_RCVBUF;
     if (setsockopt(net.fd_multi_socket, SOL_SOCKET, SO_RCVBUF, (char*) &optval, sizeof(optval))
         != 0) {
-        Log_error("%d ERROR: setsockopt() failed\n", __LINE__);
+        Log_error("%d ERROR: setsockopt() failed: %s\n", __LINE__, strerror(errno));
         return SDDS_RT_FAIL;
     }
     if (getsockopt(net.fd_multi_socket, SOL_SOCKET, SO_RCVBUF, (char*) &optval, &optval_len)
@@ -450,7 +449,12 @@ recvLoop(void* netBuff) {
             continue;
         }
 
-        Log_info("[%u]%i bytes empfangen\n", sock_type, (int) recv_size);
+        getnameinfo((struct sockaddr *)&addr, addr_len,
+                    net.sender_host, sizeof(net.sender_host),
+                    NULL, 0,
+                    NI_NUMERICHOST);
+
+        Log_debug("[%u]%i bytes empfangen\n", sock_type, (int) recv_size);
 
         // implicit call of the network receive handler
         // should start from now ;)
@@ -536,7 +540,7 @@ Network_send(NetBuffRef_t* buff) {
                              sizeof(struct sockaddr_storage));
 
         if (transmitted == -1) {
-            perror("ERROR:");
+            perror("ERROR");
             Log_error("can't send udp packet\n");
         }
         else {
@@ -676,8 +680,8 @@ Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
     int gai_ret = getaddrinfo(addr, port_buffer, &hints, &address);
 
     if (gai_ret != 0) {
-        Log_error(
-                  "can't obtain suitable addresses %s for setting UDP locator\n",
+        Log_error( "%d can't obtain suitable addresses %s for setting UDP locator\n",
+                  __LINE__,
                   addr);
 
         return SDDS_RT_FAIL;
@@ -727,8 +731,7 @@ Network_createLocator(Locator_t** loc) {
     // set type for recvLoop
     (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
 
-    return Network_setAddressToLocator(*loc,
-                                       PLATFORM_LINUX_SDDS_ADDRESS);
+    return Network_setAddressToLocator(*loc, PLATFORM_LINUX_SDDS_ADDRESS);
 }
 
 rc_t
@@ -782,11 +785,6 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 
 rc_t
 Locator_getAddress(Locator_t* l, char* srcAddr) {
-    static char srcPort[NI_MAXSERV];
-    struct sockaddr_storage* a = &((struct UDPLocator_t*) l)->addr_storage;
-
-    int rc = getnameinfo((struct sockaddr*) a, sizeof(struct sockaddr_storage), srcAddr,
-                         NI_MAXHOST, srcPort, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
-
+    memcpy (srcAddr, net.sender_host, NI_MAXHOST);
     return SDDS_RT_OK;
 }
