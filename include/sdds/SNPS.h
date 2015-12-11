@@ -94,10 +94,8 @@ typedef uint8_t castType_t;
                                                                         // Bit
                                                                         // Compression
 
-#define SDDS_SNPS_ADDR_STR_LENGTH       SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_CHAR + 1       //NI_MAXHOST
-
 struct SNPS_Address {
-    char addr[SDDS_SNPS_ADDR_STR_LENGTH];
+    char addr[SDDS_SNPS_ADDR_STR_LENGTH + 1];
     castType_t addrCast;
     addrType_t addrType;
 };
