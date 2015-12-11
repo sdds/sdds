@@ -7,6 +7,7 @@
 
 #include "os-ssal/Task.h"
 
+#include "gen_constants.h"
 #include "pthread.h"
 #include <time.h>
 #include <signal.h>
@@ -14,10 +15,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 #include "Log.h"
 
+#ifndef PLATFORM_RUMP
 struct Task_struct {
-
     timer_t timer;
     struct sigevent evp;
 
@@ -28,9 +30,7 @@ struct Task_struct {
     bool active;
 };
 
-/**
- * Should be called at the init phase
- */
+ //  Should be called at the init phase
 ssw_rc_t
 TaskMng_init(void) {
 
@@ -52,7 +52,7 @@ Task_callback(union sigval v) {
 }
 
 static void
-/* Thread notification function */
+//  Thread notification function
 threadFunc(union sigval sv) {
     printf("hello task\n");
 }
@@ -68,9 +68,7 @@ Task_setData(Task _this, void* data) {
     return SDDS_SSW_RT_OK;
 }
 
-/**
- * inits a task with a callback function etc
- */
+//  inits a task with a callback function etc
 ssw_rc_t
 Task_init(Task _this, void (* callback)(void* obj), void* data) {
     int rc;
@@ -168,3 +166,112 @@ Task_delete(Task _this) {
     return SDDS_SSW_RT_OK;
 
 }
+
+#else
+typedef void (* task_callback_fn)(void* obj);
+
+struct Task_struct {
+    pthread_t task_thread;
+
+    task_callback_fn callback_fn;
+    void* data;
+
+    uint8_t sec;
+    SDDS_msec_t msec;
+    SSW_TaskMode_t mode;
+    bool active;
+};
+
+
+void *
+task_thread(void *args) {
+    Task self = (Task) args;
+
+    do {
+        sleep (self->sec);
+        usleep (self->msec);
+
+        self->callback_fn (self->data);
+    } while (self->active && self->mode == SDDS_SSW_TaskMode_repeat);
+}
+
+
+/**
+ * Should be called at the init phase
+ */
+ssw_rc_t
+TaskMng_init(void) {
+    return 0;
+}
+
+
+Task
+Task_create(void) {
+    Task self = malloc (sizeof (struct Task_struct));
+    return self;
+}
+
+
+/**
+ * inits a task with a callback function etc
+ */
+ssw_rc_t
+Task_init (Task self, void (* callback)(void* obj), void* data) {
+    assert (self);
+    assert (callback);
+    data = data;
+
+    self->callback_fn = callback;
+    self->active = false;
+
+    return 0;
+}
+
+
+ssw_rc_t
+Task_setData(Task self, void* data) {
+    assert (self);
+    self->data = data;
+    return SDDS_SSW_RT_OK;
+}
+
+
+ssw_rc_t
+Task_start(Task self, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode) {
+    assert (self);
+    if (!self->active) {
+        self->sec = sec;
+        self->msec = msec;
+        self->mode = mode;
+
+        if (pthread_create (&self->task_thread, NULL, task_thread, (void *) self)) {
+            fprintf(stderr, "Error creating thread\n");
+            return 1;
+        }
+        self->active = true;
+    }
+    return SDDS_SSW_RT_OK;
+
+}
+
+
+ssw_rc_t
+Task_stop(Task self) {
+    assert (self);
+    // stop the timer
+
+    self->active = false;
+    return SDDS_SSW_RT_OK;
+}
+
+
+ssw_rc_t
+Task_delete(Task self) {
+    assert (self);
+    Task_stop(self);
+
+    free(self);
+
+    return SDDS_SSW_RT_OK;
+}
+#endif
