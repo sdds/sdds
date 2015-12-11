@@ -67,7 +67,7 @@ Task_setData(Task _this, void* data) {
  */
 ssw_rc_t
 TaskMng_init(void) {
-    taskList = (struct Task_struct*)Memory_alloc(sizeof(struct Task_struct));
+    taskList = (struct Task_struct*) Memory_alloc(sizeof(struct Task_struct));
     taskLast = taskList;
     isTaskListEmpty = true;
     if(taskList == NULL) {
