@@ -20,7 +20,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -60,9 +59,10 @@
 struct Network_t {
     int fd_uni_socket;
     int fd_multi_socket;
-    int port;
     pthread_t recvThread;
     pthread_t multiRecvThread;
+    int port;
+    char sender_host[NI_MAXHOST];   //  IP address of the last received packet
 };
 
 struct UDPLocator_t {
@@ -232,7 +232,7 @@ Network_Multicast_init() {
     optval = PLATFORM_LINUX_MULTICAST_SO_RCVBUF;
     if (setsockopt(net.fd_multi_socket, SOL_SOCKET, SO_RCVBUF, (char*) &optval, sizeof(optval))
         != 0) {
-        Log_error("%d ERROR: setsockopt() failed\n", __LINE__);
+        Log_error("%d ERROR: setsockopt() failed: %s\n", __LINE__, strerror(errno));
         return SDDS_RT_FAIL;
     }
     if (getsockopt(net.fd_multi_socket, SOL_SOCKET, SO_RCVBUF, (char*) &optval, &optval_len)
@@ -450,7 +450,12 @@ recvLoop(void* netBuff) {
             continue;
         }
 
-        Log_info("[%u]%i bytes empfangen\n", sock_type, (int) recv_size);
+        getnameinfo((struct sockaddr *)&addr, addr_len,
+                    net.sender_host, sizeof(net.sender_host),
+                    NULL, 0,
+                    NI_NUMERICHOST);
+
+        Log_debug("[%u]%i bytes empfangen\n", sock_type, (int) recv_size);
 
         // implicit call of the network receive handler
         // should start from now ;)
@@ -536,7 +541,7 @@ Network_send(NetBuffRef_t* buff) {
                              sizeof(struct sockaddr_storage));
 
         if (transmitted == -1) {
-            perror("ERROR:");
+            perror("ERROR");
             Log_error("can't send udp packet\n");
         }
         else {
@@ -676,8 +681,8 @@ Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
     int gai_ret = getaddrinfo(addr, port_buffer, &hints, &address);
 
     if (gai_ret != 0) {
-        Log_error(
-                  "can't obtain suitable addresses %s for setting UDP locator\n",
+        Log_error( "%d can't obtain suitable addresses %s for setting UDP locator\n",
+                  __LINE__,
                   addr);
 
         return SDDS_RT_FAIL;
@@ -727,8 +732,7 @@ Network_createLocator(Locator_t** loc) {
     // set type for recvLoop
     (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
 
-    return Network_setAddressToLocator(*loc,
-                                       PLATFORM_LINUX_SDDS_ADDRESS);
+    return Network_setAddressToLocator(*loc, PLATFORM_LINUX_SDDS_ADDRESS);
 }
 
 rc_t
@@ -782,11 +786,6 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 
 rc_t
 Locator_getAddress(Locator_t* l, char* srcAddr) {
-    static char srcPort[NI_MAXSERV];
-    struct sockaddr_storage* a = &((struct UDPLocator_t*) l)->addr_storage;
-
-    int rc = getnameinfo((struct sockaddr*) a, sizeof(struct sockaddr_storage), srcAddr,
-                         NI_MAXHOST, srcPort, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
-
+    memcpy (srcAddr, net.sender_host, NI_MAXHOST);
     return SDDS_RT_OK;
 }

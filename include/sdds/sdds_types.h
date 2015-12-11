@@ -25,6 +25,7 @@
 #endif // _ECLIPSE_DEV
 
 #ifdef SDDS_ARCH_esp
+#define SDDS_SNPS_ADDR_STR_LENGTH 45
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
@@ -37,6 +38,7 @@ typedef double float64_t;
 #endif // #ifdef SDDS_ARCH_esp
 
 #ifdef SDDS_ARCH_atmega
+#define SDDS_SNPS_ADDR_STR_LENGTH 45
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
@@ -50,6 +52,7 @@ typedef double float64_t;
 #endif // #ifdef SDDS_ARCH_ATmega
 
 #ifdef SDDS_ARCH_CC2430
+#define SDDS_SNPS_ADDR_STR_LENGTH 45
 #include "hal_sdds_types.h"
 #include "sysmac.h"
 
@@ -72,6 +75,7 @@ typedef double float64_t;
 #endif /* SDDS_ARCH_CC2430 */
 
 #ifdef SDDS_ARCH_x86
+#include <netdb.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -82,6 +86,7 @@ typedef double float64_t;
 #include <signal.h>
 #include <time.h>
 
+#define SDDS_SNPS_ADDR_STR_LENGTH NI_MAXHOST
 /*#ifndef __int8_t_defined
   #define __int8_t_defined
   typedef char                  int8_t;
@@ -111,6 +116,7 @@ typedef long double float128_t;
 #endif
 
 #ifdef SDDS_ARCH_ARM
+#define SDDS_SNPS_ADDR_STR_LENGTH 45
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
