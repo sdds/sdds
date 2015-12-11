@@ -64,6 +64,15 @@ $(project.GENERATED_WARNING_HEADER:)
 #define SDDS_TOPIC_HAS_SUB
 .endif
 
+
+.if project.biggestSeqNrBitSize = 4 | project.biggestSeqNrBitSize = 8
+#define SDDS_SEQNR_BIGGEST_TYPE uint8_t
+.elsif project.biggestSeqNrBitSize = 16
+#define SDDS_SEQNR_BIGGEST_TYPE uint16_t
+.else
+#define SDDS_SEQNR_BIGGEST_TYPE uint32_t
+.endif
+
 #ifndef SDDS_TOPIC_APP_MSG_COUNT
 #define SDDS_TOPIC_APP_MSG_COUNT 5
 #endif /* SDDS_TOPIC_APP_MSG_COUNT */

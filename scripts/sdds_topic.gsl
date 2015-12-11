@@ -10,6 +10,7 @@
 .#
 .template 0
 
+
 function resolve_topic_type (topic)
     my.topic.size ?= 0
     my.topic.description ?= "$(string.trim (topic.?""):left)"
@@ -70,17 +71,28 @@ function resolve_topic_type (topic)
 endfunction
 
 function resolve_topic_config (topic)
+
     for my.topic.config
         if config.type = "qos_reliability"
             config.seqNrBitSize ?= ""
             if reliabilitySeqnrSize = "basic"
                 config.seqNrBitSize = "4"
+                if config.seqNrBitSize > project.biggestSeqNrBitSize
+                    project.biggestSeqNrBitSize = config.seqNrBitSize
+                endif
             elsif reliabilitySeqnrSize = "small"
                 config.seqNrBitSize = "8"
+                if config.seqNrBitSize > project.biggestSeqNrBitSize
+                    project.biggestSeqNrBitSize = config.seqNrBitSize
+                endif
             elsif reliabilitySeqnrSize = "big"
                 config.seqNrBitSize = "16"
-            elsif reliabilitySeqnrSize = "small"
+                if config.seqNrBitSize > project.biggestSeqNrBitSize
+                    project.biggestSeqNrBitSize = config.seqNrBitSize
+                endif
+            elsif reliabilitySeqnrSize = "huge"
                 config.seqNrBitSize = "32"
+                project.biggestSeqNrBitSize ?= "32"
             else
                 echo "E: Invalid size '$(config.reliabilitySeqnrSize)' for config '$(config.type)' in topic $(topic.name:)"
             endif
@@ -90,6 +102,7 @@ function resolve_topic_config (topic)
     endfor
 endfunction
 
+project.biggestSeqNrBitSize ?= "0"
 for project.topic
     resolve_topic_type (topic)
     resolve_topic_config (topic)

@@ -25,7 +25,7 @@ struct _DataWriter_t {
     History_t history;
 
 #if defined SDDS_HAS_QOS_RELIABILITY
-   uint32_t seqNr;
+SDDS_SEQNR_BIGGEST_TYPE seqNr;
 #endif
 
 };

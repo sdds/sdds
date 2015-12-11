@@ -25,6 +25,10 @@ struct _History_t {
     unsigned int in_needle;   //  Needle that points to the next free slot
     unsigned int out_needle;  //  Needle that points to the sample to be
                               //  dequeued next
+
+#ifdef SDDS_HAS_QOS_RELIABILITY
+   SDDS_SEQNR_BIGGEST_TYPE seqNr;
+#endif
 };
 
 //  Initializes this class

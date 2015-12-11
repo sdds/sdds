@@ -68,14 +68,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* waste) {
         buffRef->curTopic = topic;
     }
 
-    if (SNPS_writeData(buffRef, topic->Data_encode, data) != SDDS_RT_OK) {
-        // something went wrong oO
-    	Log_error("SNPS_writeData failed\n");
-        return SDDS_RT_FAIL;
-    }
-
 #ifdef SDDS_HAS_QOS_RELIABILITY
-    printf("writer_seqNrBitSize: %d\n", topic->seqNrBitSize);
     switch (topic->seqNrBitSize){
     case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
         SNPS_writeSeqNr(buffRef, self->seqNr);
@@ -92,6 +85,12 @@ DataWriter_write(DataWriter_t* self, Data data, void* waste) {
     }
     self->seqNr++;
 #endif
+
+    if (SNPS_writeData(buffRef, topic->Data_encode, data) != SDDS_RT_OK) {
+        // something went wrong oO
+    	Log_error("SNPS_writeData failed\n");
+        return SDDS_RT_FAIL;
+    }
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
