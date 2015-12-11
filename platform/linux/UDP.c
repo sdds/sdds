@@ -48,7 +48,7 @@
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS           SDDS_BUILTIN_SUB_PUB_ADDRESS
 
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF 20
-#define PLATFORM_LINUX_MULTICAST_SO_RCVBUF 1200000
+#define PLATFORM_LINUX_MULTICAST_SO_RCVBUF SDDS_NET_MAX_BUF_SIZE
 
 #ifndef PLATFORM_LINUX_SDDS_ADDRESS
 #define PLATFORM_LINUX_SDDS_ADDRESS "::"
@@ -92,46 +92,45 @@ Network_size(void) {
     return sizeof(struct Network_t);
 }
 
+
 rc_t
-Network_Multicast_joinMulticastGroup(char* group) {
-    struct addrinfo* mReq;     /* Multicast Address */
-    char multicastPort[PLATFORM_LINUX_IPV6_MAX_CHAR_LEN];
-    struct addrinfo hints = { 0 };     /* Hints for name lookup */
-    int status;
-
-    sprintf(multicastPort, "%d", (net.port + PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF));
-
-    /* Join the multicast group. We do this seperately depending on whether we
-     * are using IPv4 or IPv6.
-     */
-    struct ipv6_mreq multicastRequest;     /* Multicast address join structure
-                                              */
-
-    if ((status = getaddrinfo(group, multicastPort, &hints, &mReq)) != 0) {
-        Log_error("ERROR: setsockopt() failed\n");
+Network_Multicast_joinMulticastGroup(char* multicast_group_ip) {
+    struct addrinfo* multicast_address;
+    char multicast_port[PLATFORM_LINUX_IPV6_MAX_CHAR_LEN];
+    sprintf(multicast_port, "%d", (net.port + PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF));
+    //  Get the multicast address for the provided multicast group ip
+    if (getaddrinfo(multicast_group_ip, multicast_port, NULL, &multicast_address) != 0) {
+        Log_error("%d ERROR: setsockopt() failed: %s\n", __LINE__, strerror(errno));
         return SDDS_RT_FAIL;
     }
 
-    /* Specify the multicast group */
-    memcpy(&multicastRequest.ipv6mr_multiaddr,
-           &((struct sockaddr_in6*) (mReq->ai_addr))->sin6_addr,
-           sizeof(multicastRequest.ipv6mr_multiaddr));
+    //  Copy the multicast address to the multicast request
+    struct ipv6_mreq multicast_request;
+    memcpy(&multicast_request.ipv6mr_multiaddr,
+           &((struct sockaddr_in6*) (multicast_address->ai_addr))->sin6_addr,
+           sizeof(multicast_request.ipv6mr_multiaddr));
 
-    /* Accept multicast from any interface */
-    if ((multicastRequest.ipv6mr_interface = if_nametoindex("usb0")) < 0) {
-        Log_info("Ignoring unknown interface: %s: %s\n", "usb0", strerror(errno));
-        multicastRequest.ipv6mr_interface = 0;
+    //  Try to get scope index for our interface
+    if ((multicast_request.ipv6mr_interface = if_nametoindex(PLATFORM_LINUX_SDDS_IFACE)) < 0) {
+        Log_warn("Couldn't get scope index for interface: %s: %s\n",
+                 PLATFORM_LINUX_SDDS_IFACE,
+                 strerror(errno));
+        //  If scope index couldn't be obtained accept multicast from any
+        //  interface
+        multicast_request.ipv6mr_interface = 0;
     }
 
-    /* Join the multicast address */
-    if (setsockopt(net.fd_multi_socket, IPPROTO_IPV6, IPV6_JOIN_GROUP,
-                   (char*) &multicastRequest, sizeof(multicastRequest)) != 0) {
-        Log_error("ERROR: setsockopt() failed\n");
+    //  Join the multicast group
+    if (setsockopt(net.fd_multi_socket,
+                   IPPROTO_IPV6, IPV6_JOIN_GROUP,
+                   (char*) &multicast_request,
+                   sizeof(multicast_request)) != 0) {
+        Log_error("%d ERROR: setsockopt() failed: %s\n", __LINE__, strerror(errno));
         return SDDS_RT_FAIL;
     }
-
     return SDDS_RT_OK;
 }
+
 
 rc_t
 Network_Multicast_init() {
