@@ -20,10 +20,6 @@
 #ifndef  DATASOURCE_H_INC_
 #define  DATASOURCE_H_INC_
 #include "sDDS.h"
-#include "Topic.h"
-#include "Qos.h"
-#include "NetBuffRef.h"
-#include "BuiltinTopic.h"
 
 #define SDDS_DATASOURCE_OK 0
 

@@ -20,10 +20,10 @@ extern "C" {
 //  Structure of this class
 
 struct _History_t {
-    Sample_t* samples;             //  Pointer to an array of samples
-    unsigned int depth;            //  Size of the queue
-    unsigned int in_needle;   //  Needle that points to the next free slot
-    unsigned int out_needle;  //  Needle that points to the sample to be
+    Sample_t* samples;        //  Pointer to an array of samples
+    uint16_t depth;           //  Size of the queue
+    uint16_t in_needle;       //  Needle that points to the next free slot
+    uint16_t out_needle;      //  Needle that points to the sample to be
                               //  dequeued next
 };
 

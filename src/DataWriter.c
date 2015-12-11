@@ -134,6 +134,7 @@ DataWriter_writeAddress(DataWriter_t* self,
 
     if (SNPS_writeAddress(buffRef, castType, addrType, addr, addrLen) != SDDS_RT_OK) {
         // something went wrong oO
+        Log_error("%d Couldn't write to address\n", __LINE__);
         return SDDS_RT_FAIL;
     }
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
