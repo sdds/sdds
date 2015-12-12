@@ -527,7 +527,7 @@ Network_send(NetBuffRef_t* buff) {
     // Check the locator for uni or multicast socket
     Locator_t* l = (Locator_t*) buff->addr->List_first(buff->addr);
     if (l == NULL) {
-        Log_error("(%d) Cannot obtain locator.\n", __LINE__);
+        Log_error("(%d) NetBuff has no locator.\n", __LINE__);
         return SDDS_RT_FAIL;
     }
     sock_type = l->type;

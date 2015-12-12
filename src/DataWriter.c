@@ -234,7 +234,7 @@ checkSending(NetBuffRef_t* buf) {
     if ( ((time >= sendDeadline) && (time - sendDeadline < latBudDuration)) || overflow) {
         Task_stop(sendTask);
         if (overflow) {
-            Log_debug("Send Data ahead of deadline due to buffer overflow.\n");
+            Log_warn("Send Data ahead of deadline due to buffer overflow.\n");
         }
         Log_debug("time: %d, deadline: %d\n", time, sendDeadline);
 #endif
