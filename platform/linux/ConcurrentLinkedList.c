@@ -21,29 +21,29 @@ struct Node {
 };
 typedef struct Node Node_t;
 
-struct LinkedList {
+struct ConcurrentLinkedList {
     List_t list;
     Node_t* head;
     Node_t* cursor;
     size_t size;
     Mutex_t* mutex;
 };
-typedef struct LinkedList LinkedList_t;
+typedef struct ConcurrentLinkedList ConcurrentLinkedList_t;
 
 static Node_t nodePool[SDDS_MAX_LINKED_LIST_NODES];
 static _Bool nodePoolInit = false;
 
 //  Forward declaration of function pointers
 void*
-LinkedList_first(struct List *this);
+ConcurrentLinkedList_first(struct List *this);
 void*
-LinkedList_next(struct List *this);
+ConcurrentLinkedList_next(struct List *this);
 ssw_rc_t
-LinkedList_add(struct List *this, void* data);
+ConcurrentLinkedList_add(struct List *this, void* data);
 size_t
-LinkedList_size(struct List* this);
+ConcurrentLinkedList_size(struct List* this);
 ssw_rc_t
-LinkedList_deleteAll(struct List* this);
+ConcurrentLinkedList_deleteAll(struct List* this);
 
 //  initialize node pool
 static void
@@ -72,7 +72,7 @@ s_newNode() {
 //  Initialize List
 List_t*
 List_initConcurrentLinkedList(void) {
-    LinkedList_t* this = Memory_alloc(sizeof(LinkedList_t));
+    ConcurrentLinkedList_t* this = Memory_alloc(sizeof(ConcurrentLinkedList_t));
     if (this == NULL) {
         return NULL;
     }
@@ -85,11 +85,11 @@ List_initConcurrentLinkedList(void) {
     }
 
     s_initNodePool();
-    this->list.List_first = LinkedList_first;
-    this->list.List_next = LinkedList_next;
-    this->list.List_add = LinkedList_add;
-    this->list.List_size = LinkedList_size;
-    this->list.List_deleteAll = LinkedList_deleteAll;
+    this->list.List_first = ConcurrentLinkedList_first;
+    this->list.List_next = ConcurrentLinkedList_next;
+    this->list.List_add = ConcurrentLinkedList_add;
+    this->list.List_size = ConcurrentLinkedList_size;
+    this->list.List_deleteAll = ConcurrentLinkedList_deleteAll;
 
     this->head = NULL;
     this->cursor = NULL;
@@ -100,12 +100,12 @@ List_initConcurrentLinkedList(void) {
 
 // Provides the data of the first element, or NULL
 void*
-LinkedList_first(struct List *this) {
+ConcurrentLinkedList_first(struct List *this) {
     if (this == NULL) {
         return NULL;
     }
 
-    LinkedList_t* linkedList = (LinkedList_t*) this;
+    ConcurrentLinkedList_t* linkedList = (ConcurrentLinkedList_t*) this;
     Mutex_lock(linkedList->mutex);
     if (linkedList->head == NULL) {
         Mutex_unlock(linkedList->mutex);
@@ -121,12 +121,12 @@ LinkedList_first(struct List *this) {
 
 //  Provides the data of the next element, or NUULL.
 void*
-LinkedList_next(struct List *this) {
+ConcurrentLinkedList_next(struct List *this) {
     if (this == NULL) {
         return NULL;
     }
 
-    LinkedList_t* linkedList = (LinkedList_t*) this;
+    ConcurrentLinkedList_t* linkedList = (ConcurrentLinkedList_t*) this;
 
     Mutex_lock(linkedList->mutex);
     if (linkedList->cursor == NULL) {
@@ -151,12 +151,12 @@ LinkedList_next(struct List *this) {
 
 //  Adds data to the list, return SDDS_SSW_RT_OK or SDDS_SSW_RT_FAIL.
 ssw_rc_t
-LinkedList_add(struct List *this, void* data) {
+ConcurrentLinkedList_add(struct List *this, void* data) {
     if (this == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
 
-    LinkedList_t* linkedList = (LinkedList_t*) this;
+    ConcurrentLinkedList_t* linkedList = (ConcurrentLinkedList_t*) this;
 
     Mutex_lock(linkedList->mutex);
     if (linkedList->head == NULL) {
@@ -199,12 +199,12 @@ LinkedList_add(struct List *this, void* data) {
 
 //  Return the size of the list.
 size_t
-LinkedList_size(struct List* this) {
+ConcurrentLinkedList_size(struct List* this) {
     if (this == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
 
-    LinkedList_t* linkedList = (LinkedList_t*) this;
+    ConcurrentLinkedList_t* linkedList = (ConcurrentLinkedList_t*) this;
     Mutex_lock(linkedList->mutex);
     size_t size = linkedList->size;
     Mutex_unlock(linkedList->mutex);
@@ -212,11 +212,11 @@ LinkedList_size(struct List* this) {
 }
 
 ssw_rc_t
-LinkedList_deleteAll(struct List* this) {
+ConcurrentLinkedList_deleteAll(struct List* this) {
     if (this == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
-    LinkedList_t* linkedList = (LinkedList_t*) this;
+    ConcurrentLinkedList_t* linkedList = (ConcurrentLinkedList_t*) this;
     Mutex_lock(linkedList->mutex);
 
     Node_t* it = linkedList->head;
