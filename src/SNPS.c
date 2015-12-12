@@ -387,16 +387,11 @@ SNPS_readTopic(NetBuffRef_t* ref, topicid_t* topic) {
 rc_t
 SNPS_writeData(NetBuffRef_t* ref, TopicMarshalling_encode_fn encode_fn, Data d) {
     size_t writtenBytes = 0;
-
     // start 1 byte later, the header have to be written if the size is known
-    byte_t* s = (ref->buff_start + ref->curPos + 1);
-
-    if (encode_fn(s, d, &writtenBytes) != SDDS_RT_OK) {
+    if (encode_fn(ref, d, &writtenBytes) != SDDS_RT_OK) {
         return SDDS_RT_FAIL;
     }
-
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t) writtenBytes);
-
     // data header
     ref->curPos += 1;
     // data itself
@@ -417,8 +412,7 @@ SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data
     Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t*) &size);
 
     ref->curPos += 1;
-    byte_t* s = (ref->buff_start + ref->curPos);
-    if (decode_fn(s, data, &size) != SDDS_RT_OK) {
+    if (decode_fn(ref, data, &size) != SDDS_RT_OK) {
         return SDDS_RT_FAIL;
     }
     ref->curPos += size;
@@ -800,7 +794,7 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
     ref->curPos +=1;
 
     if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
-        ret = Locator_getAddress(ref->addr, addr);
+        ret = Locator_getAddress(addr);
     }
     else {
         char byteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
@@ -815,37 +809,9 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
 
 #ifdef UTILS_DEBUG
     char a[1024];
-    ret = Locator_getAddress(ref->addr, a);
+    ret = Locator_getAddress(a);
     Log_debug("Connection from %s\n", a);
 #endif
 
     return SDDS_RT_OK;
 }
-
-/*
-   rc_t
-   SNPS_writeTSsimple(NetBuffRef_t *ref, TimeStampSimple_t* ts)
-   {
-    Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_TS, ts->firstField);
-    ref->curPos += 1;
-    Marshalling_enc_uint8(START, &(ts->secondField));
-    ref->curPos += 1;
-    Marshalling_enc_uint8(START, &(ts->thirdField));
-    ref->curPos += 1;
-
-    ref->subMsgCount +=1;
-
-    return SDDS_RT_OK;
-
-   }
- */
-//rc_t SNPS_writeStatus(NetBuffRef_t *ref);
-//rc_t SNPS_writeAckSeq(NetBuffRef_t *ref);
-//rc_t SNPS_writeNackSeq(NetBuffRef_t *ref);
-//rc_t SNPS_writeNack(NetBuffRef_t *ref);
-//rc_t SNPS_writeAck(NetBuffRef_t *ref);
-//rc_t SNPS_writeTSuSec(NetBuffRef_t *ref);
-//rc_t SNPS_writeTSmSec(NetBuffRef_t *ref);
-//rc_t SNPS_writeTSDDS(NetBuffRef_t *ref);
-//rc_t SNPS_wrieSep(NetBuffRef_t *ref);
-//rc_t SNPS_writeAddressess(NetBuffRef_t *ref);

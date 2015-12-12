@@ -29,7 +29,7 @@
 
 #include "sdds_types.h"
 
-typedef rc_t (TopicMarshalling_encode_fn) (byte_t* buff, Data data, size_t* size);
-typedef rc_t (TopicMarshalling_decode_fn) (byte_t* buff, Data data, size_t* size);
+typedef rc_t (TopicMarshalling_encode_fn) (NetBuffRef_t* buff, Data data, size_t* size);
+typedef rc_t (TopicMarshalling_decode_fn) (NetBuffRef_t* buff, Data data, size_t* size);
 
 #endif   /* ----- #ifndef TOPICMARSHALLING_H_INC  ----- */

@@ -19,20 +19,19 @@
 #ifndef  TOPIC_H_INC
 #define  TOPIC_H_INC
 
+#include "os-ssal/List.h"
 
 struct datasources {
-    Locator_t* list;
-    uint8_t count;
+    List_t* list;
 };
 struct datasinks {
-    Locator_t* list;
-    uint8_t count;
+    List_t* list;
 };
 struct _Topic_t {
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
     struct datasinks dsinks;
-    rc_t (* Data_encode)(byte_t* buff, Data data, size_t* size);
+    rc_t (* Data_encode)(NetBuffRef_t* buff, Data data, size_t* size);
 #endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
@@ -41,7 +40,7 @@ struct _Topic_t {
 
     struct MsgPool msg;
 
-    rc_t (* Data_decode)(byte_t* buff, Data data, size_t* size);
+    rc_t (* Data_decode)(NetBuffRef_t* buff, Data data, size_t* size);
     rc_t (* Data_cpy)(Data dest, Data source);
 
     domainid_t domain;

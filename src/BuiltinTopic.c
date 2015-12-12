@@ -195,7 +195,7 @@ rc_t
 TopicMarshalling_DCPSParticipant_cpy(Data dest, Data source);
 
 rc_t
-TopicMarshalling_DCPSParticipant_decode(byte_t* buffer, Data data, size_t* size);
+TopicMarshalling_DCPSParticipant_decode(NetBuffRef_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t
 DDS_DCPSParticipantDataReader_take_next_sample(
@@ -217,7 +217,7 @@ DDS_DCPSParticipantDataReader_take_next_sample(
 }
 
 rc_t
-TopicMarshalling_DCPSParticipant_encode(byte_t* buffer, Data data, size_t* size);
+TopicMarshalling_DCPSParticipant_encode(NetBuffRef_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t
 DDS_DCPSParticipantDataWriter_write(
@@ -260,6 +260,8 @@ sDDS_DCPSParticipantTopic_create() {
     topic->domain = DDS_DCPS_PARTICIPANT_DOMAIN;
     topic->id = DDS_DCPS_PARTICIPANT_TOPIC;
     topic->Data_cpy = TopicMarshalling_DCPSParticipant_cpy;
+    topic->dsinks.list = List_initConcurrentLinkedList();
+    topic->dsources.list = List_initConcurrentLinkedList();
 
     return topic;
 }
@@ -272,19 +274,28 @@ TopicMarshalling_DCPSParticipant_cpy(Data dest, Data source) {
 }
 
 rc_t
-TopicMarshalling_DCPSParticipant_encode(byte_t* buffer, Data data, size_t* size) {
+TopicMarshalling_DCPSParticipant_encode(NetBuffRef_t* buffer, Data data, size_t* size) {
     *size = 0;
 
     DDS_DCPSParticipant* real_data = (DDS_DCPSParticipant*) data;
 
-    Marshalling_enc_uint16(buffer + *size, &real_data->key);
+    int maxSize = 0;
+    maxSize += sizeof(real_data->key);
+
+    byte_t* start = buffer->buff_start + buffer->curPos + 1;
+
+    if ((buffer->curPos + maxSize + 1) >= SDDS_NET_MAX_BUF_SIZE) {
+        return SDDS_RT_FAIL;
+    }
+
+    Marshalling_enc_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
 
     return SDDS_RT_OK;
 }
 
 rc_t
-TopicMarshalling_DCPSParticipant_decode(byte_t* buffer, Data data, size_t* size) {
+TopicMarshalling_DCPSParticipant_decode(NetBuffRef_t* buffer, Data data, size_t* size) {
     DDS_DCPSParticipant* real_data = (DDS_DCPSParticipant*) data;
 
     size_t expectedSize = sizeof(real_data->key);
@@ -292,9 +303,11 @@ TopicMarshalling_DCPSParticipant_decode(byte_t* buffer, Data data, size_t* size)
         fprintf(stderr, "%s : size mismatch is %zu should be %zu \n", __FUNCTION__, *size, expectedSize);
     }
 
+    byte_t* start = buffer->buff_start + buffer->curPos;
+
     *size = 0;
 
-    Marshalling_dec_uint16(buffer + *size, &real_data->key);
+    Marshalling_dec_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
 
     SNPS_Address_t address;
@@ -324,7 +337,7 @@ rc_t
 TopicMarshalling_DCPSTopic_cpy(Data dest, Data source);
 
 rc_t
-TopicMarshalling_DCPSTopic_decode(byte_t* buffer, Data data, size_t* size);
+TopicMarshalling_DCPSTopic_decode(NetBuffRef_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t
 DDS_DCPSTopicDataReader_take_next_sample(
@@ -346,7 +359,7 @@ DDS_DCPSTopicDataReader_take_next_sample(
 }
 
 rc_t
-TopicMarshalling_DCPSTopic_encode(byte_t* buffer, Data data, size_t* size);
+TopicMarshalling_DCPSTopic_encode(NetBuffRef_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t
 DDS_DCPSTopicDataWriter_write(
@@ -373,6 +386,8 @@ sDDS_DCPSTopicTopic_create() {
     topic->domain = DDS_DCPS_TOPIC_DOMAIN;
     topic->id = DDS_DCPS_TOPIC_TOPIC;
     topic->Data_cpy = TopicMarshalling_DCPSTopic_cpy;
+    topic->dsinks.list = List_initConcurrentLinkedList();
+    topic->dsources.list = List_initConcurrentLinkedList();
 
     return topic;
 }
@@ -385,17 +400,25 @@ TopicMarshalling_DCPSTopic_cpy(Data dest, Data source) {
 }
 
 rc_t
-TopicMarshalling_DCPSTopic_encode(byte_t* buffer, Data data, size_t* size) {
+TopicMarshalling_DCPSTopic_encode(NetBuffRef_t* buffer, Data data, size_t* size) {
     *size = 0;
 
     DDS_DCPSTopic* real_data = (DDS_DCPSTopic*) data;
 
-    printf("%d %s\n", __LINE__, __FUNCTION__);
+    byte_t* start = buffer->buff_start + buffer->curPos + 1;
 
-    Marshalling_enc_uint16(buffer + *size, &real_data->key);
+    int maxSize = 0;
+    maxSize += sizeof(real_data->key);
+    maxSize += DDS_TOPIC_NAME_SIZE;
+
+    if ((buffer->curPos + maxSize + 1) >= SDDS_NET_MAX_BUF_SIZE) {
+        return SDDS_RT_FAIL;
+    }
+
+    Marshalling_enc_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
 
-    Marshalling_enc_string(buffer + *size, real_data->name, DDS_TOPIC_NAME_SIZE);
+    Marshalling_enc_string(start + *size, real_data->name, DDS_TOPIC_NAME_SIZE);
     //*size += sizeof(real_data->name);
     *size += DDS_TOPIC_NAME_SIZE;
 
@@ -403,7 +426,7 @@ TopicMarshalling_DCPSTopic_encode(byte_t* buffer, Data data, size_t* size) {
 }
 
 rc_t
-TopicMarshalling_DCPSTopic_decode(byte_t* buffer, Data data, size_t* size) {
+TopicMarshalling_DCPSTopic_decode(NetBuffRef_t* buffer, Data data, size_t* size) {
     DDS_DCPSTopic* real_data = (DDS_DCPSTopic*) data;
 
     size_t expectedSize = sizeof(real_data->key) + DDS_TOPIC_NAME_SIZE;
@@ -411,12 +434,14 @@ TopicMarshalling_DCPSTopic_decode(byte_t* buffer, Data data, size_t* size) {
         fprintf(stderr, "%s : size mismatch is %zu should be %zu \n", __FUNCTION__, *size, expectedSize);
     }
 
+    byte_t* start = buffer->buff_start + buffer->curPos;
+
     *size = 0;
 
-    Marshalling_dec_uint16(buffer + *size, &real_data->key);
+    Marshalling_dec_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
 
-    Marshalling_dec_string(buffer + *size, real_data->name, DDS_TOPIC_NAME_SIZE);
+    Marshalling_dec_string(start + *size, real_data->name, DDS_TOPIC_NAME_SIZE);
     *size += DDS_TOPIC_NAME_SIZE;
 
     return SDDS_RT_OK;
@@ -430,7 +455,7 @@ rc_t
 TopicMarshalling_DCPSPublication_cpy(Data dest, Data source);
 
 rc_t
-TopicMarshalling_DCPSPublication_decode(byte_t* buffer, Data data, size_t* size);
+TopicMarshalling_DCPSPublication_decode(NetBuffRef_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t
 DDS_DCPSPublicationDataReader_take_next_sample(
@@ -452,7 +477,7 @@ DDS_DCPSPublicationDataReader_take_next_sample(
 }
 
 rc_t
-TopicMarshalling_DCPSPublication_encode(byte_t* buffer, Data data, size_t* size);
+TopicMarshalling_DCPSPublication_encode(NetBuffRef_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t
 DDS_DCPSPublicationDataWriter_write(
@@ -481,6 +506,8 @@ sDDS_DCPSPublicationTopic_create() {
     topic->domain = DDS_DCPS_PUBLICATION_DOMAIN;
     topic->id = DDS_DCPS_PUBLICATION_TOPIC;
     topic->Data_cpy = TopicMarshalling_DCPSPublication_cpy;
+    topic->dsinks.list = List_initConcurrentLinkedList();
+    topic->dsources.list = List_initConcurrentLinkedList();
 
     return topic;
 }
@@ -493,25 +520,34 @@ TopicMarshalling_DCPSPublication_cpy(Data dest, Data source) {
 }
 
 rc_t
-TopicMarshalling_DCPSPublication_encode(byte_t* buffer, Data data, size_t* size) {
+TopicMarshalling_DCPSPublication_encode(NetBuffRef_t* buffer, Data data, size_t* size) {
     *size = 0;
-
+    byte_t* start = buffer->buff_start + buffer->curPos + 1;
     DDS_DCPSPublication* real_data = (DDS_DCPSPublication*) data;
 
-    Marshalling_enc_uint16(buffer + *size, &real_data->key);
+    int maxSize = 0;
+    maxSize += sizeof(real_data->key);
+    maxSize += sizeof(real_data->participant_key);
+    maxSize += sizeof(real_data->topic_id);
+
+    if ((buffer->curPos + maxSize + 1) >= SDDS_NET_MAX_BUF_SIZE) {
+        return SDDS_RT_FAIL;
+    }
+
+    Marshalling_enc_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
 
-    Marshalling_enc_uint16(buffer + *size, &real_data->participant_key);
+    Marshalling_enc_uint16(start + *size, &real_data->participant_key);
     *size += sizeof(real_data->participant_key);
 
-    Marshalling_enc_uint16(buffer + *size, &real_data->topic_id);
+    Marshalling_enc_uint16(start + *size, &real_data->topic_id);
     *size += sizeof(real_data->topic_id);
 
     return SDDS_RT_OK;
 }
 
 rc_t
-TopicMarshalling_DCPSPublication_decode(byte_t* buffer, Data data, size_t* size) {
+TopicMarshalling_DCPSPublication_decode(NetBuffRef_t* buffer, Data data, size_t* size) {
     DDS_DCPSPublication* real_data = (DDS_DCPSPublication*) data;
 
     size_t expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
@@ -519,15 +555,17 @@ TopicMarshalling_DCPSPublication_decode(byte_t* buffer, Data data, size_t* size)
         fprintf(stderr, "%s : size mismatch is %zu should be %zu \n", __FUNCTION__, *size, expectedSize);
     }
 
+    byte_t* start = buffer->buff_start + buffer->curPos;
+
     *size = 0;
 
-    Marshalling_dec_uint16(buffer + *size, &real_data->key);
+    Marshalling_dec_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
 
-    Marshalling_dec_uint16(buffer + *size, &real_data->participant_key);
+    Marshalling_dec_uint16(start + *size, &real_data->participant_key);
     *size += sizeof(real_data->participant_key);
 
-    Marshalling_dec_uint16(buffer + *size, &real_data->topic_id);
+    Marshalling_dec_uint16(start + *size, &real_data->topic_id);
     *size += sizeof(real_data->topic_id);
 
     return SDDS_RT_OK;
@@ -541,7 +579,7 @@ rc_t
 TopicMarshalling_DCPSSubscription_cpy(Data dest, Data source);
 
 rc_t
-TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t* size);
+TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t
 DDS_DCPSSubscriptionDataReader_take_next_sample(
@@ -579,7 +617,7 @@ DDS_DCPSSubscriptionDataReader_take_next_sample(
  */
 
 rc_t
-TopicMarshalling_DCPSSubscription_encode(byte_t* buffer, Data data, size_t* size);
+TopicMarshalling_DCPSSubscription_encode(NetBuffRef_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t
 DDS_DCPSSubscriptionDataWriter_write(
@@ -623,6 +661,8 @@ sDDS_DCPSSubscriptionTopic_create() {
     topic->domain = DDS_DCPS_SUBSCRIPTION_DOMAIN;
     topic->id = DDS_DCPS_SUBSCRIPTION_TOPIC;
     topic->Data_cpy = TopicMarshalling_DCPSSubscription_cpy;
+    topic->dsinks.list = List_initConcurrentLinkedList();
+    topic->dsources.list = List_initConcurrentLinkedList();
 
     return topic;
 }
@@ -634,25 +674,36 @@ TopicMarshalling_DCPSSubscription_cpy(Data dest, Data source) {
 }
 
 rc_t
-TopicMarshalling_DCPSSubscription_encode(byte_t* buffer, Data data, size_t* size) {
+TopicMarshalling_DCPSSubscription_encode(NetBuffRef_t* buffer, Data data, size_t* size) {
     *size = 0;
 
     DDS_DCPSSubscription* real_data = (DDS_DCPSSubscription*) data;
 
-    Marshalling_enc_uint16(buffer + *size, &real_data->key);
+    int maxSize = 0;
+    maxSize += sizeof(real_data->key);
+    maxSize += sizeof(real_data->participant_key);
+    maxSize += sizeof(real_data->topic_id);
+
+    if ((buffer->curPos + maxSize + 1) >= SDDS_NET_MAX_BUF_SIZE) {
+        return SDDS_RT_FAIL;
+    }
+
+    byte_t* start = buffer->buff_start + buffer->curPos + 1;
+
+    Marshalling_enc_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
 
-    Marshalling_enc_uint16(buffer + *size, &real_data->participant_key);
+    Marshalling_enc_uint16(start + *size, &real_data->participant_key);
     *size += sizeof(real_data->participant_key);
 
-    Marshalling_enc_uint16(buffer + *size, &real_data->topic_id);
+    Marshalling_enc_uint16(start + *size, &real_data->topic_id);
     *size += sizeof(real_data->topic_id);
 
     return SDDS_RT_OK;
 }
 
 rc_t
-TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t* size) {
+TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t* size) {
     DDS_DCPSSubscription* real_data = (DDS_DCPSSubscription*) data;
 
     size_t expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
@@ -660,15 +711,17 @@ TopicMarshalling_DCPSSubscription_decode(byte_t* buffer, Data data, size_t* size
         fprintf(stderr, "%s : size mismatch is %zu should be %zu \n", __FUNCTION__, *size, expectedSize);
     }
 
+    byte_t* start = buffer->buff_start + buffer->curPos;
+
     *size = 0;
 
-    Marshalling_dec_uint16(buffer + *size, &real_data->key);
+    Marshalling_dec_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
 
-    Marshalling_dec_uint16(buffer + *size, &real_data->participant_key);
+    Marshalling_dec_uint16(start + *size, &real_data->participant_key);
     *size += sizeof(real_data->participant_key);
 
-    Marshalling_dec_uint16(buffer + *size, &real_data->topic_id);
+    Marshalling_dec_uint16(start + *size, &real_data->topic_id);
     *size += sizeof(real_data->topic_id);
 
     SNPS_Address_t address;

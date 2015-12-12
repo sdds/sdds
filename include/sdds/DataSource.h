@@ -28,6 +28,8 @@ typedef struct _DataSource_t DataSource_t;
 
 extern DataSource_t* dataSource;
 
+int DataSource_remainingDataRW();
+
 rc_t
 DataSource_init(void);
 
@@ -46,6 +48,6 @@ rc_t
 DataSource_write(DataWriter_t* _this, Data data, void* waste);
 #endif// SDDS_TOPIC_HAS_SUB
 
-
+void print_Pointer();
 
 #endif   /* ----- #ifndef DATASOURCE_H_INC  ----- */

@@ -7,6 +7,7 @@
 
 #include "Locator.h"
 #include "LocatorDB.h"
+#include "sdds_types.h"
 
 void
 Locator_upRef(Locator_t* _this) {
@@ -122,22 +123,42 @@ Locator_removeFromList(Locator_t* head, Locator_t* toDel) {
     return SDDS_RT_OK;
 }
 
-rc_t
-Locator_contains(Locator_t* head, Locator_t* l) {
+//rc_t
+//Locator_contains(Locator_t* head, Locator_t* l) {
+//
+//    if (head == NULL || l == NULL) {
+//        return SDDS_RT_BAD_PARAMETER;
+//    }
+//
+//    Locator_t* tmp = head;
+//
+//    while (head != NULL) {
+//        // locator is allready in the list
+//        if (Locator_isEqual(head, l) == true) {
+//            return SDDS_RT_OK;
+//        }
+//        tmp = head;
+//        head = head->next;
+//    }
+//
+//    return SDDS_RT_FAIL;
+//}
 
-    if (head == NULL || l == NULL) {
+rc_t
+Locator_contains(List_t* list, Locator_t* l) {
+
+    if ((list == NULL) || (l == NULL)) {
         return SDDS_RT_BAD_PARAMETER;
     }
 
-    Locator_t* tmp = head;
+    Locator_t* data = (Locator_t*) list->List_first(list);
 
-    while (head != NULL) {
+    while (data != NULL) {
         // locator is allready in the list
-        if (Locator_isEqual(head, l) == true) {
+        if (Locator_isEqual(data, l) == true) {
             return SDDS_RT_OK;
         }
-        tmp = head;
-        head = head->next;
+        data = list->List_next(list);
     }
 
     return SDDS_RT_FAIL;

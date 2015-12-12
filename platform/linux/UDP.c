@@ -248,7 +248,9 @@ Network_Multicast_init() {
     Network_Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
 
     NetBuffRef_init(&multiInBuff);
-    Network_createMulticastLocator(&multiInBuff.addr);
+    Locator_t* loc;
+    Network_createMulticastLocator(&loc);
+    multiInBuff.addr->List_add(multiInBuff.addr, loc);
     // set up a thread to read from the udp multicast socket
     if (pthread_create(&net.multiRecvThread, NULL, recvLoop,
                        (void*) &multiInBuff) != 0) {
@@ -286,7 +288,7 @@ Network_init(void) {
                               &hints, &address);
     if (gai_ret != 0) {
         Log_error("can't obtain suitable addresses for listening\n");
-        return -1;
+        return SDDS_RT_FAIL;
     }
     // implicit call of the network receive handler
     // should start from now ;)
@@ -297,6 +299,7 @@ Network_init(void) {
 
     if (net.fd_uni_socket < 0) {
         freeaddrinfo(address);
+        Log_error("Cant't create socket.\n");
         return SDDS_RT_FAIL;
     }
 
@@ -305,18 +308,22 @@ Network_init(void) {
 
     // init the incoming frame buffer and add dummy unicast locator
     NetBuffRef_init(&inBuff);
-    Network_createLocator(&inBuff.addr);
+    Locator_t* loc;
+    Network_createLocator(&loc);
+    inBuff.addr->List_add(inBuff.addr, loc);
 
     // set up a thread to read from the udp socket
     if (pthread_create(&net.recvThread, NULL, recvLoop, (void*) &inBuff)
         != 0) {
-        exit(-1);
+        Log_error("Cant't create thread.\n");
+        return SDDS_RT_FAIL;
     }
 
     // IF BUILTINTOPIC
     builtinTopicNetAddress = Memory_alloc(sizeof(struct UDPLocator_t));
 
     if (builtinTopicNetAddress == NULL) {
+        Log_error("No builtIn topic address set.\n");
         return SDDS_RT_NOMEM;
     }
 
@@ -420,7 +427,7 @@ recvLoop(void* netBuff) {
     int count = 0;
 
     // Check the dummy locator for uni or multicast socket
-    Locator_t* l = (Locator_t*) buff->addr;
+    Locator_t* l = (Locator_t*) buff->addr->List_first(buff->addr);
     sock_type = l->type;
 
     if (sock_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -445,7 +452,7 @@ recvLoop(void* netBuff) {
                                      (struct sockaddr*)&addr, &addr_len);
 
         if (recv_size == -1) {
-            Log_error("Error while receiving a udp frame \n");
+            Log_error("%d Error while receiving a udp frame: %s\n", __LINE__, strerror(errno));
             continue;
         }
 
@@ -466,7 +473,7 @@ recvLoop(void* netBuff) {
 
         memcpy(&(sloc.addr_storage), &addr, addr_len);
 
-        Locator_t* loc;
+        Locator_t* loc = buff->addr->List_first(buff->addr);
 
         //pthread_mutex_lock(&recv_mutex);
         if (LocatorDB_findLocator((Locator_t*) &sloc, &loc) != SDDS_RT_OK) {
@@ -490,7 +497,7 @@ recvLoop(void* netBuff) {
 
         // TODO use function buffer
         // add locator to the netbuffref
-        buff->addr = loc;
+
 //		if (sock_type == SDDS_LOCATOR_TYPE_MULTI)
 //			multiInBuff.addr = loc;
 //		else if (sock_type == SDDS_LOCATOR_TYPE_UNI)
@@ -517,9 +524,12 @@ rc_t
 Network_send(NetBuffRef_t* buff) {
     int sock;
     unsigned int sock_type;
-
     // Check the locator for uni or multicast socket
-    Locator_t* l = (Locator_t*) buff->addr;
+    Locator_t* l = (Locator_t*) buff->addr->List_first(buff->addr);
+    if (l == NULL) {
+        Log_error("(%d) Cannot obtain locator.\n", __LINE__);
+        return SDDS_RT_FAIL;
+    }
     sock_type = l->type;
     // add locator to the netbuffref
     if (sock_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -528,8 +538,9 @@ Network_send(NetBuffRef_t* buff) {
     else if (sock_type == SDDS_LOCATOR_TYPE_UNI) {
         sock = net.fd_uni_socket;
     }
+    Locator_t* loc = (Locator_t*) buff->addr->List_first(buff->addr);
 
-    Locator_t* loc = buff->addr;
+    Log_debug("Transmitting to %d recipients\n", buff->addr->List_size(buff->addr));
 
     while (loc != NULL) {
 
@@ -548,7 +559,7 @@ Network_send(NetBuffRef_t* buff) {
                       sock_type == SDDS_LOCATOR_TYPE_UNI ? "unicast" : "multicast");
         }
 
-        loc = loc->next;
+        loc = (Locator_t*) buff->addr->List_next(buff->addr);
     }
 
     return SDDS_RT_OK;
@@ -560,6 +571,9 @@ Network_recvFrameHandler(Network _this) {
 
 rc_t
 Network_getFrameBuff(NetFrameBuff* buff) {
+    if (buff == NULL) {
+        return SDDS_RT_BAD_PARAMETER;
+    }
     size_t size = SDDS_NET_MAX_BUF_SIZE * sizeof(byte_t);
     size += sizeof(struct NetFrameBuff_t);
 
@@ -590,7 +604,7 @@ Network_locSize(void) {
 
 rc_t
 Network_setAddressToLocator(Locator_t* loc, char* endpoint) {
-    Network_set_locator_endpoint(loc, endpoint, net.port);
+    return Network_set_locator_endpoint(loc, endpoint, net.port);
 }
 
 rc_t
@@ -721,6 +735,9 @@ Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
 
 rc_t
 Network_createLocator(Locator_t** loc) {
+    if (loc == NULL) {
+        return SDDS_RT_BAD_PARAMETER;
+    }
 
     *loc = Memory_alloc(sizeof(struct UDPLocator_t));
 
@@ -736,6 +753,9 @@ Network_createLocator(Locator_t** loc) {
 
 rc_t
 Network_createMulticastLocator(Locator_t** loc) {
+    if (loc == NULL) {
+        return SDDS_RT_BAD_PARAMETER;
+    }
 
     *loc = Memory_alloc(sizeof(struct UDPLocator_t));
 
@@ -752,6 +772,10 @@ Network_createMulticastLocator(Locator_t** loc) {
 
 bool_t
 Locator_isEqual(Locator_t* l1, Locator_t* l2) {
+    if ((l1 == NULL) || (l2 == NULL)) {
+        return false;
+    }
+
     struct UDPLocator_t* a = (struct UDPLocator_t*) l1;
     struct UDPLocator_t* b = (struct UDPLocator_t*) l2;
 #if PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET
@@ -784,7 +808,21 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 }
 
 rc_t
-Locator_getAddress(Locator_t* l, char* srcAddr) {
+Locator_getAddress(char* srcAddr) {
     memcpy (srcAddr, net.sender_host, NI_MAXHOST);
+    return SDDS_RT_OK;
+}
+
+rc_t
+Locator_getAddressOfLocator(Locator_t* l, char* srcAddr) {
+    if ((l == NULL) || (srcAddr == NULL)) {
+        return SDDS_RT_BAD_PARAMETER;
+    }
+    static char srcPort[NI_MAXSERV];
+    struct sockaddr_storage* a = &((struct UDPLocator_t*) l)->addr_storage;
+
+    int rc = getnameinfo((struct sockaddr*) a, sizeof(struct sockaddr_storage), srcAddr,
+                         NI_MAXHOST, srcPort, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+
     return SDDS_RT_OK;
 }

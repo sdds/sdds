@@ -26,7 +26,7 @@ typedef struct _TopicDB_t TopicDB_t;
 static TopicDB_t topicdb = {.topicCount = 0};
 
 rc_t
-BuiltinTopicTopic_encode(byte_t* buff, Data data, size_t* size);
+BuiltinTopicTopic_encode(NetBuffRef_t* buff, Data data, size_t* size);
 
 Topic_t*
 TopicDB_createTopic(void) {
@@ -85,12 +85,15 @@ BuiltinTopic_writeTopics2Buf(NetBuffRef_t* buf) {
 }
 
 rc_t
-BuiltinTopicTopic_encode(byte_t* buff, Data data, size_t* size) {
+BuiltinTopicTopic_encode(NetBuffRef_t* buff, Data data, size_t* size) {
     Topic_t* t = (Topic_t*) data;
+
+    byte_t* start = buff->buff_start + buff->curPos;
+
     *size = 0;
-    Marshalling_enc_uint8(buff+(*size), &(t->domain));
+    Marshalling_enc_uint8(start+(*size), &(t->domain));
     *size += sizeof(domainid_t);
-    Marshalling_enc_uint8(buff+(*size), &(t->id));
+    Marshalling_enc_uint8(start+(*size), &(t->id));
     *size += sizeof(topicid_t);
 
     return SDDS_RT_OK;

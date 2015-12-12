@@ -20,6 +20,8 @@
 #ifndef  NETBUFFREF_H_INC
 #define  NETBUFFREF_H_INC
 
+#include "os-ssal/List.h"
+
 struct Locator_t;
 
 struct _NetBuffRef_t {
@@ -32,11 +34,14 @@ struct _NetBuffRef_t {
     // QOS part
 #if SDDS_QOS_DW_LARBUD < 65536
     time16_t sendDeadline;
+    time16_t latBudDuration;
 #else
     time32_t sendDeadline;
+    time32_t latBudDuration;
 #endif
+    bool_t bufferOverflow : 1;
     // state of the frame
-    Locator_t* addr;
+    List_t* addr;
     Topic_t* curTopic;
     domainid_t curDomain;
 };

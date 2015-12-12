@@ -38,28 +38,17 @@ struct _DataSource_t {
 };
 
 static DataSource_t dsStruct;
-static Task sendTask;
 
 static DataSource_t* self = &dsStruct;
 
-//  Forward declarations of internal helper functions
-
-rc_t
-checkSending(NetBuffRef_t* buf);
-void
-checkSendingWrapper(void* buf);
+void print_Pointer() {
+    for (int i=0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
+        Log_debug("%d p: (%d) %p\n", __LINE__, i, self->sender.out[i].addr->List_first);
+    }
+}
 
 rc_t
 DataSource_init(void) {
-    if (TimeMng_init() != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
-    }
-    sendTask = Task_create();
-    ssw_rc_t ret = Task_init(sendTask, checkSendingWrapper, NULL);
-    if (ret == SDDS_SSW_RT_FAIL) {
-        Log_error("Task_init failed\n");
-        return SDDS_RT_FAIL;
-    }
     self->remaining_datawriter = SDDS_MAX_DATA_WRITERS;
 
     //  Init instant sender
@@ -67,8 +56,11 @@ DataSource_init(void) {
     NetBuffRef_init(&(self->sender.highPrio));
     NetBuffRef_init(&(self->sender.out[0]));
     NetBuffRef_init(&(self->sender.out[1]));
+    return DataWriter_init();
+}
 
-    return SDDS_RT_OK;
+int DataSource_remainingDataRW() {
+    return self->remaining_datawriter;
 }
 
 
@@ -139,23 +131,32 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos,
     self->remaining_datawriter--;
 
 #ifdef SDDS_QOS_LATENCYBUDGET
-    dw->qos.latBudDuration = SDDS_QOS_DW_LATBUD;
+    dw->qos.latBudDuration = SDDS_QOS_DW_LATBUD - SDDS_QOS_LATBUD_COMM - SDDS_QOS_LATBUD_READ;
 #endif
     return dw;
 }
 #endif // SDDS_MAX_DATA_WRITERS
 
 NetBuffRef_t*
-findFreeFrame(Locator_t* dest) {
+findFreeFrame(List_t* dest) {
     NetBuffRef_t* buffRef = NULL;
 
     bool_t sameAddr = false;
     for (int i = 0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
-        Locator_t* try = self->sender.out[i].addr;
-        if (dest != NULL && try != NULL && Locator_isEqual(dest, try)) {
-            buffRef = &(self->sender.out[i]);
-            sameAddr = true;
-            break;
+        List_t* try = self->sender.out[i].addr;
+        if (dest != NULL && try != NULL) {
+            Locator_t* loc = try->List_first(try);
+            while (loc != NULL) {
+                if (Locator_contains(dest, loc) == SDDS_RT_OK) {
+                    buffRef = &(self->sender.out[i]);
+                    sameAddr = true;
+                    break;
+                }
+                loc = try->List_next(try);
+            }
+            if (sameAddr) {
+                break;
+            }
         }
     }
     if (buffRef == NULL) {
@@ -177,98 +178,15 @@ findFreeFrame(Locator_t* dest) {
 
         // here add the ref to the buff, addr is used when frame is update addr
         // in bufref
-        buffRef->addr = dest;
+        Locator_t* loc = (Locator_t*) dest->List_first(dest);
+        while (loc != NULL) {
+            if (Locator_contains(buffRef->addr, loc) != SDDS_RT_OK) {
+                buffRef->addr->List_add(buffRef->addr, loc);
+                Locator_upRef(loc);
+            }
+            loc = (Locator_t*) dest->List_next(dest);
+        }
     }
     return buffRef;
 }
 
-void
-checkSendingWrapper(void* buf) {
-    Log_debug("callback\n");
-    checkSending((NetBuffRef_t*) buf);
-}
-
-rc_t
-checkSending(NetBuffRef_t* buf) {
-#ifdef SDDS_QOS_LATENCYBUDGET
-#if SDDS_QOS_DW_LATBUD < 65536
-    time16_t time;
-    Time_getTime16(&time);
-#else
-    time32_t time;
-    Time_getTime32(&time);
-#endif
-
-    if ((buf->sendDeadline <= time) || (SDDS_NET_MAX_BUF_SIZE <= buf->curPos)) {
-        Task_stop(sendTask);
-        if (buf->sendDeadline >= time) {
-            Log_debug("OK: deadline: %d >= time: %d\n", buf->sendDeadline, time);
-        }
-        else if ((buf->sendDeadline < time) && (buf->addr == NULL)) {
-            Log_debug("OK: deadline: %d < time: %d --> No dst address\n", buf->sendDeadline, time);
-        }
-        else {
-            Log_debug("ERROR: deadline: %d < time: %d\n", buf->sendDeadline, time);
-        }
-#endif
-    // update header
-    SNPS_updateHeader(buf);
-
-    if (buf->addr != NULL) {
-
-        if (Network_send(buf) != SDDS_RT_OK) {
-        	Log_error("Network_send failed\n");
-            return SDDS_RT_FAIL;
-        }
-        //  If frame was sent, free the buffer.
-        NetBuffRef_renew(buf);
-    }
-    //  If latencyBudget is active, don't discard the buffer right away.
-#ifdef SDDS_QOS_LATENCYBUDGET
-    //  Discard the buffer, if the buffer is full and no one there to send.
-    else if (SDDS_NET_MAX_BUF_SIZE <= buf->curPos) {
-    	NetBuffRef_renew(buf);
-    }
-    //  If the buffer is not full jet, just reset the deadline.
-    else {
-        buf->sendDeadline = 0;
-    }
-#else
-	//  If latencyBudget is not active, discard the message right away.
-    else {
-		NetBuffRef_renew(buf);
-    }
-#endif
-
-    return SDDS_RT_OK;
-#ifdef SDDS_QOS_LATENCYBUDGET
-}
-else {
-    Task_stop(sendTask);
-    Task_setData(sendTask, (void*) buf);
-#if SDDS_QOS_DW_LATBUD < 65536
-    msecu16_t taskTime;
-    uint16_t taskSec;
-    msecu16_t taskMSec;
-#else
-    msecu32_t taskTime;
-    uint32_t taskSec;
-    msecu32_t taskMSec;
-#endif
-    taskTime = (buf->sendDeadline - time);
-    taskSec = taskTime / 1000;
-    taskMSec = taskTime % 1000;
-    ssw_rc_t ret = Task_start(sendTask, taskSec, taskMSec, SDDS_SSW_TaskMode_single);
-    if (ret != SDDS_RT_OK) {
-        Log_error("Task_start failed\n");
-        return SDDS_RT_FAIL;
-    }
-
-#ifdef UTILS_DEBUG
-    Log_debug("Test startet, timer: %d\n", (buf->sendDeadline - time));
-    Log_debug("%d > %d\n", buf->sendDeadline, time);
-#endif
-    return SDDS_RT_DEFERRED;
-}
-#endif
-}
