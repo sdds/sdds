@@ -5,7 +5,7 @@
  *      Author: olga
  */
 
-#include "os-ssal/List.h"
+#include "List.h"
 #include "os-ssal/Memory.h"
 #include "DataSource.h"
 
@@ -36,11 +36,11 @@ void*
 LinkedList_first(struct List *this);
 void*
 LinkedList_next(struct List *this);
-ssw_rc_t
+rc_t
 LinkedList_add(struct List *this, void* data);
 size_t
 LinkedList_size(struct List* this);
-ssw_rc_t
+rc_t
 LinkedList_deleteAll(struct List* this);
 
 //  initialize node pool
@@ -133,11 +133,11 @@ LinkedList_next(struct List *this) {
     }
 }
 
-//  Adds data to the list, return SDDS_SSW_RT_OK or SDDS_SSW_RT_FAIL.
-ssw_rc_t
+//  Adds data to the list, return SDDS_RT_OK or SDDS_RT_FAIL.
+rc_t
 LinkedList_add(struct List *this, void* data) {
     if (this == NULL) {
-        return SDDS_SSW_RT_FAIL;
+        return SDDS_RT_FAIL;
     }
 
     LinkedList_t* linkedList = (LinkedList_t*) this;
@@ -145,7 +145,7 @@ LinkedList_add(struct List *this, void* data) {
     if (linkedList->head == NULL) {
         Node_t* n = s_newNode();
         if (n == NULL) {
-            return SDDS_SSW_RT_FAIL;
+            return SDDS_RT_FAIL;
         }
 
         n->isEmpty = false;
@@ -153,7 +153,7 @@ LinkedList_add(struct List *this, void* data) {
         n->next = NULL;
         linkedList->head = n;
         linkedList->size++;
-        return SDDS_SSW_RT_OK;
+        return SDDS_RT_OK;
     }
     else {
         Node_t* it = linkedList->head;
@@ -163,7 +163,7 @@ LinkedList_add(struct List *this, void* data) {
 
         Node_t* n = s_newNode();
         if (n == NULL) {
-            return SDDS_SSW_RT_FAIL;
+            return SDDS_RT_FAIL;
         }
 
         n->isEmpty = false;
@@ -172,7 +172,7 @@ LinkedList_add(struct List *this, void* data) {
         it->next = n;
         linkedList->size++;
 
-        return SDDS_SSW_RT_OK;
+        return SDDS_RT_OK;
     }
 }
 
@@ -180,7 +180,7 @@ LinkedList_add(struct List *this, void* data) {
 size_t
 LinkedList_size(struct List* this) {
     if (this == NULL) {
-        return SDDS_SSW_RT_FAIL;
+        return -1;
     }
 
     LinkedList_t* linkedList = (LinkedList_t*) this;
@@ -188,10 +188,10 @@ LinkedList_size(struct List* this) {
     return size;
 }
 
-ssw_rc_t
+rc_t
 LinkedList_deleteAll(struct List* this) {
     if (this == NULL) {
-        return SDDS_SSW_RT_FAIL;
+        return SDDS_RT_FAIL;
     }
     LinkedList_t* linkedList = (LinkedList_t*) this;
 
@@ -208,5 +208,5 @@ LinkedList_deleteAll(struct List* this) {
     linkedList->cursor = NULL;
     linkedList->size = 0;
 
-    return SDDS_SSW_RT_OK;
+    return SDDS_RT_OK;
 }

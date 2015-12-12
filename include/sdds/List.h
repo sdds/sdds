@@ -9,7 +9,6 @@
 #define _LIST_H_
 
 #include "sdds_types.h"
-#include "SSW.h"
 
 /**
  * List class
@@ -17,9 +16,9 @@
 struct List {
     void* (* List_first)(struct List *this); ///< Provides the data of the first element, or NULL.
     void* (* List_next)(struct List *this); ///< Provides the data of the next element, or NULL.
-    ssw_rc_t (* List_add)(struct List *this, void* data); ///< Adds data to the list, return SDDS_SSW_RT_OK or SDDS_SSW_RT_FAIL.
+    rc_t (* List_add)(struct List *this, void* data); ///< Adds data to the list, return SDDS_SSW_RT_OK or SDDS_SSW_RT_FAIL.
     size_t (* List_size)(struct List* this);  ///< Return the size of the list.
-    ssw_rc_t (* List_deleteAll)(struct List* this); ///< Deletes all elements from the list.
+    rc_t (* List_deleteAll)(struct List* this); ///< Deletes all elements from the list.
 };
 typedef struct List List_t;
 

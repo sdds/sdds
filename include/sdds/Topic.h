@@ -19,7 +19,7 @@
 #ifndef  TOPIC_H_INC
 #define  TOPIC_H_INC
 
-#include "os-ssal/List.h"
+#include "List.h"
 
 struct datasources {
     List_t* list;

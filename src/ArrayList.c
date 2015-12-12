@@ -5,7 +5,7 @@
  *      Author: olga
  */
 
-#include "os-ssal/List.h"
+#include "List.h"
 #include "os-ssal/Memory.h"
 #include "sdds_types.h"
 
@@ -23,11 +23,11 @@ void*
 ArrayList_first(struct List *this);
 void*
 ArrayList_next(struct List *this);
-ssw_rc_t
+rc_t
 ArrayList_add(struct List *this, void* data);
 size_t
 ArrayList_size(struct List* this);
-ssw_rc_t
+rc_t
 ArrayList_deleteAll(struct List* this);
 
 //  Initialize List
@@ -95,21 +95,21 @@ ArrayList_next(struct List *this) {
     }
 }
 
-//  Adds data to the list, return SDDS_SSW_RT_OK or SDDS_SSW_RT_FAIL.
-ssw_rc_t
+//  Adds data to the list, return SDDS_RT_OK or SDDS_RT_FAIL.
+rc_t
 ArrayList_add(struct List *this, void* data) {
     if (this == NULL) {
-        return SDDS_SSW_RT_FAIL;
+        return SDDS_RT_FAIL;
     }
 
     ArrayList_t* arrayList = (ArrayList_t*) this;
     if (arrayList->size >= arrayList->limit) {
-        return SDDS_SSW_RT_FAIL;
+        return SDDS_RT_FAIL;
     }
 
     arrayList->data[arrayList->size] = data;
     arrayList->size++;
-    return SDDS_SSW_RT_OK;
+    return SDDS_RT_OK;
 }
 
 //  Return the size of the list.
@@ -124,10 +124,10 @@ ArrayList_size(struct List* this) {
 }
 
 //  Deletes all elements from the list.
-ssw_rc_t
+rc_t
 ArrayList_deleteAll(struct List* this) {
     if (this == NULL) {
-        return SDDS_SSW_RT_FAIL;
+        return SDDS_RT_FAIL;
     }
     ArrayList_t* arrayList = (ArrayList_t*) this;
     for (size_t i = 0; i < arrayList->size; i++) {
@@ -135,5 +135,5 @@ ArrayList_deleteAll(struct List* this) {
     }
     arrayList->size = 0;
     arrayList->cursor = 0;
-    return SDDS_SSW_RT_OK;
+    return SDDS_RT_OK;
 }

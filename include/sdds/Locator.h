@@ -20,7 +20,7 @@
 #ifndef  LOCATOR_H_INC
 #define  LOCATOR_H_INC
 #include "sdds_types.h"
-#include "os-ssal/List.h"
+#include "List.h"
 
 #define SDDS_LOCATOR_STATE_EMPTY        0x00
 #define SDDS_LOCATOR_STATE_FILLED       0x01

@@ -59,11 +59,6 @@ DataSource_init(void) {
     return DataWriter_init();
 }
 
-int DataSource_remainingDataRW() {
-    return self->remaining_datawriter;
-}
-
-
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 rc_t
 DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {

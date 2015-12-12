@@ -20,7 +20,7 @@
 #ifndef  NETBUFFREF_H_INC
 #define  NETBUFFREF_H_INC
 
-#include "os-ssal/List.h"
+#include "List.h"
 
 struct Locator_t;
 

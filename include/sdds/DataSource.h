@@ -28,8 +28,6 @@ typedef struct _DataSource_t DataSource_t;
 
 extern DataSource_t* dataSource;
 
-int DataSource_remainingDataRW();
-
 rc_t
 DataSource_init(void);
 
