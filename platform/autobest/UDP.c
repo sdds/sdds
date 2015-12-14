@@ -520,6 +520,6 @@ Locator_copy(Locator_t* src, Locator_t* dst) {
         return SDDS_RT_FAIL;
     }
     memcpy(dst, src, sizeof(AutobestLocator_t));
-    dest->refCount =0;
+    dst->refCount =0;
     return SDDS_RT_OK;
 }
