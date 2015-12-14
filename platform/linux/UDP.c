@@ -461,7 +461,9 @@ recvLoop(void* netBuff) {
                     NULL, 0,
                     NI_NUMERICHOST);
 
-        Log_debug("[%u]%i bytes empfangen\n", sock_type, (int) recv_size);
+        if (buff == &multiInBuff) {
+            Log_debug("[%u]%i bytes empfangen von %s\n", sock_type, (int) recv_size, net.sender_host);
+        }
 
         // implicit call of the network receive handler
         // should start from now ;)
@@ -473,7 +475,7 @@ recvLoop(void* netBuff) {
 
         memcpy(&(sloc.addr_storage), &addr, addr_len);
 
-        Locator_t* loc = buff->addr->List_first(buff->addr);
+        Locator_t* loc = (Locator_t*) &addr;
 
         //pthread_mutex_lock(&recv_mutex);
         if (LocatorDB_findLocator((Locator_t*) &sloc, &loc) != SDDS_RT_OK) {
@@ -489,33 +491,23 @@ recvLoop(void* netBuff) {
         // up ref counter
         Locator_upRef(loc);
 
-        //pthread_mutex_unlock(&recv_mutex);
-
         loc->isEmpty = false;
         loc->isSender = true;
         loc->type = sock_type;
 
-        // TODO use function buffer
-        // add locator to the netbuffref
-
-//		if (sock_type == SDDS_LOCATOR_TYPE_MULTI)
-//			multiInBuff.addr = loc;
-//		else if (sock_type == SDDS_LOCATOR_TYPE_UNI)
-//			inBuff.addr = loc;
-
-        //pthread_mutex_lock(&recv_mutex);
-
-        // invoke the datasink handler
+        rc_t ret = buff->addr->List_add(buff->addr, loc);
+        if (ret != SDDS_RT_OK) {
+            LocatorDB_freeLocator(loc);
+            continue;
+        }
 
         if (DataSink_processFrame(buff) != SDDS_RT_OK) {
             Log_debug("Failed to process frame\n");
         }
 
-        LocatorDB_freeLocator(loc);
+
 
     }
-
-    //pthread_mutex_unlock(&recv_mutex);
 
     return SDDS_RT_OK;
 }
@@ -808,8 +800,8 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 }
 
 rc_t
-Locator_getAddress(char* srcAddr) {
-    memcpy (srcAddr, net.sender_host, NI_MAXHOST);
+Locator_getAddress(Locator_t** addr) {
+    *addr = multiInBuff.addr->List_first(multiInBuff.addr);
     return SDDS_RT_OK;
 }
 

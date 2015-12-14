@@ -780,7 +780,7 @@ SNPS_writeAddress(NetBuffRef_t* ref, castType_t castType, addrType_t addrType, u
 //  Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, char* addr) {
+SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, Locator_t** addr) {
     rc_t ret;
     uint8_t addrLen;
     ret = Marshalling_dec_uint8(START, &addrLen);
@@ -794,7 +794,10 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
     ref->curPos +=1;
 
     if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
-        ret = Locator_getAddress(addr);
+        Locator_t* loc;
+        ret = Network_createLocator(addr);
+        ret = Locator_getAddress(&loc);
+        memcpy(*addr, loc, sizeof(Locator_t));
     }
     else {
         char byteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
@@ -802,7 +805,13 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
         ref->curPos +=addrLen;
 
         char charAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_CHAR + 1];
-        ret = SNPS_IPv6_addr2Str(byteAddr, addr);
+        ret = SNPS_IPv6_addr2Str(byteAddr, charAddr);
+        ret = LocatorDB_newMultiLocator(addr);
+        if (ret != SDDS_RT_OK) {
+            return SDDS_RT_FAIL;
+        }
+        Locator_upRef(*addr);
+        ret = Network_setMulticastAddressToLocator(*addr, charAddr);
     }
 
     ref->subMsgCount -=1;

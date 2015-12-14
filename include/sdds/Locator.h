@@ -121,7 +121,7 @@ rc_t
 Locator_contains(List_t* list, Locator_t* l);
 
 rc_t
-Locator_getAddress(char* srcAddr);
+Locator_getAddress(Locator_t** sddr);
 
 rc_t
 Locator_getAddressOfLocator(Locator_t* l, char* srcAddr);

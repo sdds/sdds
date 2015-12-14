@@ -315,16 +315,18 @@ TopicMarshalling_DCPSParticipant_decode(NetBuffRef_t* buffer, Data data, size_t*
 
     SDDS_DCPSParticipant* sdds_data = (SDDS_DCPSParticipant*) data;
 
-    if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
-        ret = LocatorDB_newLocator(&sdds_data->addr);
-        Locator_upRef(sdds_data->addr);
-        ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
-    }
-    else {
-        ret = LocatorDB_newMultiLocator(&sdds_data->addr);
-        Locator_upRef(sdds_data->addr);
-        ret = Network_setMulticastAddressToLocator(sdds_data->addr, address.addr);
-    }
+    sdds_data->addr = address.addr;
+
+//    if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
+//        ret = LocatorDB_newLocator(&sdds_data->addr);
+//        Locator_upRef(sdds_data->addr);
+//        ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
+//    }
+//    else {
+//        ret = LocatorDB_newMultiLocator(&sdds_data->addr);
+//        Locator_upRef(sdds_data->addr);
+//        ret = Network_setMulticastAddressToLocator(sdds_data->addr, address.addr);
+//    }
 
     return SDDS_RT_OK;
 }
@@ -634,11 +636,11 @@ DDS_DCPSSubscriptionDataWriter_write(
     addrType = SDDS_SNPS_ADDR_IPV4;
 #endif
 
-#ifdef FEATURE_SDDS_MULTICAST_ENABLED
-    castType = SDDS_SNPS_CAST_MULTICAST;
-    addr = generalByteAddr;
-    addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
-#endif
+//#ifdef FEATURE_SDDS_MULTICAST_ENABLED
+//    castType = SDDS_SNPS_CAST_MULTICAST;
+//    addr = generalByteAddr;
+//    addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
+//#endif
 
     rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
@@ -729,16 +731,18 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
 
     SDDS_DCPSSubscription* sdds_data = (SDDS_DCPSSubscription*) data;
 
-    if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
-        ret = LocatorDB_newLocator(&sdds_data->addr);
-        Locator_upRef(sdds_data->addr);
-        ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
-    }
-    else {
-        ret = LocatorDB_newMultiLocator(&sdds_data->addr);
-        Locator_upRef(sdds_data->addr);
-        ret = Network_setMulticastAddressToLocator(sdds_data->addr, address.addr);
-    }
+    sdds_data->addr = address.addr;
+
+//    if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
+//        ret = LocatorDB_newLocator(&sdds_data->addr);
+//        Locator_upRef(sdds_data->addr);
+//        ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
+//    }
+//    else {
+//        ret = LocatorDB_newMultiLocator(&sdds_data->addr);
+//        Locator_upRef(sdds_data->addr);
+//        ret = Network_setMulticastAddressToLocator(sdds_data->addr, address.addr);
+//    }
 
     return SDDS_RT_OK;
 }

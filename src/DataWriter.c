@@ -281,33 +281,33 @@ checkSending(NetBuffRef_t* buf) {
 
     return SDDS_RT_OK;
 #ifdef SDDS_QOS_LATENCYBUDGET
-}
-else {
-    Task_stop(sendTask);
-    Task_setData(sendTask, (void*) buf);
-#if SDDS_QOS_DW_LATBUD < 65536
-    msecu16_t taskTime;
-    uint16_t taskSec;
-    msecu16_t taskMSec;
-#else
-    msecu32_t taskTime;
-    uint32_t taskSec;
-    msecu32_t taskMSec;
-#endif
-    taskTime = (sendDeadline - time);
-    taskSec = taskTime / 1000;
-    taskMSec = taskTime % 1000;
-    ssw_rc_t ret = Task_start(sendTask, taskSec, taskMSec, SDDS_SSW_TaskMode_single);
-    if (ret != SDDS_RT_OK) {
-        Log_error("Task_start failed\n");
-        return SDDS_RT_FAIL;
     }
+    else {
+        Task_stop(sendTask);
+        Task_setData(sendTask, (void*) buf);
+#if SDDS_QOS_DW_LATBUD < 65536
+        msecu16_t taskTime;
+        uint16_t taskSec;
+        msecu16_t taskMSec;
+#else
+        msecu32_t taskTime;
+        uint32_t taskSec;
+        msecu32_t taskMSec;
+#endif
+        taskTime = (sendDeadline - time);
+        taskSec = taskTime / 1000;
+        taskMSec = taskTime % 1000;
+        ssw_rc_t ret = Task_start(sendTask, taskSec, taskMSec, SDDS_SSW_TaskMode_single);
+        if (ret != SDDS_RT_OK) {
+            Log_error("Task_start failed\n");
+            return SDDS_RT_FAIL;
+        }
 
 #ifdef UTILS_DEBUG
-    Log_debug("Test startet, timer: %d\n", (sendDeadline - time));
-    Log_debug("%d > %d\n", sendDeadline, time);
+        Log_debug("Test startet, timer: %d\n", (sendDeadline - time));
+        Log_debug("%d > %d\n", sendDeadline, time);
 #endif
-    return SDDS_RT_DEFERRED;
-}
+        return SDDS_RT_DEFERRED;
+    }
 #endif
 }
