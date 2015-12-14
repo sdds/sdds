@@ -29,8 +29,6 @@ struct LocatorDB_t {
 static struct LocatorDB_t db;
 static Mutex_t* mutex;
 
-void print_loc();
-
 rc_t
 LocatorDB_init() {
     db.freeLoc = SDDS_NET_MAX_LOCATOR_COUNT;
@@ -48,8 +46,6 @@ LocatorDB_init() {
     if (Mutex_init(mutex) != SDDS_SSW_RT_OK) {
         return SDDS_RT_FAIL;
     }
-
-    print_loc();
 
     return SDDS_RT_OK;
 }
@@ -75,7 +71,6 @@ LocatorDB_newLocator(Locator_t** loc) {
         // check if ref counter is zero
         if (db.pool[i]->refCount == 0) {
             *loc = db.pool[i];
-//			printf(" FOUND FREE LOC\n");
             break;
         }
     }
@@ -87,7 +82,6 @@ LocatorDB_newLocator(Locator_t** loc) {
     (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
     (*loc)->next = NULL;
 
-    print_loc();
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
@@ -123,7 +117,6 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
     (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
     (*loc)->next = NULL;
 
-    print_loc();
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
@@ -172,7 +165,6 @@ LocatorDB_freeLocator(Locator_t* loc) {
     if (loc->refCount == 0) {
         Locator_init(loc);
         db.freeLoc++;
-        print_loc();
     }
     Mutex_unlock(mutex);
 
@@ -206,12 +198,4 @@ LocatorDB_findLocator(Locator_t* toFind, Locator_t** result) {
     }
     Mutex_unlock(mutex);
     return SDDS_RT_FAIL;
-}
-
-void print_loc() {
-    printf("================== LocatorDB =======================\n");
-    for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
-        printf("[%d,%d] ", i, db.pool[i]->refCount);
-    }
-    printf("\n================== LocatorDB =======================\n");
 }

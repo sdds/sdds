@@ -808,6 +808,7 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
 
         // up ref counter
         Locator_upRef(*addr);
+        Locator_downRef(loc);
     }
     else {
         char byteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];

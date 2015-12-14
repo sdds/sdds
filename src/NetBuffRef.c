@@ -42,6 +42,11 @@ NetBuffRef_renew(NetBuffRef_t* _this) {
     _this->subMsgCount = 0;
     _this->curPos = 0;
     _this->sendDeadline = 0;
+    Locator_t *loc = (Locator_t*)_this->addr->List_first(_this->addr);
+    while (loc != NULL) {
+        Locator_downRef(loc);
+        loc = (Locator_t*)_this->addr->List_next(_this->addr);
+    }
     _this->addr->List_deleteAll(_this->addr);
     _this->curTopic = NULL;
     _this->curDomain = SDDS_DOMAIN_NIL;
