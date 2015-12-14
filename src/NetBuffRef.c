@@ -31,7 +31,7 @@ NetBuffRef_init(NetBuffRef_t* _this) {
     size_t start;
     Network_getPayloadBegin(&start);
     _this->buff_start = ((byte_t*) (_this->frame_start)) + start;
-
+    _this->addr = List_initConcurrentLinkedList();
     NetBuffRef_renew(_this);
 
     return SDDS_RT_OK;
@@ -42,9 +42,10 @@ NetBuffRef_renew(NetBuffRef_t* _this) {
     _this->subMsgCount = 0;
     _this->curPos = 0;
     _this->sendDeadline = 0;
-    _this->addr = NULL;
+    _this->addr->List_deleteAll(_this->addr);
     _this->curTopic = NULL;
     _this->curDomain = SDDS_DOMAIN_NIL;
+    _this->bufferOverflow = false;
 
     return SDDS_RT_OK;
 }

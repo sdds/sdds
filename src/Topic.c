@@ -39,16 +39,21 @@ Topic_addRemoteDataSink(Topic_t* _this, Locator_t* addr) {
     if (_this == NULL || addr == NULL) {
         return SDDS_RT_BAD_PARAMETER;
     }
-    if (_this->dsinks.list == NULL) {
-        _this->dsinks.list = addr;
+
+    List_t* list = _this->dsinks.list;
+    if (list->List_size(list) == 0) {
+        if (list->List_add(list, addr) == SDDS_SSW_RT_FAIL) {
+            return SDDS_RT_FAIL;
+        }
         Locator_upRef(addr);
         return SDDS_RT_OK;
     }
-
-    Locator_t* tmp = _this->dsinks.list;
-
-    if (Locator_contains(tmp, addr) != SDDS_RT_OK) {
-        return Locator_addToList(tmp, addr);
+    else if (Locator_contains(list, addr) != SDDS_RT_OK) {
+        if (list->List_add(list, addr) == SDDS_SSW_RT_FAIL) {
+                return SDDS_RT_FAIL;
+            }
+            Locator_upRef(addr);
+            return SDDS_RT_OK;
     }
 
     return SDDS_RT_OK;
@@ -62,16 +67,20 @@ Topic_addRemoteDataSource(Topic_t* _this, Locator_t* addr) {
         return SDDS_RT_BAD_PARAMETER;
     }
 
-    // first element in list
-    if (_this->dsources.list == NULL) {
-        _this->dsources.list = addr;
+    List_t* list = _this->dsources.list;
+    if (list->List_size(list) == 0) {
+        if (list->List_add(list, addr) == SDDS_SSW_RT_FAIL) {
+            return SDDS_RT_FAIL;
+        }
         Locator_upRef(addr);
         return SDDS_RT_OK;
     }
-    Locator_t* tmp = _this->dsources.list;
-
-    if (Locator_contains(tmp, addr) != SDDS_RT_OK) {
-        return Locator_addToList(tmp, addr);
+    else if (Locator_contains(list, addr) != SDDS_RT_OK) {
+        if (list->List_add(list, addr) == SDDS_SSW_RT_FAIL) {
+            return SDDS_RT_FAIL;
+        }
+        Locator_upRef(addr);
+        return SDDS_RT_OK;
     }
 
     return SDDS_RT_OK;

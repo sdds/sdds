@@ -20,6 +20,7 @@
 #ifndef  LOCATOR_H_INC
 #define  LOCATOR_H_INC
 #include "sdds_types.h"
+#include "List.h"
 
 #define SDDS_LOCATOR_STATE_EMPTY        0x00
 #define SDDS_LOCATOR_STATE_FILLED       0x01
@@ -117,9 +118,12 @@ rc_t
 Locator_removeFromList(Locator_t* head, Locator_t* toDel);
 
 rc_t
-Locator_contains(Locator_t* head, Locator_t* l);
+Locator_contains(List_t* list, Locator_t* l);
 
 rc_t
-Locator_getAddress(Locator_t* l, char* srcAddr);
+Locator_getAddress(char* srcAddr);
+
+rc_t
+Locator_getAddressOfLocator(Locator_t* l, char* srcAddr);
 
 #endif   /* ----- #ifndef LOCATOR_H_INC  ----- */

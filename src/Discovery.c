@@ -4,6 +4,7 @@ extern "C"
 #endif
 
 #include "sDDS.h"
+#include "List.h"
 
 #ifdef __cplusplus
 }
@@ -104,23 +105,47 @@ static rc_t
 Discovery_addRemoteDataSink(Locator_t* l, Topic_t* topic) {
     rc_t ret;
 
-    Locator_t* loc;
-    ret = Network_createMulticastLocator(&loc);
-    if (ret != SDDS_RT_OK)
+    Locator_t* locPub;
+    ret = Network_createMulticastLocator(&locPub);
+    if (ret != SDDS_RT_OK) {
         return ret;
-
-    ret = Network_setMulticastAddressToLocator(loc, SDDS_BUILTIN_SUB_PUB_ADDRESS);
-    if (ret != SDDS_RT_OK)
-        return ret;
-
-    if (!Locator_isEqual(l, loc)) {
-        ret = Topic_addRemoteDataSink(topic, l);
-        if (ret != SDDS_RT_OK) {
-            return ret;
-        }
     }
 
+    ret = Network_setMulticastAddressToLocator(locPub, SDDS_BUILTIN_SUB_PUB_ADDRESS);
+    if (ret != SDDS_RT_OK) {
+        return ret;
+    }
+
+    Locator_t* locPart;
+    ret = Network_createMulticastLocator(&locPart);
+    if (ret != SDDS_RT_OK) {
+        return ret;
+    }
+
+    ret = Network_setMulticastAddressToLocator(locPart, SDDS_BUILTIN_PARTICIPANT_ADDRESS);
+    if (ret != SDDS_RT_OK) {
+        return ret;
+    }
+
+    Locator_t* locTop;
+    ret = Network_createMulticastLocator(&locTop);
+    if (ret != SDDS_RT_OK) {
+        return ret;
+    }
+
+    ret = Network_setMulticastAddressToLocator(locTop, SDDS_BUILTIN_TOPIC_ADDRESS);
+    if (ret != SDDS_RT_OK) {
+        return ret;
+    }
+
+    if (!Locator_isEqual(l, locPub) && !Locator_isEqual(l, locPart) && !Locator_isEqual(l, locTop)) {
+        ret = Topic_addRemoteDataSink(topic, l);
+    }
     Locator_downRef(l);
+
+    if (ret != SDDS_RT_OK) {
+        return ret;
+    }
 
     return ret;
 }
@@ -200,11 +225,11 @@ Discovery_receiveParticipantTopics() {
                                                              g_DCPSParticipant_reader, (DDS_DCPSParticipant**) &p_data_used_ptr, NULL);
         if (ret == DDS_RETCODE_NO_DATA) {
 #ifdef UTILS_DEBUG
-            Log_debug("no participant data\n");
+            Log_info("no participant data\n");
 #endif
         }
         else {
-            Log_debug("Received (participant):[%x]\n", p_data_used.data.key);
+            Log_info("Received (participant):[%x]\n", p_data_used.data.key);
             ret = Discovery_handleParticipant(p_data_used);
         }
     } while (ret != DDS_RETCODE_NO_DATA);
@@ -227,11 +252,11 @@ Discovery_receivePublicationTopics() {
                                                              g_DCPSPublication_reader, &pt_data_used_ptr, NULL);
         if (ret == DDS_RETCODE_NO_DATA) {
 #ifdef UTILS_DEBUG
-            Log_debug("no publication data\n");
+            Log_info("no publication data\n");
 #endif
         }
         else {
-            Log_debug("Received (publication):[%u][%x] topic:%u\n",
+            Log_info("Received (publication):[%u][%x] topic:%u\n",
                       pt_data_used.key, pt_data_used.participant_key,
                       pt_data_used.topic_id);
             for (int i = 0; i <= nextID; i++) {
@@ -267,11 +292,11 @@ Discovery_receive_SubscriptionTopics() {
                                                               g_DCPSSubscription_reader, (DDS_DCPSSubscription**) &st_data_used_ptr, NULL);
         if (ret == DDS_RETCODE_NO_DATA) {
 #ifdef UTILS_DEBUG
-            Log_debug("no subscription data\n");
+            Log_info("no subscription data\n");
 #endif
         }
         else {
-            Log_debug("Received (subscription):[%u][%x] topic:%u\n",
+            Log_info("Received (subscription):[%u][%x] topic:%u\n",
                       st_data_used.data.key, st_data_used.data.participant_key,
                       st_data_used.data.topic_id);
             Topic_t* topic = NULL;

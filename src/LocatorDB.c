@@ -17,6 +17,7 @@
  */
 
 #include "sDDS.h"
+#include "os-ssal/Mutex.h"
 
 struct LocatorDB_t {
 
@@ -26,6 +27,7 @@ struct LocatorDB_t {
 };
 
 static struct LocatorDB_t db;
+static Mutex_t* mutex;
 
 rc_t
 LocatorDB_init() {
@@ -36,6 +38,15 @@ LocatorDB_init() {
         Locator_init(db.pool[i]);
     }
 
+    mutex = Mutex_create();
+    if (mutex == NULL) {
+        return SDDS_RT_FAIL;
+    }
+
+    if (Mutex_init(mutex) != SDDS_SSW_RT_OK) {
+        return SDDS_RT_FAIL;
+    }
+
     return SDDS_RT_OK;
 }
 
@@ -43,14 +54,11 @@ LocatorDB_init() {
 // or is only the network able to create new locators?
 rc_t
 LocatorDB_newLocator(Locator_t** loc) {
-//	printf(" !!!!! NEW LOC db.freeLoc = %d\n", db.freeLoc);
-//	for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
-//		// check if ref counter is zero
-//		printf("------------------------> db.pool[%i]->refCount = %d\n",
-// i, db.pool[i]->refCount);
-//	}
+    assert(loc);
 
+    Mutex_lock(mutex);
     if (db.freeLoc == 0) {
+        Mutex_unlock(mutex);
         return SDDS_LOCATORDB_RT_NOFREELOCATORS;
     }
     db.freeLoc--;
@@ -67,18 +75,25 @@ LocatorDB_newLocator(Locator_t** loc) {
             break;
         }
     }
-    if (i == SDDS_NET_MAX_LOCATOR_COUNT) {
-        printf(" NOT FOUND FREE LOC\n");
+    if (*loc == NULL) {
+        Mutex_unlock(mutex);
+        Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
+        return SDDS_RT_FAIL;
     }
     (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
     (*loc)->next = NULL;
+    Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
 }
 
 rc_t
 LocatorDB_newMultiLocator(Locator_t** loc) {
+    assert(loc);
+
+    Mutex_lock(mutex);
     if (db.freeLoc == 0) {
+        Mutex_unlock(mutex);
         return SDDS_LOCATORDB_RT_NOFREELOCATORS;
     }
     db.freeLoc--;
@@ -93,14 +108,24 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
             break;
         }
     }
+    if (*loc == NULL) {
+        Mutex_unlock(mutex);
+        Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
+        return SDDS_RT_FAIL;
+    }
+
     (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
     (*loc)->next = NULL;
+    Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
 }
 
 rc_t
 LocatorDB_newBroadLocator(Locator_t** loc) {
+    assert(loc);
+
+    Mutex_lock(mutex);
     if (db.freeLoc == 0) {
         return SDDS_LOCATORDB_RT_NOFREELOCATORS;
     }
@@ -116,8 +141,15 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
             break;
         }
     }
+    if (*loc == NULL) {
+        Mutex_unlock(mutex);
+        Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
+        return SDDS_RT_FAIL;
+    }
+
     (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
     (*loc)->next = NULL;
+    Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
 }
@@ -125,19 +157,15 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
 rc_t
 LocatorDB_freeLocator(Locator_t* loc) {
     // decrem refcounter if bigger than zero
+    Mutex_lock(mutex);
     if (loc->refCount > 0) {
         loc->refCount--;
     }
     if (loc->refCount == 0) {
         Locator_init(loc);
         db.freeLoc++;
-//		printf(" !!!!!! LOC FREED db.freeLoc = %d\n", db.freeLoc);
-//		for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
-//			// check if ref counter is zero
-//			printf("------------------------> db.pool[%i]->refCount
-// = %d\n", i, db.pool[i]->refCount);
-//		}
     }
+    Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
 }
@@ -145,10 +173,13 @@ LocatorDB_freeLocator(Locator_t* loc) {
 rc_t
 LocatorDB_isUsedLocator(Locator_t* loc) {
     // if ref counter > 0 return yes else no ;)
+    Mutex_lock(mutex);
     if (loc->refCount > 0) {
+        Mutex_unlock(mutex);
         return SDDS_LOCATORDB_RT_ISINUSE;
     }
     else{
+        Mutex_unlock(mutex);
         return SDDS_RT_OK;
     }
 
@@ -156,11 +187,14 @@ LocatorDB_isUsedLocator(Locator_t* loc) {
 
 rc_t
 LocatorDB_findLocator(Locator_t* toFind, Locator_t** result) {
+    Mutex_lock(mutex);
     for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
         if (Locator_isEqual(toFind, db.pool[i]) == true) {
             *result = db.pool[i];
+            Mutex_unlock(mutex);
             return SDDS_RT_OK;
         }
     }
+    Mutex_unlock(mutex);
     return SDDS_RT_FAIL;
 }

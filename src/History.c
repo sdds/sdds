@@ -61,7 +61,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
     if (ret == SDDS_RT_FAIL) {
         return ret;
     }
-    self->samples[self->in_needle].instance = buff->addr;
+    self->samples[self->in_needle].instance = (Locator_t*) buff->addr->List_first(buff->addr);
     //  Move the input needle to the next free slot. If the input needle is at
     //  the end of the array move it to the beginning.
     unsigned int in_needle_prev = self->in_needle;

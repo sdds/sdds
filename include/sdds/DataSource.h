@@ -46,6 +46,6 @@ rc_t
 DataSource_write(DataWriter_t* _this, Data data, void* waste);
 #endif// SDDS_TOPIC_HAS_SUB
 
-
+void print_Pointer();
 
 #endif   /* ----- #ifndef DATASOURCE_H_INC  ----- */

@@ -39,6 +39,10 @@ $(project.GENERATED_WARNING_HEADER:)
 #define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber"))
 #endif
 
+#ifndef SDDS_MAX_LINKED_LIST_NODES
+#define SDDS_MAX_LINKED_LIST_NODES 20
+#endif /* SDDS_MAX_LINKED_LIST_NODES */
+
 #ifndef SDDS_NET_MAX_OUT_QUEUE
 #define SDDS_NET_MAX_OUT_QUEUE 2
 #endif /*SDDS_NET_MAX_OUT_QUEUE */
@@ -192,7 +196,7 @@ $(project.GENERATED_WARNING_HEADER:)
 #define PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS 			"$(project.ip)"
 #endif
 #ifndef PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS
-.if project.os = "linux"
+.if project.iface > 0
 #define PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS		PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS"%"PLATFORM_$(PROJECT.OS)_SDDS_IFACE
 .else
 #define PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS		PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS
@@ -201,7 +205,7 @@ $(project.GENERATED_WARNING_HEADER:)
 
 .if project.os = "linux" | project.os = "autobest"
 #ifndef PLATFORM_$(PROJECT.OS)_SDDS_PROTOCOL
-#define PLATFORM_$(PROJECT.OS)_SDDS_PROTOCOL			AF_INET6
+#define PLATFORM_$(PROJECT.OS)_SDDS_PROTOCOL			$((project.protocol):upper)
 #endif
 .endif
 .if project.os = "contiki"

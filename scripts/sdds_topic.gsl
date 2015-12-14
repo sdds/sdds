@@ -129,6 +129,7 @@ $(project.GENERATED_WARNING_HEADER:)
 #define $(TOPIC.NAME)_H_INC
 
 #include <sdds/sDDS.h>
+#include "List.h"
 
 struct $(topic.c_name:)
 {
@@ -219,7 +220,7 @@ $(topic.c_name:)_init ()
 
 #ifdef SDDS_TOPIC_HAS_PUB
 
-rc_t TopicMarshalling_$(topic.c_name:)_decode(byte_t* buffer, Data data, size_t* size);
+rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
     DDS_DataReader self,
@@ -241,7 +242,7 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
 
 #ifdef SDDS_TOPIC_HAS_SUB
 
-rc_t TopicMarshalling_$(topic.c_name:)_encode(byte_t* buffer, Data data, size_t* size);
+rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, size_t* size);
 
 DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
     DDS_DataWriter _this,
@@ -267,10 +268,12 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 
 #ifdef SDDS_TOPIC_HAS_SUB
 	topic->Data_encode = TopicMarshalling_$(topic.c_name:)_encode;
+	topic->dsinks.list = List_initConcurrentLinkedList();
 #endif
 
 #ifdef SDDS_TOPIC_HAS_PUB
 	topic->Data_decode = TopicMarshalling_$(topic.c_name:)_decode;
+	topic->dsources.list = List_initConcurrentLinkedList();
 #endif
 
 	topic->domain = SDDS_DOMAIN;
@@ -295,17 +298,29 @@ rc_t TopicMarshalling_$(topic.c_name:)_cpy(Data dest, Data source)
 	return SDDS_RT_OK;
 }
 
-rc_t TopicMarshalling_$(topic.c_name:)_encode(byte_t* buffer, Data data, size_t* size)
+rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, size_t* size)
 {
 	*size = 0;
 
 	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
 
+	byte_t* start = buffer->buff_start + buffer->curPos + 1;
+	
+	int maxSize = 0;
+.   for topic.attribute
+    maxSize += sizeof(real_data->$(attribute.name:c));
+    
+.   endfor    
+	
+	if ((buffer->curPos + maxSize + 1) >= SDDS_NET_MAX_BUF_SIZE) {
+		return SDDS_RT_FAIL;
+	}
+
 .   for topic.attribute
 .       if attribute.enc_type = "string"
-    Marshalling_enc_$(attribute.enc_type)(buffer + *size, real_data->$(attribute.name:c), $(attribute.size));
+    Marshalling_enc_$(attribute.enc_type)(start + *size, real_data->$(attribute.name:c), $(attribute.size));
 .       else
-    Marshalling_enc_$(attribute.enc_type)(buffer + *size, &real_data->$(attribute.name:c));
+    Marshalling_enc_$(attribute.enc_type)(start + *size, &real_data->$(attribute.name:c));
 .       endif
     *size += sizeof(real_data->$(attribute.name:c));
 
@@ -314,20 +329,22 @@ rc_t TopicMarshalling_$(topic.c_name:)_encode(byte_t* buffer, Data data, size_t*
 	return SDDS_RT_OK;
 }
 
-rc_t TopicMarshalling_$(topic.c_name:)_decode(byte_t* buffer, Data data, size_t* size)
+rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, size_t* size)
 {
 	if (*size != $(topic.size))
 		Log_warn ("size mismatch is %zu should be $(size)\\n", *size);
 
 	*size = 0;
+	
+	byte_t* start = buffer->buff_start + buffer->curPos;
 
 	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
 
 .   for topic.attribute
 .       if attribute.enc_type = "string"
-    Marshalling_dec_$(attribute.enc_type)(buffer + *size, real_data->$(attribute.name:c), $(attribute.size));
+    Marshalling_dec_$(attribute.enc_type)(start + *size, real_data->$(attribute.name:c), $(attribute.size));
 .       else
-    Marshalling_dec_$(attribute.enc_type)(buffer + *size, &real_data->$(attribute.name:c));
+    Marshalling_dec_$(attribute.enc_type)(start + *size, &real_data->$(attribute.name:c));
 .       endif
     *size += sizeof(real_data->$(attribute.name:c));
 

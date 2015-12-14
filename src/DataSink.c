@@ -33,7 +33,7 @@ checkDomain(NetBuffRef_t* buff);
 rc_t
 checkTopic(NetBuffRef_t* buff, topicid_t topic);
 rc_t
-BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size);
+BuiltinTopicDataReader_encode(NetBuffRef_t* buff, Data data, size_t* size);
 
 
 //  ---------------------------------------------------------------------------
@@ -347,13 +347,14 @@ BuiltinTopic_writeDataReaders2Buf(NetBuffRef_t* buf) {
     return SDDS_RT_OK;
 }
 rc_t
-BuiltinTopicDataReader_encode(byte_t* buff, Data data, size_t* size) {
+BuiltinTopicDataReader_encode(NetBuffRef_t* buff, Data data, size_t* size) {
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
     DataReader_t* dr = (DataReader_t*) data;
+    byte_t* start = buff->buff_start + buff->curPos;
     *size = 0;
-    Marshalling_enc_uint8(buff + (*size), &(DataReader_topic(dr)->domain));
+    Marshalling_enc_uint8(start + (*size), &(DataReader_topic(dr)->domain));
     *size += sizeof(domainid_t);
-    Marshalling_enc_uint8(buff + (*size), &(DataReader_topic(dr)->id));
+    Marshalling_enc_uint8(start + (*size), &(DataReader_topic(dr)->id));
     *size += sizeof(topicid_t);
 #endif
 
