@@ -115,6 +115,8 @@ DataSink_processFrame(NetBuffRef_t* buff) {
     }
 
     topicid_t topic_id;
+    SDDS_SEQNR_BIGGEST_TYPE seqNr = 0;
+
     while (buff->subMsgCount > 0) {
         subMsg_t type;
         SNPS_evalSubMsg(buff, &type);
@@ -146,7 +148,11 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     return SDDS_RT_FAIL;
                 }
                 History_t* history = DataReader_history(data_reader);
+#if defined SDDS_HAS_QOS_RELIABILITY
+                ret = sdds_History_enqueue(history, buff, seqNr);
+#else
                 ret = sdds_History_enqueue(history, buff);
+#endif
                 if (ret == SDDS_RT_FAIL) {
                     Log_warn("Can't parse data: Discard submessage\n");
                     SNPS_discardSubMsg(buff);
@@ -164,36 +170,41 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
 #if defined SDDS_HAS_QOS_RELIABILITY
         case (SDDS_SNPS_T_SEQNR): {
-            uint8_t seqNr;
-            SNPS_readSeqNr(buff, &seqNr);
+            SNPS_readSeqNr(buff, (uint8_t*) &seqNr);
 
             DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
             History_t* history = DataReader_history(data_reader);
 
-            // validy check sequencenumber
-            if ( (seqNr >= history->seqNr) || (history->seqNr == 15) ){
-                history->seqNr = seqNr;
-            } else { // sequencenumber of data is invalid, discard next submsg (data)
-                printf("discard data\n");
-                subMsg_t subMsgType;
-                SNPS_evalSubMsg(buff, &subMsgType);
-                if (subMsgType == SDDS_SNPS_SUBMSG_DATA){
-                    SNPS_discardSubMsg(buff);
+            // validy check sequencenumber of unicast-locator
+            Locator_t* loc = 0;
+            SDDS_SEQNR_BIGGEST_TYPE highestSeqNr = 0;
+
+            for (int i=0; i<history->depth; i++){
+                if (history->samples[i].instance == loc && history->samples[i].seqNr > highestSeqNr){
+                    highestSeqNr = history->samples[i].seqNr;
                 }
+            }
+            printf("highestSeqNr: %d\n", highestSeqNr);
+
+            if ( (seqNr >= highestSeqNr) || (highestSeqNr == 15) ){
+                printf("seqNr: %d\n", seqNr);
+            } else {// sequencenumber of data is invalid, discard next submsg (data)
+                SNPS_discardSubMsg(buff);
+                printf("overflow\n");
             }
 
             }
             break;
+#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         case (SDDS_SNPS_T_SEQNRSMALL): {
-            uint8_t seqNr;
-            SNPS_readSeqNrSmall(buff, &seqNr);
+            SNPS_readSeqNrSmall(buff, (uint8_t*) &seqNr);
 
             DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
             History_t* history = DataReader_history(data_reader);
 
             // validy check sequencenumber
-            if ( (seqNr >= history->seqNr) || (history->seqNr == 255) ){
-                history->seqNr = seqNr;
+            if ( (seqNr >= history->seqNr[0]) || (history->seqNr[0] == 255) ){
+                history->seqNr[0] = seqNr;
             } else { // sequencenumber of data is invalid, discard next submsg (data)
                 printf("discard data\n");
                 subMsg_t subMsgType;
@@ -205,16 +216,17 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
             }
             break;
+#endif
+#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
         case (SDDS_SNPS_T_SEQNRBIG): {
-            uint16_t seqNr;
-            SNPS_readSeqNrBig(buff, &seqNr);
+            SNPS_readSeqNrBig(buff, (uint16_t*) &seqNr);
 
             DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
             History_t* history = DataReader_history(data_reader);
 
             // validy check sequencenumber
-            if ( (seqNr >= history->seqNr) || (history->seqNr == 65536) ){
-                history->seqNr = seqNr;
+            if ( (seqNr >= history->seqNr[0]) || (history->seqNr[0] == 65536) ){
+                history->seqNr[0] = seqNr;
             } else { // sequencenumber of data is invalid, discard next submsg (data)
                 printf("discard data\n");
                 subMsg_t subMsgType;
@@ -226,16 +238,17 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
             }
             break;
+#endif
+#if SDDS_SEQNR_BIGGEST_TYPE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
         case (SDDS_SNPS_T_SEQNRHUGE): {
-            uint32_t seqNr;
-            SNPS_readSeqNrHUGE(buff, &seqNr);
+            SNPS_readSeqNrHUGE(buff, (uint32_t*) &seqNr);
 
             DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
             History_t* history = DataReader_history(data_reader);
 
-            // validy check sequencenumber
-            if ( (seqNr >= history->seqNr) || (history->seqNr == 4294967296) ){
-                history->seqNr = seqNr;
+            // validycheck sequencenumber
+            if ( (seqNr >= history->seqNr[0]) || (history->seqNr[0] == 4294967296) ){
+                history->seqNr[0] = seqNr;
             } else { // sequencenumber of data is invalid, discard next submsg (data)
                 printf("discard data\n");
                 subMsg_t subMsgType;
@@ -247,6 +260,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
             }
             break;
+#endif
 #endif
         default:
             //  Go to next submessage

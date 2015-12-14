@@ -22,6 +22,7 @@ extern "C" {
 struct _Sample_t {
     void* data;       //  Sample data
     Locator_t* instance;
+    SDDS_SEQNR_BIGGEST_TYPE seqNr;
 };
 
 #ifdef __cplusplus

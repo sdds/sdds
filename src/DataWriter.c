@@ -111,15 +111,21 @@ DataWriter_write(DataWriter_t* self, Data data, void* waste) {
     case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
         SNPS_writeSeqNr(buffRef, self->seqNr);
         break;
+#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
     case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
         SNPS_writeSeqNrSmall(buffRef, self->seqNr);
         break;
+#endif
+#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
     case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
         SNPS_writeSeqNrBig(buffRef, self->seqNr);
         break;
+#endif
+#if SDDS_SEQNR_BIGGEST_TYPE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
     case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
         SNPS_writeSeqNrHUGE(buffRef, self->seqNr);
         break;
+#endif
     }
     self->seqNr++;
 #endif

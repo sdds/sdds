@@ -38,6 +38,11 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth) {
     self->depth = depth;
     self->in_needle = 0;
     self->out_needle = depth;
+#ifdef SDDS_HAS_QOS_RELIABILITY
+    for (int i=0; i<depth; i++){
+        self->samples[i].seqNr = 0;
+    }
+#endif
     return SDDS_RT_OK;
 }
 
@@ -47,8 +52,13 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth) {
 //  will discard the oldest sample in case of RELIABILITY best effort and block
 //  in case of RELIABILITY reliable until samples are taken out.
 
+#ifdef SDDS_HAS_QOS_RELIABILITY
+rc_t
+sdds_History_enqueue(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+#else
 rc_t
 sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
+#endif
     assert(self);
     assert(buff);
     //  Queue is full.
@@ -62,6 +72,11 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
         return ret;
     }
     self->samples[self->in_needle].instance = (Locator_t*) buff->addr->List_first(buff->addr);
+#ifdef SDDS_HAS_QOS_RELIABILITY
+    self->samples[self->in_needle].instance = 0;
+    self->samples[self->in_needle].seqNr = seqNr;
+    sdds_History_print(self);
+#endif
     //  Move the input needle to the next free slot. If the input needle is at
     //  the end of the array move it to the beginning.
     unsigned int in_needle_prev = self->in_needle;
@@ -114,9 +129,15 @@ sdds_History_dequeue(History_t* self) {
 
 void
 sdds_History_print(History_t* self) {
-    printf("History {\n");
+    printf("History [id: 0x%x] {\n", self);
     printf("    depth: %d,\n", self->depth);
     printf("    in needle: %d,\n", self->in_needle);
     printf("    out needle: %d,\n", self->out_needle);
+#ifdef SDDS_HAS_QOS_RELIABILITY
+    printf("    samples:\n");
+    for (int i=0; i<self->in_needle; i++){
+        printf("        instance: %d, seqNr: %d,\n", self->samples[i].instance, self->samples[i].seqNr);
+    }
+#endif
     printf("}\n");
 }
