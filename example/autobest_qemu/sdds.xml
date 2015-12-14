@@ -5,6 +5,7 @@
     os = "autobest"
     ip = "fe80::201:2ff:fe03:405"
     port = "23234"
+    protocol = "AF_INET6"
     >
     <!--
         Set interface, ip and port for this project
