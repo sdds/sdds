@@ -794,9 +794,8 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
     ref->curPos +=1;
 
     if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
-        Locator_t* loc;
+        Locator_t* loc = ref->addr->List_first(ref->addr);
         ret = Network_createLocator(addr);
-        ret = Network_getAddress(&loc);
 
         Locator_clone(loc, *addr);
         Locator_upRef(*addr);

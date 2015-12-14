@@ -142,6 +142,9 @@ Network_Multicast_init() {
                                                                               Multicast
                                                                               address
                                                                               */
+
+    multiInBuff.isMulticast = true;
+
     char multicastPort[PLATFORM_LINUX_IPV6_MAX_CHAR_LEN];
     int multicastTTL;     /* Arg: TTL of multicast packets */
     struct addrinfo hints = { 0 };     /* Hints for name lookup */
@@ -464,7 +467,6 @@ recvLoop(void* netBuff) {
 
         Locator_t* loc;
 
-        //pthread_mutex_lock(&recv_mutex);
         if (LocatorDB_findLocator((Locator_t*) &sloc, &loc) != SDDS_RT_OK) {
             // not found we need a new one
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
@@ -784,12 +786,6 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
         return false;
     }
 #endif
-}
-
-rc_t
-Network_getAddress(Locator_t** addr) {
-    *addr = multiInBuff.addr->List_first(multiInBuff.addr);
-    return SDDS_RT_OK;
 }
 
 rc_t
