@@ -18,7 +18,7 @@
 
 struct Mutex{
     uint8_t old_prio;
-    uint8_t state;
+    uint8_t state:1;
 };
 typedef struct Mutex Mutex_t;
 
