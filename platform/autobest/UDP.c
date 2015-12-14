@@ -281,7 +281,7 @@ recvLoop(void* netBuff) {
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET6
         sloc.addr_storage.type =  IPADDR_TYPE_V6;
 #endif
-        Locator_t* loc = buff->addr->List_first(buff->addr);
+        Locator_t* loc;
         if (LocatorDB_findLocator((Locator_t*)&sloc, &loc) != SDDS_RT_OK) {
             // not found we need a new one
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
