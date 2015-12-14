@@ -795,9 +795,18 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
 
     if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
         Locator_t* loc = ref->addr->List_first(ref->addr);
-        ret = Network_createLocator(addr);
 
-        Locator_clone(loc, *addr);
+        if (LocatorDB_findLocator((Locator_t*) &loc, addr) != SDDS_RT_OK) {
+            // not found we need a new one
+            if (LocatorDB_newLocator(addr) != SDDS_RT_OK) {
+                Log_error("No free Locator objects\n");
+                return SDDS_RT_FAIL;
+            }
+
+            Locator_copy(loc, *addr);
+        }
+
+        // up ref counter
         Locator_upRef(*addr);
     }
     else {
@@ -807,12 +816,27 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
 
         char charAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_CHAR + 1];
         ret = SNPS_IPv6_addr2Str(byteAddr, charAddr);
-        ret = LocatorDB_newMultiLocator(addr);
+
+        Locator_t* loc;
+        ret = LocatorDB_newMultiLocator(&loc);
         if (ret != SDDS_RT_OK) {
             return SDDS_RT_FAIL;
         }
+
+        ret = Network_setMulticastAddressToLocator(loc, charAddr);
+
+        if (LocatorDB_findLocator((Locator_t*) &loc, addr) != SDDS_RT_OK) {
+            // not found we need a new one
+            if (LocatorDB_newLocator(addr) != SDDS_RT_OK) {
+                Log_error("No free Locator objects\n");
+                return SDDS_RT_FAIL;
+            }
+
+            Locator_copy(loc, *addr);
+        }
+
+        LocatorDB_freeLocator(loc);
         Locator_upRef(*addr);
-        ret = Network_setMulticastAddressToLocator(*addr, charAddr);
     }
 
     ref->subMsgCount -=1;

@@ -800,7 +800,13 @@ Locator_getAddress(Locator_t* l, char* srcAddr) {
     return SDDS_RT_OK;
 }
 
-void
-Locator_clone(Locator_t* src, Locator_t* dst) {
+rc_t
+Locator_copy(Locator_t* src, Locator_t* dst) {
+    if ((src == NULL) || (dst == NULL)) {
+        return SDDS_RT_FAIL;
+    }
 	memcpy(dst, src, sizeof(struct UDPLocator_t));
+	dst->refCount = 0;
+
+	return SDDS_RT_OK;
 }

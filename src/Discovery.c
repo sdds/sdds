@@ -233,6 +233,7 @@ Discovery_receiveParticipantTopics() {
         else {
             Log_info("Received (participant):[%x]\n", p_data_used.data.key);
             ret = Discovery_handleParticipant(p_data_used);
+            Locator_downRef(p_data_used.addr);
         }
     } while (ret != DDS_RETCODE_NO_DATA);
 }
@@ -306,6 +307,7 @@ Discovery_receive_SubscriptionTopics() {
             if (ret == SDDS_RT_OK) {
                 ret = Discovery_addRemoteDataSink(st_data_used.addr, topic);
             }
+            Locator_downRef(st_data_used.addr);
         }
     } while (ret != DDS_RETCODE_NO_DATA);
 #endif
