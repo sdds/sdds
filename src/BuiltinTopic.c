@@ -315,16 +315,7 @@ TopicMarshalling_DCPSParticipant_decode(NetBuffRef_t* buffer, Data data, size_t*
 
     SDDS_DCPSParticipant* sdds_data = (SDDS_DCPSParticipant*) data;
 
-    if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
-        ret = LocatorDB_newLocator(&sdds_data->addr);
-        Locator_upRef(sdds_data->addr);
-        ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
-    }
-    else {
-        ret = LocatorDB_newMultiLocator(&sdds_data->addr);
-        Locator_upRef(sdds_data->addr);
-        ret = Network_setMulticastAddressToLocator(sdds_data->addr, address.addr);
-    }
+    sdds_data->addr = address.addr;
 
     return SDDS_RT_OK;
 }
@@ -588,6 +579,7 @@ DDS_DCPSSubscriptionDataReader_take_next_sample(
                                                 DDS_SampleInfo* sample_info
                                                 ) {
     rc_t ret = DataReader_take_next_sample((DataReader_t*) _this, (Data*) data_values, (DataInfo) sample_info);
+    SDDS_DCPSSubscription* data = (SDDS_DCPSSubscription*) *data_values;
 
     if (ret == SDDS_RT_NODATA) {
         return DDS_RETCODE_NO_DATA;
@@ -599,22 +591,6 @@ DDS_DCPSSubscriptionDataReader_take_next_sample(
 
     return DDS_RETCODE_ERROR;
 }
-/*
-   DDS_ReturnCode_t DDS_DCPSSubscriptionDataReader_set_listener(
-   DDS_DataReader _this,
-   const struct DDS_DataReaderListener* a_listener,
-   const DDS_StatusMask mask
-   )
-   {
-   rc_t ret = DataSink_set_on_data_avail_listener((DataReader_t *) _this,
-      (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask)
-      mask);
-   if (ret == SDDS_RT_OK)
-   return DDS_RETCODE_OK;
-
-   return DDS_RETCODE_ERROR;
-   }
- */
 
 rc_t
 TopicMarshalling_DCPSSubscription_encode(NetBuffRef_t* buffer, Data data, size_t* size);
@@ -729,16 +705,7 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
 
     SDDS_DCPSSubscription* sdds_data = (SDDS_DCPSSubscription*) data;
 
-    if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
-        ret = LocatorDB_newLocator(&sdds_data->addr);
-        Locator_upRef(sdds_data->addr);
-        ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
-    }
-    else {
-        ret = LocatorDB_newMultiLocator(&sdds_data->addr);
-        Locator_upRef(sdds_data->addr);
-        ret = Network_setMulticastAddressToLocator(sdds_data->addr, address.addr);
-    }
+    sdds_data->addr = address.addr;
 
     return SDDS_RT_OK;
 }

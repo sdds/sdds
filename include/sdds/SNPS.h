@@ -95,7 +95,7 @@ typedef uint8_t castType_t;
                                                                         // Compression
 
 struct SNPS_Address {
-    char addr[SDDS_SNPS_ADDR_STR_LENGTH + 1];
+    Locator_t* addr;
     castType_t addrCast;
     addrType_t addrType;
 };
@@ -154,7 +154,7 @@ rc_t
 SNPS_writeAddress(NetBuffRef_t* ref, castType_t castType, addrType_t addrType, uint8_t* addr, uint8_t addrLen);
 
 rc_t
-SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, char* addr);
+SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, Locator_t** addr);
 rc_t
 SNPS_readHeader(NetBuffRef_t* ref);
 rc_t
