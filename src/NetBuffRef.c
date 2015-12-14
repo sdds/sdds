@@ -32,7 +32,6 @@ NetBuffRef_init(NetBuffRef_t* _this) {
     Network_getPayloadBegin(&start);
     _this->buff_start = ((byte_t*) (_this->frame_start)) + start;
     _this->addr = List_initConcurrentLinkedList();
-    _this->isMulticast = false;
     NetBuffRef_renew(_this);
 
     return SDDS_RT_OK;

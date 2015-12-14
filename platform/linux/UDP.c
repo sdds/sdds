@@ -143,8 +143,6 @@ Network_Multicast_init() {
                                                                               address
                                                                               */
 
-    multiInBuff.isMulticast = true;
-
     char multicastPort[PLATFORM_LINUX_IPV6_MAX_CHAR_LEN];
     int multicastTTL;     /* Arg: TTL of multicast packets */
     struct addrinfo hints = { 0 };     /* Hints for name lookup */
