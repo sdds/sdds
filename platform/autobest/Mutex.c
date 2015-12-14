@@ -11,7 +11,7 @@
 #include "Log.h"
 
 #include <api_calls.h>
-#include "arch/sys_arch.h"
+#include <lwip/sys.h>
 
 #define UNLOCK_STATE    0
 #define LOCK_STATE      1
