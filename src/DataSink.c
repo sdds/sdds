@@ -89,14 +89,6 @@ DataSink_getAddr(SNPS_Address_t* address) {
     return SDDS_RT_OK;
 }
 
-static void
-getAddress(NetBuffRef_t* buff) {
-//    memset(self->addr.addr, 0, SDDS_SNPS_ADDR_STR_LENGTH);
-    self->addr.addrType = 0;
-    self->addr.addrCast = 0;
-    SNPS_readAddress(buff, &self->addr.addrCast, &self->addr.addrType, &self->addr.addr);
-}
-
 //  ---------------------------------------------------------------------------
 //  Processes a SNPS message by reading through all submessages. Will enqueue a
 //  Sample into a DataReader's History. Returns OK if successful, otherwise
@@ -163,7 +155,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             break;
         case (SDDS_SNPS_T_ADDRESS):
             //  Write address into global variable
-            getAddress(buff);
+            SNPS_readAddress(buff, &self->addr.addrCast, &self->addr.addrType, &self->addr.addr);
             break;
         case (SDDS_SNPS_T_TSSIMPLE):
         case (SDDS_SNPS_T_STATUS):

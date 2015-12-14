@@ -497,12 +497,6 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 }
 
 rc_t
-Network_getAddress(Locator_t** addr){
-    *addr = multiInBuff.addr->List_first(multiInBuff.addr);
-    return SDDS_RT_OK;
-}
-
-rc_t
 Locator_getAddress(Locator_t* l, char* srcAddr) {
     AutobestLocator_t* aloc = (AutobestLocator_t*) l;
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET
@@ -519,7 +513,6 @@ Locator_getAddress(Locator_t* l, char* srcAddr) {
     }
     return SDDS_RT_OK;
 }
-
 
 void
 Locator_clone(Locator_t* src, Locator_t* dst) {

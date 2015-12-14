@@ -71,7 +71,6 @@ LocatorDB_newLocator(Locator_t** loc) {
         // check if ref counter is zero
         if (db.pool[i]->refCount == 0) {
             *loc = db.pool[i];
-//			printf(" FOUND FREE LOC\n");
             break;
         }
     }
@@ -82,6 +81,7 @@ LocatorDB_newLocator(Locator_t** loc) {
     }
     (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
     (*loc)->next = NULL;
+
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
@@ -116,6 +116,7 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
 
     (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
     (*loc)->next = NULL;
+
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;

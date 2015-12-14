@@ -123,7 +123,7 @@ Locator_contains(List_t* list, Locator_t* l);
 rc_t
 Locator_getAddress(Locator_t* l, char* srcAddr);
 
-void
-Locator_clone(Locator_t* src, Locator_t* dst);
+rc_t
+Locator_copy(Locator_t* src, Locator_t* dst);
 
 #endif   /* ----- #ifndef LOCATOR_H_INC  ----- */
