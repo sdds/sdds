@@ -95,16 +95,12 @@ getAddress(NetBuffRef_t* buff) {
     self->addr.addrType = 0;
     self->addr.addrCast = 0;
     SNPS_readAddress(buff, &self->addr.addrCast, &self->addr.addrType, &self->addr.addr);
-    char srcAddr[NI_MAXHOST];
-    Locator_getAddressOfLocator(self->addr.addr, srcAddr);
-    Log_debug("%d %s\n", __LINE__, srcAddr);
 }
 
 //  ---------------------------------------------------------------------------
 //  Processes a SNPS message by reading through all submessages. Will enqueue a
 //  Sample into a DataReader's History. Returns OK if successful, otherwise
 //  FAIL.
-
 rc_t
 DataSink_processFrame(NetBuffRef_t* buff) {
     assert(buff);

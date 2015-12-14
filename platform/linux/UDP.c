@@ -793,7 +793,7 @@ Network_getAddress(Locator_t** addr) {
 }
 
 rc_t
-Locator_getAddressOfLocator(Locator_t* l, char* srcAddr) {
+Locator_getAddress(Locator_t* l, char* srcAddr) {
     if ((l == NULL) || (srcAddr == NULL)) {
         return SDDS_RT_BAD_PARAMETER;
     }
