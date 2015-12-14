@@ -301,7 +301,11 @@ recvLoop(void* netBuff) {
         loc->type = conn_type;
         
         //buff->addr = loc;
-        buff->addr->List_add(multiInBuff.addr, loc);
+        rc_t ret = buff->addr->List_add(buff->addr, loc);
+        if (ret != SDDS_RT_OK) {
+            LocatorDB_freeLocator(loc);
+            continue;
+        }
       
         ret = DataSink_processFrame(buff);
         if(ret != SDDS_RT_OK){
@@ -493,12 +497,13 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 }
 
 rc_t
-Locator_getAddress(){
-    return Locator_getAddressOfLocator();
+Network_getAddress(Locator_t** addr){
+    *addr = multiInBuff.addr->List_first(multiInBuff.addr);
+    return SDDS_RT_OK;
 }
 
 rc_t
-Locator_getAddressOfLocator(Locator_t* l, char* srcAddr) {
+Locator_getAddress(Locator_t* l, char* srcAddr) {
     AutobestLocator_t* aloc = (AutobestLocator_t*) l;
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET
     char* ret = inet_ntoa(aloc->addr_storage);
@@ -513,4 +518,10 @@ Locator_getAddressOfLocator(Locator_t* l, char* srcAddr) {
         return SDDS_RT_FAIL;
     }
     return SDDS_RT_OK;
+}
+
+
+void
+Locator_clone(Locator_t* src, Locator_t* dst) {
+    memcpy(dst, src, sizeof(AutobestLocator_t));
 }
