@@ -62,7 +62,7 @@ NetBuffRef_print(NetBuffRef_t* _this) {
     printf("\ttopicid: %i\n", (_this->curTopic == NULL) ? 0 : _this->curTopic->id);
     printf("\tsubMsgCount: %i \n", _this->subMsgCount);
     printf("\tbuffPos: %i \n", _this->curPos);
-    printf("\tNetFramesize: %i \n", _this->frame_start->size);
+    printf("\tNetFramesize: %i \n", (int)_this->frame_start->size);
     printf("\tBuffer: \n");
 
     printf("Byte:\t");
