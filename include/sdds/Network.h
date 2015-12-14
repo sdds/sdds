@@ -60,4 +60,7 @@ rc_t
 Network_getSrcAddr(char* addr, int addr_len, char* port,
                    int port_len);
 
+rc_t
+Network_getAddress(Locator_t** addr);
+
 #endif   /* ----- #ifndef NETWORK_H_INC  ----- */

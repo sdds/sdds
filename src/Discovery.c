@@ -81,6 +81,7 @@ Discovery_addParticipant(SDDS_DCPSParticipant* p) {
 static rc_t
 Discovery_handleParticipant(SDDS_DCPSParticipant p) {
     rc_t ret = Discovery_addParticipant(&p);
+
     if (ret == SDDS_RT_OK) {
 #if defined(SDDS_TOPIC_HAS_PUB)
         ret = Discovery_addRemoteDataSink(p.addr, g_DCPSSubscription_topic);
@@ -139,6 +140,7 @@ Discovery_addRemoteDataSink(Locator_t* l, Topic_t* topic) {
     }
 
     if (!Locator_isEqual(l, locPub) && !Locator_isEqual(l, locPart) && !Locator_isEqual(l, locTop)) {
+        Locator_upRef(l);
         ret = Topic_addRemoteDataSink(topic, l);
     }
     Locator_downRef(l);
