@@ -1,4 +1,6 @@
-#include "sDDS.h"
+#include <sDDS.h>
+#include <os-ssal/SSW.h>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -6,7 +8,6 @@
 #include <lwip/opt.h>
 #include <lwip/api.h>
 #include <lwip/inet.h>
-#include <lwip/mld6.h>
 #include <lwip/netif.h>
 #include <lwip/err.h>
 
@@ -63,19 +64,10 @@ recvLoop(void*);
 static struct netconn*
 create_connection(int port);
 
-
-// for the builtintopic
-// IF BUILTIN
-Locator_t* builtinTopicNetAddress;
-// ENDIF
-
-rc_t
+static rc_t
 Network_Multicast_init(void);
-rc_t
-Network_createLocator(Locator_t** loc);
-rc_t
-Network_createMulticastLocator(Locator_t** loc);
-rc_t
+
+static rc_t
 Network_Multicast_joinMulticastGroup(char* group);
 
 
@@ -88,8 +80,6 @@ Network_size(void) {
 rc_t
 Network_init(void) {
 
-    // search in the db for the locator
-    // TODO do something better than this hack here....
     net.fd_uni_conn = create_connection(PLATFORM_AUTOBEST_SDDS_PORT);
     if( net.fd_uni_conn == NULL) {
         Log_error("error create_connection\n");
@@ -97,7 +87,11 @@ Network_init(void) {
     }
     // init the incoming frame buffer and add dummy unicast locator
     NetBuffRef_init(&inBuff);
-    ssw_rc_t ret = Network_createLocator(&inBuff.addr);
+    
+    Locator_t* loc;
+    ssw_rc_t ret = Network_createLocator(&loc);
+    inBuff.addr->List_add(inBuff.addr, loc);
+
     if(ret == SDDS_RT_FAIL) {
         Log_error("error while init incoming Buffer\n");
         return SDDS_RT_FAIL;
@@ -126,7 +120,7 @@ Network_init(void) {
     return SDDS_RT_OK;
 }
 
-rc_t
+static rc_t
 Network_Multicast_init() {
     rc_t ret;
 
@@ -157,7 +151,9 @@ Network_Multicast_init() {
     }
 
     NetBuffRef_init(&multiInBuff);
-    Network_createMulticastLocator(&multiInBuff.addr);
+    Locator_t* loc;
+    Network_createMulticastLocator(&loc);
+    multiInBuff.addr->List_add(multiInBuff.addr, loc);
 
     // set up a thread to read from the udp socket [multicast]
     net.multiRecvThread = Thread_create();
@@ -174,7 +170,7 @@ Network_Multicast_init() {
     return SDDS_RT_OK;
 }
 
-rc_t
+static rc_t
 Network_Multicast_joinMulticastGroup(char* group) {
     struct netif* netif = netif_default;
     ip_addr_t multi_addr;
@@ -244,17 +240,14 @@ recvLoop(void* netBuff) {
     rc_t ret;
 
     // Check the dummy locator for uni or multicast socket
-    Locator_t* l = (Locator_t*) buff->addr;
+    Locator_t* l = (Locator_t*) buff->addr->List_first(buff->addr);
     conn_type = l->type;
 
     if(conn_type == SDDS_LOCATOR_TYPE_MULTI) {
         conn = net.fd_multi_conn;
-        //port = PLATFORM_AUTOBEST_SDDS_PORT +
-        // PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PORT_OFF;
     }
     else if(conn_type == SDDS_LOCATOR_TYPE_UNI) {
         conn = net.fd_uni_conn;
-        //port = PLATFORM_AUTOBEST_SDDS_PORT;
     }
 
     while (true)
@@ -288,7 +281,7 @@ recvLoop(void* netBuff) {
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET6
         sloc.addr_storage.type =  IPADDR_TYPE_V6;
 #endif
-        Locator_t* loc;
+        Locator_t* loc = buff->addr->List_first(buff->addr);
         if (LocatorDB_findLocator((Locator_t*)&sloc, &loc) != SDDS_RT_OK) {
             // not found we need a new one
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
@@ -307,7 +300,8 @@ recvLoop(void* netBuff) {
         loc->isSender = true;
         loc->type = conn_type;
         
-        buff->addr = loc;
+        //buff->addr = loc;
+        buff->addr->List_add(multiInBuff.addr, loc);
       
         ret = DataSink_processFrame(buff);
         if(ret != SDDS_RT_OK){
@@ -326,7 +320,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
   void* data = NULL; 
 
   // Check the locator for uni or multicast socket
-  Locator_t *loc = (Locator_t *) buff->addr;
+  Locator_t *loc = (Locator_t*) buff->addr->List_first(buff->addr);
   conn_type = loc->type;
   // add locator to the netbuffref
   if(conn_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -362,7 +356,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
         Locator_getAddress(loc, a);
         Log_debug("Sendet to %s\n", a);
 #endif
-        loc = loc->next;
+        loc = (Locator_t*) buff->addr->List_next(buff->addr);
 
     }
     return SDDS_RT_OK;
@@ -491,15 +485,20 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
     addr[0] = (ip_addr_t*)&a->addr_storage;
     addr[1] = (ip_addr_t*)&b->addr_storage;
 
-    if (memcmp(&addr[0], &addr[1], sizeof(ip_addr_t)) == 0) {
+    if (memcmp(&addr[0], &addr[1], sizeof(ip_addr_t)) == 0 
+        && a->port == b->port) {
         return true;
     }
     return false;
 }
 
+rc_t
+Locator_getAddress(){
+    return Locator_getAddressOfLocator();
+}
 
 rc_t
-Locator_getAddress(Locator_t* l, char* srcAddr) {
+Locator_getAddressOfLocator(Locator_t* l, char* srcAddr) {
     AutobestLocator_t* aloc = (AutobestLocator_t*) l;
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET
     char* ret = inet_ntoa(aloc->addr_storage);
