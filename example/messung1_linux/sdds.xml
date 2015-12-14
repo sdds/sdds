@@ -3,7 +3,9 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    ip = "fe80::12:13ff:fe14:1516"
+    ip = "192.168.178.60"
+	port = "23234"
+	protocol = "AF_INET"
     >
     <!--
         Set interface, ip and port for this project
@@ -24,6 +26,6 @@
         Publisher can have a list of subscriber to whom the should send data.
     -->
     <role topic = "alpha" type = "publisher">
-        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+        <subscriber ip = "192.168.178.60" />
     </role>
 </project>
