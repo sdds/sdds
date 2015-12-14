@@ -95,7 +95,6 @@ typedef uint8_t castType_t;
                                                                         // Compression
 
 struct SNPS_Address {
-//    char addr[SDDS_SNPS_ADDR_STR_LENGTH + 1];
     Locator_t* addr;
     castType_t addrCast;
     addrType_t addrType;

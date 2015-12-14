@@ -317,17 +317,6 @@ TopicMarshalling_DCPSParticipant_decode(NetBuffRef_t* buffer, Data data, size_t*
 
     sdds_data->addr = address.addr;
 
-//    if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
-//        ret = LocatorDB_newLocator(&sdds_data->addr);
-//        Locator_upRef(sdds_data->addr);
-//        ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
-//    }
-//    else {
-//        ret = LocatorDB_newMultiLocator(&sdds_data->addr);
-//        Locator_upRef(sdds_data->addr);
-//        ret = Network_setMulticastAddressToLocator(sdds_data->addr, address.addr);
-//    }
-
     return SDDS_RT_OK;
 }
 
@@ -717,17 +706,6 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
     SDDS_DCPSSubscription* sdds_data = (SDDS_DCPSSubscription*) data;
 
     sdds_data->addr = address.addr;
-
-//    if (address.addrCast == SDDS_SNPS_CAST_UNICAST) {
-//        ret = LocatorDB_newLocator(&sdds_data->addr);
-//        Locator_upRef(sdds_data->addr);
-//        ret = Network_setAddressToLocator(sdds_data->addr, address.addr);
-//    }
-//    else {
-//        ret = LocatorDB_newMultiLocator(&sdds_data->addr);
-//        Locator_upRef(sdds_data->addr);
-//        ret = Network_setMulticastAddressToLocator(sdds_data->addr, address.addr);
-//    }
 
     return SDDS_RT_OK;
 }

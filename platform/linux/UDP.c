@@ -456,9 +456,7 @@ recvLoop(void* netBuff) {
             continue;
         }
 
-        if (buff == &multiInBuff) {
-            Log_debug("[%u]%i bytes received.\n", sock_type, (int) recv_size);
-        }
+        Log_debug("[%u]%i bytes received.\n", sock_type, (int) recv_size);
 
         struct UDPLocator_t sloc;
 
@@ -789,7 +787,7 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 }
 
 rc_t
-Locator_getAddress(Locator_t** addr) {
+Network_getAddress(Locator_t** addr) {
     *addr = multiInBuff.addr->List_first(multiInBuff.addr);
     return SDDS_RT_OK;
 }
