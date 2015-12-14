@@ -514,7 +514,6 @@ Locator_getAddress(Locator_t* l, char* srcAddr) {
     return SDDS_RT_OK;
 }
 
-
 void
 Locator_clone(Locator_t* src, Locator_t* dst) {
     memcpy(dst, src, sizeof(AutobestLocator_t));
