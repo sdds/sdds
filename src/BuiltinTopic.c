@@ -590,6 +590,7 @@ DDS_DCPSSubscriptionDataReader_take_next_sample(
                                                 DDS_SampleInfo* sample_info
                                                 ) {
     rc_t ret = DataReader_take_next_sample((DataReader_t*) _this, (Data*) data_values, (DataInfo) sample_info);
+    SDDS_DCPSSubscription* data = (SDDS_DCPSSubscription*) *data_values;
 
     if (ret == SDDS_RT_NODATA) {
         return DDS_RETCODE_NO_DATA;
@@ -601,22 +602,6 @@ DDS_DCPSSubscriptionDataReader_take_next_sample(
 
     return DDS_RETCODE_ERROR;
 }
-/*
-   DDS_ReturnCode_t DDS_DCPSSubscriptionDataReader_set_listener(
-   DDS_DataReader _this,
-   const struct DDS_DataReaderListener* a_listener,
-   const DDS_StatusMask mask
-   )
-   {
-   rc_t ret = DataSink_set_on_data_avail_listener((DataReader_t *) _this,
-      (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask)
-      mask);
-   if (ret == SDDS_RT_OK)
-   return DDS_RETCODE_OK;
-
-   return DDS_RETCODE_ERROR;
-   }
- */
 
 rc_t
 TopicMarshalling_DCPSSubscription_encode(NetBuffRef_t* buffer, Data data, size_t* size);
@@ -636,11 +621,11 @@ DDS_DCPSSubscriptionDataWriter_write(
     addrType = SDDS_SNPS_ADDR_IPV4;
 #endif
 
-//#ifdef FEATURE_SDDS_MULTICAST_ENABLED
-//    castType = SDDS_SNPS_CAST_MULTICAST;
-//    addr = generalByteAddr;
-//    addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
-//#endif
+#ifdef FEATURE_SDDS_MULTICAST_ENABLED
+    castType = SDDS_SNPS_CAST_MULTICAST;
+    addr = generalByteAddr;
+    addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
+#endif
 
     rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);

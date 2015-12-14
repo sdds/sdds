@@ -779,6 +779,11 @@ SNPS_writeAddress(NetBuffRef_t* ref, castType_t castType, addrType_t addrType, u
 //  of information in the castType_t*, addType_t* and the address int the char*.
 //  Returns SDDS_RT_OK on success.
 
+struct UDPLocator_t {
+    Locator_t loc;
+    struct sockaddr_storage addr_storage;
+};
+
 rc_t
 SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, Locator_t** addr) {
     rc_t ret;
@@ -793,11 +798,14 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
     *addrType = ((addrInfo >> 4) & 0x0f);
     ref->curPos +=1;
 
+    char srcAddr[NI_MAXHOST];
     if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
         Locator_t* loc;
         ret = Network_createLocator(addr);
         ret = Locator_getAddress(&loc);
-        memcpy(*addr, loc, sizeof(Locator_t));
+
+        Locator_clone(loc, *addr);
+        Locator_upRef(*addr);
     }
     else {
         char byteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];

@@ -60,4 +60,7 @@ rc_t
 Network_getSrcAddr(char* addr, int addr_len, char* port,
                    int port_len);
 
+void
+Locator_clone(Locator_t* src, Locator_t* dst);
+
 #endif   /* ----- #ifndef NETWORK_H_INC  ----- */

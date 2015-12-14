@@ -232,9 +232,6 @@ Discovery_receiveParticipantTopics() {
         }
         else {
             Log_info("Received (participant):[%x]\n", p_data_used.data.key);
-            char srcAddr[NI_MAXHOST];
-            Locator_getAddressOfLocator(p_data_used.addr, srcAddr);
-            Log_debug("get Msg from: %s\n", srcAddr);
             ret = Discovery_handleParticipant(p_data_used);
         }
     } while (ret != DDS_RETCODE_NO_DATA);
@@ -308,9 +305,6 @@ Discovery_receive_SubscriptionTopics() {
             ret = DataSource_getTopic(NULL, st_data_used.data.topic_id, &topic);
             if (ret == SDDS_RT_OK) {
                 ret = Discovery_addRemoteDataSink(st_data_used.addr, topic);
-                char srcAddr[NI_MAXHOST];
-                Locator_getAddressOfLocator(st_data_used.addr, srcAddr);
-                Log_debug("get Msg from: %s\n", srcAddr);
             }
         }
     } while (ret != DDS_RETCODE_NO_DATA);

@@ -95,6 +95,9 @@ getAddress(NetBuffRef_t* buff) {
     self->addr.addrType = 0;
     self->addr.addrCast = 0;
     SNPS_readAddress(buff, &self->addr.addrCast, &self->addr.addrType, &self->addr.addr);
+    char srcAddr[NI_MAXHOST];
+    Locator_getAddressOfLocator(self->addr.addr, srcAddr);
+    Log_debug("%d %s\n", __LINE__, srcAddr);
 }
 
 //  ---------------------------------------------------------------------------

@@ -456,26 +456,15 @@ recvLoop(void* netBuff) {
             continue;
         }
 
-        getnameinfo((struct sockaddr *)&addr, addr_len,
-                    net.sender_host, sizeof(net.sender_host),
-                    NULL, 0,
-                    NI_NUMERICHOST);
-
         if (buff == &multiInBuff) {
-            Log_debug("[%u]%i bytes empfangen von %s\n", sock_type, (int) recv_size, net.sender_host);
+            Log_debug("[%u]%i bytes received.\n", sock_type, (int) recv_size);
         }
-
-        // implicit call of the network receive handler
-        // should start from now ;)
-
-        // search in the db for the locator
-        // TODO do something better than this hack here....
 
         struct UDPLocator_t sloc;
 
         memcpy(&(sloc.addr_storage), &addr, addr_len);
 
-        Locator_t* loc = (Locator_t*) &addr;
+        Locator_t* loc;
 
         //pthread_mutex_lock(&recv_mutex);
         if (LocatorDB_findLocator((Locator_t*) &sloc, &loc) != SDDS_RT_OK) {
@@ -505,7 +494,7 @@ recvLoop(void* netBuff) {
             Log_debug("Failed to process frame\n");
         }
 
-
+        LocatorDB_freeLocator(loc);
 
     }
 
@@ -817,4 +806,9 @@ Locator_getAddressOfLocator(Locator_t* l, char* srcAddr) {
                          NI_MAXHOST, srcPort, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
 
     return SDDS_RT_OK;
+}
+
+void
+Locator_clone(Locator_t* src, Locator_t* dst) {
+	memcpy(dst, src, sizeof(struct UDPLocator_t));
 }
