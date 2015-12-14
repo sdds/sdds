@@ -6,6 +6,7 @@
     iface = "eth0"
     ip = "fe80::a00:27ff:feb5:8352" 
     port = "23234"
+    protocol = "AF_INET6"
     >
     Linux multicast discovery example with ipc topic.
     <!-- eth0 fe80::a00:27ff:feb5:8352  -->
