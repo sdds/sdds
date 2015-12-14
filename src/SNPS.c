@@ -844,7 +844,8 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
 
 #ifdef UTILS_DEBUG
     char a[1024];
-    ret = Locator_getAddress(a);
+    Locator_t* loc = (Locator_t*) ref->addr->List_first(ref->addr);
+    ret = Locator_getAddress(loc, a);
     Log_debug("Connection from %s\n", a);
 #endif
 
