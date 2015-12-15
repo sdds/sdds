@@ -260,6 +260,8 @@ recvLoop(void* netBuff) {
             sys_task_terminate();
             sys_abort();
         }
+        // TODO: Trace point  recv
+        // TODO: Trace point Frame incomming
         err = netbuf_data(lwip_netbuf, &data, &recv_size);
         if(err != ERR_OK ) {
             Log_error("Error while read data out the netbuffer\n");
@@ -349,6 +351,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
     }
     memcpy (data, buff->buff_start, buff->curPos);
     err = netconn_sendto(conn, netbuf, addr, ((AutobestLocator_t *) loc)->port);
+    // TODO: Trace point send
     netbuf_delete(netbuf); 
     if (err != ERR_OK ) {
       Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
