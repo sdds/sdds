@@ -67,16 +67,70 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
     }
     //  Insert sample into queue
     Topic_t* topic = buff->curTopic;
+    Locator_t* loc = (Locator_t*) buff->addr->List_first(buff->addr);
+    Locator_upRef(loc);
+
+// Check validy of sequencenumber
+#ifdef SDDS_HAS_QOS_RELIABILITY
+    SDDS_SEQNR_BIGGEST_TYPE highestSeqNrOfLoc = 0;
+    for (int i=0; i<self->depth; i++){
+        if (self->samples[i].instance == loc && self->samples[i].seqNr > highestSeqNrOfLoc){
+            highestSeqNrOfLoc = self->samples[i].seqNr;
+        }
+    }
+
+    switch(topic->seqNrBitSize){
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
+            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 15) ){
+                self->samples[self->in_needle].seqNr = seqNr;
+            } else { // invalid seqNr, discard next subMsg (data)
+                SNPS_discardSubMsg(buff);
+                Locator_downRef(loc);
+                return SDDS_RT_FAIL;
+            }
+           break;
+#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
+            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 255) ){
+                self->samples[self->in_needle].seqNr = seqNr;
+            } else { // invalid seqNr, discard next subMsg (data)
+                SNPS_discardSubMsg(buff);
+                Locator_downRef(loc);
+                return SDDS_RT_FAIL;
+            }
+           break;
+#endif
+#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
+            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 65536) ){
+                self->samples[self->in_needle].seqNr = seqNr;
+            } else { // invalid seqNr, discard next subMsg (data)
+                SNPS_discardSubMsg(buff);
+                Locator_downRef(loc);
+                return SDDS_RT_FAIL;
+            }
+           break;
+#endif
+#if SDDS_SEQNR_BIGGEST_TYPE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
+            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 4294967296) ){
+                self->samples[self->in_needle].seqNr = seqNr;
+            } else { // invalid seqNr, discard next subMsg (data)
+                SNPS_discardSubMsg(buff);
+                Locator_downRef(loc);
+                return SDDS_RT_FAIL;
+            }
+           break;
+#endif
+    }
+    sdds_History_print(self);
+#endif
+
     rc_t ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
     if (ret == SDDS_RT_FAIL) {
         return ret;
     }
-    self->samples[self->in_needle].instance = (Locator_t*) buff->addr->List_first(buff->addr);
-#ifdef SDDS_HAS_QOS_RELIABILITY
-    self->samples[self->in_needle].instance = 0;
-    self->samples[self->in_needle].seqNr = seqNr;
-    sdds_History_print(self);
-#endif
+    self->samples[self->in_needle].instance = loc;
     //  Move the input needle to the next free slot. If the input needle is at
     //  the end of the array move it to the beginning.
     unsigned int in_needle_prev = self->in_needle;
@@ -109,6 +163,7 @@ sdds_History_dequeue(History_t* self) {
     }
     //  Remove sample from
     Sample_t* sample = &self->samples[self->out_needle];
+    Locator_downRef(sample->instance);
     //  Move the output needle to the next sample slot. If the output needle is
     //  at the end of the array move it to the beginning.
     unsigned int out_needle_prev = self->out_needle;

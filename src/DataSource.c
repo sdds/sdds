@@ -31,7 +31,11 @@ typedef struct _InstantSender_t InstantSender_t;
 
 struct _DataSource_t {
 #if SDDS_MAX_DATA_WRITERS > 0
+#ifdef SDDS_HAS_QOS_RELIABILITY
+    Reliable_DataWriter_t writers[SDDS_MAX_DATA_WRITERS];
+#else
     DataWriter_t writers[SDDS_MAX_DATA_WRITERS];
+#endif
 #endif
     InstantSender_t sender;
     unsigned int remaining_datawriter : 4;
@@ -119,7 +123,7 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos,
     if (self->remaining_datawriter == 0) {
         return NULL;
     }
-    dw = &(self->writers[SDDS_MAX_DATA_WRITERS - self->remaining_datawriter]);
+    dw = (DataWriter_t*) &(self->writers[SDDS_MAX_DATA_WRITERS - self->remaining_datawriter]);
 
     dw->topic = topic;
     dw->id = (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter);

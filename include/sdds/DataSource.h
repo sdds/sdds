@@ -33,6 +33,7 @@ DataSource_init(void);
 
 DataWriter_t*
 DataSource_create_datawriter(Topic_t* topic, Qos qos, Listener list, StatusMask mask);
+
 rc_t
 DataSource_writeAddress(DataWriter_t* _this, castType_t castType, addrType_t addrType, uint8_t* addr, uint8_t addrLen);
 
