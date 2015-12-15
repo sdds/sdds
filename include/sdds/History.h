@@ -25,7 +25,6 @@ struct _History_t {
     uint16_t in_needle;       //  Needle that points to the next free slot
     uint16_t out_needle;      //  Needle that points to the sample to be
                               //  dequeued next
-
 };
 
 //  Initializes this class
