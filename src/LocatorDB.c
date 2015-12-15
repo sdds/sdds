@@ -29,8 +29,6 @@ struct LocatorDB_t {
 static struct LocatorDB_t db;
 static Mutex_t* mutex;
 
-static void print_locatorDB(void);
-
 rc_t
 LocatorDB_init() {
     db.freeLoc = SDDS_NET_MAX_LOCATOR_COUNT;
@@ -48,8 +46,6 @@ LocatorDB_init() {
     if (Mutex_init(mutex) != SDDS_SSW_RT_OK) {
         return SDDS_RT_FAIL;
     }
-    Log_debug("Line: %d print_locatorDB\n", __LINE__);
-    print_locatorDB();
 
     return SDDS_RT_OK;
 }
@@ -59,8 +55,6 @@ LocatorDB_init() {
 rc_t
 LocatorDB_newLocator(Locator_t** loc) {
     assert(loc);
-    Log_debug("Line: %d print_locatorDB\n", __LINE__);
-    print_locatorDB();
     Mutex_lock(mutex);
     if (db.freeLoc == 0) {
         Mutex_unlock(mutex);
@@ -89,8 +83,6 @@ LocatorDB_newLocator(Locator_t** loc) {
     (*loc)->next = NULL;
 
     Mutex_unlock(mutex);
-    Log_debug("Line: %d print_locatorDB\n", __LINE__);
-    print_locatorDB();
 
     return SDDS_RT_OK;
 }
@@ -98,8 +90,6 @@ LocatorDB_newLocator(Locator_t** loc) {
 rc_t
 LocatorDB_newMultiLocator(Locator_t** loc) {
     assert(loc);
-    Log_debug("Line: %d print_locatorDB\n", __LINE__);
-    print_locatorDB();
     Mutex_lock(mutex);
     if (db.freeLoc == 0) {
         Mutex_unlock(mutex);
@@ -128,8 +118,6 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
     (*loc)->next = NULL;
 
     Mutex_unlock(mutex);
-    Log_debug("Line: %d print_locatorDB\n", __LINE__);
-    print_locatorDB();
 
     return SDDS_RT_OK;
 }
@@ -137,8 +125,6 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
 rc_t
 LocatorDB_newBroadLocator(Locator_t** loc) {
     assert(loc);
-    Log_debug("Line: %d print_locatorDB\n", __LINE__);
-    print_locatorDB();
     Mutex_lock(mutex);
     if (db.freeLoc == 0) {
         return SDDS_LOCATORDB_RT_NOFREELOCATORS;
@@ -165,8 +151,6 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
     (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
     (*loc)->next = NULL;
     Mutex_unlock(mutex);
-    Log_debug("Line: %d print_locatorDB\n", __LINE__);
-    print_locatorDB();
 
     return SDDS_RT_OK;
 }
@@ -174,8 +158,6 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
 rc_t
 LocatorDB_freeLocator(Locator_t* loc) {
     // decrem refcounter if bigger than zero
-    Log_debug("Line: %d print_locatorDB\n", __LINE__);
-    print_locatorDB();
     Mutex_lock(mutex);
     if (loc->refCount > 0) {
         loc->refCount--;
@@ -184,8 +166,6 @@ LocatorDB_freeLocator(Locator_t* loc) {
         Locator_init(loc);
         db.freeLoc++;
     }
-    Log_debug("Line: %d print_locatorDB\n", __LINE__);
-    print_locatorDB();
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
@@ -195,7 +175,6 @@ rc_t
 LocatorDB_isUsedLocator(Locator_t* loc) {
     // if ref counter > 0 return yes else no ;)
     Mutex_lock(mutex);
-    //print_locatorDB();
     if (loc->refCount > 0) {
         Mutex_unlock(mutex);
         return SDDS_LOCATORDB_RT_ISINUSE;
@@ -210,8 +189,6 @@ LocatorDB_isUsedLocator(Locator_t* loc) {
 rc_t
 LocatorDB_findLocator(Locator_t* toFind, Locator_t** result) {
     Mutex_lock(mutex);
-    Log_debug("Line: %d print_locatorDB\n", __LINE__);
-    print_locatorDB();
     for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
         if (Locator_isEqual(toFind, db.pool[i]) == true) {
             *result = db.pool[i];
@@ -223,14 +200,3 @@ LocatorDB_findLocator(Locator_t* toFind, Locator_t** result) {
     return SDDS_RT_FAIL;
 }
 
-
-static void print_locatorDB(void){
-#if 1
-    printf("=============LocatorDB=============\n");
-    for(int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++){
-        printf("Nr: %d, refCount: %d\n",i , db.pool[i]->refCount);
-    }
-    printf("Free Locators: %d\n",db.freeLoc);
-    printf("=============LocatorDB=============\n");
-#endif
-}

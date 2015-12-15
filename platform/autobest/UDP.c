@@ -280,7 +280,6 @@ recvLoop(void* netBuff) {
         memcpy(&(sloc.addr_storage), netbuf_fromaddr(lwip_netbuf), sizeof(ip_addr_t));
         port = netbuf_fromport(lwip_netbuf);
         sloc.port = port;
-        Log_debug("slocPort: %d Port: %d\n", sloc.port, port);
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET6
         sloc.addr_storage.type =  IPADDR_TYPE_V6;
 #endif
