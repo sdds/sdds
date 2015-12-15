@@ -280,6 +280,7 @@ recvLoop(void* netBuff) {
         memcpy(&(sloc.addr_storage), netbuf_fromaddr(lwip_netbuf), sizeof(ip_addr_t));
         port = netbuf_fromport(lwip_netbuf);
         sloc.port = port;
+        Log_debug("slocPort: %d Port: %d\n", sloc.port, port);
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET6
         sloc.addr_storage.type =  IPADDR_TYPE_V6;
 #endif
@@ -288,6 +289,7 @@ recvLoop(void* netBuff) {
             // not found we need a new one
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
                 netbuf_delete(lwip_netbuf);
+                Log_error("No free Locator objects\n");
                 continue;
             }
             memcpy(&((AutobestLocator_t*)loc)->addr_storage, &lwip_netbuf->addr, sizeof(ip_addr_t));
@@ -492,8 +494,7 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
     addr[0] = (ip_addr_t*)&a->addr_storage;
     addr[1] = (ip_addr_t*)&b->addr_storage;
 
-    if (memcmp(&addr[0], &addr[1], sizeof(ip_addr_t)) == 0 
-        && a->port == b->port) {
+    if (memcmp(&addr[0], &addr[1], sizeof(ip_addr_t)) == 0) {
         return true;
     }
     return false;

@@ -27,6 +27,7 @@ int main(void){
 	Ipc data_used;
 	Ipc* data_used_ptr = &data_used;
 
+//	trace_point(5);
 	for (;;){
 		DDS_ReturnCode_t ret = DDS_IpcDataReader_take_next_sample(g_Ipc_reader, &data_used_ptr, NULL); 
 
