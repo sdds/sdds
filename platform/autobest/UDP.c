@@ -260,6 +260,8 @@ recvLoop(void* netBuff) {
             sys_task_terminate();
             sys_abort();
         }
+        // TODO: Trace point  recv
+        // TODO: Trace point Frame incomming
         err = netbuf_data(lwip_netbuf, &data, &recv_size);
         if(err != ERR_OK ) {
             Log_error("Error while read data out the netbuffer\n");
@@ -286,6 +288,7 @@ recvLoop(void* netBuff) {
             // not found we need a new one
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
                 netbuf_delete(lwip_netbuf);
+                Log_error("No free Locator objects\n");
                 continue;
             }
             memcpy(&((AutobestLocator_t*)loc)->addr_storage, &lwip_netbuf->addr, sizeof(ip_addr_t));
@@ -349,6 +352,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
     }
     memcpy (data, buff->buff_start, buff->curPos);
     err = netconn_sendto(conn, netbuf, addr, ((AutobestLocator_t *) loc)->port);
+    // TODO: Trace point send
     netbuf_delete(netbuf); 
     if (err != ERR_OK ) {
       Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
@@ -489,8 +493,7 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
     addr[0] = (ip_addr_t*)&a->addr_storage;
     addr[1] = (ip_addr_t*)&b->addr_storage;
 
-    if (memcmp(&addr[0], &addr[1], sizeof(ip_addr_t)) == 0 
-        && a->port == b->port) {
+    if (memcmp(&addr[0], &addr[1], sizeof(ip_addr_t)) == 0) {
         return true;
     }
     return false;

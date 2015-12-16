@@ -55,7 +55,6 @@ LocatorDB_init() {
 rc_t
 LocatorDB_newLocator(Locator_t** loc) {
     assert(loc);
-
     Mutex_lock(mutex);
     if (db.freeLoc == 0) {
         Mutex_unlock(mutex);
@@ -75,6 +74,7 @@ LocatorDB_newLocator(Locator_t** loc) {
         }
     }
     if (*loc == NULL) {
+        db.freeLoc = 0;
         Mutex_unlock(mutex);
         Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
         return SDDS_RT_FAIL;
@@ -90,7 +90,6 @@ LocatorDB_newLocator(Locator_t** loc) {
 rc_t
 LocatorDB_newMultiLocator(Locator_t** loc) {
     assert(loc);
-
     Mutex_lock(mutex);
     if (db.freeLoc == 0) {
         Mutex_unlock(mutex);
@@ -109,6 +108,7 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
         }
     }
     if (*loc == NULL) {
+        db.freeLoc = 0;
         Mutex_unlock(mutex);
         Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
         return SDDS_RT_FAIL;
@@ -125,7 +125,6 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
 rc_t
 LocatorDB_newBroadLocator(Locator_t** loc) {
     assert(loc);
-
     Mutex_lock(mutex);
     if (db.freeLoc == 0) {
         return SDDS_LOCATORDB_RT_NOFREELOCATORS;
@@ -143,6 +142,7 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
         }
     }
     if (*loc == NULL) {
+        db.freeLoc = 0;
         Mutex_unlock(mutex);
         Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
         return SDDS_RT_FAIL;
@@ -199,3 +199,4 @@ LocatorDB_findLocator(Locator_t* toFind, Locator_t** result) {
     Mutex_unlock(mutex);
     return SDDS_RT_FAIL;
 }
+

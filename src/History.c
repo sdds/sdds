@@ -61,6 +61,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 #endif
     assert(self);
     assert(buff);
+    // TODO: Trace point prossesFrame
     //  Queue is full.
     if (self->in_needle == self->depth) {
         return SDDS_RT_FAIL;

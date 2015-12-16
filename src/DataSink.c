@@ -96,6 +96,7 @@ DataSink_getAddr(SNPS_Address_t* address) {
 rc_t
 DataSink_processFrame(NetBuffRef_t* buff) {
     assert(buff);
+    // TODO: Trace point prossesFrame
     //  Parse the header
     rc_t ret;
     ret = SNPS_readHeader(buff);
