@@ -459,9 +459,16 @@ recvLoop(void* netBuff) {
 
         Log_debug("[%u]%i bytes received.\n", sock_type, (int) recv_size);
 
+    char a[NI_MAXHOST];
+    int rc = getnameinfo((struct sockaddr*) &addr, addr_len,
+                         a, 2048,
+                         NULL, 0,
+                         NI_NUMERICHOST);
+
         struct UDPLocator_t sloc;
 
         memcpy(&(sloc.addr_storage), &addr, addr_len);
+
 
         Locator_t* loc;
 
@@ -474,6 +481,10 @@ recvLoop(void* netBuff) {
 
             memcpy(&((struct UDPLocator_t*) loc)->addr_storage, &addr, addr_len);
         }
+
+        char b[NI_MAXHOST];
+        Locator_getAddress (loc, b);
+
 
         // up ref counter
         Locator_upRef(loc);
@@ -524,10 +535,10 @@ Network_send(NetBuffRef_t* buff) {
     while (loc != NULL) {
 
         ssize_t transmitted;
-        struct sockaddr* addr =
-            (struct sockaddr*) &((struct UDPLocator_t*) loc)->addr_storage;
-        transmitted = sendto(sock, buff->buff_start, buff->curPos, 0, addr,
-                             sizeof(struct sockaddr_storage));
+        struct sockaddr_storage addr_storage = ((struct UDPLocator_t*) loc)->addr_storage;
+        struct sockaddr* addr = (struct sockaddr*) &addr_storage;
+        transmitted = sendto(sock, buff->buff_start, buff->curPos, 0,
+                            addr, sizeof (addr_storage));
 
         if (transmitted == -1) {
             perror("ERROR");
@@ -788,23 +799,22 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 
 rc_t
 Locator_getAddress(Locator_t* l, char* srcAddr) {
-    if ((l == NULL) || (srcAddr == NULL)) {
-        return SDDS_RT_BAD_PARAMETER;
-    }
-    static char srcPort[NI_MAXSERV];
+    assert (l);
+    assert (srcAddr);
     struct sockaddr_storage* a = &((struct UDPLocator_t*) l)->addr_storage;
 
-    int rc = getnameinfo((struct sockaddr*) a, sizeof(struct sockaddr_storage), srcAddr,
-                         NI_MAXHOST, srcPort, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+    int rc = getnameinfo((struct sockaddr*) a, sizeof(struct sockaddr_storage),
+                         srcAddr, NI_MAXHOST,
+                         NULL, 0,
+                         NI_NUMERICHOST);
 
     return SDDS_RT_OK;
 }
 
 rc_t
 Locator_copy(Locator_t* src, Locator_t* dst) {
-    if ((src == NULL) || (dst == NULL)) {
-        return SDDS_RT_FAIL;
-    }
+    assert (src);
+    assert (dst);
 	memcpy(dst, src, sizeof(struct UDPLocator_t));
 	dst->refCount = 0;
 

@@ -420,16 +420,16 @@ SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data
     return SDDS_RT_OK;
 }
 
-#if defined SDDS_QOS_RELIABILITY
+#if defined SDDS_HAS_QOS_RELIABILITY
 //  -----------------------------------------------------------------------------
 //  Writes the least significant 4-bits of the given sequencenumber
 //  in the given NetBuffRef_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_writeSeqNr(NetBuffRef_t* ref, seqNr_t seqNr) {
+SNPS_writeSeqNr(NetBuffRef_t* ref, uint8_t seqNr) {
     rc_t ret = SDDS_RT_FAIL;
 
-    ret = Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, (uint8_t)seqNr);
+    ret = Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, seqNr);
     ref->curPos += 1;
     ref->subMsgCount +=1;
 
@@ -441,7 +441,7 @@ SNPS_writeSeqNr(NetBuffRef_t* ref, seqNr_t seqNr) {
 //  NetBuffRef_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_writeSeqNrSmall(NetBuffRef_t* ref, seqNr_t seqNr) {
+SNPS_writeSeqNrSmall(NetBuffRef_t* ref, uint8_t seqNr) {
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRSMALL, (byte_t*)&seqNr, 0);
@@ -456,7 +456,7 @@ SNPS_writeSeqNrSmall(NetBuffRef_t* ref, seqNr_t seqNr) {
 //  NetBuffRef_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_writeSeqNrBig(NetBuffRef_t* ref, seqNr_t seqNr) {
+SNPS_writeSeqNrBig(NetBuffRef_t* ref, uint16_t seqNr) {
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRBIG, (byte_t*)&seqNr, 0);
@@ -471,7 +471,7 @@ SNPS_writeSeqNrBig(NetBuffRef_t* ref, seqNr_t seqNr) {
 //  NetBuffRef_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, seqNr_t seqNr) {
+SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, uint32_t seqNr) {
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRHUGE, (byte_t*)&seqNr, 0);
@@ -486,7 +486,7 @@ SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, seqNr_t seqNr) {
 //  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_readSeqNr(NetBuffRef_t* ref, seqNr_t* seqNr) {
+SNPS_readSeqNr(NetBuffRef_t* ref, uint8_t* seqNr) {
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, (uint8_t*) seqNr);
@@ -502,10 +502,10 @@ SNPS_readSeqNr(NetBuffRef_t* ref, seqNr_t* seqNr) {
 //  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_readSeqNrSmall(NetBuffRef_t* ref, seqNr_t* seqNr) {
+SNPS_readSeqNrSmall(NetBuffRef_t* ref, uint8_t* seqNr) {
     rc_t ret = SDDS_RT_FAIL;
 
-    ret = Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRSMALL, (uint8_t*) seqNr, 0);
+    ret = Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRSMALL, seqNr, 0);
 
     ref->curPos += 2;
     ref->subMsgCount -= 1;
@@ -518,7 +518,7 @@ SNPS_readSeqNrSmall(NetBuffRef_t* ref, seqNr_t* seqNr) {
 //  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_readSeqNrBig(NetBuffRef_t* ref, seqNr_t* seqNr) {
+SNPS_readSeqNrBig(NetBuffRef_t* ref, uint16_t* seqNr) {
     rc_t ret = SDDS_RT_FAIL;
     ret = Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRBIG, (byte_t*) seqNr, 0);
 
@@ -533,7 +533,7 @@ SNPS_readSeqNrBig(NetBuffRef_t* ref, seqNr_t* seqNr) {
 //  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_readSeqNrHUGE(NetBuffRef_t* ref, seqNr_t* seqNr) {
+SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr) {
     rc_t ret = SDDS_RT_FAIL;
     ret = Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRHUGE, (byte_t*) seqNr, 0);
 

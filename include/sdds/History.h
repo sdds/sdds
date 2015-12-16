@@ -38,8 +38,13 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth);
 //  Try to enqueue a sample into the history. If the history is full this call
 //  will discard the oldest sample in case of RELIABILITY best effort and block
 //  in case of RELIABILITY reliable until samples are taken out.
+#ifdef SDDS_HAS_QOS_RELIABILITY
+rc_t
+sdds_History_enqueue(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr);
+#else
 rc_t
 sdds_History_enqueue(History_t* self, NetBuffRef_t* buff);
+#endif
 
 //  Takes the oldest sample out of the queue. Returns a pointer to the sample if
 //  the history is not empty, otherwise NULL.

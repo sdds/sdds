@@ -24,9 +24,18 @@ struct _DataWriter_t {
     unsigned int id : 4;
     History_t history;
 };
+typedef struct _DataWriter_t DataWriter_t;
+
+struct Reliable_DataWriter {
+   struct _DataWriter_t* dw;
+   SDDS_SEQNR_BIGGEST_TYPE seqNr;
+};
+typedef struct Reliable_DataWriter Reliable_DataWriter_t;
+
+
 
 rc_t
-DataWriter_init ();
+DataWriter_init();
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t
