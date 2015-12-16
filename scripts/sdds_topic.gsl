@@ -92,7 +92,7 @@ function resolve_topic_config (topic)
                 endif
             elsif reliabilitySeqnrSize = "huge"
                 config.seqNrBitSize = "32"
-                project.biggestSeqNrBitSize ?= "32"
+                project.biggestSeqNrBitSize = "32"
             else
                 echo "E: Invalid size '$(config.reliabilitySeqnrSize)' for config '$(config.type)' in topic $(topic.name:)"
             endif

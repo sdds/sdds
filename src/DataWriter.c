@@ -107,25 +107,24 @@ DataWriter_write(DataWriter_t* self, Data data, void* waste) {
     }
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
+    //printf("biggestType: %d\n", SDDS_SEQNR_BIGGEST_TYPE);
     switch (topic->seqNrBitSize){
     case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
         SNPS_writeSeqNr(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
+        printf("dw seqNrBasic %d\n", ((uint8_t)((Reliable_DataWriter_t*)self)->seqNr)&0x0f);
         break;
-#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
     case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
         SNPS_writeSeqNrSmall(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
+        printf("dw seqNrSmall %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
         break;
-#endif
-#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
     case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
         SNPS_writeSeqNrBig(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
+        printf("dw seqNrBig %d\n", (uint16_t)((Reliable_DataWriter_t*)self)->seqNr);
         break;
-#endif
-#if SDDS_SEQNR_BIGGEST_TYPE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
     case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
-        SNPS_writeSeqNrHUGE(buffRef, ((Reliable_DataWriter_t*)self->seqNr);
+        SNPS_writeSeqNrHUGE(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
+        printf("dw seqNrHUGE %d\n", (uint32_t)((Reliable_DataWriter_t*)self)->seqNr);
         break;
-#endif
     }
     ((Reliable_DataWriter_t*)self)->seqNr++;
 #endif

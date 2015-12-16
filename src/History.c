@@ -74,7 +74,8 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
     SDDS_SEQNR_BIGGEST_TYPE highestSeqNrOfLoc = 0;
     for (int i=0; i<self->depth; i++){
-        if (self->samples[i].instance == loc && self->samples[i].seqNr > highestSeqNrOfLoc){
+        if (self->samples[i].instance == loc
+        && self->samples[i].seqNr > highestSeqNrOfLoc){
             highestSeqNrOfLoc = self->samples[i].seqNr;
         }
     }
@@ -89,7 +90,6 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
                 return SDDS_RT_FAIL;
             }
            break;
-#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
             if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 255) ){
                 self->samples[self->in_needle].seqNr = seqNr;
@@ -99,8 +99,6 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
                 return SDDS_RT_FAIL;
             }
            break;
-#endif
-#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
         case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
             if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 65536) ){
                 self->samples[self->in_needle].seqNr = seqNr;
@@ -110,8 +108,6 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
                 return SDDS_RT_FAIL;
             }
            break;
-#endif
-#if SDDS_SEQNR_BIGGEST_TYPE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
         case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
             if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 4294967296) ){
                 self->samples[self->in_needle].seqNr = seqNr;
@@ -121,9 +117,10 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
                 return SDDS_RT_FAIL;
             }
            break;
-#endif
     }
-    sdds_History_print(self);
+    if (topic->seqNrBitSize > 0){
+        sdds_History_print(self);
+    }
 #endif
 
     rc_t ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);

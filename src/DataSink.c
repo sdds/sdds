@@ -164,21 +164,15 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         case (SDDS_SNPS_T_SEQNR):
             SNPS_readSeqNr(buff, (uint8_t*) &seqNr);
             break;
-#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         case (SDDS_SNPS_T_SEQNRSMALL):
             SNPS_readSeqNrSmall(buff, (uint8_t*) &seqNr);
             break;
-#endif
-#if SDDS_SEQNR_BIGGEST_TYPE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
         case (SDDS_SNPS_T_SEQNRBIG):
             SNPS_readSeqNrBig(buff, (uint16_t*) &seqNr);
             break;
-#endif
-#if SDDS_SEQNR_BIGGEST_TYPE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
         case (SDDS_SNPS_T_SEQNRHUGE):
             SNPS_readSeqNrHUGE(buff, (uint32_t*) &seqNr);
             break;
-#endif
 #endif
         default:
             //  Go to next submessage
