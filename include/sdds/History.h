@@ -52,10 +52,8 @@ Sample_t*
 sdds_History_dequeue(History_t* self);
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
-static rc_t
+rc_t
 _sdds_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr);
-#endif
 #endif
 
 void

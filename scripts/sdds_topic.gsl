@@ -75,7 +75,6 @@ function resolve_topic_config (topic)
     for my.topic.config
         if config.type = "qos_reliability"
             config.seqNrBitSize ?= ""
-            config.reliabilityKind ?= ""
             if reliabilitySeqnrSize = "basic"
                 config.seqNrBitSize = "4"
                 if config.seqNrBitSize > project.biggestSeqNrBitSize
@@ -94,14 +93,8 @@ function resolve_topic_config (topic)
             elsif reliabilitySeqnrSize = "huge"
                 config.seqNrBitSize = "32"
                 project.biggestSeqNrBitSize = "32"
-            endif
-
-            if kind = "besteffort"
-                config.reliabilityKind = "0"
-            elsif kind = "ack"
-                config.reliabilityKind = "1"
-            elsif kind = "nack"
-                config.reliabilityKind = "2"
+            else
+                echo "E: Invalid size '$(config.reliabilitySeqnrSize)' for config '$(config.type)' in topic $(topic.name:)"
             endif
         else
             echo "E: Invalid config '$(config.type)' in topic $(topic.name:)"
@@ -286,8 +279,9 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 
 .   for topic.config
 .       if config.type = "qos_reliability"
+#ifdef SDDS_HAS_QOS_RELIABILITY
 topic->seqNrBitSize = $(seqNrBitSize:);
-topic->reliabilityKind = $(reliabilityKind:);
+#endif
 .       endif
 .   endfor
 

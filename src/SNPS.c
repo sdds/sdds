@@ -143,7 +143,7 @@ SNPS_discardSubMsg(NetBuffRef_t* ref) {
     case (SDDS_SNPS_SUBMSG_EXTENDED):
         break;
 
-    // normal submsg with the size of 1 byte
+    // normal submsg with the size of 8 bit like SEQNR
     default:
         return SDDS_RT_OK;
     }
@@ -170,19 +170,20 @@ SNPS_discardSubMsg(NetBuffRef_t* ref) {
         return SDDS_RT_FAIL;
         break;
     case (SDDS_SNPS_EXTSUBMSG_SEQNRSMALL):
-        ref->curPos += (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL/8);
+        ref->curPos += 1;
         break;
     case (SDDS_SNPS_EXTSUBMSG_SEQNRBIG):
-        ref->curPos += (SDDS_QOS_RELIABILITY_SEQSIZE_BIG/8);
+        ref->curPos += 2;
         break;
     case (SDDS_SNPS_EXTSUBMSG_SEQNRHUGE):
-        ref->curPos += (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE/8);
+        ref->curPos += 4;
         break;
     case (SDDS_SNPS_EXTSUBMSG_TOPIC):     // ext topic has 2 bytes
         ref->curPos += 2;
         break;
     case (SDDS_SNPS_EXTSUBMSG_FRAG):
     case (SDDS_SNPS_EXTSUBMSG_FRAGNACK):
+        // TODO
         return SDDS_RT_FAIL;
         break;
     case (SDDS_SNPS_EXTSUBMSG_EXTENDED):
@@ -420,7 +421,6 @@ SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data
 }
 
 #if defined SDDS_HAS_QOS_RELIABILITY
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 //  -----------------------------------------------------------------------------
 //  Writes the least significant 4-bits of the given sequencenumber
 //  in the given NetBuffRef_t*. Returns SDDS_RT_OK on success.
@@ -480,42 +480,7 @@ SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, uint32_t seqNr) {
 
     return ret;
 }
-#endif
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
-//  -----------------------------------------------------------------------------
-//  Writes the least significant 4-bits of the given sequencenumber
-//  in the given NetBuffRef_t*. Returns SDDS_RT_OK on success.
 
-rc_t
-SNPS_writeAckSeq(NetBuffRef_t* ref, uint8_t seqNr) {
-    rc_t ret = SDDS_RT_FAIL;
-
-    ret = Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_ACKSEQ, seqNr);
-    ref->curPos += 1;
-    ref->subMsgCount +=1;
-
-    return ret;
-}
-#endif
-
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-//  -----------------------------------------------------------------------------
-//  Writes the least significant 4-bits of the given sequencenumber
-//  in the given NetBuffRef_t*. Returns SDDS_RT_OK on success.
-
-rc_t
-SNPS_writeNackSeq(NetBuffRef_t* ref, uint8_t seqNr) {
-    rc_t ret = SDDS_RT_FAIL;
-
-    ret = Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_NACKSEQ, seqNr);
-    ref->curPos += 1;
-    ref->subMsgCount +=1;
-
-    return ret;
-}
-#endif
-
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 //  -----------------------------------------------------------------------------
 //  Reads a sequencenumber (4-bit size) from the given NetBuffRef_t* and writes
 //  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
@@ -577,7 +542,6 @@ SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr) {
 
     return ret;
 }
-#endif
 #endif // Qos Reliability
 
 //  -----------------------------------------------------------------------------

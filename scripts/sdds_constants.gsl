@@ -66,7 +66,6 @@ $(project.GENERATED_WARNING_HEADER:)
 
 #define SDDS_QOS_DW1_LATBUD 100
 #define SDDS_QOS_DW2_LATBUD 500
-
 .if count (project.role, role.type = "subscriber")
 #define SDDS_TOPIC_HAS_PUB
 .endif
@@ -74,18 +73,13 @@ $(project.GENERATED_WARNING_HEADER:)
 #define SDDS_TOPIC_HAS_SUB
 .endif
 
-.if project.biggestSeqNrBitSize = 4
-#define SDDS_SEQNR_BIGGEST_TYPE uint8_t:4
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 4
-#elsif project.biggestSeqNrBitSize = 8
+
+.if project.biggestSeqNrBitSize = 4 | project.biggestSeqNrBitSize = 8
 #define SDDS_SEQNR_BIGGEST_TYPE uint8_t
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 8
 .elsif project.biggestSeqNrBitSize = 16
 #define SDDS_SEQNR_BIGGEST_TYPE uint16_t
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 16
 .else
 #define SDDS_SEQNR_BIGGEST_TYPE uint32_t
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 32
 .endif
 
 #ifndef SDDS_TOPIC_APP_MSG_COUNT

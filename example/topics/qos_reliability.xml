@@ -2,22 +2,22 @@
     <topic name = "testqosreliabilitybasic" domain = "1" id = "A">
         Test topic which sends some data for testing QoS RELIABILITY
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
-        <config type="qos_reliability" reliabilitySeqnrSize="basic" kind="besteffort"/>
+        <config type="qos_reliability" reliabilitySeqnrSize="basic" />
     </topic>
     <topic name = "testqosreliabilitysmall" domain = "1" id = "B">
         Test topic which sends some data for testing QoS RELIABILITY
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
-        <config type="qos_reliability" reliabilitySeqnrSize="small" kind="besteffort"/>
+        <config type="qos_reliability" reliabilitySeqnrSize="small" />
     </topic>
     <topic name = "testqosreliabilitybig" domain = "1" id = "C">
         Test topic which sends some data for testing QoS RELIABILITY
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
-        <config type="qos_reliability" reliabilitySeqnrSize="big" kind="besteffort"/>
+        <config type="qos_reliability" reliabilitySeqnrSize="big" />
     </topic>
     <topic name = "testqosreliabilityhuge" domain = "1" id = "D">
         Test topic which sends some data for testing QoS RELIABILITY
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
-        <config type="qos_reliability" reliabilitySeqnrSize="huge" kind="besteffort"/>
+        <config type="qos_reliability" reliabilitySeqnrSize="huge" />
     </topic>
 </domain>
 

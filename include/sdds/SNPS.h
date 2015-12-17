@@ -113,122 +113,69 @@ SNPS_gotoNextSubMsg(NetBuffRef_t* buff, subMsg_t type);
 
 rc_t
 SNPS_initFrame(NetBuffRef_t* ref);
-
 rc_t
 SNPS_updateHeader(NetBuffRef_t* ref);
-
 rc_t
 SNPS_writeDomain(NetBuffRef_t* ref, domainid_t domain);
-
 rc_t
 SNPS_writeTopic(NetBuffRef_t* ref, topicid_t topic);
-
-rc_t
-SNPS_writeData(NetBuffRef_t *ref, TopicMarshalling_encode_fn encode_fn, Data);
-
+rc_t SNPS_writeData(NetBuffRef_t *ref, TopicMarshalling_encode_fn encode_fn, Data);
 rc_t
 SNPS_writeTSsimple(NetBuffRef_t* ref, TimeStampSimple_t* ts);
-
 rc_t
 SNPS_writeStatus(NetBuffRef_t* ref);
-
-#ifdef SDDS_HAS_QOS_RELIABILITY
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
+#if defined SDDS_HAS_QOS_RELIABILITY
 rc_t
 SNPS_writeSeqNr(NetBuffRef_t* ref, uint8_t seqNr);
-
 rc_t
 SNPS_writeSeqNrSmall(NetBuffRef_t* ref, uint8_t seqNr);
-
 rc_t
 SNPS_writeSeqNrBig(NetBuffRef_t* ref, uint16_t seqNr);
-
 rc_t
 SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, uint32_t seqNr);
 #endif
-
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
 rc_t
-SNPS_writeAckSeq(NetBuffRef_t* ref, uint8_t seqNr);
-
+SNPS_writeAckSeq(NetBuffRef_t* ref);
 rc_t
-SNPS_writeNack(NetBuffRef_t* ref);
-#endif
-
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-rc_t
-SNPS_writeNackSeq(NetBuffRef_t* ref, uint8_t seqNr);
-
+SNPS_writeNackSeq(NetBuffRef_t* ref);
 rc_t
 SNPS_writeNack(NetBuffRef_t* ref);
-#endif
-#endif
-
+rc_t
+SNPS_writeAck(NetBuffRef_t* ref);
 rc_t
 SNPS_writeTSuSec(NetBuffRef_t* ref);
-
 rc_t
 SNPS_writeTSmSec(NetBuffRef_t* ref);
-
 rc_t
 SNPS_writeTSDDS(NetBuffRef_t* ref);
-
 rc_t
 SNPS_writeSep(NetBuffRef_t* ref);
-
 rc_t
 SNPS_writeAddress(NetBuffRef_t* ref, castType_t castType, addrType_t addrType, uint8_t* addr, uint8_t addrLen);
 
 rc_t
 SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, Locator_t** addr);
-
 rc_t
 SNPS_readHeader(NetBuffRef_t* ref);
-
 rc_t
 SNPS_readDomain(NetBuffRef_t* ref, domainid_t* domain);
-
 rc_t
 SNPS_readTopic(NetBuffRef_t* ref, topicid_t* topic);
-
-#ifdef SDDS_HAS_QOS_RELIABILITY
-#ifdef SDDS_QOS_RELIABILITY_KIND_BESTEFFORT
+#if defined SDDS_HAS_QOS_RELIABILITY
 rc_t
 SNPS_readSeqNr(NetBuffRef_t* ref, uint8_t* seqNr);
-
 rc_t
 SNPS_readSeqNrSmall(NetBuffRef_t* ref, uint8_t* seqNr);
-
 rc_t
 SNPS_readSeqNrBig(NetBuffRef_t* ref, uint16_t* seqNr);
-
 rc_t
 SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr);
 #endif
-
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
-#rc_t
-SNPS_readAckSeq(NetBuffRef_t* ref, uint8_t* seqNr);
-
-rc_t
-SNPS_readAck(NetBuffRef_t* ref, uint16_t* seqNr);
-#endif
-
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
-rc_t
-SNPS_readNackSeq(NetBuffRef_t* ref, uint8_t* seqNr);
-
-rc_t
-SNPS_readNack(NetBuffRef_t* ref, uint32_t* seqNr);
-#endif
-#endif
-
 rc_t
 SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data);
 
 rc_t
 SNPS_IPv6_str2Addr(char* charAddr, uint8_t* byteAddr, uint8_t* addrLen);
-
 rc_t
 SNPS_IPv6_addr2Str(uint8_t* byteAddr, char* charAddr);
 #endif   /* ----- #ifmplete_start_auto_complete)ndef SNPS_H_INC  ----- */
