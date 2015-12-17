@@ -30,9 +30,11 @@ Locator_contains(List_t* list, Locator_t* l) {
     return SDDS_RT_FAIL;
 }
 
+#ifdef UTILS_DEBUG
 void
 Locator_print(Locator_t* loc) {
     char addr[NI_MAXHOST];
     Locator_getAddress(loc, addr);
     Log_debug("Locator {%s}\n", addr);
 }
+#endif
