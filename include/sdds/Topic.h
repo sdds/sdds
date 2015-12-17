@@ -45,7 +45,8 @@ struct _Topic_t {
     topicid_t id;
 
 #if defined SDDS_HAS_QOS_RELIABILITY
-    uint8_t seqNrBitSize;
+    uint8_t seqNrBitSize:6;
+    uint8_t reliabilityKind:2;
 #endif
 
 };                              /* ----------  end of struct Topic  ----------
