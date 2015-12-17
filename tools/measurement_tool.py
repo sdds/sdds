@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python 
 import csv
 import numpy as np
 
@@ -10,22 +10,22 @@ with open('BitScope.csv', 'rb') as csvfile:
      #print bistScopeReader
      
      for row in bistScopeReader:
-     	samples  = []
-     	for header, value in row.items():
-     		if row['channel'] != '11':
-     			continue
-      		if header == 'data':
+        samples  = []
+        if row['channel'] != '11':
+          continue
+       	for header, value in row.items():
+          if header == 'data':
       			samples.append(value)
-      		elif header ==  None:
+          elif header ==  None:
       			samples.extend(value)
       			data['data'] = samples
-      		elif header == 'rate':
+          elif header == 'rate':
       			split_rate = row[header].split('E',1)
       			data[header] = float(1) / (float(split_rate[0]) * 10**float(split_rate[1]))
       			#print data[header]
-      		elif header != 'channel' and header != 'trigger' and header != 'delay' and header != 'factor' and header != 'stamp' and header != 'type' and header != 'index':
+          elif header != 'channel' and header != 'trigger' and header != 'delay' and header != 'factor' and header != 'stamp' and header != 'type' and header != 'index':
       			data[header] =  value
-      	list_data.append(data)
+          list_data.append(data)
 
 last_x = '0'
 count = 1

@@ -17,6 +17,8 @@
  */
 
 #include "sDDS.h"
+#include <os-ssal/Trace.h>
+
 
 //  Local helper functions
 rc_t
@@ -95,10 +97,16 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
 #endif
     assert(self);
     assert(buff);
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_HISTORY_ENQUEUE
+    Trace_point(SDDS_TRACE_EVENT_HISTORY_ENQUEUE);
+#endif
+#endif
 
     if (s_History_full (self)) {
         return SDDS_RT_FAIL;
     }
+    
     //  Insert sample into queue
     Topic_t* topic = buff->curTopic;
     Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
@@ -157,7 +165,11 @@ s_History_enqueue(History_t* self) {
 Sample_t*
 sdds_History_dequeue(History_t* self) {
     assert(self);
-    //  Queue is empty.
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_HISTORY_DEQUEUE
+    Trace_point(SDDS_TRACE_EVENT_HISTORY_DEQUEUE);
+#endif
+#endif
     if (self->out_needle == self->depth) {
         return NULL;
     }
