@@ -169,8 +169,9 @@ DataWriter_writeAddress(DataWriter_t* self,
     Locator_t* loc = (Locator_t*) dest->first_fn(dest);
     while (loc != NULL) {
         if (Locator_contains(buffRef->locators, loc) != SDDS_RT_OK) {
-            buffRef->locators->add_fn(buffRef->locators, loc);
-            Locator_upRef(loc);
+            if (buffRef->locators->add_fn(buffRef->locators, loc) == SDDS_RT_OK) {
+            	Locator_upRef(loc);
+            }
         }
         loc = (Locator_t*) dest->next_fn(dest);
     }
