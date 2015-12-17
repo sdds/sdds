@@ -38,27 +38,19 @@ struct _Topic_t {
     struct datasources dsources;
 #endif
 
-    struct MsgPool msg;
-
     rc_t (* Data_decode)(NetBuffRef_t* buff, Data data, size_t* size);
     rc_t (* Data_cpy)(Data dest, Data source);
 
     domainid_t domain;
     topicid_t id;
+
+#if defined SDDS_HAS_QOS_RELIABILITY
+    uint8_t seqNrBitSize;
+#endif
+
 };                              /* ----------  end of struct Topic  ----------
                                    */
-
 typedef struct _Topic_t Topic_t;
-
-
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-rc_t
-Topic_getFreeMsg(Topic_t* _this, Msg_t** msg);
-rc_t
-Topic_getNextMsg(Topic_t* _this, Msg_t** msg);
-rc_t
-Topic_getUnreadMsgCount(Topic_t* _this, uint8_t* count);
-#endif
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 /**

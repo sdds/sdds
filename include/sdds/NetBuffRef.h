@@ -40,8 +40,14 @@ struct _NetBuffRef_t {
     time32_t latBudDuration;
 #endif
     bool_t bufferOverflow : 1;
+
+#ifdef SDDS_HAS_QOS_RELIABILITY
+   SDDS_SEQNR_BIGGEST_TYPE lastProcessedSeqNr;
+   uint32_t lastProcessedUnicast;
+#endif
+
     // state of the frame
-    List_t* addr;
+    List_t* locators;
     Topic_t* curTopic;
     domainid_t curDomain;
 };

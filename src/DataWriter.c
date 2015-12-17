@@ -57,45 +57,36 @@ rc_t
 DataWriter_write(DataWriter_t* self, Data data, void* waste) {
     assert (self);
     (void) waste;
-    NetBuffRef_t* buffRef = NULL;
+
     Topic_t* topic = self->topic;
-    domainid_t domain = topic->domain;
     List_t* dest = topic->dsinks.list;
-    rc_t ret;
-
-#ifdef SDDS_QOS_LATENCYBUDGET
-#if SDDS_QOS_DW_LATBUD < 65536
-    time16_t deadline;
-    ret = Time_getTime16(&deadline);
-#else
-    time32_t deadline;
-    rc_t ret = Time_getTime32(&deadline);
-#endif
-
-    deadline += self->qos.latBudDuration;
-#endif
-    buffRef = findFreeFrame(dest);
-
-    Locator_t* loc = (Locator_t*) dest->List_first(dest);
-    while (loc != NULL) {
-        if (Locator_contains(buffRef->addr, loc) != SDDS_RT_OK) {
-            buffRef->addr->List_add(buffRef->addr, loc);
+    NetBuffRef_t* buffRef = findFreeFrame(dest);
+    Locator_t* loc = (Locator_t*) dest->first_fn(dest);
+    while (loc) {
+        if (Locator_contains(buffRef->locators, loc) != SDDS_RT_OK) {
+            buffRef->locators->add_fn(buffRef->locators, loc);
             Locator_upRef(loc);
         }
-        loc = (Locator_t*) dest->List_next(dest);
+        loc = (Locator_t*) dest->next_fn(dest);
     }
-//    buffRef->addr = dest;
+    rc_t ret;
 #ifdef SDDS_QOS_LATENCYBUDGET
     //  If new deadline is earlier
     if ((buffRef->sendDeadline == 0)) {
         Mutex_lock(mutex);
-        buffRef->sendDeadline = deadline;
+#if SDDS_QOS_DW_LATBUD < 65536
+        ret = Time_getTime16(&buffRef->sendDeadline);
+#else
+        ret = Time_getTime32(&buffRef->sendDeadline);
+#endif
+        buffRef->sendDeadline += self->qos.latBudDuration;
         buffRef->latBudDuration = self->qos.latBudDuration;
         Mutex_unlock(mutex);
         Log_debug("sendDeadline: %d\n", buffRef->sendDeadline);
     }
 #endif
 
+    domainid_t domain = topic->domain;
     if (buffRef->curDomain != domain) {
         SNPS_writeDomain(buffRef, domain);
         buffRef->curDomain = domain;
@@ -106,50 +97,37 @@ DataWriter_write(DataWriter_t* self, Data data, void* waste) {
         buffRef->curTopic = topic;
     }
 
-    Mutex_lock(mutex);
-    ret = SNPS_writeData(buffRef, topic->Data_encode, data);
-    Mutex_unlock(mutex);
-    if (ret != SDDS_RT_OK) {
+#ifdef SDDS_HAS_QOS_RELIABILITY
+    //printf("biggestType: %d\n", SDDS_SEQNR_BIGGEST_TYPE);
+    switch (topic->seqNrBitSize){
+    case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
+        SNPS_writeSeqNr(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
+        printf("dw seqNrBasic %d\n", ((uint8_t)((Reliable_DataWriter_t*)self)->seqNr)&0x0f);
+        break;
+    case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
+        SNPS_writeSeqNrSmall(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
+        printf("dw seqNrSmall %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
+        break;
+    case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
+        SNPS_writeSeqNrBig(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
+        printf("dw seqNrBig %d\n", (uint16_t)((Reliable_DataWriter_t*)self)->seqNr);
+        break;
+    case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
+        SNPS_writeSeqNrHUGE(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
+        printf("dw seqNrHUGE %d\n", (uint32_t)((Reliable_DataWriter_t*)self)->seqNr);
+        break;
+    }
+    ((Reliable_DataWriter_t*)self)->seqNr++;
+#endif
+
+    if (SNPS_writeData(buffRef, topic->Data_encode, data) != SDDS_RT_OK) {
         // something went wrong oO
     	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
 #ifdef SDDS_QOS_LATENCYBUDGET
-//#if SDDS_QOS_DW_LATBUD < 65536
-//    	ret = Time_getTime16(&deadline);
-//#else
-//    	rc_t ret = Time_getTime32(&deadline);
-//#endif
-//    	buffRef->sendDeadline = deadline;
-//    	buffRef->latBudDuration = self->qos.latBudDuration;
     	buffRef->bufferOverflow = true;
 #endif
-//        return SDDS_RT_FAIL;
     }
 
-#ifdef SDDS_QOS_RELIABILITY
-#if SDDS_QOS_RELIABILITY_KIND == KIND_BESTEFFORT
-#if SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_NORMAL
-    if (SNPS_writeSeqNr(buffRef, self->qos.seqNr) != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
-    }
-#elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
-    if (SNPS_writeSeqNrSmall(buffRef, self->qos.seqNr) != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
-    }
-#elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BIG
-    if (SNPS_writeSeqNrBig(buffRef, self->qos.seqNr) != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
-    }
-#elif SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
-    if (SNPS_writeSeqNrHUGE(buffRef, self->qos.seqNr) != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
-    }
-#endif
-    self->qos.seqNr++;
-
-#else
-    //TODO
-#endif
-#endif
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
     ret = checkSending(buffRef);
@@ -172,14 +150,13 @@ DataWriter_writeAddress(DataWriter_t* self,
     List_t* dest = topic->dsinks.list;
 
     buffRef = findFreeFrame(dest);
-
-    Locator_t* loc = (Locator_t*) dest->List_first(dest);
+    Locator_t* loc = (Locator_t*) dest->first_fn(dest);
     while (loc != NULL) {
-        if (Locator_contains(buffRef->addr, loc) != SDDS_RT_OK) {
-            buffRef->addr->List_add(buffRef->addr, loc);
+        if (Locator_contains(buffRef->locators, loc) != SDDS_RT_OK) {
+            buffRef->locators->add_fn(buffRef->locators, loc);
             Locator_upRef(loc);
         }
-        loc = (Locator_t*) dest->List_next(dest);
+        loc = (Locator_t*) dest->next_fn(dest);
     }
 
     if (buffRef->curDomain != domain) {
@@ -241,8 +218,7 @@ checkSending(NetBuffRef_t* buf) {
     // update header
     SNPS_updateHeader(buf);
 
-
-    if (buf->addr->List_size(buf->addr) > 0) {
+    if (buf->locators->size_fn(buf->locators) > 0) {
         Mutex_lock(mutex);
         rc_t ret = Network_send(buf);
         if (ret != SDDS_RT_OK) {
@@ -263,7 +239,7 @@ checkSending(NetBuffRef_t* buf) {
         Mutex_unlock(mutex);
         Log_debug("Buffer full\n");
     }
-    //  If the buffer is not full jet, just reset the deadline.
+    //  If the buffer is not full yet, just reset the deadline.
     else {
         Mutex_lock(mutex);
         buf->sendDeadline = 0;

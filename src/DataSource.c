@@ -31,7 +31,11 @@ typedef struct _InstantSender_t InstantSender_t;
 
 struct _DataSource_t {
 #if SDDS_MAX_DATA_WRITERS > 0
+#ifdef SDDS_HAS_QOS_RELIABILITY
+    Reliable_DataWriter_t writers[SDDS_MAX_DATA_WRITERS];
+#else
     DataWriter_t writers[SDDS_MAX_DATA_WRITERS];
+#endif
 #endif
     InstantSender_t sender;
     unsigned int remaining_datawriter : 4;
@@ -43,7 +47,7 @@ static DataSource_t* self = &dsStruct;
 
 void print_Pointer() {
     for (int i=0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
-        Log_debug("%d p: (%d) %p\n", __LINE__, i, self->sender.out[i].addr->List_first);
+        Log_debug("%d p: (%d) %p\n", __LINE__, i, self->sender.out[i].locators->first_fn);
     }
 }
 
@@ -65,6 +69,20 @@ DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
     int i;
     for (i = 0; i < (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter);
          i++) {
+#ifdef SDDS_HAS_QOS_RELIABILITY
+        DataWriter_t* dw = (DataWriter_t*) &(self->writers[i]);
+        if (dw->topic->id == id) {
+                if (st != NULL) {
+                st->key = dw->id;
+                st->participant_key = BuiltinTopic_participantID;
+                st->topic_id = dw->topic->id;
+            }
+            if (topic != NULL) {
+                *topic = dw->topic;
+            }
+            return SDDS_RT_OK;
+        }
+#else
         if ((self->writers[i].topic->id == id)) {
             if (st != NULL) {
                 st->key = self->writers[i].id;
@@ -76,6 +94,7 @@ DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
             }
             return SDDS_RT_OK;
         }
+#endif
     }
 
     return SDDS_RT_FAIL;
@@ -90,12 +109,23 @@ DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len) {
 
     for (i = 0; i < (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter); i++) {
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+#ifdef SDDS_HAS_QOS_RELIABILITY
+        DataWriter_t* dw = (DataWriter_t*) &(self->writers[i]);
+        if (!BuildinTopic_isBuiltinTopic(dw->topic->id,
+                                         dw->topic->domain)) {
+
+        pt[*len].key = dw->id;
+        pt[*len].participant_key = BuiltinTopic_participantID;
+        pt[*len].topic_id = dw->topic->id;
+#else
         if (!BuildinTopic_isBuiltinTopic(self->writers[i].topic->id,
                                          self->writers[i].topic->domain)) {
-#endif
+
         pt[*len].key = self->writers[i].id;
         pt[*len].participant_key = BuiltinTopic_participantID;
         pt[*len].topic_id = self->writers[i].topic->id;
+#endif
+#endif
 
         (*len)++;
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
@@ -119,7 +149,7 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos,
     if (self->remaining_datawriter == 0) {
         return NULL;
     }
-    dw = &(self->writers[SDDS_MAX_DATA_WRITERS - self->remaining_datawriter]);
+    dw = (DataWriter_t*) &(self->writers[SDDS_MAX_DATA_WRITERS - self->remaining_datawriter]);
 
     dw->topic = topic;
     dw->id = (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter);
@@ -127,6 +157,9 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos,
 
 #ifdef SDDS_QOS_LATENCYBUDGET
     dw->qos.latBudDuration = SDDS_QOS_DW_LATBUD - SDDS_QOS_LATBUD_COMM - SDDS_QOS_LATBUD_READ;
+#endif
+#ifdef SDDS_HAS_QOS_RELIABILITY
+    ((Reliable_DataWriter_t*) dw)->seqNr = 0;
 #endif
     return dw;
 }
@@ -138,16 +171,16 @@ findFreeFrame(List_t* dest) {
 
     bool_t sameAddr = false;
     for (int i = 0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
-        List_t* try = self->sender.out[i].addr;
+        List_t* try = self->sender.out[i].locators;
         if (dest != NULL && try != NULL) {
-            Locator_t* loc = try->List_first(try);
+            Locator_t* loc = try->first_fn(try);
             while (loc != NULL) {
                 if (Locator_contains(dest, loc) == SDDS_RT_OK) {
                     buffRef = &(self->sender.out[i]);
                     sameAddr = true;
                     break;
                 }
-                loc = try->List_next(try);
+                loc = try->next_fn(try);
             }
             if (sameAddr) {
                 break;
@@ -173,13 +206,13 @@ findFreeFrame(List_t* dest) {
 
         // here add the ref to the buff, addr is used when frame is update addr
         // in bufref
-        Locator_t* loc = (Locator_t*) dest->List_first(dest);
+        Locator_t* loc = (Locator_t*) dest->first_fn(dest);
         while (loc != NULL) {
-            if (Locator_contains(buffRef->addr, loc) != SDDS_RT_OK) {
-                buffRef->addr->List_add(buffRef->addr, loc);
+            if (Locator_contains(buffRef->locators, loc) != SDDS_RT_OK) {
+                buffRef->locators->add_fn(buffRef->locators, loc);
                 Locator_upRef(loc);
             }
-            loc = (Locator_t*) dest->List_next(dest);
+            loc = (Locator_t*) dest->next_fn(dest);
         }
     }
     return buffRef;

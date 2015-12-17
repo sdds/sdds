@@ -89,14 +89,14 @@ Locator_contains(List_t* list, Locator_t* l) {
         return SDDS_RT_BAD_PARAMETER;
     }
 
-    Locator_t* data = (Locator_t*) list->List_first(list);
+    Locator_t* data = (Locator_t*) list->first_fn(list);
 
     while (data != NULL) {
         // locator is allready in the list
         if (Locator_isEqual(data, l) == true) {
             return SDDS_RT_OK;
         }
-        data = list->List_next(list);
+        data = list->next_fn(list);
     }
 
     return SDDS_RT_FAIL;

@@ -35,15 +35,15 @@ static _Bool nodePoolInit = false;
 
 //  Forward declaration of function pointers
 void*
-ConcurrentLinkedList_first(struct List *this);
+ConcurrentLinkedList_first(List_t* this);
 void*
-ConcurrentLinkedList_next(struct List *this);
+ConcurrentLinkedList_next(List_t* this);
 rc_t
-ConcurrentLinkedList_add(struct List *this, void* data);
+ConcurrentLinkedList_add(List_t* this, void* data);
 size_t
-ConcurrentLinkedList_size(struct List* this);
+ConcurrentLinkedList_size(List_t* this);
 rc_t
-ConcurrentLinkedList_deleteAll(struct List* this);
+ConcurrentLinkedList_delete_all(List_t* this);
 
 //  initialize node pool
 static void
@@ -85,11 +85,11 @@ List_initConcurrentLinkedList(void) {
     }
 
     s_initNodePool();
-    this->list.List_first = ConcurrentLinkedList_first;
-    this->list.List_next = ConcurrentLinkedList_next;
-    this->list.List_add = ConcurrentLinkedList_add;
-    this->list.List_size = ConcurrentLinkedList_size;
-    this->list.List_deleteAll = ConcurrentLinkedList_deleteAll;
+    this->list.first_fn = ConcurrentLinkedList_first;
+    this->list.next_fn = ConcurrentLinkedList_next;
+    this->list.add_fn = ConcurrentLinkedList_add;
+    this->list.size_fn = ConcurrentLinkedList_size;
+    this->list.delete_all_fn = ConcurrentLinkedList_delete_all;
 
     this->head = NULL;
     this->cursor = NULL;
@@ -100,7 +100,7 @@ List_initConcurrentLinkedList(void) {
 
 // Provides the data of the first element, or NULL
 void*
-ConcurrentLinkedList_first(struct List *this) {
+ConcurrentLinkedList_first(List_t* this) {
     if (this == NULL) {
         return NULL;
     }
@@ -121,7 +121,7 @@ ConcurrentLinkedList_first(struct List *this) {
 
 //  Provides the data of the next element, or NUULL.
 void*
-ConcurrentLinkedList_next(struct List *this) {
+ConcurrentLinkedList_next(List_t* this) {
     if (this == NULL) {
         return NULL;
     }
@@ -151,7 +151,7 @@ ConcurrentLinkedList_next(struct List *this) {
 
 //  Adds data to the list, return SDDS_RT_OK or SDDS_RT_FAIL.
 rc_t
-ConcurrentLinkedList_add(struct List *this, void* data) {
+ConcurrentLinkedList_add(List_t* this, void* data) {
     if (this == NULL) {
         return SDDS_RT_FAIL;
     }
@@ -199,7 +199,7 @@ ConcurrentLinkedList_add(struct List *this, void* data) {
 
 //  Return the size of the list.
 size_t
-ConcurrentLinkedList_size(struct List* this) {
+ConcurrentLinkedList_size(List_t* this) {
     if (this == NULL) {
         return -1;
     }
@@ -212,7 +212,7 @@ ConcurrentLinkedList_size(struct List* this) {
 }
 
 rc_t
-ConcurrentLinkedList_deleteAll(struct List* this) {
+ConcurrentLinkedList_delete_all(List_t* this) {
     if (this == NULL) {
         return SDDS_RT_FAIL;
     }

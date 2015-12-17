@@ -31,7 +31,6 @@ sDDS_init(void);
 #define SDDS_DATA_READER_MAX_OBJS 64
 #endif
 typedef struct _DataReader_t DataReader_t;
-typedef struct _DataWriter_t DataWriter_t;
 typedef struct _History_t History_t;
 typedef struct _NetBuffRef_t NetBuffRef_t;
 typedef struct NetFrameBuff_t* NetFrameBuff;
@@ -64,7 +63,6 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #include "DataReader.h"
 #include "DataWriter.h"
 #include "DataSink.h"
-#include "Msg.h"
 #include "DataSource.h"
 #include "Locator.h"
 #include "LocatorDB.h"

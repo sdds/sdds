@@ -40,6 +40,7 @@ DataSink_processFrame(NetBuffRef_t* buff);
 
 rc_t
 DataSink_printAddr();
+
 rc_t
 DataSink_getAddr(struct SNPS_Address* address);
 

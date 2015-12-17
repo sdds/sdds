@@ -31,7 +31,7 @@ NetBuffRef_init(NetBuffRef_t* _this) {
     size_t start;
     Network_getPayloadBegin(&start);
     _this->buff_start = ((byte_t*) (_this->frame_start)) + start;
-    _this->addr = List_initConcurrentLinkedList();
+    _this->locators = List_initConcurrentLinkedList();
     NetBuffRef_renew(_this);
 
     return SDDS_RT_OK;
@@ -42,12 +42,12 @@ NetBuffRef_renew(NetBuffRef_t* _this) {
     _this->subMsgCount = 0;
     _this->curPos = 0;
     _this->sendDeadline = 0;
-    Locator_t *loc = (Locator_t*)_this->addr->List_first(_this->addr);
+    Locator_t *loc = (Locator_t*)_this->locators->first_fn(_this->locators);
     while (loc != NULL) {
         Locator_downRef(loc);
-        loc = (Locator_t*)_this->addr->List_next(_this->addr);
+        loc = (Locator_t*)_this->locators->next_fn(_this->locators);
     }
-    _this->addr->List_deleteAll(_this->addr);
+    _this->locators->delete_all_fn(_this->locators);
     _this->curTopic = NULL;
     _this->curDomain = SDDS_DOMAIN_NIL;
     _this->bufferOverflow = false;

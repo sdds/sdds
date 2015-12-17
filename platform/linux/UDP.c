@@ -62,12 +62,12 @@ struct Network_t {
     pthread_t recvThread;
     pthread_t multiRecvThread;
     int port;
-    char sender_host[NI_MAXHOST];   //  IP address of the last received packet
 };
 
 struct UDPLocator_t {
     Locator_t loc;
     struct sockaddr_storage addr_storage;
+    socklen_t addr_len;
 };
 
 static struct Network_t net;
@@ -251,7 +251,7 @@ Network_Multicast_init() {
     NetBuffRef_init(&multiInBuff);
     Locator_t* loc;
     LocatorDB_newMultiLocator(&loc);
-    multiInBuff.addr->List_add(multiInBuff.addr, loc);
+    multiInBuff.locators->add_fn(multiInBuff.locators, loc);
     // set up a thread to read from the udp multicast socket
     if (pthread_create(&net.multiRecvThread, NULL, recvLoop,
                        (void*) &multiInBuff) != 0) {
@@ -311,7 +311,7 @@ Network_init(void) {
     NetBuffRef_init(&inBuff);
     Locator_t* loc;
     LocatorDB_newLocator(&loc);
-    inBuff.addr->List_add(inBuff.addr, loc);
+    inBuff.locators->add_fn(inBuff.locators, loc);
 
     // set up a thread to read from the udp socket
     if (pthread_create(&net.recvThread, NULL, recvLoop, (void*) &inBuff)
@@ -429,7 +429,7 @@ recvLoop(void* netBuff) {
     int count = 0;
 
     // Check the dummy locator for uni or multicast socket
-    Locator_t* l = (Locator_t*) buff->addr->List_first(buff->addr);
+    Locator_t* l = (Locator_t*) buff->locators->first_fn(buff->locators);
     sock_type = l->type;
 
     if (sock_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -446,8 +446,7 @@ recvLoop(void* netBuff) {
     while (true) {
         // spare address field?
         struct sockaddr_storage addr;
-        socklen_t addr_len = sizeof(addr);
-
+        socklen_t addr_len;
         ssize_t recv_size = recvfrom(sock, buff->buff_start,
                                      buff->frame_start->size, 0,
                                      (struct sockaddr*)&addr, &addr_len);
@@ -462,6 +461,8 @@ recvLoop(void* netBuff) {
         struct UDPLocator_t sloc;
 
         memcpy(&(sloc.addr_storage), &addr, addr_len);
+        sloc.addr_len = addr_len;
+
 
         Locator_t* loc;
 
@@ -475,15 +476,15 @@ recvLoop(void* netBuff) {
                 NetBuffRef_renew(buff);
                 continue;
             }
-
             memcpy(&((struct UDPLocator_t*) loc)->addr_storage, &addr, addr_len);
+            ((struct UDPLocator_t*) loc)->addr_len = addr_len;
         }
 
         loc->isEmpty = false;
         loc->isSender = true;
         loc->type = sock_type;
 
-        rc_t ret = buff->addr->List_add(buff->addr, loc);
+        rc_t ret = buff->locators->add_fn(buff->locators, loc);
         if (ret != SDDS_RT_OK) {
             NetBuffRef_renew(buff);
             continue;
@@ -496,7 +497,6 @@ recvLoop(void* netBuff) {
         NetBuffRef_renew(buff);
 
     }
-
     return SDDS_RT_OK;
 }
 
@@ -505,7 +505,7 @@ Network_send(NetBuffRef_t* buff) {
     int sock;
     unsigned int sock_type;
     // Check the locator for uni or multicast socket
-    Locator_t* l = (Locator_t*) buff->addr->List_first(buff->addr);
+    Locator_t* l = (Locator_t*) buff->locators->first_fn(buff->locators);
     if (l == NULL) {
         Log_error("(%d) NetBuff has no locator.\n", __LINE__);
         return SDDS_RT_FAIL;
@@ -518,17 +518,17 @@ Network_send(NetBuffRef_t* buff) {
     else if (sock_type == SDDS_LOCATOR_TYPE_UNI) {
         sock = net.fd_uni_socket;
     }
-    Locator_t* loc = (Locator_t*) buff->addr->List_first(buff->addr);
+    Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
 
-    Log_debug("Transmitting to %d recipients\n", buff->addr->List_size(buff->addr));
+    Log_debug("Transmitting to %d recipients\n", buff->locators->size_fn(buff->locators));
 
     while (loc != NULL) {
 
         ssize_t transmitted;
-        struct sockaddr* addr =
-            (struct sockaddr*) &((struct UDPLocator_t*) loc)->addr_storage;
-        transmitted = sendto(sock, buff->buff_start, buff->curPos, 0, addr,
-                             sizeof(struct sockaddr_storage));
+        struct sockaddr_storage addr = ((struct UDPLocator_t*) loc)->addr_storage;
+
+        transmitted = sendto(sock, buff->buff_start, buff->curPos, 0,
+                             (struct sockaddr*) &addr, ((struct UDPLocator_t*) loc)->addr_len);
 
         if (transmitted == -1) {
             perror("ERROR");
@@ -539,7 +539,7 @@ Network_send(NetBuffRef_t* buff) {
                       sock_type == SDDS_LOCATOR_TYPE_UNI ? "unicast" : "multicast");
         }
 
-        loc = (Locator_t*) buff->addr->List_next(buff->addr);
+        loc = (Locator_t*) buff->locators->next_fn(buff->locators);
     }
 
     return SDDS_RT_OK;
@@ -641,6 +641,7 @@ Network_set_locator_endpoint(Locator_t* loc, char* endpoint, int port) {
 #endif
 
     memcpy(&udp_loc->addr_storage, address->ai_addr, address->ai_addrlen);
+    udp_loc->addr_len = address->ai_addrlen;
 
     // free up address
     freeaddrinfo(address);
@@ -650,10 +651,8 @@ Network_set_locator_endpoint(Locator_t* loc, char* endpoint, int port) {
 
 rc_t
 Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
-
-    if (loc == NULL || addr == NULL) {
-        return SDDS_RT_BAD_PARAMETER;
-    }
+    assert (loc);
+    assert (addr);
 
     loc->type = SDDS_LOCATOR_TYPE_MULTI;
     struct UDPLocator_t* l = (struct UDPLocator_t*) loc;
@@ -663,7 +662,7 @@ Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
     char port_buffer[6];
 
     // clear hints, no dangling fields
-    memset(&hints, 0, sizeof hints);
+    memset(&hints, 0, sizeof (hints));
 
     // getaddrinfo wants its port parameter in string form
     sprintf(port_buffer, "%u",
@@ -708,6 +707,7 @@ Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
 #endif
 
     memcpy(&l->addr_storage, address->ai_addr, address->ai_addrlen);
+    l->addr_len = address->ai_addrlen;
 
     // free up address
     freeaddrinfo(address);
@@ -790,28 +790,25 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 }
 
 rc_t
-Locator_getAddress(Locator_t* l, char* srcAddr) {
-    if ((l == NULL) || (srcAddr == NULL)) {
-        return SDDS_RT_BAD_PARAMETER;
-    }
-    static char srcPort[NI_MAXSERV];
-    struct sockaddr_storage* a = &((struct UDPLocator_t*) l)->addr_storage;
+Locator_getAddress(Locator_t* self, char* srcAddr) {
+    assert(self);
+    assert(srcAddr);
+    struct sockaddr_storage* addr = &((struct UDPLocator_t*) self)->addr_storage;
 
-    int rc = getnameinfo((struct sockaddr*) a, sizeof(struct sockaddr_storage), srcAddr,
-                         NI_MAXHOST, srcPort, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
-
+    int rc = getnameinfo((struct sockaddr*) addr, ((struct UDPLocator_t*) self)->addr_len,
+                         srcAddr, NI_MAXHOST,
+                         NULL, 0,
+                         NI_NUMERICHOST);
     return SDDS_RT_OK;
 }
 
 rc_t
 Locator_copy(Locator_t* src, Locator_t* dst) {
     assert(src != dst);
-    if ((src == dst) || (src == NULL) || (dst == NULL)) {
-        Log_error("src %p, dst %p\n", src, dst);
-        return SDDS_RT_FAIL;
-    }
+    assert(src);
+    assert(dst);
+
 	memcpy(dst, src, sizeof(struct UDPLocator_t));
 	dst->refCount = 0;
-
 	return SDDS_RT_OK;
 }

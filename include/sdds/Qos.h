@@ -35,25 +35,14 @@
 #endif
 #endif
 
-#if defined SDDS_QOS_RELIABILITY
-// QoS_Reliable options
-#define SDDS_QOS_RELIABILITY_KIND_BESTEFFORT 0
-#define SDDS_QOS_RELIABILITY_KIND_RELIABLE 1
-#define SDDS_QOS_RELIABILITY_SEQSIZE_NORMAL 0
-#define SDDS_QOS_RELIABILITY_SEQSIZE_SMALL 1
-#define SDDS_QOS_RELIABILITY_SEQSIZE_BIG 2
-#define SDDS_QOS_RELIABILITY_SEQSIZE_HUGE 3
-// QoS_Reliable settings
-#define SDDS_QOS_RELIABILITY_KIND SDDS_QOS_RELIABILITYKIND_BESTEFFORT
-#define SDDS_QOS_RELIABILITY_SEQSIZE SDDS_QOS_RELIABILITY_SEQSIZE_NORMAL
-// defining datatype
-#if (SDDS_QOS_RELIABILITY_SEQSIZE < SDDS_QOS_RELIABILITY_SEQSIZE_BIG)
-#define seqNr_t uint8_t
-#elif (SDDS_QOS_RELIABILITY_SEQSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BIG)
-#define seqNr_t uint16_t
-#else
-#define seqNr_t uint32_t
-#endif
+#if defined SDDS_HAS_QOS_RELIABILITY
+   // QoS_Reliable options
+   #define SDDS_QOS_RELIABILITY_KIND_BESTEFFORT 0
+   #define SDDS_QOS_RELIABILITY_KIND_RELIABLE 1
+   #define SDDS_QOS_RELIABILITY_SEQSIZE_BASIC 4
+   #define SDDS_QOS_RELIABILITY_SEQSIZE_SMALL 8
+   #define SDDS_QOS_RELIABILITY_SEQSIZE_BIG 16
+   #define SDDS_QOS_RELIABILITY_SEQSIZE_HUGE 32
 #endif
 
 struct SourceQos_t {
@@ -63,10 +52,6 @@ struct SourceQos_t {
 #else
     msecu32_t latBudDuration;
 #endif
-#endif
-
-#if defined SDDS_QOS_RELIABILITY
-    seqNr_t seqNr;
 #endif
 
     uint8_t subMsgNeeded;
