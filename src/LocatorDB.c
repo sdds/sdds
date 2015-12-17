@@ -24,10 +24,33 @@ struct LocatorDB_t {
     // remember this sould be a pointer!
     Locator_t* pool[SDDS_NET_MAX_LOCATOR_COUNT];
     uint8_t freeLoc;
+    Locator_t* toFind;
 };
 
 static struct LocatorDB_t db;
 static Mutex_t* mutex;
+
+/**
+ * Initialises a Locator object
+ *
+ * @param _this Pointer to the object
+ * @return is always SDDS_RT_OK
+ */
+static rc_t
+s_init(Locator_t* _this);
+
+#ifdef UTILS_DEBUG
+static void
+s_print() {
+    for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
+        char srcAddr[NI_MAXHOST];
+        Locator_getAddress(db.pool[i], srcAddr);
+        printf("[%d,%d, %s] ", i, db.pool[i]->refCount, srcAddr);
+    }
+    printf("\nfreeLoc: %d\n", db.freeLoc);
+}
+#endif
+
 
 rc_t
 LocatorDB_init() {
@@ -35,8 +58,10 @@ LocatorDB_init() {
 
     for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
         Network_createLocator(&(db.pool[i]));
-        Locator_init(db.pool[i]);
+        s_init(db.pool[i]);
     }
+
+    Network_createLocator(&db.toFind);
 
     mutex = Mutex_create();
     if (mutex == NULL) {
@@ -60,7 +85,6 @@ LocatorDB_newLocator(Locator_t** loc) {
         Mutex_unlock(mutex);
         return SDDS_LOCATORDB_RT_NOFREELOCATORS;
     }
-    db.freeLoc--;
     // set is NULL so can use it to mark if we found one
     *loc = NULL;
     // search for locator witch is not referenced somewhere
@@ -81,6 +105,8 @@ LocatorDB_newLocator(Locator_t** loc) {
     }
     (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
     (*loc)->next = NULL;
+    db.freeLoc--;
+    (*loc)->refCount = 1;
 
     Mutex_unlock(mutex);
 
@@ -95,7 +121,6 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
         Mutex_unlock(mutex);
         return SDDS_LOCATORDB_RT_NOFREELOCATORS;
     }
-    db.freeLoc--;
     // set is NULL so can use it to mark if we found one
     *loc = NULL;
     // search for locator witch is not referenced somewhere
@@ -116,6 +141,8 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
 
     (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
     (*loc)->next = NULL;
+    db.freeLoc--;
+    (*loc)->refCount = 1;
 
     Mutex_unlock(mutex);
 
@@ -129,7 +156,6 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
     if (db.freeLoc == 0) {
         return SDDS_LOCATORDB_RT_NOFREELOCATORS;
     }
-    db.freeLoc--;
     // set is NULL so can use it to mark if we found one
     //*loc = NULL;
     // search for locator witch is not referenced somewhere
@@ -150,25 +176,22 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
 
     (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
     (*loc)->next = NULL;
+    db.freeLoc--;
+    (*loc)->refCount = 1;
+
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
 }
 
-rc_t
-LocatorDB_freeLocator(Locator_t* loc) {
+static rc_t
+s_freeLocator(Locator_t* loc) {
     // decrem refcounter if bigger than zero
-    Mutex_lock(mutex);
-    if (loc->refCount > 0) {
-        loc->refCount--;
-    }
-    if (loc->refCount == 0) {
-        Locator_init(loc);
+    if (s_init(loc) == SDDS_RT_OK) {
         db.freeLoc++;
+        return SDDS_RT_OK;
     }
-    Mutex_unlock(mutex);
-
-    return SDDS_RT_OK;
+    return SDDS_RT_FAIL;
 }
 
 rc_t
@@ -187,10 +210,10 @@ LocatorDB_isUsedLocator(Locator_t* loc) {
 }
 
 rc_t
-LocatorDB_findLocator(Locator_t* toFind, Locator_t** result) {
+LocatorDB_findLocator(Locator_t* loc, Locator_t** result) {
     Mutex_lock(mutex);
     for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
-        if (Locator_isEqual(toFind, db.pool[i]) == true) {
+        if ((db.pool[i]->refCount > 0) && (Locator_isEqual(loc, db.pool[i]) == true)) {
             *result = db.pool[i];
             Mutex_unlock(mutex);
             return SDDS_RT_OK;
@@ -200,3 +223,86 @@ LocatorDB_findLocator(Locator_t* toFind, Locator_t** result) {
     return SDDS_RT_FAIL;
 }
 
+rc_t
+LocatorDB_findLocatorByAddr(char *addr, Locator_t** result) {
+    Mutex_lock(mutex);
+    Network_setAddressToLocator(db.toFind, addr);
+    for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
+        if ((db.pool[i]->refCount > 0) && (Locator_isEqual(db.toFind, db.pool[i]) == true)) {
+            *result = db.pool[i];
+            Mutex_unlock(mutex);
+            return SDDS_RT_OK;
+        }
+    }
+    Mutex_unlock(mutex);
+    return SDDS_RT_FAIL;
+}
+
+rc_t
+LocatorDB_findLocatorByMcastAddr(char *addr, Locator_t** result) {
+    Mutex_lock(mutex);
+    Network_setMulticastAddressToLocator(db.toFind, addr);
+    for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
+        if ((db.pool[i]->refCount > 0) && (Locator_isEqual(db.toFind, db.pool[i]) == true)) {
+            *result = db.pool[i];
+            Mutex_unlock(mutex);
+            return SDDS_RT_OK;
+        }
+    }
+    Mutex_unlock(mutex);
+    return SDDS_RT_FAIL;
+}
+
+void
+Locator_upRef(Locator_t* _this) {
+
+    if (_this == NULL) {
+        return;
+    }
+
+    Mutex_lock(mutex);
+    assert(_this->refCount > 0);
+    if (_this->refCount < 254) {
+        _this->refCount++;
+    }
+    Mutex_unlock(mutex);
+}
+void
+Locator_downRef(Locator_t* _this) {
+    if (_this == NULL) {
+        return;
+    }
+
+    Mutex_lock(mutex);
+    if (_this->refCount == 0) {
+        Mutex_unlock(mutex);
+        return;
+    }
+    if (_this->refCount > 0) {
+        _this->refCount--;
+    }
+    if (_this->refCount == 0) {
+        s_freeLocator(_this);
+    }
+    Mutex_unlock(mutex);
+}
+
+static rc_t
+s_init(Locator_t* _this) {
+    if (_this == NULL) {
+        return SDDS_RT_BAD_PARAMETER;
+    }
+
+    _this->next = NULL;
+    _this->refCount = 0;
+    _this->isEmpty = true;
+    _this->isDest = false;
+    _this->isSender = false;
+
+    return SDDS_RT_OK;
+}
+
+uint8_t
+LocatorDB_freeLocators() {
+    return db.freeLoc;
+}

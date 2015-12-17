@@ -45,12 +45,14 @@ LocatorDB_newLocator(Locator_t** loc);
 rc_t
 LocatorDB_findLocator(Locator_t* toFind, Locator_t** loc);
 rc_t
-LocatorDB_freeLocator(Locator_t* loc);
-rc_t
 LocatorDB_isUsedLocator(Locator_t* loc);
 rc_t
 LocatorDB_newMultiLocator(Locator_t** loc);
-
-
+rc_t
+LocatorDB_findLocatorByMcastAddr(char *addr, Locator_t** result);
+rc_t
+LocatorDB_findLocatorByAddr(char *addr, Locator_t** result);
+uint8_t
+LocatorDB_freeLocators();
 
 #endif   /* ----- #ifndef LOCATORDB_H_INC  ----- */

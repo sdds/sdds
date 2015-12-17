@@ -45,8 +45,6 @@ static rc_t
 Discovery_addParticipant(SDDS_DCPSParticipant* p);
 static rc_t
 Discovery_handleParticipant(SDDS_DCPSParticipant p);
-static rc_t
-Discovery_addRemoteDataSink(Locator_t* l, Topic_t* topic);
 
 /***********************************************************************************
                                                                         Implementierung
@@ -84,72 +82,26 @@ Discovery_handleParticipant(SDDS_DCPSParticipant p) {
 
     if (ret == SDDS_RT_OK) {
 #if defined(SDDS_TOPIC_HAS_PUB)
-        ret = Discovery_addRemoteDataSink(p.addr, g_DCPSSubscription_topic);
+        ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, p.addr);
+        if (ret != SDDS_RT_OK) {
+            Locator_downRef(p.addr);
+            return ret;
+        }
 #endif
 
 #if defined(SDDS_TOPIC_HAS_SUB)
-        ret = Discovery_addRemoteDataSink(p.addr, g_DCPSPublication_topic);
-        Discovery_sendPublicationTopics();
-#endif
-
+        ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, p.addr);
         if (ret != SDDS_RT_OK) {
+            Locator_downRef(p.addr);
             return ret;
         }
-
+        Discovery_sendPublicationTopics();
+#endif
+        return SDDS_RT_OK;
     }
+
     Locator_downRef(p.addr);
-
-    return ret;
-}
-
-static rc_t
-Discovery_addRemoteDataSink(Locator_t* l, Topic_t* topic) {
-    rc_t ret;
-
-    Locator_t* locPub;
-    ret = Network_createMulticastLocator(&locPub);
-    if (ret != SDDS_RT_OK) {
-        return ret;
-    }
-
-    ret = Network_setMulticastAddressToLocator(locPub, SDDS_BUILTIN_SUB_PUB_ADDRESS);
-    if (ret != SDDS_RT_OK) {
-        return ret;
-    }
-
-    Locator_t* locPart;
-    ret = Network_createMulticastLocator(&locPart);
-    if (ret != SDDS_RT_OK) {
-        return ret;
-    }
-
-    ret = Network_setMulticastAddressToLocator(locPart, SDDS_BUILTIN_PARTICIPANT_ADDRESS);
-    if (ret != SDDS_RT_OK) {
-        return ret;
-    }
-
-    Locator_t* locTop;
-    ret = Network_createMulticastLocator(&locTop);
-    if (ret != SDDS_RT_OK) {
-        return ret;
-    }
-
-    ret = Network_setMulticastAddressToLocator(locTop, SDDS_BUILTIN_TOPIC_ADDRESS);
-    if (ret != SDDS_RT_OK) {
-        return ret;
-    }
-
-    if (!Locator_isEqual(l, locPub) && !Locator_isEqual(l, locPart) && !Locator_isEqual(l, locTop)) {
-        Locator_upRef(l);
-        ret = Topic_addRemoteDataSink(topic, l);
-    }
-    Locator_downRef(l);
-
-    if (ret != SDDS_RT_OK) {
-        return ret;
-    }
-
-    return ret;
+    return SDDS_RT_OK;
 }
 
 static void
@@ -232,8 +184,7 @@ Discovery_receiveParticipantTopics() {
         }
         else {
             Log_info("Received (participant):[%x]\n", p_data_used.data.key);
-            ret = Discovery_handleParticipant(p_data_used);
-            Locator_downRef(p_data_used.addr);
+            Discovery_handleParticipant(p_data_used);
         }
     } while (ret != DDS_RETCODE_NO_DATA);
 }
@@ -305,9 +256,10 @@ Discovery_receive_SubscriptionTopics() {
             Topic_t* topic = NULL;
             ret = DataSource_getTopic(NULL, st_data_used.data.topic_id, &topic);
             if (ret == SDDS_RT_OK) {
-                ret = Discovery_addRemoteDataSink(st_data_used.addr, topic);
+                if (Topic_addRemoteDataSink(topic, st_data_used.addr) != SDDS_RT_OK) {
+                    Locator_downRef(st_data_used.addr);
+                }
             }
-            Locator_downRef(st_data_used.addr);
         }
     } while (ret != DDS_RETCODE_NO_DATA);
 #endif

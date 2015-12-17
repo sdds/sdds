@@ -45,15 +45,6 @@ struct _Locator_t {
 
 
 /**
- * Initialises a Locator object
- *
- * @param _this Pointer to the object
- * @return is always SDDS_RT_OK
- */
-rc_t
-Locator_init(Locator_t* _this);
-
-/**
  * Checks if two Locator instances are equal or the same.
  * There is no distinction between these two cases.
  * The comparison depends on the specific implementation.
@@ -125,5 +116,8 @@ Locator_getAddress(Locator_t* l, char* srcAddr);
 
 rc_t
 Locator_copy(Locator_t* src, Locator_t* dst);
+
+void
+Locator_print(Locator_t* loc);
 
 #endif   /* ----- #ifndef LOCATOR_H_INC  ----- */

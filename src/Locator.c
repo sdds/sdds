@@ -8,48 +8,7 @@
 #include "Locator.h"
 #include "LocatorDB.h"
 #include "sdds_types.h"
-
-void
-Locator_upRef(Locator_t* _this) {
-
-    if (_this == NULL) {
-        return;
-    }
-
-    if (_this->refCount < 254) {
-        _this->refCount++;
-    }
-}
-void
-Locator_downRef(Locator_t* _this) {
-    if (_this == NULL) {
-        return;
-    }
-
-    if (_this->refCount > 0) {
-        _this->refCount--;
-    }
-    if (_this->refCount == 0) {
-        LocatorDB_freeLocator(_this);
-    }
-}
-
-rc_t
-Locator_init(Locator_t* _this) {
-
-    if (_this == NULL) {
-        return SDDS_RT_BAD_PARAMETER;
-    }
-
-    _this->next = NULL;
-    _this->refCount = 0;
-    _this->isEmpty = true;
-    _this->isDest = false;
-    _this->isSender = false;
-
-    return SDDS_RT_OK;
-}
-
+#include "Log.h"
 
 rc_t
 Locator_addToList(Locator_t* head, Locator_t* newL) {
@@ -123,27 +82,6 @@ Locator_removeFromList(Locator_t* head, Locator_t* toDel) {
     return SDDS_RT_OK;
 }
 
-//rc_t
-//Locator_contains(Locator_t* head, Locator_t* l) {
-//
-//    if (head == NULL || l == NULL) {
-//        return SDDS_RT_BAD_PARAMETER;
-//    }
-//
-//    Locator_t* tmp = head;
-//
-//    while (head != NULL) {
-//        // locator is allready in the list
-//        if (Locator_isEqual(head, l) == true) {
-//            return SDDS_RT_OK;
-//        }
-//        tmp = head;
-//        head = head->next;
-//    }
-//
-//    return SDDS_RT_FAIL;
-//}
-
 rc_t
 Locator_contains(List_t* list, Locator_t* l) {
 
@@ -162,4 +100,11 @@ Locator_contains(List_t* list, Locator_t* l) {
     }
 
     return SDDS_RT_FAIL;
+}
+
+void
+Locator_print(Locator_t* loc) {
+    char addr[NI_MAXHOST];
+    Locator_getAddress(loc, addr);
+    Log_debug("Locator {%s}\n", addr);
 }

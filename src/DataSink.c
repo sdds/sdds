@@ -152,7 +152,10 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             break;
         case (SDDS_SNPS_T_ADDRESS):
             //  Write address into global variable
-            SNPS_readAddress(buff, &self->addr.addrCast, &self->addr.addrType, &self->addr.addr);
+            if (SNPS_readAddress(buff, &self->addr.addrCast, &self->addr.addrType, &self->addr.addr) != SDDS_RT_OK) {
+                Log_warn("Read address failed, discard subMessage.\n", type);
+                SNPS_discardSubMsg(buff);
+            }
             break;
         case (SDDS_SNPS_T_TSSIMPLE):
         case (SDDS_SNPS_T_STATUS):
@@ -182,7 +185,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         }
     }
     // Reset the buffer
-    NetBuffRef_renew(buff);
+//    NetBuffRef_renew(buff);
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
     // Send event notifications
