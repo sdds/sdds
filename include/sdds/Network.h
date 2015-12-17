@@ -19,6 +19,8 @@
 #ifndef  NETWORK_H_INC
 #define  NETWORK_H_INC
 
+#include "sDDS.h"
+
 struct Network_t;
 
 typedef struct Network_t* Network;

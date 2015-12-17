@@ -13,9 +13,6 @@
 #include <pthread.h>
 #include <errno.h>
 
-struct Mutex;
-typedef struct Mutex Mutex_t;
-
 /**
  * -----------------------------------------------------------------------------
  * Creates a mutes object

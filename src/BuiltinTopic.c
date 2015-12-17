@@ -78,18 +78,17 @@ BuiltinTopic_init(void) {
         return ret;
     }
 
-    Locator_upRef(l);
-
     ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_PARTICIPANT_ADDRESS);
     if (ret != SDDS_RT_OK) {
+        Locator_downRef(l);
         return ret;
     }
 
     ret = Topic_addRemoteDataSink(g_DCPSParticipant_topic, l);
     if (ret != SDDS_RT_OK) {
+        Locator_downRef(l);
         return ret;
     }
-    Locator_downRef(l);
 
     g_DCPSTopic_topic = sDDS_DCPSTopicTopic_create();
     g_DCPSTopic_reader = DataSink_create_datareader(g_DCPSTopic_topic, NULL, NULL, NULL);
@@ -101,18 +100,17 @@ BuiltinTopic_init(void) {
         return ret;
     }
 
-    Locator_upRef(l);
-
     ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_TOPIC_ADDRESS);
     if (ret != SDDS_RT_OK) {
+        Locator_downRef(l);
         return ret;
     }
 
     ret = Topic_addRemoteDataSink(g_DCPSTopic_topic, l);
     if (ret != SDDS_RT_OK) {
+        Locator_downRef(l);
         return ret;
     }
-    Locator_downRef(l);
 
     g_DCPSPublication_topic = sDDS_DCPSPublicationTopic_create();
     g_DCPSPublication_reader = DataSink_create_datareader(g_DCPSPublication_topic, NULL, NULL, NULL);
@@ -124,18 +122,17 @@ BuiltinTopic_init(void) {
         return ret;
     }
 
-    Locator_upRef(l);
-
     ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUB_PUB_ADDRESS);
     if (ret != SDDS_RT_OK) {
+        Locator_downRef(l);
         return ret;
     }
 
     ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, l);
     if (ret != SDDS_RT_OK) {
+        Locator_downRef(l);
         return ret;
     }
-    Locator_downRef(l);
 
     g_DCPSSubscription_topic = sDDS_DCPSSubscriptionTopic_create();
     g_DCPSSubscription_reader = DataSink_create_datareader(g_DCPSSubscription_topic, NULL, NULL, NULL);
@@ -147,18 +144,17 @@ BuiltinTopic_init(void) {
         return ret;
     }
 
-    Locator_upRef(l);
-
     ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUB_PUB_ADDRESS);
     if (ret != SDDS_RT_OK) {
+        Locator_downRef(l);
         return ret;
     }
 
     ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, l);
     if (ret != SDDS_RT_OK) {
+        Locator_downRef(l);
         return ret;
     }
-    Locator_downRef(l);
 
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
     uint8_t addrLen;

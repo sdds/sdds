@@ -32,26 +32,16 @@
 
 typedef struct _Locator_t Locator_t;
 struct _Locator_t {
-    Locator_t* next;
     // TODO state reicht nicht ref counter?
     // wie geht das mit den bitmaps?
     // 4 bit refconter?
     unsigned int type   : 2;
-    _Bool isEmpty               : 1;
-    _Bool isDest                : 1;
-    _Bool isSender              : 1;
+    _Bool isEmpty       : 1;
+    _Bool isDest        : 1;
+    _Bool isSender      : 1;
     uint8_t refCount;
 };
 
-
-/**
- * Initialises a Locator object
- *
- * @param _this Pointer to the object
- * @return is always SDDS_RT_OK
- */
-rc_t
-Locator_init(Locator_t* _this);
 
 /**
  * Checks if two Locator instances are equal or the same.
@@ -84,39 +74,6 @@ Locator_upRef(Locator_t* _this);
 void
 Locator_downRef(Locator_t* _this);
 
-
-/**
- * adds the given Locator instance to the end of the list.
- * If there is already an equal instance the refcounter of the instance in the
- *list
- * will be incremented and the given instance decremented.
- *
- * @param head Pointer to the head of the list
- * @param newL Pointer to the locator instance to insert
- * @return SDDS_RT_OK if insert was successful,
- * SDDS_RT_BAD_PARAMETER if one of the parameter is NULL
- */
-rc_t
-Locator_addToList(Locator_t* head, Locator_t* newL);
-
-/**
- * Removes a Locator instance from the locator list.
- * If the locator is within the list, the reference counter
- * will be decremented and if the counter becomes zero the instance
- * will be freed.
- * If the given locator instance to remove is not the same as the
- * instance in the list, both instances reference counter will be
- * decremented
- *
- * @param head Pointer to the head of the list
- * @param newL Pointer to the locator instance to remove
- * @return SDDS_RT_OK if success,
- * SDDS_RT_FAIL if the given instance was not found in the list,
- * SDDS_RT_BAD_PARAMETER if one of the parameter is NULL
- */
-rc_t
-Locator_removeFromList(Locator_t* head, Locator_t* toDel);
-
 rc_t
 Locator_contains(List_t* list, Locator_t* l);
 
@@ -125,5 +82,8 @@ Locator_getAddress(Locator_t* l, char* srcAddr);
 
 rc_t
 Locator_copy(Locator_t* src, Locator_t* dst);
+
+void
+Locator_print(Locator_t* loc);
 
 #endif   /* ----- #ifndef LOCATOR_H_INC  ----- */

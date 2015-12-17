@@ -250,7 +250,7 @@ Network_Multicast_init() {
 
     NetBuffRef_init(&multiInBuff);
     Locator_t* loc;
-    Network_createMulticastLocator(&loc);
+    LocatorDB_newMultiLocator(&loc);
     multiInBuff.locators->add_fn(multiInBuff.locators, loc);
     // set up a thread to read from the udp multicast socket
     if (pthread_create(&net.multiRecvThread, NULL, recvLoop,
@@ -310,7 +310,7 @@ Network_init(void) {
     // init the incoming frame buffer and add dummy unicast locator
     NetBuffRef_init(&inBuff);
     Locator_t* loc;
-    Network_createLocator(&loc);
+    LocatorDB_newLocator(&loc);
     inBuff.locators->add_fn(inBuff.locators, loc);
 
     // set up a thread to read from the udp socket
@@ -319,36 +319,6 @@ Network_init(void) {
         Log_error("Cant't create thread.\n");
         return SDDS_RT_FAIL;
     }
-
-    // IF BUILTINTOPIC
-    builtinTopicNetAddress = Memory_alloc(sizeof(struct UDPLocator_t));
-
-    if (builtinTopicNetAddress == NULL) {
-        Log_error("No builtIn topic address set.\n");
-        return SDDS_RT_NOMEM;
-    }
-
-    struct UDPLocator_t* l = (struct UDPLocator_t*) builtinTopicNetAddress;
-    l->loc.next = NULL;
-
-    // save broadcast address for ipv4 or multicast for ipv6
-#if PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET
-    struct sockaddr_in* addr = (struct sockaddr_in*)&l->addr_storage;
-
-    inet_aton("255.255.255.255", &addr->sin_addr);
-    addr->sin_port = htons(net.port);
-#elif PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET6
-    struct sockaddr_in6* addr = (struct sockaddr_in6*) &l->addr_storage;
-
-    addr->sin6_family = AF_INET6;
-    addr->sin6_addr.s6_addr[0] = 0xff;
-    addr->sin6_addr.s6_addr[1] = 0x02;
-    addr->sin6_addr.s6_addr[15] = 1;
-    addr->sin6_port = htons(net.port);
-#else
-#error "Only AF_INET and AF_INET6 are understood linux protocols."
-#endif
-    // ENDIF
 
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
     Network_Multicast_init();
@@ -440,12 +410,12 @@ recvLoop(void* netBuff) {
         Log_info("Receive on unicast socket\n");
     }
 
-    while (true) {
-        //reset the buffer
-        NetBuffRef_renew(buff);
+    NetBuffRef_renew(buff);
 
+    while (true) {
+        // spare address field?
         struct sockaddr_storage addr;
-        socklen_t addr_len;
+        socklen_t addr_len = 0;
         ssize_t recv_size = recvfrom(sock, buff->buff_start,
                                      buff->frame_start->size, 0,
                                      (struct sockaddr*)&addr, &addr_len);
@@ -465,18 +435,19 @@ recvLoop(void* netBuff) {
 
         Locator_t* loc;
 
-        if (LocatorDB_findLocator((Locator_t*) &sloc, &loc) != SDDS_RT_OK) {
+        if (LocatorDB_findLocator((Locator_t*) &sloc, &loc) == SDDS_RT_OK) {
+            Locator_upRef(loc);
+        }
+        else {
             // not found we need a new one
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
-                Log_error("No free Locator objects\n");
+                Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
+                NetBuffRef_renew(buff);
                 continue;
             }
             memcpy(&((struct UDPLocator_t*) loc)->addr_storage, &addr, addr_len);
             ((struct UDPLocator_t*) loc)->addr_len = addr_len;
         }
-
-        // up ref counter
-        Locator_upRef(loc);
 
         loc->isEmpty = false;
         loc->isSender = true;
@@ -484,7 +455,7 @@ recvLoop(void* netBuff) {
 
         rc_t ret = buff->locators->add_fn(buff->locators, loc);
         if (ret != SDDS_RT_OK) {
-            LocatorDB_freeLocator(loc);
+            NetBuffRef_renew(buff);
             continue;
         }
 
@@ -492,7 +463,7 @@ recvLoop(void* netBuff) {
             Log_debug("Failed to process frame\n");
         }
 
-        LocatorDB_freeLocator(loc);
+        NetBuffRef_renew(buff);
 
     }
     return SDDS_RT_OK;
@@ -591,6 +562,7 @@ Network_set_locator_endpoint(Locator_t* loc, char* endpoint, int port) {
     assert(endpoint);
     Log_debug("Set locator endpoint to ip: %s, port: %d\n", endpoint, port);
 
+    loc->type = SDDS_LOCATOR_TYPE_UNI;
     struct UDPLocator_t* udp_loc = (struct UDPLocator_t*) loc;
 
     // getaddrinfo wants its port parameter in string form
@@ -651,6 +623,7 @@ Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
     assert (loc);
     assert (addr);
 
+    loc->type = SDDS_LOCATOR_TYPE_MULTI;
     struct UDPLocator_t* l = (struct UDPLocator_t*) loc;
 
     struct addrinfo* address;
@@ -800,8 +773,9 @@ Locator_getAddress(Locator_t* self, char* srcAddr) {
 
 rc_t
 Locator_copy(Locator_t* src, Locator_t* dst) {
-    assert (src);
-    assert (dst);
+    assert(src != dst);
+    assert(src);
+    assert(dst);
 
 	memcpy(dst, src, sizeof(struct UDPLocator_t));
 	dst->refCount = 0;
