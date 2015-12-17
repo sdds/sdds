@@ -114,52 +114,15 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
 
 // Check validy of sequencenumber
 #ifdef SDDS_HAS_QOS_RELIABILITY
-    SDDS_SEQNR_BIGGEST_TYPE highestSeqNrOfLoc = 0;
-    for (int i=0; i<self->depth; i++){
-        if (self->samples[i].instance == loc
-        && self->samples[i].seqNr > highestSeqNrOfLoc){
-            highestSeqNrOfLoc = self->samples[i].seqNr;
-        }
+    rc_t x = _sdds_History_checkSeqNr(self, topic, loc, seqNr);
+    if (x == SDDS_RT_OK){
+        self->samples[self->in_needle].seqNr = seqNr;
+    } else {
+        SNPS_discardSubMsg(buff);
+        Locator_downRef(loc);
+        return SDDS_RT_FAIL;
     }
 
-    switch(topic->seqNrBitSize){
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
-            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 15) ){
-                self->samples[self->in_needle].seqNr = seqNr;
-            } else { // invalid seqNr, discard next subMsg (data)
-                SNPS_discardSubMsg(buff);
-                Locator_downRef(loc);
-                return SDDS_RT_FAIL;
-            }
-           break;
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
-            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 255) ){
-                self->samples[self->in_needle].seqNr = seqNr;
-            } else { // invalid seqNr, discard next subMsg (data)
-                SNPS_discardSubMsg(buff);
-                Locator_downRef(loc);
-                return SDDS_RT_FAIL;
-            }
-           break;
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
-            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 65536) ){
-                self->samples[self->in_needle].seqNr = seqNr;
-            } else { // invalid seqNr, discard next subMsg (data)
-                SNPS_discardSubMsg(buff);
-                Locator_downRef(loc);
-                return SDDS_RT_FAIL;
-            }
-           break;
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
-            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 4294967296) ){
-                self->samples[self->in_needle].seqNr = seqNr;
-            } else { // invalid seqNr, discard next subMsg (data)
-                SNPS_discardSubMsg(buff);
-                Locator_downRef(loc);
-                return SDDS_RT_FAIL;
-            }
-           break;
-    }
     if (topic->seqNrBitSize > 0){
         sdds_History_print(self);
     }
@@ -231,9 +194,50 @@ sdds_History_dequeue(History_t* self) {
     return sample;
 }
 
+#ifdef SDDS_HAS_QOS_RELIABILITY
+rc_t
+_sdds_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+    SDDS_SEQNR_BIGGEST_TYPE highestSeqNrOfLoc = 0;
+    for (int i=0; i<self->depth; i++){
+        if (self->samples[i].instance == loc
+        && self->samples[i].seqNr > highestSeqNrOfLoc){
+            highestSeqNrOfLoc = self->samples[i].seqNr;
+        }
+    }
+
+    switch(topic->seqNrBitSize){
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
+            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 15) ){
+            } else { // invalid seqNr, discard next subMsg (data)
+                return SDDS_RT_FAIL;
+            }
+           break;
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
+            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 255) ){
+            } else { // invalid seqNr, discard next subMsg (data)
+                return SDDS_RT_FAIL;
+            }
+           break;
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
+            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 65536) ){
+            } else { // invalid seqNr, discard next subMsg (data)
+                return SDDS_RT_FAIL;
+            }
+           break;
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
+            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 4294967296) ){
+            } else { // invalid seqNr, discard next subMsg (data)
+                return SDDS_RT_FAIL;
+            }
+           break;
+    }
+    return SDDS_RT_OK;
+}
+#endif
+
 void
 sdds_History_print(History_t* self) {
-    printf("History [id: 0x%x] {\n", self);
+    printf("History [id: %p] {\n", self);
     printf("    depth: %d,\n", self->depth);
     printf("    in needle: %d,\n", self->in_needle);
     printf("    out needle: %d,\n", self->out_needle);
