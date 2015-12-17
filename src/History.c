@@ -18,6 +18,10 @@
 
 #include "sDDS.h"
 
+//  Local helper functions
+rc_t
+s_History_enqueue(History_t* self);
+
 
 //  ---------------------------------------------------------------------------
 //  Initializes this class
@@ -47,23 +51,52 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth) {
 }
 
 
+bool_t
+s_History_full (History_t* self)
+{
+    if (self->in_needle == self->depth) {
+        return true;
+    }
+    return false;
+}
+
+
 //  ---------------------------------------------------------------------------
 //  Try to enqueue a sample into the history. If the history is full this call
 //  will discard the oldest sample in case of RELIABILITY best effort and block
 //  in case of RELIABILITY reliable until samples are taken out.
 
+rc_t
+sdds_History_enqueue_data(History_t* self, Data data) {
+    assert(self);
+    assert(data);
+
+    if (s_History_full (self)) {
+        return SDDS_RT_FAIL;
+    }
+    //  Insert sample into queue
+    self->samples[self->in_needle].data = data;
+    return s_History_enqueue(self);
+}
+
+
+//  ---------------------------------------------------------------------------
+//  Try to enqueue a sample as buffer into the history. If the history is full
+//  this call will discard the oldest sample in case of RELIABILITY best effort
+//  and block in case of RELIABILITY reliable until samples are taken out. If
+//  the buffer is going to be enqueued it will be decoded.
+
 #ifdef SDDS_HAS_QOS_RELIABILITY
 rc_t
-sdds_History_enqueue(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
 #else
 rc_t
-sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
+sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
 #endif
     assert(self);
     assert(buff);
-    // TODO: Trace point prossesFrame
-    //  Queue is full.
-    if (self->in_needle == self->depth) {
+
+    if (s_History_full (self)) {
         return SDDS_RT_FAIL;
     }
     //  Insert sample into queue
@@ -129,6 +162,12 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
         return ret;
     }
     self->samples[self->in_needle].instance = loc;
+    return s_History_enqueue (self);
+}
+
+
+rc_t
+s_History_enqueue(History_t* self) {
     //  Move the input needle to the next free slot. If the input needle is at
     //  the end of the array move it to the beginning.
     unsigned int in_needle_prev = self->in_needle;
@@ -159,7 +198,7 @@ sdds_History_dequeue(History_t* self) {
     if (self->out_needle == self->depth) {
         return NULL;
     }
-    //  Remove sample from
+    //  Remove sample from queue
     Sample_t* sample = &self->samples[self->out_needle];
     Locator_downRef(sample->instance);
     //  Move the output needle to the next sample slot. If the output needle is

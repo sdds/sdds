@@ -57,45 +57,36 @@ rc_t
 DataWriter_write(DataWriter_t* self, Data data, void* waste) {
     assert (self);
     (void) waste;
-    NetBuffRef_t* buffRef = NULL;
+
     Topic_t* topic = self->topic;
-    domainid_t domain = topic->domain;
     List_t* dest = topic->dsinks.list;
-    rc_t ret;
-
-#ifdef SDDS_QOS_LATENCYBUDGET
-#if SDDS_QOS_DW_LATBUD < 65536
-    time16_t deadline;
-    ret = Time_getTime16(&deadline);
-#else
-    time32_t deadline;
-    rc_t ret = Time_getTime32(&deadline);
-#endif
-
-    deadline += self->qos.latBudDuration;
-#endif
-    buffRef = findFreeFrame(dest);
-
+    NetBuffRef_t* buffRef = findFreeFrame(dest);
     Locator_t* loc = (Locator_t*) dest->List_first(dest);
-    while (loc != NULL) {
+    while (loc) {
         if (Locator_contains(buffRef->addr, loc) != SDDS_RT_OK) {
             buffRef->addr->List_add(buffRef->addr, loc);
             Locator_upRef(loc);
         }
         loc = (Locator_t*) dest->List_next(dest);
     }
-//    buffRef->addr = dest;
+    rc_t ret;
 #ifdef SDDS_QOS_LATENCYBUDGET
     //  If new deadline is earlier
     if ((buffRef->sendDeadline == 0)) {
         Mutex_lock(mutex);
-        buffRef->sendDeadline = deadline;
+#if SDDS_QOS_DW_LATBUD < 65536
+        ret = Time_getTime16(&buffRef->sendDeadline);
+#else
+        ret = Time_getTime32(&buffRef->sendDeadline);
+#endif
+        buffRef->sendDeadline += self->qos.latBudDuration;
         buffRef->latBudDuration = self->qos.latBudDuration;
         Mutex_unlock(mutex);
         Log_debug("sendDeadline: %d\n", buffRef->sendDeadline);
     }
 #endif
 
+    domainid_t domain = topic->domain;
     if (buffRef->curDomain != domain) {
         SNPS_writeDomain(buffRef, domain);
         buffRef->curDomain = domain;
@@ -133,16 +124,8 @@ DataWriter_write(DataWriter_t* self, Data data, void* waste) {
         // something went wrong oO
     	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
 #ifdef SDDS_QOS_LATENCYBUDGET
-//#if SDDS_QOS_DW_LATBUD < 65536
-//    	ret = Time_getTime16(&deadline);
-//#else
-//    	rc_t ret = Time_getTime32(&deadline);
-//#endif
-//    	buffRef->sendDeadline = deadline;
-//    	buffRef->latBudDuration = self->qos.latBudDuration;
     	buffRef->bufferOverflow = true;
 #endif
-//        return SDDS_RT_FAIL;
     }
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
@@ -167,7 +150,6 @@ DataWriter_writeAddress(DataWriter_t* self,
     List_t* dest = topic->dsinks.list;
 
     buffRef = findFreeFrame(dest);
-
     Locator_t* loc = (Locator_t*) dest->List_first(dest);
     while (loc != NULL) {
         if (Locator_contains(buffRef->addr, loc) != SDDS_RT_OK) {
@@ -258,7 +240,7 @@ checkSending(NetBuffRef_t* buf) {
         Mutex_unlock(mutex);
         Log_debug("Buffer full\n");
     }
-    //  If the buffer is not full jet, just reset the deadline.
+    //  If the buffer is not full yet, just reset the deadline.
     else {
         Mutex_lock(mutex);
         buf->sendDeadline = 0;

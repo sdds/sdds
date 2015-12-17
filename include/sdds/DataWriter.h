@@ -22,7 +22,7 @@ struct _DataWriter_t {
     Topic_t* topic;
     SourceQos_t qos;
     unsigned int id : 4;
-    History_t history;
+    History_t* history;
 };
 typedef struct _DataWriter_t DataWriter_t;
 

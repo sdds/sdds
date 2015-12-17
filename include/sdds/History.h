@@ -40,10 +40,10 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth);
 //  in case of RELIABILITY reliable until samples are taken out.
 #ifdef SDDS_HAS_QOS_RELIABILITY
 rc_t
-sdds_History_enqueue(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr);
+sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr);
 #else
 rc_t
-sdds_History_enqueue(History_t* self, NetBuffRef_t* buff);
+sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff);
 #endif
 
 //  Takes the oldest sample out of the queue. Returns a pointer to the sample if
