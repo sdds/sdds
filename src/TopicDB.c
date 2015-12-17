@@ -33,8 +33,6 @@ TopicDB_createTopic(void) {
     if (topicdb.topicCount < SDDS_TOPIC_MAX_COUNT) {
         Topic_t* n = &(topicdb.db[topicdb.topicCount++]);
         memset(n, 0, sizeof(Topic_t));
-        n->msg.count = 0;
-        n->msg.start = 0;
 
         return n;
     }
