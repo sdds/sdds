@@ -18,10 +18,13 @@
 
 #include "sDDS.h"
 #include <os-ssal/Trace.h>
+<<<<<<< HEAD
 
 //  Local helper functions
 rc_t
 s_History_enqueue(History_t* self);
+=======
+>>>>>>> 02cb198fb7f3a7bd601f62fc5bf814ded1034fc6
 
 
 //  ---------------------------------------------------------------------------
@@ -101,7 +104,7 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
     Trace_point(SDDS_TRACE_EVENT_HISTORY_ENQUEUE);
 #endif
 #endif
-
+    
     if (s_History_full (self)) {
         return SDDS_RT_FAIL;
     }
