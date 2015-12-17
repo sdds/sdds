@@ -169,6 +169,7 @@ SNPS_discardSubMsg(NetBuffRef_t* ref) {
         // TODO
         return SDDS_RT_FAIL;
         break;
+#ifdef SDDS_HAS_QOS_RELIABILITY
     case (SDDS_SNPS_EXTSUBMSG_SEQNRSMALL):
         ref->curPos += (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL/8);
         break;
@@ -178,6 +179,7 @@ SNPS_discardSubMsg(NetBuffRef_t* ref) {
     case (SDDS_SNPS_EXTSUBMSG_SEQNRHUGE):
         ref->curPos += (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE/8);
         break;
+#endif
     case (SDDS_SNPS_EXTSUBMSG_TOPIC):     // ext topic has 2 bytes
         ref->curPos += 2;
         break;
