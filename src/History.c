@@ -183,8 +183,9 @@ sdds_History_dequeue(History_t* self) {
 }
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-rc_t
+static rc_t
 _sdds_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+    rc_t ret = SDDS_RT_FAIL;
     SDDS_SEQNR_BIGGEST_TYPE highestSeqNrOfLoc = 0;
     for (int i=0; i<self->depth; i++){
         if (self->samples[i].instance == loc
@@ -195,31 +196,36 @@ _sdds_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_S
 
     switch(topic->seqNrBitSize){
         case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
-            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 15) ){
-            } else { // invalid seqNr, discard next subMsg (data)
-                return SDDS_RT_FAIL;
+            if ((highestSeqNrOfLoc == 0)
+            ||  (seqNr > highestSeqNrOfLoc)
+            ||  (highestSeqNrOfLoc == 15)) {
+                ret = SDDS_RT_OK;
             }
            break;
         case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
-            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 255) ){
-            } else { // invalid seqNr, discard next subMsg (data)
-                return SDDS_RT_FAIL;
+            if ((highestSeqNrOfLoc == 0)
+            ||  (seqNr > highestSeqNrOfLoc)
+            ||  (highestSeqNrOfLoc == 255)) {
+                ret = SDDS_RT_OK;
             }
            break;
         case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
-            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 65536) ){
-            } else { // invalid seqNr, discard next subMsg (data)
-                return SDDS_RT_FAIL;
+            if ((highestSeqNrOfLoc == 0)
+            ||  (seqNr > highestSeqNrOfLoc)
+            ||  (highestSeqNrOfLoc == 65536)) {
+                ret = SDDS_RT_OK;
             }
            break;
         case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
-            if ( (seqNr >= highestSeqNrOfLoc) || (highestSeqNrOfLoc == 4294967296) ){
-            } else { // invalid seqNr, discard next subMsg (data)
-                return SDDS_RT_FAIL;
+            if ((highestSeqNrOfLoc == 0)
+            ||  (seqNr > highestSeqNrOfLoc)
+            ||  (highestSeqNrOfLoc == 4294967296)) {
+                ret = SDDS_RT_OK;
             }
            break;
     }
-    return SDDS_RT_OK;
+
+    return ret;
 }
 #endif
 

@@ -141,7 +141,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     return SDDS_RT_FAIL;
                 }
                 History_t* history = DataReader_history(data_reader);
-#if defined SDDS_HAS_QOS_RELIABILITY
+#ifdef SDDS_HAS_QOS_RELIABILITY
                 ret = sdds_History_enqueue_buffer(history, buff, seqNr);
 #else
                 ret = sdds_History_enqueue_buffer(history, buff);
@@ -161,7 +161,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         case (SDDS_SNPS_T_TSSIMPLE):
         case (SDDS_SNPS_T_STATUS):
 
-#if defined SDDS_HAS_QOS_RELIABILITY
+#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
         case (SDDS_SNPS_T_SEQNR):
             SNPS_readSeqNr(buff, (uint8_t*) &seqNr);
             break;
