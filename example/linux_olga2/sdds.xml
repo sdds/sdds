@@ -1,0 +1,20 @@
+<project
+    name = "linux_mcast2"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    iface = "usb1"
+    ip = "fe80::12:13ff:fe14:2323"
+    port = "23234"
+	protocol = "AF_INET6"
+    >
+    Linux basic example with beta topic
+
+    <!--
+        Includes are processed first, so XML in included files will be
+        part of the XML tree
+    -->
+    <include filename = "../topics/beta.xml" />
+
+    <role topic = "beta" type = "subscriber" />
+</project>
