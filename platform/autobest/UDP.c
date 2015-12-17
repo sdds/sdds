@@ -90,7 +90,7 @@ Network_init(void) {
     
     Locator_t* loc;
     ssw_rc_t ret = Network_createLocator(&loc);
-    inBuff.addr->List_add(inBuff.addr, loc);
+    inBuff.locators->add_fn(inBuff.locators, loc);
 
     if(ret == SDDS_RT_FAIL) {
         Log_error("error while init incoming Buffer\n");
@@ -153,7 +153,7 @@ Network_Multicast_init() {
     NetBuffRef_init(&multiInBuff);
     Locator_t* loc;
     Network_createMulticastLocator(&loc);
-    multiInBuff.addr->List_add(multiInBuff.addr, loc);
+    multiInBuff.locators->add_fn(multiInBuff.locators, loc);
 
     // set up a thread to read from the udp socket [multicast]
     net.multiRecvThread = Thread_create();
@@ -240,7 +240,7 @@ recvLoop(void* netBuff) {
     rc_t ret;
 
     // Check the dummy locator for uni or multicast socket
-    Locator_t* l = (Locator_t*) buff->addr->List_first(buff->addr);
+    Locator_t* l = (Locator_t*) buff->locators->first_fn(buff->locators);
     conn_type = l->type;
 
     if(conn_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -303,8 +303,8 @@ recvLoop(void* netBuff) {
         loc->isSender = true;
         loc->type = conn_type;
         
-        //buff->addr = loc;
-        rc_t ret = buff->addr->List_add(buff->addr, loc);
+        //buff->locators = loc;
+        rc_t ret = buff->locators->add_fn(buff->locators, loc);
         if (ret != SDDS_RT_OK) {
             LocatorDB_freeLocator(loc);
             continue;
@@ -327,7 +327,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
   void* data = NULL; 
 
   // Check the locator for uni or multicast socket
-  Locator_t *loc = (Locator_t*) buff->addr->List_first(buff->addr);
+  Locator_t *loc = (Locator_t*) buff->locators->first_fn(buff->locators);
   conn_type = loc->type;
   // add locator to the netbuffref
   if(conn_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -364,7 +364,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
         Locator_getAddress(loc, a);
         Log_debug("Sendet to %s\n", a);
 #endif
-        loc = (Locator_t*) buff->addr->List_next(buff->addr);
+        loc = (Locator_t*)buff->locators->next_fn(buff->locators);
 
     }
     return SDDS_RT_OK;

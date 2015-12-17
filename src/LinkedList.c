@@ -33,15 +33,15 @@ static _Bool nodePoolInit = false;
 
 //  Forward declaration of function pointers
 void*
-LinkedList_first(struct List *this);
+LinkedList_first(List_t* this);
 void*
-LinkedList_next(struct List *this);
+LinkedList_next(List_t* this);
 rc_t
-LinkedList_add(struct List *this, void* data);
+LinkedList_add(List_t* this, void* data);
 size_t
-LinkedList_size(struct List* this);
+LinkedList_size(List_t* this);
 rc_t
-LinkedList_deleteAll(struct List* this);
+LinkedList_delete_all(List_t* this);
 
 //  initialize node pool
 static void
@@ -76,11 +76,11 @@ List_initLinkedList(void) {
     }
 
     s_initNodePool();
-    this->list.List_first = LinkedList_first;
-    this->list.List_next = LinkedList_next;
-    this->list.List_add = LinkedList_add;
-    this->list.List_size = LinkedList_size;
-    this->list.List_deleteAll = LinkedList_deleteAll;
+    this->list.first_fn = LinkedList_first;
+    this->list.next_fn = LinkedList_next;
+    this->list.add_fn = LinkedList_add;
+    this->list.size_fn = LinkedList_size;
+    this->list.delete_all_fn = LinkedList_delete_all;
 
     this->head = NULL;
     this->cursor = NULL;
@@ -91,7 +91,7 @@ List_initLinkedList(void) {
 
 // Provides the data of the first element, or NULL
 void*
-LinkedList_first(struct List *this) {
+LinkedList_first(List_t* this) {
     if (this == NULL) {
         return NULL;
     }
@@ -109,7 +109,7 @@ LinkedList_first(struct List *this) {
 
 //  Provides the data of the next element, or NUULL.
 void*
-LinkedList_next(struct List *this) {
+LinkedList_next(List_t* this) {
     if (this == NULL) {
         return NULL;
     }
@@ -135,7 +135,7 @@ LinkedList_next(struct List *this) {
 
 //  Adds data to the list, return SDDS_RT_OK or SDDS_RT_FAIL.
 rc_t
-LinkedList_add(struct List *this, void* data) {
+LinkedList_add(List_t* this, void* data) {
     if (this == NULL) {
         return SDDS_RT_FAIL;
     }
@@ -178,7 +178,7 @@ LinkedList_add(struct List *this, void* data) {
 
 //  Return the size of the list.
 size_t
-LinkedList_size(struct List* this) {
+LinkedList_size(List_t* this) {
     if (this == NULL) {
         return -1;
     }
@@ -189,7 +189,7 @@ LinkedList_size(struct List* this) {
 }
 
 rc_t
-LinkedList_deleteAll(struct List* this) {
+LinkedList_delete_all(List_t* this) {
     if (this == NULL) {
         return SDDS_RT_FAIL;
     }
