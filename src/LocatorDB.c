@@ -104,7 +104,6 @@ LocatorDB_newLocator(Locator_t** loc) {
         return SDDS_RT_FAIL;
     }
     (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
-    (*loc)->next = NULL;
     db.freeLoc--;
     (*loc)->refCount = 1;
 
@@ -140,7 +139,6 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
     }
 
     (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
-    (*loc)->next = NULL;
     db.freeLoc--;
     (*loc)->refCount = 1;
 
@@ -175,7 +173,6 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
     }
 
     (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
-    (*loc)->next = NULL;
     db.freeLoc--;
     (*loc)->refCount = 1;
 
@@ -293,7 +290,6 @@ s_init(Locator_t* _this) {
         return SDDS_RT_BAD_PARAMETER;
     }
 
-    _this->next = NULL;
     _this->refCount = 0;
     _this->isEmpty = true;
     _this->isDest = false;

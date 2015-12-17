@@ -446,7 +446,7 @@ recvLoop(void* netBuff) {
     while (true) {
         // spare address field?
         struct sockaddr_storage addr;
-        socklen_t addr_len;
+        socklen_t addr_len = 0;
         ssize_t recv_size = recvfrom(sock, buff->buff_start,
                                      buff->frame_start->size, 0,
                                      (struct sockaddr*)&addr, &addr_len);
