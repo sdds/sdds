@@ -47,12 +47,6 @@ Marshalling_enc_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size
     case SDDS_SNPS_EXTSUBMSG_SEQNRHUGE:
         encode(buff, value, sizeof(uint32_t));
         break;
-    case SDDS_SNPS_EXTSUBMSG_ACK:
-        encode(buff, value, sizeof(SDDS_SEQNR_BIGGEST_TYPE));
-        break;
-    case SDDS_SNPS_EXTSUBMSG_NACK:
-        encode(buff, value, sizeof(SDDS_SEQNR_BIGGEST_TYPE));
-        break;
     default: // should never happen
         return SDDS_RT_FAIL;
     }
@@ -93,12 +87,6 @@ Marshalling_dec_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size
         break;
     case SDDS_SNPS_EXTSUBMSG_SEQNRHUGE:
         decode(buff, value, sizeof(uint32_t));
-        break;
-    case SDDS_SNPS_EXTSUBMSG_ACK:
-        decode(buff, value, sizeof(SDDS_SEQNR_BIGGEST_TYPE));
-        break;
-    case SDDS_SNPS_EXTSUBMSG_NACK:
-        decode(buff, value, sizeof(SDDS_SEQNR_BIGGEST_TYPE));
         break;
     // TODO implement other extended submsgs
     default:
