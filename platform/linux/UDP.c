@@ -320,37 +320,6 @@ Network_init(void) {
         return SDDS_RT_FAIL;
     }
 
-//    // IF BUILTINTOPIC
-//    builtinTopicNetAddress = Memory_alloc(sizeof(struct UDPLocator_t));
-//
-//    if (builtinTopicNetAddress == NULL) {
-//        Log_error("No builtIn topic address set.\n");
-//        return SDDS_RT_NOMEM;
-//    }
-//
-//    struct UDPLocator_t* l = (struct UDPLocator_t*) builtinTopicNetAddress;
-//    l->loc.next = NULL;
-//
-//    // save broadcast address for ipv4 or multicast for ipv6
-//#if PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET
-//    struct sockaddr_in* addr = (struct sockaddr_in*)&l->addr_storage;
-//
-//    inet_aton("255.255.255.255", &addr->sin_addr);
-//    addr->sin_port = htons(net.port);
-//#elif PLATFORM_LINUX_SDDS_PROTOCOL == AF_INET6
-//    struct sockaddr_in6* addr = (struct sockaddr_in6*) &l->addr_storage;
-//
-//    addr->sin6_family = AF_INET6;
-//    addr->sin6_addr.s6_addr[0] = 0xff;
-//    addr->sin6_addr.s6_addr[1] = 0x02;
-//    addr->sin6_addr.s6_addr[15] = 1;
-//    addr->sin6_port = htons(net.port);
-//#else
-//#error "Only AF_INET and AF_INET6 are understood linux protocols."
-//#endif
-//    // ENDIF
-
-
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
     Network_Multicast_init();
 #endif
