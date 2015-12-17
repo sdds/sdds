@@ -3,7 +3,7 @@
 
 #include <api_calls.h>
 
-#ifdef FEATURE_SDDS_TRACEING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_ENABLED
 
 ssw_rc_t
 Trace_init(void){
@@ -11,8 +11,20 @@ Trace_init(void){
 }
 
 ssw_rc_t
-Trace_point(Trace_events_t event){
-	sys_kldd_call(0, event, 0, 0);
+Trace_point(Trace_event_t trace_event){
+	sys_kldd_call(0, trace_event, 0, 0);
+	return SDDS_RT_OK;
+}
+
+ssw_rc_t 
+Trace_setSignal(Trace_signal_t trace_signal){
+	sys_kldd_call(3, trace_signal, 0, 0);
+	return SDDS_RT_OK;
+}
+
+ssw_rc_t 
+Trace_resetSignal(Trace_signal_t trace_signal){
+	sys_kldd_call(4, trace_signal, 0, 0);
 	return SDDS_RT_OK;
 }
 	

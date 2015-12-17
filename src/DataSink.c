@@ -17,6 +17,7 @@
  */
 
 #include "sDDS.h"
+#include <os-ssal/Trace.h>
 
 struct _DataSink_t {
     DataReader_t readers[SDDS_DATA_READER_MAX_OBJS];
@@ -96,7 +97,11 @@ DataSink_getAddr(SNPS_Address_t* address) {
 rc_t
 DataSink_processFrame(NetBuffRef_t* buff) {
     assert(buff);
-    // TODO: Trace point prossesFrame
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_PROCESS_FRAME
+    Trace_point(SDDS_TRACE_EVENT_PROCESS_FRAME);
+#endif
+#endif
     //  Parse the header
     rc_t ret;
     ret = SNPS_readHeader(buff);
