@@ -86,15 +86,14 @@ Network_init(void) {
     }
     // init the incoming frame buffer and add dummy unicast locator
     NetBuffRef_init(&inBuff);
-    
-    Locator_t* loc;
-    ssw_rc_t ret = Network_createLocator(&loc);
-    inBuff.locators->add_fn(inBuff.locators, loc);
 
+    Locator_t* loc;
+    ssw_rc_t ret = LocatorDB_newLocator(&loc);
     if(ret == SDDS_RT_FAIL) {
         Log_error("error while init incoming Buffer\n");
         return SDDS_RT_FAIL;
     }
+    inBuff.locators->add_fn(inBuff.locators, loc);
 
     // set up a thread to read from the udp socket
     net.recvThread = Thread_create();
@@ -150,10 +149,15 @@ Network_Multicast_init() {
     }
 
     NetBuffRef_init(&multiInBuff);
-    Locator_t* loc;
-    Network_createMulticastLocator(&loc);
-    multiInBuff.locators->add_fn(multiInBuff.locators, loc);
 
+     Locator_t* loc;
+    ret = LocatorDB_newMultiLocator(&loc);
+    if(ret == SDDS_RT_FAIL) {
+        Log_error("error while init incoming Buffer\n");
+        return SDDS_RT_FAIL;
+    }
+    multiInBuff.locators->add_fn(multiInBuff.locators, loc);
+    
     // set up a thread to read from the udp socket [multicast]
     net.multiRecvThread = Thread_create();
     if(net.multiRecvThread == NULL) {
@@ -249,10 +253,12 @@ recvLoop(void* netBuff) {
         conn = net.fd_uni_conn;
     }
 
+    //reset the buffer
+    NetBuffRef_renew(buff);
+
     while (true)
     {
-        //reset the buffer
-        NetBuffRef_renew(buff);
+        
         err = netconn_recv(conn, &lwip_netbuf);
         if(err != ERR_OK ) {
             Log_error("Error checking if a netbuffer was recvied\n");
@@ -283,16 +289,23 @@ recvLoop(void* netBuff) {
         memcpy(buff->buff_start, data, recv_size);
         AutobestLocator_t sloc;
         memcpy(&(sloc.addr_storage), netbuf_fromaddr(lwip_netbuf), sizeof(ip_addr_t));
+        Locator_print((Locator_t*) &sloc);
         port = netbuf_fromport(lwip_netbuf);
         sloc.port = port;
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET6
         sloc.addr_storage.type =  IPADDR_TYPE_V6;
 #endif
         Locator_t* loc;
-        if (LocatorDB_findLocator((Locator_t*)&sloc, &loc) != SDDS_RT_OK) {
+        ret = LocatorDB_findLocator((Locator_t*)&sloc, &loc);
+        if ( ret == SDDS_RT_OK) {
+            Locator_upRef(loc);
+        }
+        else{
             // not found we need a new one
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
                 netbuf_delete(lwip_netbuf);
+                //reset the buffer
+                NetBuffRef_renew(buff);
                 Log_error("No free Locator objects\n");
 #ifdef FEATURE_SDDS_TRACING_ENABLED
                 Trace_point(SDDS_TRACE_EVENT_STOP);
@@ -314,7 +327,8 @@ recvLoop(void* netBuff) {
         //buff->locators = loc;
         rc_t ret = buff->locators->add_fn(buff->locators, loc);
         if (ret != SDDS_RT_OK) {
-            LocatorDB_freeLocator(loc);
+            //reset the buffer
+            NetBuffRef_renew(buff);
 #ifdef FEATURE_SDDS_TRACING_ENABLED
             Trace_point(SDDS_TRACE_EVENT_STOP);
 #endif
@@ -325,7 +339,8 @@ recvLoop(void* netBuff) {
         if(ret != SDDS_RT_OK){
           Log_error ("Failed to process frame\n");
         }
-        LocatorDB_freeLocator(loc);
+        //reset the buffer
+        NetBuffRef_renew(buff);
 #ifdef FEATURE_SDDS_TRACING_ENABLED
         Trace_point(SDDS_TRACE_EVENT_STOP);
 #endif
@@ -379,13 +394,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
       Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
       return SDDS_RT_FAIL;
     }
-
-#ifdef UTILS_DEBUG
-        char a[PLATFORM_AUTOBEST_IPV6_MAX_CHAR_LEN];
-        Locator_getAddress(loc, a);
-        Log_debug("Sendet to %s\n", a);
-#endif
-        loc = (Locator_t*)buff->locators->next_fn(buff->locators);
+    loc = (Locator_t*)buff->locators->next_fn(buff->locators);
 
     }
     return SDDS_RT_OK;
@@ -514,7 +523,7 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
     addr[0] = (ip_addr_t*)&a->addr_storage;
     addr[1] = (ip_addr_t*)&b->addr_storage;
 
-    if (memcmp(&addr[0], &addr[1], sizeof(ip_addr_t)) == 0) {
+    if (memcmp(addr[0], addr[1], sizeof(ip_addr_t)) == 0) {
         return true;
     }
     return false;
