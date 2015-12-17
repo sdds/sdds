@@ -288,6 +288,7 @@ recvLoop(void* netBuff) {
         memcpy(buff->buff_start, data, recv_size);
         AutobestLocator_t sloc;
         memcpy(&(sloc.addr_storage), netbuf_fromaddr(lwip_netbuf), sizeof(ip_addr_t));
+        Locator_print((Locator_t*) &sloc);
         port = netbuf_fromport(lwip_netbuf);
         sloc.port = port;
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET6
