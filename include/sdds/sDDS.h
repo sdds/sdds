@@ -63,7 +63,6 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #include "DataReader.h"
 #include "DataWriter.h"
 #include "DataSink.h"
-#include "Msg.h"
 #include "DataSource.h"
 #include "Locator.h"
 #include "LocatorDB.h"

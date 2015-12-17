@@ -218,7 +218,6 @@ checkSending(NetBuffRef_t* buf) {
     // update header
     SNPS_updateHeader(buf);
 
-
     if (buf->locators->size_fn(buf->locators) > 0) {
         Mutex_lock(mutex);
         rc_t ret = Network_send(buf);

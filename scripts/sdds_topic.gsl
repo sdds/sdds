@@ -263,9 +263,6 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 {
 	Topic_t *topic = TopicDB_createTopic();
 
-	for (int i = 0; i < count; i++)
-		Msg_init(&(topic->msg.pool[i]), (Data) &(pool[i]));
-
 #ifdef SDDS_TOPIC_HAS_SUB
 	topic->Data_encode = TopicMarshalling_$(topic.c_name:)_encode;
 	topic->dsinks.list = List_initConcurrentLinkedList();
@@ -305,13 +302,13 @@ rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, s
 	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
 
 	byte_t* start = buffer->buff_start + buffer->curPos + 1;
-	
+
 	int maxSize = 0;
 .   for topic.attribute
     maxSize += sizeof(real_data->$(attribute.name:c));
-    
-.   endfor    
-	
+
+.   endfor
+
 	if ((buffer->curPos + maxSize + 1) >= SDDS_NET_MAX_BUF_SIZE) {
 		return SDDS_RT_FAIL;
 	}
@@ -335,7 +332,7 @@ rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, s
 		Log_warn ("size mismatch is %zu should be $(size)\\n", *size);
 
 	*size = 0;
-	
+
 	byte_t* start = buffer->buff_start + buffer->curPos;
 
 	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
