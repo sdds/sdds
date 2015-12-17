@@ -47,7 +47,7 @@ struct _NetBuffRef_t {
 #endif
 
     // state of the frame
-    List_t* addr;
+    List_t* locators;
     Topic_t* curTopic;
     domainid_t curDomain;
 };

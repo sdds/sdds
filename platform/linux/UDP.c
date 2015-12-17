@@ -62,7 +62,6 @@ struct Network_t {
     pthread_t recvThread;
     pthread_t multiRecvThread;
     int port;
-    char sender_host[NI_MAXHOST];   //  IP address of the last received packet
 };
 
 struct UDPLocator_t {
@@ -252,7 +251,7 @@ Network_Multicast_init() {
     NetBuffRef_init(&multiInBuff);
     Locator_t* loc;
     Network_createMulticastLocator(&loc);
-    multiInBuff.addr->List_add(multiInBuff.addr, loc);
+    multiInBuff.locators->add_fn(multiInBuff.locators, loc);
     // set up a thread to read from the udp multicast socket
     if (pthread_create(&net.multiRecvThread, NULL, recvLoop,
                        (void*) &multiInBuff) != 0) {
@@ -312,7 +311,7 @@ Network_init(void) {
     NetBuffRef_init(&inBuff);
     Locator_t* loc;
     Network_createLocator(&loc);
-    inBuff.addr->List_add(inBuff.addr, loc);
+    inBuff.locators->add_fn(inBuff.locators, loc);
 
     // set up a thread to read from the udp socket
     if (pthread_create(&net.recvThread, NULL, recvLoop, (void*) &inBuff)
@@ -429,7 +428,7 @@ recvLoop(void* netBuff) {
     int count = 0;
 
     // Check the dummy locator for uni or multicast socket
-    Locator_t* l = (Locator_t*) buff->addr->List_first(buff->addr);
+    Locator_t* l = (Locator_t*) buff->locators->first_fn(buff->locators);
     sock_type = l->type;
 
     if (sock_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -483,7 +482,7 @@ recvLoop(void* netBuff) {
         loc->isSender = true;
         loc->type = sock_type;
 
-        rc_t ret = buff->addr->List_add(buff->addr, loc);
+        rc_t ret = buff->locators->add_fn(buff->locators, loc);
         if (ret != SDDS_RT_OK) {
             LocatorDB_freeLocator(loc);
             continue;
@@ -504,7 +503,7 @@ Network_send(NetBuffRef_t* buff) {
     int sock;
     unsigned int sock_type;
     // Check the locator for uni or multicast socket
-    Locator_t* l = (Locator_t*) buff->addr->List_first(buff->addr);
+    Locator_t* l = (Locator_t*) buff->locators->first_fn(buff->locators);
     if (l == NULL) {
         Log_error("(%d) NetBuff has no locator.\n", __LINE__);
         return SDDS_RT_FAIL;
@@ -517,9 +516,9 @@ Network_send(NetBuffRef_t* buff) {
     else if (sock_type == SDDS_LOCATOR_TYPE_UNI) {
         sock = net.fd_uni_socket;
     }
-    Locator_t* loc = (Locator_t*) buff->addr->List_first(buff->addr);
+    Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
 
-    Log_debug("Transmitting to %d recipients\n", buff->addr->List_size(buff->addr));
+    Log_debug("Transmitting to %d recipients\n", buff->locators->size_fn(buff->locators));
 
     while (loc != NULL) {
 
@@ -538,7 +537,7 @@ Network_send(NetBuffRef_t* buff) {
                       sock_type == SDDS_LOCATOR_TYPE_UNI ? "unicast" : "multicast");
         }
 
-        loc = (Locator_t*) buff->addr->List_next(buff->addr);
+        loc = (Locator_t*) buff->locators->next_fn(buff->locators);
     }
 
     return SDDS_RT_OK;

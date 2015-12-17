@@ -61,13 +61,13 @@ DataWriter_write(DataWriter_t* self, Data data, void* waste) {
     Topic_t* topic = self->topic;
     List_t* dest = topic->dsinks.list;
     NetBuffRef_t* buffRef = findFreeFrame(dest);
-    Locator_t* loc = (Locator_t*) dest->List_first(dest);
+    Locator_t* loc = (Locator_t*) dest->first_fn(dest);
     while (loc) {
-        if (Locator_contains(buffRef->addr, loc) != SDDS_RT_OK) {
-            buffRef->addr->List_add(buffRef->addr, loc);
+        if (Locator_contains(buffRef->locators, loc) != SDDS_RT_OK) {
+            buffRef->locators->add_fn(buffRef->locators, loc);
             Locator_upRef(loc);
         }
-        loc = (Locator_t*) dest->List_next(dest);
+        loc = (Locator_t*) dest->next_fn(dest);
     }
     rc_t ret;
 #ifdef SDDS_QOS_LATENCYBUDGET
@@ -150,13 +150,13 @@ DataWriter_writeAddress(DataWriter_t* self,
     List_t* dest = topic->dsinks.list;
 
     buffRef = findFreeFrame(dest);
-    Locator_t* loc = (Locator_t*) dest->List_first(dest);
+    Locator_t* loc = (Locator_t*) dest->first_fn(dest);
     while (loc != NULL) {
-        if (Locator_contains(buffRef->addr, loc) != SDDS_RT_OK) {
-            buffRef->addr->List_add(buffRef->addr, loc);
+        if (Locator_contains(buffRef->locators, loc) != SDDS_RT_OK) {
+            buffRef->locators->add_fn(buffRef->locators, loc);
             Locator_upRef(loc);
         }
-        loc = (Locator_t*) dest->List_next(dest);
+        loc = (Locator_t*) dest->next_fn(dest);
     }
 
     if (buffRef->curDomain != domain) {
@@ -219,7 +219,7 @@ checkSending(NetBuffRef_t* buf) {
     SNPS_updateHeader(buf);
 
 
-    if (buf->addr->List_size(buf->addr) > 0) {
+    if (buf->locators->size_fn(buf->locators) > 0) {
         Mutex_lock(mutex);
         rc_t ret = Network_send(buf);
         if (ret != SDDS_RT_OK) {

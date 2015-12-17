@@ -47,7 +47,7 @@ static DataSource_t* self = &dsStruct;
 
 void print_Pointer() {
     for (int i=0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
-        Log_debug("%d p: (%d) %p\n", __LINE__, i, self->sender.out[i].addr->List_first);
+        Log_debug("%d p: (%d) %p\n", __LINE__, i, self->sender.out[i].locators->first_fn);
     }
 }
 
@@ -171,16 +171,16 @@ findFreeFrame(List_t* dest) {
 
     bool_t sameAddr = false;
     for (int i = 0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
-        List_t* try = self->sender.out[i].addr;
+        List_t* try = self->sender.out[i].locators;
         if (dest != NULL && try != NULL) {
-            Locator_t* loc = try->List_first(try);
+            Locator_t* loc = try->first_fn(try);
             while (loc != NULL) {
                 if (Locator_contains(dest, loc) == SDDS_RT_OK) {
                     buffRef = &(self->sender.out[i]);
                     sameAddr = true;
                     break;
                 }
-                loc = try->List_next(try);
+                loc = try->next_fn(try);
             }
             if (sameAddr) {
                 break;
@@ -206,13 +206,13 @@ findFreeFrame(List_t* dest) {
 
         // here add the ref to the buff, addr is used when frame is update addr
         // in bufref
-        Locator_t* loc = (Locator_t*) dest->List_first(dest);
+        Locator_t* loc = (Locator_t*) dest->first_fn(dest);
         while (loc != NULL) {
-            if (Locator_contains(buffRef->addr, loc) != SDDS_RT_OK) {
-                buffRef->addr->List_add(buffRef->addr, loc);
+            if (Locator_contains(buffRef->locators, loc) != SDDS_RT_OK) {
+                buffRef->locators->add_fn(buffRef->locators, loc);
                 Locator_upRef(loc);
             }
-            loc = (Locator_t*) dest->List_next(dest);
+            loc = (Locator_t*) dest->next_fn(dest);
         }
     }
     return buffRef;

@@ -101,7 +101,7 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
     }
     //  Insert sample into queue
     Topic_t* topic = buff->curTopic;
-    Locator_t* loc = (Locator_t*) buff->addr->List_first(buff->addr);
+    Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
     Locator_upRef(loc);
 
 // Check validy of sequencenumber

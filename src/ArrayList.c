@@ -20,15 +20,15 @@ typedef struct ArrayList ArrayList_t;
 
 //  Forward declaration of function pointers
 void*
-ArrayList_first(struct List *this);
+ArrayList_first(List_t* this);
 void*
-ArrayList_next(struct List *this);
+ArrayList_next(List_t* this);
 rc_t
-ArrayList_add(struct List *this, void* data);
+ArrayList_add(List_t* this, void* data);
 size_t
-ArrayList_size(struct List* this);
+ArrayList_size(List_t* this);
 rc_t
-ArrayList_deleteAll(struct List* this);
+ArrayList_delete_all(List_t* this);
 
 //  Initialize List
 List_t*
@@ -52,18 +52,18 @@ List_initArrayList(size_t limit) {
     this->cursor = 0;
 
     //  Set function pointer
-    this->list.List_first = ArrayList_first;
-    this->list.List_next = ArrayList_next;
-    this->list.List_add = ArrayList_add;
-    this->list.List_size = ArrayList_size;
-    this->list.List_deleteAll = ArrayList_deleteAll;
+    this->list.first_fn = ArrayList_first;
+    this->list.next_fn = ArrayList_next;
+    this->list.add_fn = ArrayList_add;
+    this->list.size_fn = ArrayList_size;
+    this->list.delete_all_fn = ArrayList_delete_all;
 
     return (List_t*) this;
 }
 
 // Provides the data of the first element, or NULL
 void*
-ArrayList_first(struct List *this) {
+ArrayList_first(List_t* this) {
     if (this == NULL) {
         return NULL;
     }
@@ -80,7 +80,7 @@ ArrayList_first(struct List *this) {
 
 //  Provides the data of the next element, or NUULL.
 void*
-ArrayList_next(struct List *this) {
+ArrayList_next(List_t* this) {
     if (this == NULL) {
         return NULL;
     }
@@ -97,7 +97,7 @@ ArrayList_next(struct List *this) {
 
 //  Adds data to the list, return SDDS_RT_OK or SDDS_RT_FAIL.
 rc_t
-ArrayList_add(struct List *this, void* data) {
+ArrayList_add(List_t* this, void* data) {
     if (this == NULL) {
         return SDDS_RT_FAIL;
     }
@@ -114,7 +114,7 @@ ArrayList_add(struct List *this, void* data) {
 
 //  Return the size of the list.
 size_t
-ArrayList_size(struct List* this) {
+ArrayList_size(List_t* this) {
     if (this == NULL) {
         return -1;
     }
@@ -125,7 +125,7 @@ ArrayList_size(struct List* this) {
 
 //  Deletes all elements from the list.
 rc_t
-ArrayList_deleteAll(struct List* this) {
+ArrayList_delete_all(List_t* this) {
     if (this == NULL) {
         return SDDS_RT_FAIL;
     }

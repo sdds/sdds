@@ -123,27 +123,6 @@ Locator_removeFromList(Locator_t* head, Locator_t* toDel) {
     return SDDS_RT_OK;
 }
 
-//rc_t
-//Locator_contains(Locator_t* head, Locator_t* l) {
-//
-//    if (head == NULL || l == NULL) {
-//        return SDDS_RT_BAD_PARAMETER;
-//    }
-//
-//    Locator_t* tmp = head;
-//
-//    while (head != NULL) {
-//        // locator is allready in the list
-//        if (Locator_isEqual(head, l) == true) {
-//            return SDDS_RT_OK;
-//        }
-//        tmp = head;
-//        head = head->next;
-//    }
-//
-//    return SDDS_RT_FAIL;
-//}
-
 rc_t
 Locator_contains(List_t* list, Locator_t* l) {
 
@@ -151,14 +130,14 @@ Locator_contains(List_t* list, Locator_t* l) {
         return SDDS_RT_BAD_PARAMETER;
     }
 
-    Locator_t* data = (Locator_t*) list->List_first(list);
+    Locator_t* data = (Locator_t*) list->first_fn(list);
 
     while (data != NULL) {
         // locator is allready in the list
         if (Locator_isEqual(data, l) == true) {
             return SDDS_RT_OK;
         }
-        data = list->List_next(list);
+        data = list->next_fn(list);
     }
 
     return SDDS_RT_FAIL;

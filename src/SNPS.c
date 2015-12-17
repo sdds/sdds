@@ -794,7 +794,7 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
     ref->curPos +=1;
 
     if (*addrCast == SDDS_SNPS_CAST_UNICAST) {
-        Locator_t* loc = ref->addr->List_first(ref->addr);
+        Locator_t* loc = ref->locators->first_fn(ref->locators);
 
         if (LocatorDB_findLocator((Locator_t*) &loc, addr) != SDDS_RT_OK) {
             // not found we need a new one
@@ -844,7 +844,7 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
 
 #ifdef UTILS_DEBUG
     char a[1024];
-    Locator_t* loc = (Locator_t*) ref->addr->List_first(ref->addr);
+    Locator_t* loc = (Locator_t*) ref->locators->first_fn(ref->locators);
     ret = Locator_getAddress(loc, a);
     Log_debug("Connection from %s\n", a);
 #endif
