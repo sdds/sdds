@@ -17,6 +17,7 @@
  */
 
 #include "sDDS.h"
+#include <os-ssal/Trace.h>
 
 
 //  ---------------------------------------------------------------------------
@@ -51,7 +52,11 @@ rc_t
 sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
     assert(self);
     assert(buff);
-    // TODO: Trace point prossesFrame
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_HISTORY_ENQUEUE
+    Trace_point(SDDS_TRACE_EVENT_HISTORY_ENQUEUE);
+#endif
+#endif
     //  Queue is full.
     if (self->in_needle == self->depth) {
         return SDDS_RT_FAIL;
@@ -89,7 +94,11 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 Sample_t*
 sdds_History_dequeue(History_t* self) {
     assert(self);
-    //  Queue is empty.
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_HISTORY_DEQUEUE
+    Trace_point(SDDS_TRACE_EVENT_HISTORY_DEQUEUE);
+#endif
+#endif
     if (self->out_needle == self->depth) {
         return NULL;
     }

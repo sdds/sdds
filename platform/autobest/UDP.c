@@ -1,5 +1,6 @@
 #include <sDDS.h>
 #include <os-ssal/SSW.h>
+#include <os-ssal/Trace.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -43,8 +44,6 @@ struct Network_t {
     Thread recvThread;
     Thread multiRecvThread;
 };
-
-//typedef struct Network_t Network;
 
 struct AutobestLocator_str
 {
@@ -260,8 +259,14 @@ recvLoop(void* netBuff) {
             sys_task_terminate();
             sys_abort();
         }
-        // TODO: Trace point  recv
-        // TODO: Trace point Frame incomming
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_SIGNAL_RECV_PAKET
+        Trace_setSignal(SDDS_TRACE_SIGNAL_RECV_PAKET);
+#endif
+#ifdef FEATURE_SDDS_TRACING_RECV_PAKET
+        Trace_point(SDDS_TRACE_EVENT_RECV_PAKET);
+#endif
+#endif
         err = netbuf_data(lwip_netbuf, &data, &recv_size);
         if(err != ERR_OK ) {
             Log_error("Error while read data out the netbuffer\n");
@@ -289,6 +294,9 @@ recvLoop(void* netBuff) {
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
                 netbuf_delete(lwip_netbuf);
                 Log_error("No free Locator objects\n");
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+                Trace_point(SDDS_TRACE_EVENT_STOP);
+#endif
                 continue;
             }
             memcpy(&((AutobestLocator_t*)loc)->addr_storage, &lwip_netbuf->addr, sizeof(ip_addr_t));
@@ -307,15 +315,21 @@ recvLoop(void* netBuff) {
         rc_t ret = buff->addr->List_add(buff->addr, loc);
         if (ret != SDDS_RT_OK) {
             LocatorDB_freeLocator(loc);
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+            Trace_point(SDDS_TRACE_EVENT_STOP);
+#endif
             continue;
         }
       
         ret = DataSink_processFrame(buff);
         if(ret != SDDS_RT_OK){
-          Log_debug ("Failed to process frame\n");
+          Log_error ("Failed to process frame\n");
         }
         LocatorDB_freeLocator(loc);
-    }    
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+        Trace_point(SDDS_TRACE_EVENT_STOP);
+#endif
+    }
     return SDDS_RT_OK;
 }
 
@@ -352,7 +366,14 @@ rc_t Network_send(NetBuffRef_t* buff) {
     }
     memcpy (data, buff->buff_start, buff->curPos);
     err = netconn_sendto(conn, netbuf, addr, ((AutobestLocator_t *) loc)->port);
-    // TODO: Trace point send
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_SIGNAL_SEND_PAKET
+        Trace_setSignal(SDDS_TRACE_SIGNAL_SEND_PAKET);
+#endif
+#ifdef FEATURE_SDDS_TRACING_SEND_PAKET
+        Trace_point(SDDS_TRACE_EVENT_SEND_PAKET);
+#endif
+#endif
     netbuf_delete(netbuf); 
     if (err != ERR_OK ) {
       Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
