@@ -37,8 +37,8 @@ _log_trace(const char* fnk, int line, ...) {
         va_start(arg, line);
 
         string = va_arg(arg, char*);
-        fprintf(stderr, "T: %s()[%d]: ", fnk, line);
-        vprintf(stderr, string, arg);
+        PRINTF("T: %s()[%d]: ", fnk, line);
+        vprintf(string, arg);
         va_end(arg);
     }
 }
@@ -51,8 +51,8 @@ _log_debug(const char* fnk, int line, ...) {
         va_start(arg, line);
 
         string = va_arg(arg, char*);
-        fprintf(stderr, "D: %s()[%d]: ", fnk, line);
-        vprintf(stderr, string, arg);
+        PRINTF("D: %s()[%d]: ", fnk, line);
+        vprintf(string, arg);
         va_end(arg);
     }
 }
@@ -65,8 +65,8 @@ _log_info(const char* fnk, int line, ...) {
         va_start(arg, line);
 
         string = va_arg(arg, char*);
-        fprintf(stderr, "I: %s()[%d]: ", fnk, line);
-        vprintf(stderr, string, arg);
+        PRINTF("I: %s()[%d]: ", fnk, line);
+        vprintf(string, arg);
 
         va_end(arg);
     }
@@ -80,8 +80,8 @@ _log_warn(const char* fnk, int line, ...) {
         va_start(arg, line);
 
         string = va_arg(arg, char*);
-        fprintf(stderr, "W: %s()[%d]: ", fnk, line);
-        vprintf(stderr, string, arg);
+        PRINTF("W: %s()[%d]: ", fnk, line);
+        vprintf(string, arg);
         va_end(arg);
     }
 }
@@ -94,8 +94,8 @@ _log_error(const char* fnk, int line, ...) {
         va_start(arg, line);
 
         string = va_arg(arg, char*);
-        fprintf(stderr, "E: %s()[%d]: ", fnk, line);
-        vprintf(stderr, string, arg);
+        PRINTF("E: %s()[%d]: ", fnk, line);
+        vprintf(string, arg);
         va_end(arg);
     }
 }
@@ -108,8 +108,8 @@ _log_panic(const char* fnk, int line, ...) {
         va_start(arg, line);
 
         string = va_arg(arg, char*);
-        fprintf(stderr, "P: %s()[%d]: ", fnk, line);
-        vprintf(stderr, string, arg);
+        PRINTF("P: %s()[%d]: ", fnk, line);
+        vprintf(string, arg);
         va_end(arg);
         abort();
     }
