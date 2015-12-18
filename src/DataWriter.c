@@ -10,14 +10,13 @@
  */
 
 #include "sDDS.h"
-#include "os-ssal/Task.h"
-#include "os-ssal/Mutex.h"
 
 static Task sendTask;
 static Mutex_t* mutex;
-//  Forward declarations of internal helper functions
+
+//  Internal helper functions
 NetBuffRef_t*
-findFreeFrame(List_t* dest);
+find_free_buffer(List_t* subscribers);
 rc_t
 checkSending(NetBuffRef_t* buf);
 void
@@ -54,99 +53,97 @@ DataWriter_init () {
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t
-DataWriter_write(DataWriter_t* self, Data data, void* waste) {
+DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     assert (self);
-    (void) waste;
+    (void) handle;
 
     Topic_t* topic = self->topic;
-    List_t* dest = topic->dsinks.list;
-    NetBuffRef_t* buffRef = findFreeFrame(dest);
-    Locator_t* loc = (Locator_t*) dest->first_fn(dest);
-    while (loc) {
-        if (Locator_contains(buffRef->locators, loc) != SDDS_RT_OK) {
-            buffRef->locators->add_fn(buffRef->locators, loc);
-            Locator_upRef(loc);
+    List_t* subscribers = topic->dsinks.list;
+    NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
+    Locator_t* subscriber = (Locator_t*) subscribers->first_fn(subscribers);
+    while (subscriber) {
+        if (Locator_contains(out_buffer->locators, subscriber) != SDDS_RT_OK) {
+            out_buffer->locators->add_fn(out_buffer->locators, subscriber);
+            Locator_upRef(subscriber);
         }
-        loc = (Locator_t*) dest->next_fn(dest);
+        subscriber = (Locator_t*) subscribers->next_fn(subscribers);
     }
     rc_t ret;
 #ifdef SDDS_QOS_LATENCYBUDGET
     //  If new deadline is earlier
-    if ((buffRef->sendDeadline == 0)) {
+    if ((out_buffer->sendDeadline == 0)) {
         Mutex_lock(mutex);
 #if SDDS_QOS_DW_LATBUD < 65536
-        ret = Time_getTime16(&buffRef->sendDeadline);
+        ret = Time_getTime16(&out_buffer->sendDeadline);
 #else
-        ret = Time_getTime32(&buffRef->sendDeadline);
+        ret = Time_getTime32(&out_buffer->sendDeadline);
 #endif
-        buffRef->sendDeadline += self->qos.latBudDuration;
-        buffRef->latBudDuration = self->qos.latBudDuration;
+        out_buffer->sendDeadline += self->qos.latBudDuration;
+        out_buffer->latBudDuration = self->qos.latBudDuration;
         Mutex_unlock(mutex);
-        Log_debug("sendDeadline: %d\n", buffRef->sendDeadline);
+        Log_debug("sendDeadline: %d\n", out_buffer->sendDeadline);
     }
 #endif
 
     domainid_t domain = topic->domain;
-    if (buffRef->curDomain != domain) {
-        SNPS_writeDomain(buffRef, domain);
-        buffRef->curDomain = domain;
+    if (out_buffer->curDomain != domain) {
+        SNPS_writeDomain(out_buffer, domain);
+        out_buffer->curDomain = domain;
     }
 
-    if (buffRef->curTopic != topic) {
-        SNPS_writeTopic(buffRef, topic->id);
-        buffRef->curTopic = topic;
+    if (out_buffer->curTopic != topic) {
+        SNPS_writeTopic(out_buffer, topic->id);
+        out_buffer->curTopic = topic;
     }
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-    switch(topic->reliabilityKind){
+    Reliable_DataWriter *self_reliable == (Reliable_DataWriter_t*) self;
+    switch(topic->reliabilityKind) {
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
-    case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK):
-        if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-            SNPS_writeSeqNr(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
-            Log_debug("dw seqNrBasic %d\n", ((uint8_t)((Reliable_DataWriter_t*)self)->seqNr)&0x0f);
-        } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
-            SNPS_writeSeqNrSmall(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
-            Log_debug("dw seqNrSmall %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
-        } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
-            SNPS_writeSeqNrBig(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
-            Log_debug("dw seqNrBig %d\n", (uint16_t)((Reliable_DataWriter_t*)self)->seqNr);
-        } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
-            SNPS_writeSeqNrHUGE(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
-            Log_debug("dw seqNrHUGE %d\n", (uint32_t)((Reliable_DataWriter_t*)self)->seqNr);
-        }
-    break;
+        case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK):
+            if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
+                SNPS_writeSeqNr(out_buffer, self_reliable->seqNr);
+            }
+            else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL) {
+                SNPS_writeSeqNrSmall(out_buffer, self_reliable->seqNr);
+            }
+            else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG) {
+                SNPS_writeSeqNrBig(out_buffer, self_reliable->seqNr);
+            }
+            else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE) {
+                SNPS_writeSeqNrHUGE(out_buffer, self_reliable->seqNr);
+            }
+            break;
 #endif
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_ACK
-    case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK):
-        if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-            SNPS_writeAckSeq(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
-            Log_debug("dw ackSeq %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
-        }
-    break;
+        case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK):
+            if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
+                SNPS_writeAckSeq(out_buffer, self_reliable->seqNr);
+            }
+            break;
 #endif
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_NACK
-    case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK):
-        if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-            SNPS_writeNackSeq(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
-            Log_debug("dw nackSeq %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
-        }
-    break;
+        case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK):
+            if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
+                SNPS_writeNackSeq(out_buffer, self_reliable->seqNr);
+            }
+            break;
 #endif
     }
-    ((Reliable_DataWriter_t*)self)->seqNr++;
+    self_reliable->seqNr++;
 #endif
 
-    if (SNPS_writeData(buffRef, topic->Data_encode, data) != SDDS_RT_OK) {
+    if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
         // something went wrong oO
     	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
 #ifdef SDDS_QOS_LATENCYBUDGET
-    	buffRef->bufferOverflow = true;
+    	out_buffer->bufferOverflow = true;
 #endif
     }
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
-    ret = checkSending(buffRef);
+    ret = checkSending(out_buffer);
     return ret;
 }
 #endif // SDDS_TOPIC_HAS_SUB
@@ -155,45 +152,45 @@ DataWriter_write(DataWriter_t* self, Data data, void* waste) {
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 rc_t
 DataWriter_writeAddress(DataWriter_t* self,
-                        castType_t castType,
-                        addrType_t addrType,
+                        castType_t cast_type,
+                        addrType_t addr_type,
                         uint8_t* addr,
-                        uint8_t addrLen) {
+                        uint8_t addr_len) {
     assert (self);
-    NetBuffRef_t* buffRef = NULL;
     Topic_t* topic = self->topic;
     domainid_t domain = topic->domain;
-    List_t* dest = topic->dsinks.list;
+    List_t* subscribers = topic->dsinks.list;
 
-    buffRef = findFreeFrame(dest);
-    Locator_t* loc = (Locator_t*) dest->first_fn(dest);
-    while (loc != NULL) {
-        if (Locator_contains(buffRef->locators, loc) != SDDS_RT_OK) {
-            if (buffRef->locators->add_fn(buffRef->locators, loc) == SDDS_RT_OK) {
-            	Locator_upRef(loc);
+    NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
+    Locator_t* subscriber = (Locator_t*) subscribers->first_fn(subscribers);
+    while (subscriber) {
+        if (Locator_contains(out_buffer->locators, subscriber) != SDDS_RT_OK) {
+            if (out_buffer->locators->add_fn(out_buffer->locators, subscriber) == SDDS_RT_OK) {
+            	Locator_upRef(subscriber);
             }
         }
-        loc = (Locator_t*) dest->next_fn(dest);
+        subscriber = (Locator_t*) subscribers->next_fn(subscribers);
     }
 
-    if (buffRef->curDomain != domain) {
-        SNPS_writeDomain(buffRef, domain);
-        buffRef->curDomain = domain;
+    if (out_buffer->curDomain != domain) {
+        SNPS_writeDomain(out_buffer, domain);
+        out_buffer->curDomain = domain;
     }
-    if (buffRef->curTopic != topic) {
-        SNPS_writeTopic(buffRef, topic->id);
-        buffRef->curTopic = topic;
+    if (out_buffer->curTopic != topic) {
+        SNPS_writeTopic(out_buffer, topic->id);
+        out_buffer->curTopic = topic;
     }
 
     Mutex_lock(mutex);
-    rc_t ret = SNPS_writeAddress(buffRef, castType, addrType, addr, addrLen);
+    rc_t ret;
+    ret = SNPS_writeAddress(out_buffer, cast_type, addr_type, addr, addr_len);
     Mutex_unlock(mutex);
     if (ret != SDDS_RT_OK) {
         // something went wrong oO
-        Log_error("%d Couldn't write to address\n", __LINE__);
+        Log_error("Couldn't write to address\n");
         return SDDS_RT_FAIL;
     }
-    Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
+    Log_debug("Writing to domain %d and topic %d \n", topic->domain, topic->id);
 
     return SDDS_RT_OK;
 }
