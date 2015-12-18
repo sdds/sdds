@@ -144,7 +144,11 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
     Mutex_unlock(mutex);
     ret = checkSending(out_buffer);
-    return ret;
+    //  Caller doen't understand different return codes but FAIL and OK
+    if (ret == SDDS_RT_FAIL) {
+        return SDDS_RT_FAIL;
+    }
+    return SDDS_RT_OK;
 }
 #endif // SDDS_TOPIC_HAS_SUB
 
@@ -221,38 +225,38 @@ checkSending(NetBuffRef_t* buf) {
     latBudDuration = buf->latBudDuration;
     bool_t overflow = buf->bufferOverflow;
 
-    if ( ((time >= sendDeadline) && (time - sendDeadline < latBudDuration)) || overflow) {
+    if (((time >= sendDeadline) && (time - sendDeadline < latBudDuration)) || overflow) {
         Task_stop(sendTask);
         if (overflow) {
             Log_warn("Send Data ahead of deadline due to buffer overflow.\n");
         }
         Log_debug("time: %d, deadline: %d\n", time, sendDeadline);
 #endif
-    // update header
-    SNPS_updateHeader(buf);
+        // update header
+        SNPS_updateHeader(buf);
 
-    if (buf->locators->size_fn(buf->locators) > 0) {
-        rc_t ret = Network_send(buf);
-        if (ret != SDDS_RT_OK) {
-            Log_error("Network_send failed\n");
-            Mutex_unlock(mutex);
-            return SDDS_RT_FAIL;
+        if (buf->locators->size_fn(buf->locators) > 0) {
+            rc_t ret = Network_send(buf);
+            if (ret != SDDS_RT_OK) {
+                Log_error("Network_send failed\n");
+                Mutex_unlock(mutex);
+                return SDDS_RT_FAIL;
+            }
+            //  If frame was sent, free the buffer.
+            NetBuffRef_renew(buf);
         }
-        //  If frame was sent, free the buffer.
-        NetBuffRef_renew(buf);
-    }
-    //  If latencyBudget is active, don't discard the buffer right away.
+        //  If latencyBudget is active, don't discard the buffer right away.
 #ifdef SDDS_QOS_LATENCYBUDGET
-    //  Discard the buffer, if the buffer is full and no one there to send.
-    else if (SDDS_NET_MAX_BUF_SIZE <= buf->curPos) {
-        NetBuffRef_renew(buf);
-        Log_debug("Buffer full\n");
-    }
-    //  If the buffer is not full yet, just reset the deadline.
-    else {
-        buf->sendDeadline = 0;
-        Log_debug("No subscriber\n");
-    }
+        //  Discard the buffer, if the buffer is full and no one there to send.
+        else if (SDDS_NET_MAX_BUF_SIZE <= buf->curPos) {
+            NetBuffRef_renew(buf);
+            Log_debug("Buffer full\n");
+        }
+        //  If the buffer is not full yet, just reset the deadline.
+        else {
+            buf->sendDeadline = 0;
+            Log_debug("No subscriber\n");
+        }
 #else
     //  If latencyBudget is not active, discard the message right away.
     else {
@@ -260,8 +264,8 @@ checkSending(NetBuffRef_t* buf) {
     }
 #endif
 
-    Mutex_unlock(mutex);
-    return SDDS_RT_OK;
+        Mutex_unlock(mutex);
+        return SDDS_RT_OK;
 #ifdef SDDS_QOS_LATENCYBUDGET
     }
     else {
