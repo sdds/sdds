@@ -201,11 +201,7 @@ sdds_History_dequeue(History_t* self) {
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static rc_t
-<<<<<<< HEAD
-s_sdds_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
-=======
 s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
->>>>>>> QoS Reliability fix
     rc_t ret = SDDS_RT_FAIL;
 
     SDDS_SEQNR_BIGGEST_TYPE highestSeqNrOfLoc = 0;
