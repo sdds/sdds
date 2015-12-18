@@ -133,7 +133,6 @@ rc_t
 SNPS_writeStatus(NetBuffRef_t* ref);
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 rc_t
 SNPS_writeSeqNr(NetBuffRef_t* ref, uint8_t seqNr);
 
@@ -145,7 +144,6 @@ SNPS_writeSeqNrBig(NetBuffRef_t* ref, uint16_t seqNr);
 
 rc_t
 SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, uint32_t seqNr);
-#endif
 
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
 rc_t
@@ -192,7 +190,6 @@ rc_t
 SNPS_readTopic(NetBuffRef_t* ref, topicid_t* topic);
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-#ifdef SDDS_QOS_RELIABILITY_KIND_BESTEFFORT
 rc_t
 SNPS_readSeqNr(NetBuffRef_t* ref, uint8_t* seqNr);
 
@@ -209,7 +206,6 @@ SNPS_readSeqNrBig(NetBuffRef_t* ref, uint16_t* seqNr);
 #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
 rc_t
 SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr);
-#endif
 #endif
 
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK

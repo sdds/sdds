@@ -24,6 +24,10 @@
 rc_t
 s_History_enqueue(History_t* self);
 
+#ifdef SDDS_HAS_QOS_RELIABILITY
+static rc_t
+s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr);
+#endif
 
 //  ---------------------------------------------------------------------------
 //  Initializes this class
@@ -106,7 +110,7 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
     if (s_History_full (self)) {
         return SDDS_RT_FAIL;
     }
-    
+
     //  Insert sample into queue
     Topic_t* topic = buff->curTopic;
     Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
@@ -114,17 +118,20 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
 
 // Check validy of sequencenumber
 #ifdef SDDS_HAS_QOS_RELIABILITY
-    rc_t x = _sdds_History_checkSeqNr(self, topic, loc, seqNr);
-    if (x == SDDS_RT_OK){
-        self->samples[self->in_needle].seqNr = seqNr;
-    } else {
-        SNPS_discardSubMsg(buff);
-        Locator_downRef(loc);
-        return SDDS_RT_FAIL;
-    }
+    if (topic->seqNrBitSize > 0){ // topic has seqNr
+        if (s_History_checkSeqNr(self, topic, loc, seqNr) == SDDS_RT_OK){
+            self->samples[self->in_needle].seqNr = seqNr;
+        } else {
+            SNPS_discardSubMsg(buff);
+            Locator_downRef(loc);
+            return SDDS_RT_FAIL;
+        }
 
-    if (topic->seqNrBitSize > 0){
-        sdds_History_print(self);
+#ifdef UTILS_DEBUG
+        if (topic->seqNrBitSize > 0){
+            sdds_History_print(self);
+        }
+#endif
     }
 #endif
 
@@ -196,8 +203,9 @@ sdds_History_dequeue(History_t* self) {
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static rc_t
-_sdds_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
     rc_t ret = SDDS_RT_FAIL;
+
     SDDS_SEQNR_BIGGEST_TYPE highestSeqNrOfLoc = 0;
     for (int i=0; i<self->depth; i++){
         if (self->samples[i].instance == loc

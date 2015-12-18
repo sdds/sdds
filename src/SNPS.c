@@ -422,7 +422,6 @@ SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data
 }
 
 #if defined SDDS_HAS_QOS_RELIABILITY
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 //  -----------------------------------------------------------------------------
 //  Writes the least significant 4-bits of the given sequencenumber
 //  in the given NetBuffRef_t*. Returns SDDS_RT_OK on success.
@@ -486,7 +485,7 @@ SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, uint32_t seqNr) {
     return ret;
 }
 #endif
-#endif
+
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
 //  -----------------------------------------------------------------------------
 //  Writes the least significant 4-bits of the given sequencenumber
@@ -504,9 +503,6 @@ SNPS_writeAckSeq(NetBuffRef_t* ref, uint8_t seqNr) {
 }
 #endif
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE > SDDS_QOS_RELIABILITY_SEQSIZE_BASIC
-#endif
-
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 //  -----------------------------------------------------------------------------
 //  Writes the least significant 4-bits of the given sequencenumber
@@ -522,11 +518,10 @@ SNPS_writeNackSeq(NetBuffRef_t* ref, uint8_t seqNr) {
 
     return ret;
 }
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE > SDDS_QOS_RELIABILITY_SEQSIZE_BASIC
 #endif
 #endif
 
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
+#ifdef SDDS_HAS_QOS_RELIABILITY
 //  -----------------------------------------------------------------------------
 //  Reads a sequencenumber (4-bit size) from the given NetBuffRef_t* and writes
 //  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
@@ -547,6 +542,7 @@ SNPS_readSeqNr(NetBuffRef_t* ref, uint8_t* seqNr) {
 //  Reads a sequencenumber (1 byte size) from the given NetBuffRef_t* and writes
 //  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
 
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_readSeqNrSmall(NetBuffRef_t* ref, uint8_t* seqNr) {
     rc_t ret = SDDS_RT_FAIL;
@@ -558,7 +554,9 @@ SNPS_readSeqNrSmall(NetBuffRef_t* ref, uint8_t* seqNr) {
 
     return ret;
 }
+#endif
 
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
 //  -----------------------------------------------------------------------------
 //  Reads a sequencenumber (2 byte size) from the given NetBuffRef_t* and writes
 //  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
@@ -573,7 +571,9 @@ SNPS_readSeqNrBig(NetBuffRef_t* ref, uint16_t* seqNr) {
 
     return ret;
 }
+#endif
 
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
 //  -----------------------------------------------------------------------------
 //  Reads a sequencenumber (4 byte size) from the given NetBuffRef_t* and writes
 //  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
@@ -589,6 +589,7 @@ SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr) {
     return ret;
 }
 #endif
+
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
 rc_t
 SNPS_readAckSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
@@ -603,8 +604,6 @@ SNPS_readAckSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
 }
 #endif
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE > SDDS_QOS_RELIABILITY_SEQSIZE_BASIC
-#endif
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 rc_t
 SNPS_readNackSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
@@ -619,8 +618,6 @@ SNPS_readNackSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
 }
 #endif
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE > SDDS_QOS_RELIABILITY_SEQSIZE_BASIC
-#endif
 #endif // Qos Reliability
 
 //  -----------------------------------------------------------------------------

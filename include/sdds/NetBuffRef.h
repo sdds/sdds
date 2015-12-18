@@ -41,10 +41,6 @@ struct _NetBuffRef_t {
 #endif
     bool_t bufferOverflow : 1;
 
-#ifdef SDDS_HAS_QOS_RELIABILITY
-   SDDS_SEQNR_BIGGEST_TYPE lastProcessedSeqNr;
-   uint32_t lastProcessedUnicast;
-#endif
 
     // state of the frame
     List_t* locators;

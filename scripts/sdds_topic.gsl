@@ -286,8 +286,10 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 
 .   for topic.config
 .       if config.type = "qos_reliability"
+#ifdef SDDS_HAS_QOS_RELIABILITY
 topic->seqNrBitSize = $(seqNrBitSize:);
 topic->reliabilityKind = $(reliabilityKind:);
+#endif
 .       endif
 .   endfor
 
