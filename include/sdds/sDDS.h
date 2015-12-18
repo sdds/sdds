@@ -46,6 +46,7 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #include "os-ssal/Thread.h"
 #include "os-ssal/TimeMng.h"
 #include "os-ssal/Memory.h"
+#include "os-ssal/Mutex.h"
 #include "os-ssal/NodeConfig.h"
 #include "os-ssal/SSW.h"
 #include "dds/DDS_DCPS.h"

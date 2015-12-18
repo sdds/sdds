@@ -57,6 +57,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     assert (self);
     (void) handle;
 
+    Mutex_lock(mutex);
     Topic_t* topic = self->topic;
     List_t* subscribers = topic->dsinks.list;
     NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
@@ -72,7 +73,6 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #ifdef SDDS_QOS_LATENCYBUDGET
     //  If new deadline is earlier
     if ((out_buffer->sendDeadline == 0)) {
-        Mutex_lock(mutex);
 #if SDDS_QOS_DW_LATBUD < 65536
         ret = Time_getTime16(&out_buffer->sendDeadline);
 #else
@@ -80,7 +80,6 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #endif
         out_buffer->sendDeadline += self->qos.latBudDuration;
         out_buffer->latBudDuration = self->qos.latBudDuration;
-        Mutex_unlock(mutex);
         Log_debug("sendDeadline: %d\n", out_buffer->sendDeadline);
     }
 #endif
@@ -143,6 +142,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
+    Mutex_unlock(mutex);
     ret = checkSending(out_buffer);
     return ret;
 }
@@ -157,6 +157,7 @@ DataWriter_writeAddress(DataWriter_t* self,
                         uint8_t* addr,
                         uint8_t addr_len) {
     assert (self);
+    Mutex_lock(mutex);
     Topic_t* topic = self->topic;
     domainid_t domain = topic->domain;
     List_t* subscribers = topic->dsinks.list;
@@ -181,7 +182,6 @@ DataWriter_writeAddress(DataWriter_t* self,
         out_buffer->curTopic = topic;
     }
 
-    Mutex_lock(mutex);
     rc_t ret;
     ret = SNPS_writeAddress(out_buffer, cast_type, addr_type, addr, addr_len);
     Mutex_unlock(mutex);
@@ -203,6 +203,7 @@ checkSendingWrapper(void* buf) {
 
 rc_t
 checkSending(NetBuffRef_t* buf) {
+    Mutex_lock(mutex);
 #ifdef SDDS_QOS_LATENCYBUDGET
 #if SDDS_QOS_DW_LATBUD < 65536
     time16_t time;
@@ -216,11 +217,9 @@ checkSending(NetBuffRef_t* buf) {
     time32_t latBudDuration;
 #endif
 
-    Mutex_lock(mutex);
     sendDeadline = buf->sendDeadline;
     latBudDuration = buf->latBudDuration;
     bool_t overflow = buf->bufferOverflow;
-    Mutex_unlock(mutex);
 
     if ( ((time >= sendDeadline) && (time - sendDeadline < latBudDuration)) || overflow) {
         Task_stop(sendTask);
@@ -233,7 +232,6 @@ checkSending(NetBuffRef_t* buf) {
     SNPS_updateHeader(buf);
 
     if (buf->locators->size_fn(buf->locators) > 0) {
-        Mutex_lock(mutex);
         rc_t ret = Network_send(buf);
         if (ret != SDDS_RT_OK) {
             Log_error("Network_send failed\n");
@@ -242,33 +240,27 @@ checkSending(NetBuffRef_t* buf) {
         }
         //  If frame was sent, free the buffer.
         NetBuffRef_renew(buf);
-        Mutex_unlock(mutex);
     }
     //  If latencyBudget is active, don't discard the buffer right away.
 #ifdef SDDS_QOS_LATENCYBUDGET
     //  Discard the buffer, if the buffer is full and no one there to send.
     else if (SDDS_NET_MAX_BUF_SIZE <= buf->curPos) {
-        Mutex_lock(mutex);
         NetBuffRef_renew(buf);
-        Mutex_unlock(mutex);
         Log_debug("Buffer full\n");
     }
     //  If the buffer is not full yet, just reset the deadline.
     else {
-        Mutex_lock(mutex);
         buf->sendDeadline = 0;
-        Mutex_unlock(mutex);
         Log_debug("No subscriber\n");
     }
 #else
     //  If latencyBudget is not active, discard the message right away.
     else {
-        Mutex_lock(mutex);
         NetBuffRef_renew(buf);
-        Mutex_unlock(mutex);
     }
 #endif
 
+    Mutex_unlock(mutex);
     return SDDS_RT_OK;
 #ifdef SDDS_QOS_LATENCYBUDGET
     }
@@ -290,6 +282,7 @@ checkSending(NetBuffRef_t* buf) {
         ssw_rc_t ret = Task_start(sendTask, taskSec, taskMSec, SDDS_SSW_TaskMode_single);
         if (ret != SDDS_RT_OK) {
             Log_error("Task_start failed\n");
+            Mutex_unlock(mutex);
             return SDDS_RT_FAIL;
         }
 
@@ -297,6 +290,7 @@ checkSending(NetBuffRef_t* buf) {
         Log_debug("Test startet, timer: %d\n", (sendDeadline - time));
         Log_debug("%d > %d\n", sendDeadline, time);
 #endif
+        Mutex_unlock(mutex);
         return SDDS_RT_DEFERRED;
     }
 #endif
