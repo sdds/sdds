@@ -42,12 +42,11 @@ struct _DataSource_t {
 };
 
 static DataSource_t dsStruct;
-
 static DataSource_t* self = &dsStruct;
 
 void print_Pointer() {
-    for (int i=0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
-        Log_debug("%d p: (%d) %p\n", __LINE__, i, self->sender.out[i].locators->first_fn);
+    for (int index=0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
+        Log_debug("%d p: (%d) %p\n", __LINE__, index, self->sender.out[index].locators->first_fn);
     }
 }
 
@@ -66,11 +65,11 @@ DataSource_init(void) {
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 rc_t
 DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
-    int i;
-    for (i = 0; i < (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter);
-         i++) {
+    int index;
+    for (index = 0; index < (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter);
+         index++) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
-        DataWriter_t* dw = (DataWriter_t*) &(self->writers[i]);
+        DataWriter_t* dw = (DataWriter_t*) &(self->writers[index]);
         if (dw->topic->id == id) {
                 if (st != NULL) {
                 st->key = dw->id;
@@ -83,14 +82,14 @@ DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
             return SDDS_RT_OK;
         }
 #else
-        if ((self->writers[i].topic->id == id)) {
+        if ((self->writers[index].topic->id == id)) {
             if (st != NULL) {
-                st->key = self->writers[i].id;
+                st->key = self->writers[index].id;
                 st->participant_key = BuiltinTopic_participantID;
-                st->topic_id = self->writers[i].topic->id;
+                st->topic_id = self->writers[index].topic->id;
             }
             if (topic != NULL) {
-                *topic = self->writers[i].topic;
+                *topic = self->writers[index].topic;
             }
             return SDDS_RT_OK;
         }
@@ -104,13 +103,13 @@ DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 rc_t
 DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len) {
-    int i = 0;
+    int index = 0;
     *len = 0;
 
-    for (i = 0; i < (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter); i++) {
+    for (index = 0; index < (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter); index++) {
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 #ifdef SDDS_HAS_QOS_RELIABILITY
-        DataWriter_t* dw = (DataWriter_t*) &(self->writers[i]);
+        DataWriter_t* dw = (DataWriter_t*) &(self->writers[index]);
         if (!BuildinTopic_isBuiltinTopic(dw->topic->id,
                                          dw->topic->domain)) {
 
@@ -118,12 +117,12 @@ DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len) {
         pt[*len].participant_key = BuiltinTopic_participantID;
         pt[*len].topic_id = dw->topic->id;
 #else
-        if (!BuildinTopic_isBuiltinTopic(self->writers[i].topic->id,
-                                         self->writers[i].topic->domain)) {
+        if (!BuildinTopic_isBuiltinTopic(self->writers[index].topic->id,
+                                         self->writers[index].topic->domain)) {
 
-        pt[*len].key = self->writers[i].id;
+        pt[*len].key = self->writers[index].id;
         pt[*len].participant_key = BuiltinTopic_participantID;
-        pt[*len].topic_id = self->writers[i].topic->id;
+        pt[*len].topic_id = self->writers[index].topic->id;
 #endif
 #endif
 
@@ -166,56 +165,61 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos,
 #endif // SDDS_MAX_DATA_WRITERS
 
 NetBuffRef_t*
-findFreeFrame(List_t* dest) {
-    NetBuffRef_t* buffRef = NULL;
+find_free_buffer(List_t* topic_locators) {
+    assert (topic_locators);
 
-    bool_t sameAddr = false;
-    for (int i = 0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
-        List_t* try = self->sender.out[i].locators;
-        if (dest != NULL && try != NULL) {
-            Locator_t* loc = try->first_fn(try);
-            while (loc != NULL) {
-                if (Locator_contains(dest, loc) == SDDS_RT_OK) {
-                    buffRef = &(self->sender.out[i]);
-                    sameAddr = true;
+    NetBuffRef_t* free_buffer = NULL;
+    bool_t same_locators = false;
+    //  Try to find a buffer that has all topic locators attched to it
+    int index;
+    for (index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
+        NetBuffRef_t* send_buffer = &self->sender.out[index];
+        List_t* send_buff_locators = send_buffer->locators;
+        if (send_buff_locators) {
+            same_locators = true;
+            Locator_t* topic_locator = topic_locators->first_fn(topic_locators);
+            while (topic_locator) {
+                if (Locator_contains(send_buff_locators, topic_locator) != SDDS_RT_OK) {
+                    same_locators = false;
                     break;
                 }
-                loc = try->next_fn(try);
+                topic_locator = topic_locators->next_fn(topic_locators);
             }
-            if (sameAddr) {
+            if (same_locators) {
+                free_buffer = &(self->sender.out[index]);
                 break;
             }
         }
     }
-    if (buffRef == NULL) {
-        for (int i = 0; i < SDDS_NET_MAX_OUT_QUEUE; i++) {
-            if (self->sender.out[i].curPos == 0) {
-                buffRef = &(self->sender.out[i]);
-                break;
-            }
-        }
-    }
-    if (buffRef == NULL) {
-        buffRef = &(self->sender.highPrio);
-    }
-    if (buffRef->curPos == 0) {
-        SNPS_initFrame(buffRef);
-    }
-    if (sameAddr == false) {
-        // write addr
 
-        // here add the ref to the buff, addr is used when frame is update addr
-        // in bufref
-        Locator_t* loc = (Locator_t*) dest->first_fn(dest);
+    //  Try to find an empty buffer
+    if (free_buffer == NULL) {
+        for (index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
+            if (self->sender.out[index].curPos == 0) {
+                free_buffer = &(self->sender.out[index]);
+                break;
+            }
+        }
+    }
+    //  If no buffer could be obtained use the high prio instead
+    if (free_buffer == NULL) {
+        free_buffer = &(self->sender.highPrio);
+    }
+    //  Initialize an empty buffer
+    if (free_buffer->curPos == 0) {
+        SNPS_initFrame(free_buffer);
+    }
+    if (same_locators == false) {
+        //  Append locators to the obtained free buffer
+        Locator_t* loc = (Locator_t*) topic_locators->first_fn(topic_locators);
         while (loc != NULL) {
-            if (Locator_contains(buffRef->locators, loc) != SDDS_RT_OK) {
-                if (buffRef->locators->add_fn(buffRef->locators, loc) == SDDS_RT_OK) {
+            if (Locator_contains(free_buffer->locators, loc) != SDDS_RT_OK) {
+                if (free_buffer->locators->add_fn(free_buffer->locators, loc) == SDDS_RT_OK) {
                 	Locator_upRef(loc);
                 }
             }
-            loc = (Locator_t*) dest->next_fn(dest);
+            loc = (Locator_t*) topic_locators->next_fn(topic_locators);
         }
     }
-    return buffRef;
+    return free_buffer;
 }
-

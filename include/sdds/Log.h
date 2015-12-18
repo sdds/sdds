@@ -36,25 +36,25 @@
 #ifndef SDDS_PLATFORM_autobest
 #include <stdlib.h>
 #endif
-#define Log_trace(args ...) _log_trace(__FUNCTION__, ## args);
-#define Log_debug(args ...) _log_debug(__FUNCTION__, ## args);
-#define Log_info(args ...) _log_info(__FUNCTION__, ## args);
-#define Log_warn(args ...) _log_warn(__FUNCTION__, ## args);
-#define Log_error(args ...) _log_error(__FUNCTION__, ## args);
-#define Log_PANIC(args ...) _log_panic(__FUNCTION__, ## args);
+#define Log_trace(args ...) _log_trace(__FUNCTION__, __LINE__, ## args);
+#define Log_debug(args ...) _log_debug(__FUNCTION__, __LINE__, ## args);
+#define Log_info(args ...) _log_info(__FUNCTION__, __LINE__, ## args);
+#define Log_warn(args ...) _log_warn(__FUNCTION__, __LINE__, ## args);
+#define Log_error(args ...) _log_error(__FUNCTION__, __LINE__, ## args);
+#define Log_PANIC(args ...) _log_panic(__FUNCTION__, __LINE__, ## args);
 
 void
-_log_trace(const char* fnk, ...);
+_log_trace(const char* fnk, int line, ...);
 void
-_log_debug(const char* fnk, ...);
+_log_debug(const char* fnk, int line, ...);
 void
-_log_info(const char* fnk, ...);
+_log_info(const char* fnk, int line, ...);
 void
-_log_warn(const char* fnk, ...);
+_log_warn(const char* fnk, int line, ...);
 void
-_log_error(const char* fnk, ...);
+_log_error(const char* fnk, int line, ...);
 void
-_log_panic(const char* fnk, ...);
+_log_panic(const char* fnk, int line, ...);
 
 void
 Log_setLvl(int lvl);

@@ -22,12 +22,12 @@ struct _DataWriter_t {
     Topic_t* topic;
     SourceQos_t qos;
     unsigned int id : 4;
-    History_t* history;
 };
 typedef struct _DataWriter_t DataWriter_t;
 
 struct Reliable_DataWriter {
-   struct _DataWriter_t* dw;
+   DataWriter_t dw;
+   History_t history;
    SDDS_SEQNR_BIGGEST_TYPE seqNr;
 };
 typedef struct Reliable_DataWriter Reliable_DataWriter_t;
@@ -39,7 +39,7 @@ DataWriter_init();
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t
-DataWriter_write(DataWriter_t* self, Data data, void* waste);
+DataWriter_write(DataWriter_t* self, Data data, void* handle);
 #endif// SDDS_TOPIC_HAS_SUB
 
 rc_t
