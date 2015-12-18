@@ -96,7 +96,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     }
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-   switch(topic->reliabilityKind){
+    switch(topic->reliabilityKind){
     case (SDDS_QOS_RELIABILITY_KIND_BESTEFFORT):
         if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
             SNPS_writeSeqNr(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
@@ -119,11 +119,12 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         }
     break;
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_ACK
-        case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK):
-            if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
-                SNPS_writeAckSeq(out_buffer, self->seqNr);
-            }
-            break;
+    case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK):
+        if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
+            SNPS_writeAckSeq(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
+            Log_debug("dw ackSeq %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
+        }
+    break;
 #endif
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_NACK
         case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK):
