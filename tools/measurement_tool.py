@@ -2,30 +2,24 @@
 import csv
 import numpy as np
 
-data = {}
+
 list_data =  []
 
 with open('BitScope.csv', 'rb') as csvfile:
      bistScopeReader = csv.DictReader(csvfile, delimiter=',', quoting=csv.QUOTE_NONE)
-     #print bistScopeReader
      
      for row in bistScopeReader:
-        samples  = []
-        if row['channel'] != '11':
-          continue
-       	for header, value in row.items():
-          if header == 'data':
-      			samples.append(value)
-          elif header ==  None:
-      			samples.extend(value)
-      			data['data'] = samples
-          elif header == 'rate':
-      			split_rate = row[header].split('E',1)
-      			data[header] = float(1) / (float(split_rate[0]) * 10**float(split_rate[1]))
-      			#print data[header]
-          elif header != 'channel' and header != 'trigger' and header != 'delay' and header != 'factor' and header != 'stamp' and header != 'type' and header != 'index':
-      			data[header] =  value
-          list_data.append(data)
+      data = {}
+      if row['channel'] == '11':
+        samples = []
+        samples.append(row['data'])
+        samples.extend(row[None])
+        split_rate = row['rate'].split('E',1)
+        data['rate'] = float(1) / (float(split_rate[0]) * 10**float(split_rate[1]))
+        data['data'] = samples
+        list_data.append(data)
+      else:
+        continue
 
 last_x = '0'
 count = 1

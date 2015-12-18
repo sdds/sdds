@@ -4,28 +4,32 @@ import numpy as np
 
 STATE_COUNT = 4
 
-data = {}
+
 list_data =  []
 
 with open('BitScope_trace.csv', 'rb') as csvfile:
      bistScopeReader = csv.DictReader(csvfile, delimiter=',', quoting=csv.QUOTE_NONE)
-     samples  = {}
+     
      for row in bistScopeReader:
-      if row['channel'] == '4' or row['channel'] == '5' or row['channel'] == '6' or row['channel'] == '7':
-        samples[row['channel']] = []
-       	for header, value in row.items():
-          if header == 'data':
-            samples[row['channel']].append(value)
-          elif header ==  None:
-            samples[row['channel']].extend(value)
+        if row['channel'] == '4':
+          data = {}
+          samples  = {}
+          samples['4'] = []
+          samples['4'].append(row['data'])
+          samples['4'].extend(row[None])
+          samples['5'] = []
+          samples['6'] = []
+          samples['7'] = []
+          split_rate = row['rate'].split('E',1)
+          data['rate'] = float(1) / (float(split_rate[0]) * 10**float(split_rate[1]))
+        elif row['channel'] == '5' or row['channel'] == '6' or row['channel'] == '7':
+          samples[row['channel']].append(row['data'])
+          samples[row['channel']].extend(row[None])
+          if row['channel'] == '7':
             data['data'] = samples
-          elif header == 'rate':
-            split_rate = row[header].split('E',1)
-            data[header] = float(1) / (float(split_rate[0]) * 10**float(split_rate[1]))
-            #print data[header]
-          elif header != 'channel' and header != 'trigger' and header != 'delay' and header != 'factor' and header != 'stamp' and header != 'type' and header != 'index':
-            data[header] =  value
-          list_data.append(data)
+            list_data.append(data)
+        else:
+          continue
 
 state_path = range(1,STATE_COUNT)
 state = 0
@@ -35,21 +39,14 @@ print state_path
 for x in state_path[:3]:
   state_times[str(x)] = []
 
+#print list_data
+data = {}
 for sample in list_data:
   data = sample['data']
   data_channel0 = data['4']
   data_channel1 = data['5']
   data_channel2 = data['6']
   data_channel3 = data['7']
-
-  '''print "channel0"
-  print data_channel0
-  print "channel0"
-  print data_channel
-  print "channel2"
-  print data_channel2
-  print "channel3"
-  print data_channel3'''
 
   for i in xrange(len(data_channel0)):
     bit_repr = 0
@@ -61,25 +58,24 @@ for sample in list_data:
       bit_repr |= (1 << 2)
     if data_channel3[i] == '5':
       bit_repr |= (1 << 3)
-    print bit_repr
+    print "bit_repr: " + str(bit_repr) + " state_path[state]: " + str(state_path[state]) + " state: " + str(state)
     if state_path[state] == bit_repr:
       # reconize state
       state = (state + 1) % len(state_path) # next state
-      if bit_repr == 0 or bit_repr == 1:
+      if bit_repr == 1:
         #stop trace
         count = 0
       if bit_repr == 2 or bit_repr == 3:
         index = bit_repr - 1 # time for the last event
         state_times[str(index)].append(count * sample['rate'])
-        print count
+        #print count
         count = 0
-
 
     count += 1
 
-for x in state_path[:3]:
+for x in state_path[:2]:
   print "Event " + str(x)
   print 'Samples:' + str(len(state_times[str(x)]))
-  #print "AVG: " + str(reduce(lambda x, y: x + y, state_times[str(x)]) / len(state_times[str(x)]))
+  print "AVG: " + str(reduce(lambda x, y: x + y, state_times[str(x)]) / len(state_times[str(x)]))
   
     
