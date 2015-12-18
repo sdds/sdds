@@ -165,31 +165,33 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos,
 #endif // SDDS_MAX_DATA_WRITERS
 
 NetBuffRef_t*
-find_free_buffer(List_t* locators) {
-    assert (locators);
+find_free_buffer(List_t* topic_locators) {
+    assert (topic_locators);
 
     NetBuffRef_t* free_buffer = NULL;
-    bool_t same_addr = false;
-    //  Try to find a buffer that has at least on matching locator
+    bool_t same_locators = false;
+    //  Try to find a buffer that has all topic locators attched to it
     int index;
     for (index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
         NetBuffRef_t* send_buffer = &self->sender.out[index];
         List_t* send_buff_locators = send_buffer->locators;
         if (send_buff_locators) {
-            Locator_t* send_buff_locator = send_buff_locators->first_fn(send_buff_locators);
-            while (send_buff_locator) {
-                if (Locator_contains(locators, send_buff_locator) == SDDS_RT_OK) {
-                    free_buffer = &(self->sender.out[index]);
-                    same_addr = true;
+            same_locators = true;
+            Locator_t* topic_locator = topic_locators->first_fn(topic_locators);
+            while (topic_locator) {
+                if (Locator_contains(send_buff_locators, topic_locator) != SDDS_RT_OK) {
+                    same_locators = false;
                     break;
                 }
-                send_buff_locator = send_buff_locators->next_fn(send_buff_locators);
+                topic_locator = topic_locators->next_fn(topic_locators);
             }
-            if (same_addr) {
+            if (same_locators) {
+                free_buffer = &(self->sender.out[index]);
                 break;
             }
         }
     }
+
     //  Try to find an empty buffer
     if (free_buffer == NULL) {
         for (index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
@@ -207,16 +209,16 @@ find_free_buffer(List_t* locators) {
     if (free_buffer->curPos == 0) {
         SNPS_initFrame(free_buffer);
     }
-    if (same_addr == false) {
+    if (same_locators == false) {
         //  Append locators to the obtained free buffer
-        Locator_t* loc = (Locator_t*) locators->first_fn(locators);
+        Locator_t* loc = (Locator_t*) topic_locators->first_fn(topic_locators);
         while (loc != NULL) {
             if (Locator_contains(free_buffer->locators, loc) != SDDS_RT_OK) {
                 if (free_buffer->locators->add_fn(free_buffer->locators, loc) == SDDS_RT_OK) {
                 	Locator_upRef(loc);
                 }
             }
-            loc = (Locator_t*) locators->next_fn(locators);
+            loc = (Locator_t*) topic_locators->next_fn(topic_locators);
         }
     }
     return free_buffer;

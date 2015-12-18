@@ -54,8 +54,6 @@
 #define PLATFORM_LINUX_SDDS_ADDRESS "::"
 #endif
 
-//#define PRINT_RECVBUF 1
-
 struct Network_t {
     int fd_uni_socket;
     int fd_multi_socket;

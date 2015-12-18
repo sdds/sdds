@@ -17,8 +17,6 @@
  */
 
 #include "sDDS.h"
-#include <os-ssal/Trace.h>
-
 
 //  Local helper functions
 rc_t
@@ -106,16 +104,16 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
     if (s_History_full (self)) {
         return SDDS_RT_FAIL;
     }
-    
+
     //  Insert sample into queue
     Topic_t* topic = buff->curTopic;
     Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
     Locator_upRef(loc);
 
-// Check validy of sequencenumber
 #ifdef SDDS_HAS_QOS_RELIABILITY
-    rc_t x = _sdds_History_checkSeqNr(self, topic, loc, seqNr);
-    if (x == SDDS_RT_OK){
+    //  Check validity of sequence number
+    rc_t ret = s_sdds_History_checkSeqNr(self, topic, loc, seqNr);
+    if (ret == SDDS_RT_OK){
         self->samples[self->in_needle].seqNr = seqNr;
     } else {
         SNPS_discardSubMsg(buff);
@@ -196,7 +194,7 @@ sdds_History_dequeue(History_t* self) {
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static rc_t
-_sdds_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+s_sdds_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
     rc_t ret = SDDS_RT_FAIL;
     SDDS_SEQNR_BIGGEST_TYPE highestSeqNrOfLoc = 0;
     for (int i=0; i<self->depth; i++){
@@ -241,6 +239,7 @@ _sdds_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_S
 }
 #endif
 
+#ifdef UTILS_DEBUG
 void
 sdds_History_print(History_t* self) {
     printf("History [id: %p] {\n", self);
@@ -255,3 +254,4 @@ sdds_History_print(History_t* self) {
 #endif
     printf("}\n");
 }
+#endif
