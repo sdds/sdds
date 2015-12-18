@@ -124,11 +124,9 @@ typedef long double float128_t;
 #define __int8_t_defined
 typedef short int int16_t;
 typedef int int32_t;
-
+#endif
 #define AF_INET 1
 #define AF_INET6 2
-
-#endif
 
 typedef unsigned char bool_t;           /*  */
 typedef char char_t;
@@ -143,7 +141,7 @@ typedef bool_t bool;
 #define __size_t__
 typedef unsigned int size_t;
 #endif
-#endif   /* TYPE_DEFINES_x86 */
+#endif   /* TYPE_DEFINES_ARM */
 
 #ifndef NULL
 #define NULL    ((void*)0)
