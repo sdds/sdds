@@ -3,12 +3,18 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "usb0"
-    ip = "fe80::12:13ff:fe14:1516"
+    iface = "wlan0"
+    ip = "fe80::dafc:93ff:feb9:e678"
     port = "23234"
 	protocol = "AF_INET6"
     >
     Linux multicast discovery example with beta topic.
+
+	<!--
+		fe80::dafc:93ff:feb9:e678	wlan0
+		fe80::12:13ff:fe14:1516		usb0
+		fe80::12:13ff:fe14:2323		usb1
+	-->
 
     <!--
         Includes are processed first, so XML in included files will be
