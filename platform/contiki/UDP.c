@@ -89,7 +89,6 @@ receive(struct simple_udp_connection* connection,
         uint16_t data_len) {
     Locator_t* locator;
     Contiki_Locator_t this_locator;
-    uint16_t i;
 
     /* make gcc happy */
     (void) connection;
@@ -143,14 +142,14 @@ receive(struct simple_udp_connection* connection,
     locator->isEmpty = false;
     locator->isSender = true;
 
-    g_incoming_buffer.addr = locator;
+    g_incoming_buffer.locators->add_fn(g_incoming_buffer.locators, locator);
 
 #ifdef UTILS_DEBUG
     int cmp = strcmp(srcAddr, "ff02:0000:0000:0000:0000:0000:0000:0010");
     if (cmp == 0) {
         Log_debug("contiki: recv_loop() data_len = %d\n", data_len);
 
-        for (i = 0; i < data_len; i++) {
+        for (int i = 0; i < data_len; i++) {
             if ((i%10) == 0) {
                 printf("\n");
             }
@@ -171,10 +170,10 @@ receive(struct simple_udp_connection* connection,
 
 rc_t
 Network_send(NetBuffRef_t* buffer) {
-    Locator_t* loc = buffer->addr;
     struct uip_udp_conn* con;
     int port;
 
+    Locator_t* loc = buffer->locators->first_fn(buffer->locators);
     while (loc != NULL) {
         uip_ipaddr_t address;
         Contiki_Locator locator;
@@ -197,7 +196,7 @@ Network_send(NetBuffRef_t* buffer) {
 
         uip_udp_packet_sendto(con, buffer->buff_start, buffer->curPos, &address, UIP_HTONS(port));
 
-        loc = loc->next;
+        loc = buffer->locators->next_fn(buffer->locators);
     }
 
     return SDDS_RT_OK;
@@ -268,8 +267,6 @@ Network_createLocator(Locator_t** loc) {
         Log_error("contiki: out of memory\n");
         return SDDS_RT_NOMEM;
     }
-    contiki_locator->sdds_locator.next = NULL;
-
     *loc = (Locator_t*) contiki_locator;
 
     // set type for recvLoop
@@ -303,7 +300,6 @@ Network_createMulticastLocator(Locator_t** loc) {
         Log_error("contiki: out of memory\n");
         return SDDS_RT_NOMEM;
     }
-    contiki_locator->sdds_locator.next = NULL;
 
     *loc = (Locator_t*) contiki_locator;
 
