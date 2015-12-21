@@ -25,13 +25,14 @@ struct _DataWriter_t {
 };
 typedef struct _DataWriter_t DataWriter_t;
 
+#if defined SDDS_HAS_QOS_RELIABILITY
 struct Reliable_DataWriter {
    DataWriter_t dw;
    History_t history;
    SDDS_SEQNR_BIGGEST_TYPE seqNr;
 };
 typedef struct Reliable_DataWriter Reliable_DataWriter_t;
-
+#endif
 
 
 rc_t

@@ -113,7 +113,9 @@ DataSink_processFrame(NetBuffRef_t* buff) {
     }
 
     topicid_t topic_id;
+#ifdef SDDS_HAS_QOS_RELIABILITY
     SDDS_SEQNR_BIGGEST_TYPE seqNr = 0;
+#endif
 
     while (buff->subMsgCount > 0) {
         subMsg_t type;
@@ -169,19 +171,25 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         case (SDDS_SNPS_T_TSSIMPLE):
         case (SDDS_SNPS_T_STATUS):
 
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
+#ifdef SDDS_HAS_QOS_RELIABILITY
         case (SDDS_SNPS_T_SEQNR):
             SNPS_readSeqNr(buff, (uint8_t*) &seqNr);
             break;
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         case (SDDS_SNPS_T_SEQNRSMALL):
             SNPS_readSeqNrSmall(buff, (uint8_t*) &seqNr);
             break;
+#endif
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
         case (SDDS_SNPS_T_SEQNRBIG):
             SNPS_readSeqNrBig(buff, (uint16_t*) &seqNr);
             break;
+#endif
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
         case (SDDS_SNPS_T_SEQNRHUGE):
             SNPS_readSeqNrHUGE(buff, (uint32_t*) &seqNr);
             break;
+#endif
 #endif
         default:
             //  Go to next submessage

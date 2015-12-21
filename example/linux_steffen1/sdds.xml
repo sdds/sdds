@@ -1,0 +1,22 @@
+<project
+    name = "linux_steffen1"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    iface = "eth0"
+    ip = "fe80::219:99ff:fede:9a7a"
+    port = "23235"
+	protocol = "AF_INET6"
+    >
+
+    <!--
+        Includes are processed first, so XML in included files will be
+        part of the XML tree
+    -->
+    <include filename = "../topics/qos_reliability.xml" />
+
+    <role topic = "testqosreliabilitybasic" type = "publisher" />
+    <role topic = "testqosreliabilitysmall" type = "publisher" />
+    <role topic = "testqosreliabilitybig" type = "publisher" />
+    <role topic = "testqosreliabilityhuge" type = "publisher" />
+</project>
