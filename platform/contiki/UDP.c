@@ -142,23 +142,11 @@ receive(struct simple_udp_connection* connection,
     locator->isEmpty = false;
     locator->isSender = true;
 
-    g_incoming_buffer.locators->add_fn(g_incoming_buffer.locators, locator);
-
-#ifdef UTILS_DEBUG
-    int cmp = strcmp(srcAddr, "ff02:0000:0000:0000:0000:0000:0000:0010");
-    if (cmp == 0) {
-        Log_debug("contiki: recv_loop() data_len = %d\n", data_len);
-
-        for (int i = 0; i < data_len; i++) {
-            if ((i%10) == 0) {
-                printf("\n");
-            }
-            printf("0x%02x ", (uint8_t )g_incoming_buffer.buff_start[i]);
-        }
-
-        printf("\n");
+    if (g_incoming_buffer.locators->add_fn(g_incoming_buffer.locators, locator) != SDDS_RT_OK) {
+        Locator_downRef(locator);
+        NetBuffRef_renew(&g_incoming_buffer);
+        return;
     }
-#endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
     // process the frame
@@ -166,6 +154,7 @@ receive(struct simple_udp_connection* connection,
 #endif
     // and finally decrement the locator again
     Locator_downRef(locator);
+    NetBuffRef_renew(&g_incoming_buffer);
 }
 
 rc_t
@@ -193,6 +182,14 @@ Network_send(NetBuffRef_t* buffer) {
 
         Log_debug("sending %d bytes to 0x%x buffer addr %p\n", buffer->curPos,
                   locator->address.u8[15], buffer);
+
+#ifdef UTILS_DEBUG
+        Log_debug("Netbuffer:\n");
+        for (int i = 0; i < buffer->curPos; i++) {
+            printf("[%x] ", buffer->buff_start[i]);
+        }
+        printf("\n");
+#endif
 
         uip_udp_packet_sendto(con, buffer->buff_start, buffer->curPos, &address, UIP_HTONS(port));
 

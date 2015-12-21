@@ -3,7 +3,7 @@
     script = "sdds.gsl"
     endian = "little"
     os = "contiki"
-    ip = "fe80::12:13ff:fe14:1516"
+    ip = "fe80::2e5:1aab:cd00:0"
     port = "23234"
     >
 	Empfange Beta-Topic

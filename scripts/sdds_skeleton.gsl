@@ -43,7 +43,7 @@ int main()
 .       for project.role
 .           for project.topic where role.topic = topic.name
 .               if role.type = "publisher"
-    $(topic.c_name:) $(topic.c_name:c)_pub;
+    static $(topic.c_name:) $(topic.c_name:c)_pub;
 .               for topic.attribute
 .                   if attribute.type = "DDS_short" \
                      | attribute.type = "DDS_long" \
@@ -65,7 +65,7 @@ int main()
 .                   endif
 .               endfor
 .               elsif role.type = "subscriber"
-    $(topic.c_name:) $(topic.c_name:c)_sub;
+    static $(topic.c_name:) $(topic.c_name:c)_sub;
     $(topic.c_name:) *$(topic.c_name:c)_sub_p = &$(topic.c_name:c)_sub;
 .               endif
 .           endfor

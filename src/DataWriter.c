@@ -10,6 +10,7 @@
  */
 
 #include "sDDS.h"
+#include "Log.h"
 
 static Task sendTask;
 static Mutex_t* mutex;
@@ -27,16 +28,20 @@ DataWriter_init () {
     if (TimeMng_init() != SDDS_RT_OK) {
         return SDDS_RT_FAIL;
     }
+    ssw_rc_t ret;
+#ifdef SDDS_QOS_LATENCYBUDGET
     sendTask = Task_create();
     if (sendTask == NULL) {
         Log_error("Task_create failed\n");
         return SDDS_RT_FAIL;
     }
-    ssw_rc_t ret = Task_init(sendTask, checkSendingWrapper, NULL);
+    ret = Task_init(sendTask, checkSendingWrapper, NULL);
     if (ret == SDDS_SSW_RT_FAIL) {
         Log_error("Task_init failed\n");
         return SDDS_RT_FAIL;
     }
+#endif
+
     mutex = Mutex_create();
     if (mutex == NULL) {
         Log_error("Mutex_create failed\n");
@@ -64,8 +69,9 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     Locator_t* subscriber = (Locator_t*) subscribers->first_fn(subscribers);
     while (subscriber) {
         if (Locator_contains(out_buffer->locators, subscriber) != SDDS_RT_OK) {
-            out_buffer->locators->add_fn(out_buffer->locators, subscriber);
-            Locator_upRef(subscriber);
+            if (out_buffer->locators->add_fn(out_buffer->locators, subscriber) == SDDS_RT_OK) {
+                Locator_upRef(subscriber);
+            }
         }
         subscriber = (Locator_t*) subscribers->next_fn(subscribers);
     }
@@ -80,7 +86,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #endif
         out_buffer->sendDeadline += self->qos.latBudDuration;
         out_buffer->latBudDuration = self->qos.latBudDuration;
-        Log_debug("sendDeadline: %d\n", out_buffer->sendDeadline);
+        Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
     }
 #endif
 
@@ -235,7 +241,7 @@ checkSending(NetBuffRef_t* buf) {
         if (overflow) {
             Log_warn("Send Data ahead of deadline due to buffer overflow.\n");
         }
-        Log_debug("time: %d, deadline: %d\n", time, sendDeadline);
+        Log_debug("time: %u, deadline: %u\n", time, sendDeadline);
 #endif
         // update header
         SNPS_updateHeader(buf);
@@ -253,7 +259,7 @@ checkSending(NetBuffRef_t* buf) {
         //  If latencyBudget is active, don't discard the buffer right away.
 #ifdef SDDS_QOS_LATENCYBUDGET
         //  Discard the buffer, if the buffer is full and no one there to send.
-        else if (SDDS_NET_MAX_BUF_SIZE <= buf->curPos) {
+        else if (overflow) {
             NetBuffRef_renew(buf);
             Log_debug("Buffer full\n");
         }
@@ -296,8 +302,8 @@ checkSending(NetBuffRef_t* buf) {
         }
 
 #ifdef UTILS_DEBUG
-        Log_debug("Test startet, timer: %d\n", (sendDeadline - time));
-        Log_debug("%d > %d\n", sendDeadline, time);
+        Log_debug("Task startet, timer: %u\n", (sendDeadline - time));
+        Log_debug("%u > %u\n", sendDeadline, time);
 #endif
         Mutex_unlock(mutex);
         return SDDS_RT_DEFERRED;

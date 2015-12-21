@@ -17,7 +17,7 @@ PROCESS_THREAD(contiki_olga1, ev, data)
 	}
 	Log_setLvl(0);
 
-    Beta beta_pub;
+    static Beta beta_pub;
     beta_pub.value = 'H';
     strncpy (beta_pub.value2,   "Es gibt im", 10);
     strncpy (beta_pub.value3,   "Es gibt i", 9);

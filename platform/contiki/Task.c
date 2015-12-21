@@ -9,6 +9,7 @@
 #include "os-ssal/Memory.h"
 
 #include "contiki.h"
+#include "Log.h"
 
 static clock_time_t
 Task_checkTimer();
@@ -42,8 +43,11 @@ Task_create(void) {
     Task it = Task_list;
     if (it == NULL) {
         Task_list = Memory_alloc(sizeof(struct Task_struct));
+        if (Task_list == NULL) {
+            Log_error("Memory allocation failed (Task_list).\n");
+        }
         Task_list->next = NULL;
-
+        Log_debug("\n");
         return Task_list;
     }
     else {
@@ -53,6 +57,9 @@ Task_create(void) {
         }
 
         Task task = Memory_alloc(sizeof(struct Task_struct));
+        if (Task_list == NULL) {
+            Log_error("Memory allocation failed (Task).\n");
+        }
         task->next = NULL;
 
         it->next = task;
@@ -66,7 +73,7 @@ Task_create(void) {
  */
 ssw_rc_t
 Task_init(Task _this, void (* callback)(void* obj), void* data) {
-    if (_this == NULL || _this->cb == NULL) {
+    if (_this == NULL || callback == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
     _this->cb = callback;
@@ -178,16 +185,15 @@ Task_checkTimer() {
 PROCESS_THREAD(task_process, ev, data)
 {
     PROCESS_BEGIN();
-    clock_time_t nextTime;
 
+    clock_time_t nextTime;
     nextTime = (etimer_next_expiration_time() - clock_time());
     nextTime = (nextTime < 0) ? nextTime : CLOCK_SECOND;
     etimer_set(&task_timer, nextTime);
+
     while(1) {
         nextTime = Task_checkTimer();
-
         etimer_set(&task_timer, nextTime);
-
         PROCESS_YIELD_UNTIL(etimer_expired(&task_timer));
     }
 

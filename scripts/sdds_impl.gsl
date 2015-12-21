@@ -88,6 +88,7 @@ sDDS_init (void)
     rc_t ret;
     //  Initializes all sDDS classes is defined in sDDS.c
     //  Must be first as all other classes depend on it
+	assert(TaskMng_init() == SDDS_RT_OK);
     assert(BitArray_init() == SDDS_RT_OK);
     // Initalize classes
     assert(Memory_init() == SDDS_RT_OK);

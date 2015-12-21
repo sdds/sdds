@@ -388,10 +388,12 @@ SNPS_readTopic(NetBuffRef_t* ref, topicid_t* topic) {
 rc_t
 SNPS_writeData(NetBuffRef_t* ref, TopicMarshalling_encode_fn encode_fn, Data d) {
     size_t writtenBytes = 0;
+
     // start 1 byte later, the header have to be written if the size is known
     if (encode_fn(ref, d, &writtenBytes) != SDDS_RT_OK) {
         return SDDS_RT_FAIL;
     }
+
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t) writtenBytes);
     // data header
     ref->curPos += 1;

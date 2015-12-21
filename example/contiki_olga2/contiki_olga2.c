@@ -17,7 +17,7 @@ PROCESS_THREAD(contiki_olga2, ev, data)
 	}
 	Log_setLvl(0);
 
-    Beta beta_sub;
+    static Beta beta_sub;
     Beta *beta_sub_p = &beta_sub;
 
     for (;;) {

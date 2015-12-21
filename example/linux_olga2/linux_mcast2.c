@@ -1,6 +1,5 @@
 #include <unistd.h>
 #include "linux_mcast2_sdds_impl.h"
-#include "unistd.h"
 
 int main()
 {

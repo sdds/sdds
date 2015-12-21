@@ -17,6 +17,8 @@
 #include <sdds_types.h>
 #include <sys/clock.h>
 
+#include "Log.h"
+
 rc_t
 TimeMng_init() {
     clock_init();
@@ -26,7 +28,8 @@ TimeMng_init() {
 rc_t
 Time_getTime32(time32_t* time) {
     clock_time_t t = clock_time();
-    t = t / (CLOCK_SECOND / 1000);
+    // To-Do: Find solution without floatsr
+    t = (t * 1000.0) / CLOCK_SECOND;
     *time = (time32_t*)t;
     return SDDS_RT_OK;
 }
@@ -34,7 +37,8 @@ Time_getTime32(time32_t* time) {
 rc_t
 Time_getTime16(time16_t* time) {
     clock_time_t t = clock_time();
-    t = t / (CLOCK_SECOND / 1000);
+    // To-Do: Find solution without floats
+    t = (t * 1000.0) / CLOCK_SECOND;
     *time = (time16_t*)t;
     return SDDS_RT_OK;
 }

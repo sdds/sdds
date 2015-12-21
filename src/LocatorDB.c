@@ -18,6 +18,7 @@
 
 #include "sDDS.h"
 #include "os-ssal/Mutex.h"
+#include "Locator.h"
 
 struct LocatorDB_t {
 
@@ -258,6 +259,16 @@ Locator_upRef(Locator_t* _this) {
     }
 
     Mutex_lock(mutex);
+
+#ifdef UTILS_DEBUG
+    if (_this->refCount == 0) {
+        Log_error("unauthorized upRef on:\n");
+
+        Locator_print(_this);
+        s_print();
+    }
+#endif
+
     assert(_this->refCount > 0);
     if (_this->refCount < 254) {
         _this->refCount++;

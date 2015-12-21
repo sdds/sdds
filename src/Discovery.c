@@ -281,9 +281,6 @@ Discovery_init() {
     for (int i = 0; i < SDDS_DISCOVERY_MAX_PARTICIPANTS; i++) {
         participants[i].data.key = 0;
     }
-
-    TaskMng_init();
-
 #if (SDDS_DISCOVERY_RECEIVE_TIMER != 0)
     recvTask = Task_create();
     Task_init(recvTask, Discovery_receive, NULL);

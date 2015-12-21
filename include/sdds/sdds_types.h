@@ -182,4 +182,8 @@ typedef void* Qos;
 typedef void* Listener;
 typedef uint8_t* StatusMask;
 
+#ifndef NI_MAXHOST
+#define NI_MAXHOST 45
+#endif
+
 #endif   /* ----- #ifndef TYPES_H_INC  ----- */
