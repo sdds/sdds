@@ -40,8 +40,9 @@ CFLAGS += -std=c99
 CFLAGS += -ffreestanding
 
 ifeq ("$(DEBUG)", "no")
-CFLAGS += -DNDEBUG
-CFLAGS += -O2 -fomit-frame-pointer
+CFLAGS += -DUTILS_NO_LOGGING
+CFLAGS += -Os -fomit-frame-pointer
+
 else
 CFLAGS += -g
 endif
@@ -50,6 +51,7 @@ CFLAGS += $(AUTOBEST_CFLAGS)
 LDFLAGS := -r
 
 all:
+	echo $(DEBUG)
 
 $(SDDS_OBJDIR):
 	mkdir $(SDDS_OBJDIR)

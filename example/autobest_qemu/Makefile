@@ -15,6 +15,10 @@ ifeq ($(AUTOBEST_CFLAGS),)
 $(error Please set the AUTOBEST_CFLAGS make variable)
 endif
 export AUTOBEST_CFLAGS
+ifeq ($(DEBUG),)
+$(error Please set the DEBUG make variable)
+endif
+export DEBUG
 
 all:
 	$(MAKE) -f Makefile_2nd_lvl.mk  $(MAKEOPTS) $(APPLICATION_NAME).o
