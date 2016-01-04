@@ -45,8 +45,7 @@ struct Network_t {
     Thread multiRecvThread;
 };
 
-struct AutobestLocator_str
-{
+struct AutobestLocator_str{
     Locator_t loc;
     ip_addr_t addr_storage;
     int port;
