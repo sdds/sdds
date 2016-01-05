@@ -20,8 +20,12 @@ with open('BitScope_trace.csv', 'rb') as csvfile:
           samples['5'] = []
           samples['6'] = []
           samples['7'] = []
-          split_rate = row['rate'].split('E',1)
-          data['rate'] = float(1) / (float(split_rate[0]) * 10**float(split_rate[1]))
+          factor = int(row['factor'])
+          if 'E' in row['rate']:
+            split_rate = row['rate'].split('E',1)
+            data['rate'] = float(1) / (float(split_rate[0]) * 10**float(split_rate[1]) * factor) 
+          else:
+            data['rate'] = float(1) / (float(row['rate']) * factor)
         elif row['channel'] == '5' or row['channel'] == '6' or row['channel'] == '7':
           samples[row['channel']].append(row['data'])
           samples[row['channel']].extend(row[None])
@@ -36,6 +40,7 @@ state = 0
 count = 0
 state_times = {}
 print state_path
+#iterate over states and init list for the state times
 for x in state_path[:3]:
   state_times[str(x)] = []
 
@@ -58,7 +63,7 @@ for sample in list_data:
       bit_repr |= (1 << 2)
     if data_channel3[i] == '5':
       bit_repr |= (1 << 3)
-    print "bit_repr: " + str(bit_repr) + " state_path[state]: " + str(state_path[state]) + " state: " + str(state)
+    #print "bit_repr: " + str(bit_repr) + " state_path[state]: " + str(state_path[state]) + " state: " + str(state)
     if state_path[state] == bit_repr:
       # reconize state
       state = (state + 1) % len(state_path) # next state
@@ -76,6 +81,7 @@ for sample in list_data:
 for x in state_path[:2]:
   print "Event " + str(x)
   print 'Samples:' + str(len(state_times[str(x)]))
-  print "AVG: " + str(reduce(lambda x, y: x + y, state_times[str(x)]) / len(state_times[str(x)]))
+  if len(state_times[str(x)]) != 0:
+    print "AVG: " + str(reduce(lambda x, y: x + y, state_times[str(x)]) / len(state_times[str(x)]))
   
     
