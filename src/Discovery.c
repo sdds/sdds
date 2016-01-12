@@ -256,6 +256,7 @@ Discovery_receive_SubscriptionTopics() {
             Topic_t* topic = NULL;
             ret = DataSource_getTopic(NULL, st_data_used.data.topic_id, &topic);
             if (ret == SDDS_RT_OK) {
+                Locator_upRef(st_data_used.addr);
                 if (Topic_addRemoteDataSink(topic, st_data_used.addr) != SDDS_RT_OK) {
                     Locator_downRef(st_data_used.addr);
                 }

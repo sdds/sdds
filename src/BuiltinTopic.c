@@ -73,15 +73,21 @@ BuiltinTopic_init(void) {
     sdds_History_setup (DataReader_history (g_DCPSParticipant_reader), dcps_participant_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSParticipant_writer = DataSource_create_datawriter(g_DCPSParticipant_topic, NULL, NULL, NULL);
 
-    ret = LocatorDB_newMultiLocator(&l);
-    if (ret != SDDS_RT_OK) {
-        return ret;
+    ret = LocatorDB_findLocatorByMcastAddr(SDDS_BUILTIN_PARTICIPANT_ADDRESS, &l);
+    if (ret == SDDS_RT_OK) {
+        Locator_upRef(l);
     }
+    else {
+        ret = LocatorDB_newMultiLocator(&l);
+        if (ret != SDDS_RT_OK) {
+            return ret;
+        }
 
-    ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_PARTICIPANT_ADDRESS);
-    if (ret != SDDS_RT_OK) {
-        Locator_downRef(l);
-        return ret;
+        ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_PARTICIPANT_ADDRESS);
+        if (ret != SDDS_RT_OK) {
+            Locator_downRef(l);
+            return ret;
+        }
     }
 
     ret = Topic_addRemoteDataSink(g_DCPSParticipant_topic, l);
@@ -95,15 +101,21 @@ BuiltinTopic_init(void) {
     sdds_History_setup (DataReader_history (g_DCPSTopic_reader), dcps_topic_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSTopic_writer = DataSource_create_datawriter(g_DCPSTopic_topic, NULL, NULL, NULL);
 
-    ret = LocatorDB_newMultiLocator(&l);
-    if (ret != SDDS_RT_OK) {
-        return ret;
+    ret = LocatorDB_findLocatorByMcastAddr(SDDS_BUILTIN_TOPIC_ADDRESS, &l);
+    if (ret == SDDS_RT_OK) {
+        Locator_upRef(l);
     }
+    else {
+        ret = LocatorDB_newMultiLocator(&l);
+        if (ret != SDDS_RT_OK) {
+            return ret;
+        }
 
-    ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_TOPIC_ADDRESS);
-    if (ret != SDDS_RT_OK) {
-        Locator_downRef(l);
-        return ret;
+        ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_TOPIC_ADDRESS);
+        if (ret != SDDS_RT_OK) {
+            Locator_downRef(l);
+            return ret;
+        }
     }
 
     ret = Topic_addRemoteDataSink(g_DCPSTopic_topic, l);
@@ -117,15 +129,21 @@ BuiltinTopic_init(void) {
     sdds_History_setup (DataReader_history (g_DCPSPublication_reader), dcps_publication_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSPublication_writer = DataSource_create_datawriter(g_DCPSPublication_topic, NULL, NULL, NULL);
 
-    ret = LocatorDB_newMultiLocator(&l);
-    if (ret != SDDS_RT_OK) {
-        return ret;
+    ret = LocatorDB_findLocatorByMcastAddr(SDDS_BUILTIN_SUB_PUB_ADDRESS, &l);
+    if (ret == SDDS_RT_OK) {
+        Locator_upRef(l);
     }
+    else {
+        ret = LocatorDB_newMultiLocator(&l);
+        if (ret != SDDS_RT_OK) {
+            return ret;
+        }
 
-    ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUB_PUB_ADDRESS);
-    if (ret != SDDS_RT_OK) {
-        Locator_downRef(l);
-        return ret;
+        ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUB_PUB_ADDRESS);
+        if (ret != SDDS_RT_OK) {
+            Locator_downRef(l);
+            return ret;
+        }
     }
 
     ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, l);
@@ -139,15 +157,21 @@ BuiltinTopic_init(void) {
     sdds_History_setup (DataReader_history (g_DCPSSubscription_reader), dcps_subscription_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSSubscription_writer = DataSource_create_datawriter(g_DCPSSubscription_topic, NULL, NULL, NULL);
 
-    ret = LocatorDB_newMultiLocator(&l);
-    if (ret != SDDS_RT_OK) {
-        return ret;
+    ret = LocatorDB_findLocatorByMcastAddr(SDDS_BUILTIN_SUB_PUB_ADDRESS, &l);
+    if (ret == SDDS_RT_OK) {
+        Locator_upRef(l);
     }
+    else {
+        ret = LocatorDB_newMultiLocator(&l);
+        if (ret != SDDS_RT_OK) {
+            return ret;
+        }
 
-    ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUB_PUB_ADDRESS);
-    if (ret != SDDS_RT_OK) {
-        Locator_downRef(l);
-        return ret;
+        ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_SUB_PUB_ADDRESS);
+        if (ret != SDDS_RT_OK) {
+            Locator_downRef(l);
+            return ret;
+        }
     }
 
     ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, l);

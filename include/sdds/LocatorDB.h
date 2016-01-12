@@ -54,5 +54,7 @@ rc_t
 LocatorDB_findLocatorByAddr(char *addr, Locator_t** result);
 uint8_t
 LocatorDB_freeLocators();
+void
+LocatorDB_print();
 
 #endif   /* ----- #ifndef LOCATORDB_H_INC  ----- */

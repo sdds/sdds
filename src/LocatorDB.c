@@ -43,12 +43,23 @@ s_init(Locator_t* _this);
 #ifdef UTILS_DEBUG
 static void
 s_print() {
+    printf("\n\nLOCATOR DB \n");
     for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
         char srcAddr[NI_MAXHOST];
-        Locator_getAddress(db.pool[i], srcAddr);
-        printf("[%d,%d, %s] ", i, db.pool[i]->refCount, srcAddr);
+        if (Locator_getAddress(db.pool[i], srcAddr) != SDDS_RT_OK) {
+            srcAddr[0] = '0';
+            srcAddr[1] = '\0';
+        }
+        char *type = "UNI";
+        if (db.pool[i]->type == SDDS_LOCATOR_TYPE_MULTI) {
+            type = "MUL";
+        }
+
+        assert(!((i == 3) && (strcmp(srcAddr, "ff02::30") == 0)));
+
+        printf("[(%p) %d,%d, %s, %s] ", db.pool[i], i, db.pool[i]->refCount, srcAddr, type);
     }
-    printf("\nfreeLoc: %d\n", db.freeLoc);
+    printf("\nfreeLoc: %d\n\n", db.freeLoc);
 }
 #endif
 
@@ -108,6 +119,7 @@ LocatorDB_newLocator(Locator_t** loc) {
     db.freeLoc--;
     (*loc)->refCount = 1;
 
+    s_print();
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
@@ -143,6 +155,7 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
     db.freeLoc--;
     (*loc)->refCount = 1;
 
+    s_print();
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
@@ -177,6 +190,7 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
     db.freeLoc--;
     (*loc)->refCount = 1;
 
+    s_print();
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
@@ -198,9 +212,11 @@ LocatorDB_isUsedLocator(Locator_t* loc) {
     Mutex_lock(mutex);
     if (loc->refCount > 0) {
         Mutex_unlock(mutex);
+        s_print();
         return SDDS_LOCATORDB_RT_ISINUSE;
     }
     else{
+        s_print();
         Mutex_unlock(mutex);
         return SDDS_RT_OK;
     }
@@ -217,6 +233,7 @@ LocatorDB_findLocator(Locator_t* loc, Locator_t** result) {
             return SDDS_RT_OK;
         }
     }
+    s_print();
     Mutex_unlock(mutex);
     return SDDS_RT_FAIL;
 }
@@ -232,6 +249,7 @@ LocatorDB_findLocatorByAddr(char *addr, Locator_t** result) {
             return SDDS_RT_OK;
         }
     }
+    s_print();
     Mutex_unlock(mutex);
     return SDDS_RT_FAIL;
 }
@@ -247,6 +265,7 @@ LocatorDB_findLocatorByMcastAddr(char *addr, Locator_t** result) {
             return SDDS_RT_OK;
         }
     }
+    s_print();
     Mutex_unlock(mutex);
     return SDDS_RT_FAIL;
 }
@@ -262,7 +281,7 @@ Locator_upRef(Locator_t* _this) {
 
 #ifdef UTILS_DEBUG
     if (_this->refCount == 0) {
-        Log_error("unauthorized upRef on:\n");
+        Log_error("unauthorized upRef on %p:\n", _this);
 
         Locator_print(_this);
         s_print();
@@ -273,6 +292,7 @@ Locator_upRef(Locator_t* _this) {
     if (_this->refCount < 254) {
         _this->refCount++;
     }
+    s_print();
     Mutex_unlock(mutex);
 }
 void
@@ -292,6 +312,7 @@ Locator_downRef(Locator_t* _this) {
     if (_this->refCount == 0) {
         s_freeLocator(_this);
     }
+    s_print();
     Mutex_unlock(mutex);
 }
 
@@ -306,10 +327,20 @@ s_init(Locator_t* _this) {
     _this->isDest = false;
     _this->isSender = false;
 
-    return SDDS_RT_OK;
+    _this->type = SDDS_LOCATOR_TYPE_UNI;
+    rc_t ret = Network_setPlatformAddressToLocator(_this);
+
+    return ret;
 }
 
 uint8_t
 LocatorDB_freeLocators() {
     return db.freeLoc;
+}
+
+void
+LocatorDB_print() {
+    Mutex_lock(mutex);
+    s_print();
+    Mutex_unlock(mutex);
 }

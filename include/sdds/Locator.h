@@ -83,7 +83,7 @@ Locator_getAddress(Locator_t* l, char* srcAddr);
 rc_t
 Locator_copy(Locator_t* src, Locator_t* dst);
 
-void
+rc_t
 Locator_print(Locator_t* loc);
 
 #endif   /* ----- #ifndef LOCATOR_H_INC  ----- */

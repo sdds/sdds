@@ -876,6 +876,13 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
         *addr = loc;
         // up ref counter
         Locator_upRef(*addr);
+
+#ifdef UTILS_DEBUG
+        char a[1024];
+        ret = Locator_getAddress(*addr, a);
+        Log_debug("Connection from Unicast %s\n", a);
+#endif
+
     }
     else {
         char byteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
@@ -901,16 +908,15 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
                 return SDDS_RT_FAIL;
             }
         }
+
+#ifdef UTILS_DEBUG
+        char a[1024];
+        ret = Locator_getAddress(*addr, a);
+        Log_debug("Connection from Mcast %s\n", a);
+#endif
     }
 
     ref->subMsgCount -=1;
-
-#ifdef UTILS_DEBUG
-    char a[1024];
-    Locator_t* loc = (Locator_t*) ref->locators->first_fn(ref->locators);
-    ret = Locator_getAddress(loc, a);
-    Log_debug("Connection from %s\n", a);
-#endif
 
     return SDDS_RT_OK;
 }

@@ -42,7 +42,7 @@
 #define PLATFORM_LINUX_SDDS_PROTOCOL AF_INET6
 #endif
 
-#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS                           SDDS_BUILTIN_MULTICAST_ADDRESS
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_ADDRESS                   SDDS_BUILTIN_MULTICAST_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS       SDDS_BUILTIN_PARTICIPANT_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS             SDDS_BUILTIN_TOPIC_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS           SDDS_BUILTIN_SUB_PUB_ADDRESS
@@ -413,7 +413,8 @@ recvLoop(void* netBuff) {
     while (true) {
         // spare address field?
         struct sockaddr_storage addr;
-        socklen_t addr_len = 0;
+        // size of addr
+        socklen_t addr_len = sizeof(struct sockaddr_storage);
         ssize_t recv_size = recvfrom(sock, buff->buff_start,
                                      buff->frame_start->size, 0,
                                      (struct sockaddr*)&addr, &addr_len);
@@ -445,6 +446,7 @@ recvLoop(void* netBuff) {
             }
             memcpy(&((struct UDPLocator_t*) loc)->addr_storage, &addr, addr_len);
             ((struct UDPLocator_t*) loc)->addr_len = addr_len;
+
         }
 
         loc->isEmpty = false;
@@ -552,6 +554,11 @@ Network_locSize(void) {
 rc_t
 Network_setAddressToLocator(Locator_t* loc, char* endpoint) {
     return Network_set_locator_endpoint(loc, endpoint, net.port);
+}
+
+rc_t
+Network_setPlatformAddressToLocator(Locator_t* loc) {
+    return Network_set_locator_endpoint(loc, PLATFORM_LINUX_SDDS_ADDRESS, net.port);
 }
 
 rc_t
@@ -746,8 +753,7 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
     addr[0] = (struct sockaddr_in6*) &a->addr_storage;
     addr[1] = (struct sockaddr_in6*) &b->addr_storage;
 
-    if (memcmp(&addr[0]->sin6_addr.s6_addr, &addr[1]->sin6_addr.s6_addr, 16)
-        == 0) {
+    if (memcmp(&addr[0]->sin6_addr.s6_addr, &addr[1]->sin6_addr.s6_addr, 16) == 0) {
         return true;
     }
     else {
@@ -766,6 +772,10 @@ Locator_getAddress(Locator_t* self, char* srcAddr) {
                          srcAddr, NI_MAXHOST,
                          NULL, 0,
                          NI_NUMERICHOST);
+    if (rc != 0) {
+        Log_error("Cannot obtain address from locator: %s\n", gai_strerror(errno));
+        return SDDS_RT_FAIL;
+    }
     return SDDS_RT_OK;
 }
 
