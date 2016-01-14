@@ -454,6 +454,12 @@ Network_setAddressToLocator(Locator_t* loc, char* addr) {
 }
 
 rc_t
+Network_setPlatformAddressToLocator(Locator_t* loc) {
+    return Network_set_locator_endpoint(loc, PLATFORM_AUTOBEST_SDDS_ADDRESS, net.port);
+}
+
+
+rc_t
 Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
     if (loc == NULL || addr == NULL) {
         return SDDS_RT_BAD_PARAMETER;

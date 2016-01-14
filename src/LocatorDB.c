@@ -328,9 +328,11 @@ LocatorDB_freeLocators() {
     return db.freeLoc;
 }
 
+#ifdef UTILS_DEBUG
 void
 LocatorDB_print() {
     Mutex_lock(mutex);
     s_print();
     Mutex_unlock(mutex);
 }
+#endif
