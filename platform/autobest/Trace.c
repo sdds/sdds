@@ -16,16 +16,16 @@ Trace_point(Trace_event_t trace_event){
 	return SDDS_RT_OK;
 }
 
-ssw_rc_t 
+ssw_rc_t
 Trace_setSignal(Trace_signal_t trace_signal){
 	sys_kldd_call(3, trace_signal, 0, 0);
 	return SDDS_RT_OK;
 }
 
-ssw_rc_t 
+ssw_rc_t
 Trace_resetSignal(Trace_signal_t trace_signal){
 	sys_kldd_call(4, trace_signal, 0, 0);
 	return SDDS_RT_OK;
 }
-	
+
 #endif
