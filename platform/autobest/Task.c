@@ -3,8 +3,8 @@
 #include <os-ssal/Memory.h>
 
 #include <string.h>
-#include <api_calls.h>
-#include <error.h>
+#include <hv.h>
+#include <hv_error.h>
 
 #define TASK_MNG_TICK 1000
 #define TASK_MNG_TASK_ID 3

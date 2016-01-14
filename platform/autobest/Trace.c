@@ -1,7 +1,7 @@
 #include <os-ssal/Trace.h>
 #include <local_constants.h>
 
-#include <api_calls.h>
+#include <hv.h>
 
 #ifdef FEATURE_SDDS_TRACING_ENABLED
 

@@ -1,7 +1,7 @@
 #include "os-ssal/NodeConfig.h"
 
 #include "gen_constants.h"
-#include <api_calls.h>
+#include <hv.h>
 #include <Log.h>
 #include "lwip/netif.h"
 

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <api_calls.h>
+#include <hv.h>
 #include <lwip/opt.h>
 #include <lwip/api.h>
 #include <lwip/inet.h>
@@ -156,7 +156,7 @@ Network_Multicast_init() {
         return SDDS_RT_FAIL;
     }
     multiInBuff.locators->add_fn(multiInBuff.locators, loc);
-    
+
     // set up a thread to read from the udp socket [multicast]
     net.multiRecvThread = Thread_create();
     if(net.multiRecvThread == NULL) {
@@ -257,7 +257,7 @@ recvLoop(void* netBuff) {
 
     while (true)
     {
-        
+
         err = netconn_recv(conn, &lwip_netbuf);
         if(err != ERR_OK ) {
             Log_error("Error checking if a netbuffer was recvied\n");
@@ -306,9 +306,6 @@ recvLoop(void* netBuff) {
                 //reset the buffer
                 NetBuffRef_renew(buff);
                 Log_error("No free Locator objects\n");
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-                Trace_point(SDDS_TRACE_EVENT_STOP);
-#endif
                 continue;
             }
             memcpy(&((AutobestLocator_t*)loc)->addr_storage, &lwip_netbuf->addr, sizeof(ip_addr_t));
@@ -318,31 +315,25 @@ recvLoop(void* netBuff) {
         netbuf_delete(lwip_netbuf);
         // up ref counter
         Locator_upRef(loc);
-  
+
         loc->isEmpty = false;
         loc->isSender = true;
         loc->type = conn_type;
-        
+
         //buff->locators = loc;
         rc_t ret = buff->locators->add_fn(buff->locators, loc);
         if (ret != SDDS_RT_OK) {
             //reset the buffer
             NetBuffRef_renew(buff);
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-            Trace_point(SDDS_TRACE_EVENT_STOP);
-#endif
             continue;
         }
-      
+
         ret = DataSink_processFrame(buff);
         if(ret != SDDS_RT_OK){
           Log_error ("Failed to process frame\n");
         }
         //reset the buffer
         NetBuffRef_renew(buff);
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-        Trace_point(SDDS_TRACE_EVENT_STOP);
-#endif
     }
     return SDDS_RT_OK;
 }
@@ -352,7 +343,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
   unsigned int conn_type;
   unsigned int port = 0;
   struct netbuf* netbuf = NULL;
-  void* data = NULL; 
+  void* data = NULL;
 
   // Check the locator for uni or multicast socket
   Locator_t *loc = (Locator_t*) buff->locators->first_fn(buff->locators);
@@ -373,7 +364,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
       Log_error("Can't alloc netbuffer:\n");
       return SDDS_RT_FAIL;
     }
-    data = netbuf_alloc(netbuf, buff->curPos); 
+    data = netbuf_alloc(netbuf, buff->curPos);
     if(data == NULL){
       Log_error("Can't alloc databuffer:\n");
       return SDDS_RT_FAIL;
@@ -388,7 +379,7 @@ rc_t Network_send(NetBuffRef_t* buff) {
         Trace_point(SDDS_TRACE_EVENT_SEND_PAKET);
 #endif
 #endif
-    netbuf_delete(netbuf); 
+    netbuf_delete(netbuf);
     if (err != ERR_OK ) {
       Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
       return SDDS_RT_FAIL;

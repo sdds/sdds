@@ -1,7 +1,7 @@
 #include <os-ssal/SSW.h>
 
 #include <sdds/sdds_types.h>
-#include <api_calls.h>
+#include <hv.h>
 #include <stdlib.h>
 
 ssw_rc_t

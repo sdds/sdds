@@ -2,7 +2,8 @@
 import csv
 import numpy as np
 
-STATE_COUNT = 4
+NUM_EVENTS = 7
+
 time_dict = {}
 
 with open('Bus.csv', 'rb') as csvfile:
@@ -10,7 +11,8 @@ with open('Bus.csv', 'rb') as csvfile:
 
     for row in bistScopeReader:
         #print row
-        if row['Bus'] == '00002' or row['Bus'] == '00003':
+        #if row['Bus'] == '00000' or row['Bus'] == '00002' or row['Bus'] == '00003' or row['Bus'] == '00004' or row['Bus'] == '00005' or row['Bus'] == '00006':
+        if row['Bus'] == '00002' or row['Bus'] == '00003' or row['Bus'] == '00004' or row['Bus'] == '00005' or row['Bus'] == '00006':
             if row['Bus'] in time_dict.keys():
                 time_dict[row['Bus']].append(float(row['Time'])/1000)
             else:
@@ -19,6 +21,6 @@ with open('Bus.csv', 'rb') as csvfile:
 
 
 for k in time_dict.keys():
-    print 'Event: ' + str((int(k) - 1))
+    print 'Event: ' + str((int(k) - 1) % NUM_EVENTS) + ' to Event: ' + str((int(k)))
     print 'Samples:' + str(len(time_dict[k]))
     print 'AVG: ' + str(reduce(lambda x, y: x + y, time_dict[k]) / len(time_dict[k])) + ' us'

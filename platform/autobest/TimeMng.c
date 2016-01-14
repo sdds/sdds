@@ -1,7 +1,7 @@
 #include <os-ssal/TimeMng.h>
 #include <sdds_types.h>
 #include "Log.h"
-#include <api_calls.h>
+#include <hv.h>
 
 #define TIME_MNG_DIV_SIFT_TO_SEC 20
 

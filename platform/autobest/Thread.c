@@ -9,8 +9,8 @@
 #include "os-ssal/SSW.h"
 #include "os-ssal/Memory.h"
 
-#include <api_calls.h>
-#include <error.h>
+#include <hv.h>
+#include <hv_error.h>
 
 #define SDDS_AUTOBEST_NUM_TASKS 8
 #define SDDS_AUTOBEST_STACK_SIZE 1024

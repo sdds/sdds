@@ -10,7 +10,7 @@
 #include "os-ssal/Memory.h"
 #include "Log.h"
 
-#include <api_calls.h>
+#include <hv.h>
 #include <lwip/sys.h>
 
 #define UNLOCK_STATE    0

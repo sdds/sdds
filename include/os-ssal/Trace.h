@@ -16,27 +16,27 @@
 #define SDDS_TRACE_EVENT_STOP				0u
 
 #ifdef FEATURE_SDDS_TRACING_RECV_PAKET
-#define SDDS_TRACE_EVENT_RECV_PAKET			3u
+#define SDDS_TRACE_EVENT_RECV_PAKET			4u
 #endif
 
 #ifdef FEATURE_SDDS_TRACING_PROCESS_FRAME
-#define SDDS_TRACE_EVENT_PROCESS_FRAME		4u
+#define SDDS_TRACE_EVENT_PROCESS_FRAME		5u
 #endif
 
 #ifdef FEATURE_SDDS_TRACING_HISTORY_ENQUEUE
-#define SDDS_TRACE_EVENT_HISTORY_ENQUEUE	5u
-#endif
-
-#ifdef FEATURE_SDDS_TRACING_DATA_WRITE
-#define SDDS_TRACE_EVENT_DATA_WRITE			6u
+#define SDDS_TRACE_EVENT_HISTORY_ENQUEUE	6u
 #endif
 
 #ifdef FEATURE_SDDS_TRACING_HISTORY_DEQUEUE
 #define SDDS_TRACE_EVENT_HISTORY_DEQUEUE	7U
 #endif
 
+#ifdef FEATURE_SDDS_TRACING_DATA_WRITE
+#define SDDS_TRACE_EVENT_DATA_WRITE			8u
+#endif
+
 #ifdef FEATURE_SDDS_TRACING_SEND_PAKET
-#define SDDS_TRACE_EVENT_SEND_PAKET			8u
+#define SDDS_TRACE_EVENT_SEND_PAKET			9u
 #endif
 
 #ifdef FEATURE_SDDS_TRACING_SIGNAL_RECV_PAKET
@@ -57,10 +57,10 @@ Trace_init(void);
 ssw_rc_t
 Trace_point(Trace_event_t trace_event);
 
-ssw_rc_t 
+ssw_rc_t
 Trace_setSignal(Trace_signal_t trace_signal);
 
-ssw_rc_t 
+ssw_rc_t
 Trace_resetSignal(Trace_signal_t trace_signal);
 
 #endif

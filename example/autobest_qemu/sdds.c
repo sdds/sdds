@@ -3,10 +3,11 @@
 #include <sdds_sdds_impl.h>
 #include <ipc-ds.h>
 #include <os-ssal/Thread.h>
+#include <os-ssal/Trace.h>
 #include <Log.h>
 
-#include <api_calls.h>
-#include <trace_api.h>
+#include <hv.h>
+//#include <trace_api.h>
 
 #define SLEEP_TIMEOUT_NSEC 2000000ULL
 
@@ -27,10 +28,8 @@ int main(void){
 	Ipc data_used;
 	Ipc* data_used_ptr = &data_used;
 
-//	trace_point(5);
 	for (;;){
-		DDS_ReturnCode_t ret = DDS_IpcDataReader_take_next_sample(g_Ipc_reader, &data_used_ptr, NULL); 
-
+		DDS_ReturnCode_t ret = DDS_IpcDataReader_take_next_sample(g_Ipc_reader, &data_used_ptr, NULL);
 		if (ret == DDS_RETCODE_NO_DATA){
 /*#ifndef NDEBUG
 			trace_test(AUTOBETS_ETHERNET_IN_EVENT);
@@ -39,10 +38,12 @@ int main(void){
 			sys_sleep(SLEEP_TIMEOUT_NSEC);
 		}
 		else{
-			printf("received: %x\n",data_used.value );
-
+/*#ifdef FEATURE_SDDS_TRACING_ENABLED
+	        Trace_point(SDDS_TRACE_EVENT_STOP);
+#endif*/
+			//printf("received: %x\n",data_used.value );
 		}
-		
+
 	}
 	/*for(;;){
 		trace_test(5);

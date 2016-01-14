@@ -138,6 +138,9 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
         return ret;
     }
     self->samples[self->in_needle].instance = loc;
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+    Trace_point(SDDS_TRACE_EVENT_STOP);
+#endif
     return s_History_enqueue (self);
 }
 
@@ -170,11 +173,6 @@ s_History_enqueue(History_t* self) {
 Sample_t*
 sdds_History_dequeue(History_t* self) {
     assert(self);
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-#ifdef FEATURE_SDDS_TRACING_HISTORY_DEQUEUE
-    Trace_point(SDDS_TRACE_EVENT_HISTORY_DEQUEUE);
-#endif
-#endif
     if (self->out_needle == self->depth) {
         return NULL;
     }
@@ -196,6 +194,11 @@ sdds_History_dequeue(History_t* self) {
     if (self->in_needle == self->depth) {
         self->in_needle = out_needle_prev;
     }
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_HISTORY_DEQUEUE
+    Trace_point(SDDS_TRACE_EVENT_HISTORY_DEQUEUE);
+#endif
+#endif
     return sample;
 }
 
