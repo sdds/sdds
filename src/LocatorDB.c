@@ -119,7 +119,6 @@ LocatorDB_newLocator(Locator_t** loc) {
     db.freeLoc--;
     (*loc)->refCount = 1;
 
-    s_print();
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
@@ -155,7 +154,6 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
     db.freeLoc--;
     (*loc)->refCount = 1;
 
-    s_print();
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
@@ -190,7 +188,6 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
     db.freeLoc--;
     (*loc)->refCount = 1;
 
-    s_print();
     Mutex_unlock(mutex);
 
     return SDDS_RT_OK;
@@ -212,11 +209,9 @@ LocatorDB_isUsedLocator(Locator_t* loc) {
     Mutex_lock(mutex);
     if (loc->refCount > 0) {
         Mutex_unlock(mutex);
-        s_print();
         return SDDS_LOCATORDB_RT_ISINUSE;
     }
     else{
-        s_print();
         Mutex_unlock(mutex);
         return SDDS_RT_OK;
     }
@@ -233,7 +228,6 @@ LocatorDB_findLocator(Locator_t* loc, Locator_t** result) {
             return SDDS_RT_OK;
         }
     }
-    s_print();
     Mutex_unlock(mutex);
     return SDDS_RT_FAIL;
 }
@@ -249,7 +243,6 @@ LocatorDB_findLocatorByAddr(char *addr, Locator_t** result) {
             return SDDS_RT_OK;
         }
     }
-    s_print();
     Mutex_unlock(mutex);
     return SDDS_RT_FAIL;
 }
@@ -265,7 +258,6 @@ LocatorDB_findLocatorByMcastAddr(char *addr, Locator_t** result) {
             return SDDS_RT_OK;
         }
     }
-    s_print();
     Mutex_unlock(mutex);
     return SDDS_RT_FAIL;
 }
@@ -292,7 +284,6 @@ Locator_upRef(Locator_t* _this) {
     if (_this->refCount < 254) {
         _this->refCount++;
     }
-    s_print();
     Mutex_unlock(mutex);
 }
 void
@@ -312,7 +303,6 @@ Locator_downRef(Locator_t* _this) {
     if (_this->refCount == 0) {
         s_freeLocator(_this);
     }
-    s_print();
     Mutex_unlock(mutex);
 }
 
