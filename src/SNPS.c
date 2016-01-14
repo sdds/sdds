@@ -876,13 +876,6 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
         *addr = loc;
         // up ref counter
         Locator_upRef(*addr);
-
-#ifdef UTILS_DEBUG
-        char a[1024];
-        ret = Locator_getAddress(*addr, a);
-        Log_debug("Connection from Unicast %s\n", a);
-#endif
-
     }
     else {
         char byteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
