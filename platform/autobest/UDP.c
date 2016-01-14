@@ -453,11 +453,6 @@ Network_setAddressToLocator(Locator_t* loc, char* addr) {
     return SDDS_RT_OK;
 }
 
-rc_t
-Network_setPlatformAddressToLocator(Locator_t* loc) {
-    return Network_set_locator_endpoint(loc, PLATFORM_AUTOBEST_SDDS_ADDRESS, net.port);
-}
-
 
 rc_t
 Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
@@ -483,6 +478,11 @@ Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
     char* address_buffer = inet6_ntoa(aloc->addr_storage);
     Log_debug("created a locator for [%s]\n", address_buffer);
     return SDDS_RT_OK;
+}
+
+rc_t
+Network_setPlatformAddressToLocator(Locator_t* loc) {
+    return Network_setAddressToLocator(loc, PLATFORM_AUTOBEST_SDDS_ADDRESS);
 }
 
 rc_t
