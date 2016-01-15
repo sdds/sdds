@@ -14,10 +14,7 @@ if len(sys.argv) == 2:
 
 with open(name, 'rb') as csvfile:
     bistScopeReader = csv.DictReader(csvfile, delimiter='\t', quoting=csv.QUOTE_NONE)
-    #pre_row = nill
     for row in bistScopeReader:
-        #print row
-        #if row['Bus'] == '00000' or row['Bus'] == '00002' or row['Bus'] == '00003' or row['Bus'] == '00004' or row['Bus'] == '00005' or row['Bus'] == '00006':
         if row['Bus'] == '00002' or row['Bus'] == '00003' or row['Bus'] == '00004' or row['Bus'] == '00005' or row['Bus'] == '00006':
             time = float(row['Time'])
             if time > 10.0:
