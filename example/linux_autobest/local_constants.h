@@ -17,4 +17,6 @@
 
 //#define SDDS_QOS_DW_LATBUD 10000
 
-#define UTILS_DEBUG
+//#define UTILS_DEBUG
+
+#define UTILS_NO_LOGGING
