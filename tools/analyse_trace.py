@@ -26,3 +26,4 @@ for k in sorted(time_dict.keys()):
     print 'Event: ' + str((int(k) - 1) % NUM_EVENTS) + ' to Event: ' + str((int(k)))
     print 'Samples:' + str(len(time_dict[k]))
     print 'AVG: ' + str(reduce(lambda x, y: x + y, time_dict[k]) / len(time_dict[k])) + ' us'
+    print ''
