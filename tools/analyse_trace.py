@@ -1,12 +1,18 @@
 #!/usr/bin/python
 import csv
 import numpy as np
+import sys
 
 NUM_EVENTS = 7
 
 time_dict = {}
 
-with open('Bus.csv', 'rb') as csvfile:
+name = 'Bus.csv'
+
+if len(sys.argv) == 2:
+    name = str(sys.argv[1])
+
+with open(name, 'rb') as csvfile:
     bistScopeReader = csv.DictReader(csvfile, delimiter='\t', quoting=csv.QUOTE_NONE)
     #pre_row = nill
     for row in bistScopeReader:
