@@ -19,6 +19,9 @@
 #include "sDDS.h"
 #include "os-ssal/Mutex.h"
 #include "Locator.h"
+#include "execinfo.h"
+#include <dlfcn.h>
+
 
 struct LocatorDB_t {
 
@@ -263,6 +266,32 @@ LocatorDB_findLocatorByMcastAddr(char *addr, Locator_t** result) {
 }
 
 void
+print_trace (int fun)
+{
+  void *array[10];
+  size_t size;
+  size_t i;
+
+  size = backtrace (array, 10);
+
+  switch (fun) {
+  case 0:
+      system("echo UP REF >> log.txt");
+      break;
+  case 1:
+      system("echo DOWN REF >> log.txt");
+      break;
+  }
+
+  for (i = 0; i < size; i++) {
+      char command[150];
+      sprintf(command, "addr2line -e linux_mcast1 %p >> log.txt", array[i]);
+      system(command);
+  }
+}
+
+
+void
 Locator_upRef(Locator_t* _this) {
 
     if (_this == NULL) {
@@ -279,7 +308,7 @@ Locator_upRef(Locator_t* _this) {
         s_print();
     }
 #endif
-
+    print_trace(0);
     assert(_this->refCount > 0);
     if (_this->refCount < 254) {
         _this->refCount++;
@@ -293,6 +322,7 @@ Locator_downRef(Locator_t* _this) {
     }
 
     Mutex_lock(mutex);
+    print_trace(1);
     if (_this->refCount == 0) {
         Mutex_unlock(mutex);
         return;

@@ -106,8 +106,6 @@ DataSink_processFrame(NetBuffRef_t* buff) {
     rc_t ret;
     ret = SNPS_readHeader(buff);
     if (ret == SDDS_RT_FAIL) {
-        //  Reset the buffer
-        NetBuffRef_renew(buff);
         Log_error("Invalid SNPS header\n");
         return ret;
     }

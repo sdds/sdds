@@ -170,7 +170,7 @@ find_free_buffer(List_t* topic_locators) {
 
     NetBuffRef_t* free_buffer = NULL;
     bool_t same_locators = false;
-    //  Try to find a buffer that has all topic locators attched to it
+    //  Try to find a buffer that has all topic locators attached to it
     int index;
     for (index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
         NetBuffRef_t* send_buffer = &self->sender.out[index];
