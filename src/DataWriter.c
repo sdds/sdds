@@ -216,10 +216,10 @@ checkSendingWrapper(void* buf) {
     checkSending((NetBuffRef_t*) buf);
 }
 
+#ifdef SDDS_QOS_LATENCYBUDGET
 rc_t
 checkSending(NetBuffRef_t* buf) {
     Mutex_lock(mutex);
-#ifdef SDDS_QOS_LATENCYBUDGET
 #if SDDS_QOS_DW_LATBUD < 65536
     time16_t time;
     Time_getTime16(&time);
@@ -242,7 +242,6 @@ checkSending(NetBuffRef_t* buf) {
             Log_warn("Send Data ahead of deadline due to buffer overflow.\n");
         }
         Log_debug("time: %u, deadline: %u\n", time, sendDeadline);
-#endif
         // update header
         SNPS_updateHeader(buf);
 
@@ -257,7 +256,6 @@ checkSending(NetBuffRef_t* buf) {
             NetBuffRef_renew(buf);
         }
         //  If latencyBudget is active, don't discard the buffer right away.
-#ifdef SDDS_QOS_LATENCYBUDGET
         //  Discard the buffer, if the buffer is full and no one there to send.
         else if (overflow) {
             NetBuffRef_renew(buf);
@@ -268,16 +266,9 @@ checkSending(NetBuffRef_t* buf) {
             buf->sendDeadline = 0;
             Log_debug("No subscriber\n");
         }
-#else
-    //  If latencyBudget is not active, discard the message right away.
-    else {
-        NetBuffRef_renew(buf);
-    }
-#endif
 
         Mutex_unlock(mutex);
         return SDDS_RT_OK;
-#ifdef SDDS_QOS_LATENCYBUDGET
     }
     else {
         Task_stop(sendTask);
@@ -308,5 +299,26 @@ checkSending(NetBuffRef_t* buf) {
         Mutex_unlock(mutex);
         return SDDS_RT_DEFERRED;
     }
-#endif
 }
+#else
+rc_t
+checkSending(NetBuffRef_t* buf) {
+    Mutex_lock(mutex);
+    // update header
+    SNPS_updateHeader(buf);
+
+    if (buf->locators->size_fn(buf->locators) > 0) {
+        rc_t ret = Network_send(buf);
+        if (ret != SDDS_RT_OK) {
+            Log_error("Network_send failed\n");
+            NetBuffRef_renew(buf);
+            Mutex_unlock(mutex);
+            return SDDS_RT_FAIL;
+        }
+    }
+    NetBuffRef_renew(buf);
+
+    Mutex_unlock(mutex);
+    return SDDS_RT_OK;
+}
+#endif
