@@ -6,14 +6,17 @@
     ip = "fe80::2e5:1aab:cd00:0"
     port = "23234"
     >
-	Empfange Beta-Topic
+	empfange RGB Topics
 
     <!--
         Includes are processed first, so XML in included files will be
         part of the XML tree
     -->
-    <include filename = "../topics/beta.xml" />
+    <include filename = "../topics/red.xml" />
+    <include filename = "../topics/green.xml" />
+    <include filename = "../topics/blue.xml" />
 
-    <role topic = "beta" type = "publisher">
-    </role>
+    <role topic = "red" type = "subscriber" />
+    <role topic = "green" type = "subscriber" />
+    <role topic = "blue" type = "subscriber" />
 </project>

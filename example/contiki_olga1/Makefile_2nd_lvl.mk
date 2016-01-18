@@ -20,7 +20,9 @@ CONTIKI_WITH_IPV6 = 1
 LOCAL_CONSTANTS := local_constants.h
 
 # Object files of the generateted dds data types
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/red-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/green-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/blue-ds.o
 
 #OBJS = $($(shell ls *-ds.c):.o=.c)
 #DATA_DEPEND_OBJS += $(addprefix $(SDDS_OBJDIR)/, $(OBJS))
@@ -30,6 +32,11 @@ DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
 
 # object files depending on driver for sensors
 #DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
+DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
+DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-TSL2561.o
+DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-twi.o
+DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-GammaCorrection.o
+DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-GPIO_Input.o
 
 # object files of the generates implementation code file of sdds
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/contiki_olga1_sdds_impl.o

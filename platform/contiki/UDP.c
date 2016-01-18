@@ -331,6 +331,11 @@ Network_Multicast_joinMulticastGroup(char* group) {
 }
 
 rc_t
+Network_setPlatformAddressToLocator(Locator_t* loc) {
+    return Network_setAddressToLocator(loc, PLATFORM_CONTIKI_SDDS_ADDRESS);
+}
+
+rc_t
 Network_Multicast_init() {
     uip_ipaddr_t addr;
 
