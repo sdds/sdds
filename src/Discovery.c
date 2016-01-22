@@ -97,9 +97,10 @@ Discovery_handleParticipant(SDDS_DCPSParticipant p) {
         }
         Discovery_sendPublicationTopics();
 #endif
+
+        Discovery_sendParticipantTopics(NULL);
         return SDDS_RT_OK;
     }
-
     Locator_downRef(p.addr);
     return SDDS_RT_OK;
 }
@@ -313,6 +314,9 @@ Discovery_init() {
         Log_error("Task_start failed\n");
     }
 #endif
+
+    Discovery_sendParticipantTopics(NULL);
+    Discovery_sendPublicationTopics(NULL);
 
     return SDDS_RT_OK;
 }
