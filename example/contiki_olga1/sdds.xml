@@ -3,7 +3,7 @@
     script = "sdds.gsl"
     endian = "little"
     os = "contiki"
-    ip = "fe80::2e5:1aab:cd00:22b9"
+    ip = "fe80::2e5:1aab:cd00:22c1"
     port = "23234"
     >
 	empfange RGB Topics
@@ -15,6 +15,15 @@
         part of the XML tree
     -->
     <include filename = "../topics/blue.xml" />
+    <include filename = "../topics/green.xml" />
+    <include filename = "../topics/red.xml" />
 
+    <role topic = "green" type = "subscriber" />
+    <role topic = "blue" type = "subscriber" />
+    <role topic = "red" type = "subscriber" />
+
+    <!--
+    <role topic = "green" type = "publisher" />
     <role topic = "blue" type = "publisher" />
+    -->
 </project>
