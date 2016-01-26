@@ -84,6 +84,15 @@ $(project.GENERATED_WARNING_HEADER:)
 #define SDDS_SEQNR_BIGGEST_TYPE uint32_t
 #define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 32
 .endif
+.if project.hasReliableKindBesteffort = 1
+#define SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
+.endif
+.if project.hasReliableKindAck = 1
+#define SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+.endif
+.if project.hasReliableKindNack = 1
+#define SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+.endif
 #endif
 
 #ifndef SDDS_TOPIC_APP_MSG_COUNT
