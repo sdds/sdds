@@ -4,7 +4,7 @@
     endian = "little"
     os = "linux"
     iface = "usb0"
-    ip = "fe80::12:13ff:fe14:2323"
+    ip = "fe80::12:13ff:fe14:1516"
     port = "23234"
 	protocol = "AF_INET6"
     >

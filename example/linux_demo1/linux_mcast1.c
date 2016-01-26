@@ -1,11 +1,13 @@
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "linux_mcast1_sdds_impl.h"
 #include "unistd.h"
 
 int main()
 {
 	DDS_ReturnCode_t ret;
-	Log_setLvl(1);
+	Log_setLvl(4);
 
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
@@ -21,8 +23,10 @@ int main()
 //    blue_pub.value = 170;
 
     for (;;) {
+	printf("Eingabe (0 - 255): ");
+	scanf("%d", &red_pub.value);
+	while (getchar()!='\n');
         ret = DDS_RedDataWriter_write (g_Red_writer, &red_pub, NULL);
-    	red_pub.value++;
 
 //    	ret = DDS_GreenDataWriter_write (g_Green_writer, &green_pub, NULL);
 //        green_pub.value++;
