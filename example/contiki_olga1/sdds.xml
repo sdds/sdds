@@ -18,12 +18,13 @@
     <include filename = "../topics/green.xml" />
     <include filename = "../topics/red.xml" />
 
+
     <role topic = "green" type = "subscriber" />
     <role topic = "blue" type = "subscriber" />
     <role topic = "red" type = "subscriber" />
 
     <!--
-    <role topic = "green" type = "publisher" />
     <role topic = "blue" type = "publisher" />
+    <role topic = "green" type = "publisher" />
     -->
 </project>

@@ -11,14 +11,12 @@ static LED r_LED;
 static LED g_LED;
 static LED b_LED;
 
-
 static Red red_sub;
 Red *red_sub_p = &red_sub;
 static Green green_sub;
 Green *green_sub_p = &green_sub;
 static Blue blue_sub;
 Blue *blue_sub_p = &blue_sub;
-
 
 static rc_t
 s_init_drivers() {
@@ -123,7 +121,7 @@ PROCESS_THREAD(contiki_olga1, ev, data)
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
 	}
-	Log_setLvl(2);
+	Log_setLvl(1);
 /*
 	static int value = 0;
     Blue blue_pub;
@@ -136,7 +134,7 @@ PROCESS_THREAD(contiki_olga1, ev, data)
 	    ret = DDS_BlueDataReader_take_next_sample(g_Blue_reader,
                 &blue_sub_p, NULL);
         if (ret != DDS_RETCODE_NO_DATA) {
-            LED_dim(r_LED, red_sub.value);
+            LED_dim(b_LED, blue_sub.value);
         }
 
 	    ret = DDS_GreenDataReader_take_next_sample(g_Green_reader,
@@ -148,14 +146,14 @@ PROCESS_THREAD(contiki_olga1, ev, data)
 	    ret = DDS_RedDataReader_take_next_sample(g_Red_reader,
                 &red_sub_p, NULL);
         if (ret != DDS_RETCODE_NO_DATA) {
-            LED_dim(b_LED, blue_sub.value);
+            LED_dim(r_LED, red_sub.value);
         }
-
 
 
 /*
         value = getValue();
         blue_pub.value = value;
+        printf("%d\n", blue_pub.value);
         //green_pub.value = value;
 
         ret = DDS_BlueDataWriter_write (g_Blue_writer, &blue_pub, NULL);

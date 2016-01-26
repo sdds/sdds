@@ -34,7 +34,6 @@ DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/red-ds.o
 #DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
 DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
 DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-GammaCorrection.o
-
 # object files of the generates implementation code file of sdds
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/contiki_olga1_sdds_impl.o
 
