@@ -98,10 +98,13 @@ function resolve_topic_config (topic)
 
             if kind = "besteffort"
                 config.reliabilityKind = "0"
+                project.hasReliableKindBesteffort = "1"
             elsif kind = "ack"
                 config.reliabilityKind = "1"
+                project.hasReliableKindAck = "1"
             elsif kind = "nack"
                 config.reliabilityKind = "2"
+                project.hasReliableKindNack = "1"
             endif
         else
             echo "E: Invalid config '$(config.type)' in topic $(topic.name:)"
@@ -110,6 +113,9 @@ function resolve_topic_config (topic)
 endfunction
 
 project.biggestSeqNrBitSize ?= "0"
+project.hasReliableKindBesteffort ?= "0"
+project.hasReliableKindAck ?= "0"
+project.hasReliableKindNack ?= "0"
 for project.topic
     resolve_topic_type (topic)
     resolve_topic_config (topic)
