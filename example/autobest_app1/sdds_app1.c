@@ -11,7 +11,7 @@
 #include <hv.h>
 //#include <trace_api.h>
 
-#define SLEEP_TIMEOUT_NSEC 1000000000ULL
+#define SLEEP_TIMEOUT_NSEC 10000000000ULL
 
 int main(void);
 
@@ -43,14 +43,9 @@ int main(void){
 		if (ret == DDS_RETCODE_OK){
             printf("received Ipc: %x\n", data_used.value );
 		}
-
-        printf("Try to send Beta...\n");
         ret = DDS_BetaDataWriter_write (g_Beta_writer, &beta_data, NULL);
         if (ret != DDS_RETCODE_OK){
             printf ("Failed to send topic beta\n");
-        }
-        else{
-            printf("succsess :)\n");
         }
         sys_sleep(SLEEP_TIMEOUT_NSEC);
 	}

@@ -28,7 +28,9 @@
 
     <include filename = "../topics/ipc.xml" />
     <include filename = "../topics/beta.xml" />
+    <include filename = "../topics/alpha.xml" />
 
     <role topic = "ipc" type = "publisher" />
     <role topic = "beta" type = "subscriber" />
+    <role topic = "alpha" type = "publisher" />
 </project>

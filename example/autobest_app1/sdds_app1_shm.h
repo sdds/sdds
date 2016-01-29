@@ -20,14 +20,14 @@ int shm_init(void);
 
 struct shm_seg_sdds_app1_ipc{
     uint8_t type;
-    uint8_t dds_obj;
+    //uint8_t dds_obj;
     Ipc data;
 } __aligned(8);
 typedef struct shm_seg_sdds_app1_ipc shm_seg_sdds_app1_ipc_t;
 
 struct shm_seg_sdds_app1_beta{
     uint8_t type;
-    uint8_t dds_obj;
+    //uint8_t dds_obj;
     Beta data;
 } __aligned(8);
 typedef struct shm_seg_sdds_app1_beta shm_seg_sdds_app1_beta_t;
