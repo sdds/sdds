@@ -18,7 +18,7 @@ void
 sdds_rpc_sdds_app1(unsigned int reply_id, unsigned long dds_obj_id);
 
 struct {
-	char s[512];
+	char s[1024];
 } __stack_rpc_sdds_app1 __aligned(16);
 
 DDS_Object dds_object_map [2];
