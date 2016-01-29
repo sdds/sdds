@@ -55,7 +55,7 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth) {
 }
 
 
-bool_t
+static inline bool_t
 s_History_full (History_t* self)
 {
     if (self->in_needle == self->depth) {
@@ -203,7 +203,7 @@ sdds_History_dequeue(History_t* self) {
 }
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-static rc_t
+static inline rc_t
 s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
     rc_t ret = SDDS_RT_FAIL;
 

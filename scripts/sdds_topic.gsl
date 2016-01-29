@@ -10,7 +10,10 @@
 .#
 .template 0
 
-
+.#
+.#  Resolve a topics DDS data types to C data types for encoding of data. Also
+.#  calculates the total size of a topic.
+.#
 function resolve_topic_type (topic)
     my.topic.size ?= 0
     my.topic.description ?= "$(string.trim (topic.?""):left)"
@@ -70,8 +73,10 @@ function resolve_topic_type (topic)
     endfor
 endfunction
 
+.#
+.#  Resolves a topics configuration pararmeters.
+.#
 function resolve_topic_config (topic)
-
     for my.topic.config
         if config.type = "qos_reliability"
             config.seqNrBitSize ?= ""
@@ -106,6 +111,8 @@ function resolve_topic_config (topic)
                 config.reliabilityKind = "2"
                 project.hasReliableKindNack = "1"
             endif
+        elsif config.type = "qos_history"
+            my.topic.history_depth = config.depth
         else
             echo "E: Invalid config '$(config.type)' in topic $(topic.name:)"
         endif
@@ -157,8 +164,13 @@ struct $(topic.c_name:)
 };
 typedef struct $(topic.c_name:) $(topic.c_name:);
 
+.   if defined (topic.history_depth)
+Sample_t $(topic.c_name)_samples_pool[$(topic.history_depth)];
+static $(topic.c_name:) $(topic.c_name)_sample_data[$(topic.history_depth)];
+.   else
 Sample_t $(topic.c_name)_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_QOS_HISTORY_DEPTH];
+.   endif
 
 DDS_ReturnCode_t
 $(topic.c_name:)_init ();
@@ -226,7 +238,11 @@ DDS_ReturnCode_t
 $(topic.c_name:)_init ()
 {
    int index;
+.   if defined (topic.history_depth)
+   for (index = 0; index < $(topic.history_depth); index++) {
+.   else
    for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
+.   endif
       $(topic.c_name)_samples_pool[index].data = &$(topic.c_name)_sample_data[index];
    }
 }
