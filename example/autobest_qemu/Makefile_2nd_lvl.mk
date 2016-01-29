@@ -10,18 +10,21 @@ DATASTRUCTURES_FILE := datastructures
 LOCAL_CONSTANTS := local_constants.h
 
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/sdds_sdds_impl.o
+IMPL_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds_server_shm.o
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
 ALL_OBJS += $(SDDS_OBJDIR)/sdds.o
 
 SDDS_CONSTANTS_FILE := gen_constants.h
 CC = $(CROSS)gcc
 LD = $(CROSS)ld
+AR = $(CROSS)ar
 
 include $(SDDS_TOPDIR)/sdds.mk
 
 INCLUDES += $(AUTOBEST_INCLUDES)
 
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/ipc-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
 ALL_OBJS += $(DATA_DEPEND_OBJS)
 
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
@@ -62,12 +65,12 @@ $(LOCAL_CONSTANTS):
 
 $(SDDS_OBJDIR)/%.o: %.c
 	echo $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
-	$(COMPILE.c)  $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
+	$(COMPILE.c)   $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
 
 $(APPLICATION_NAME).c: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR) $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
 
-$(APPLICATION_NAME).o: $(SDDS_OBJDIR)/sdds.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
-	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+lib$(APPLICATION_NAME).a: $(SDDS_OBJDIR)/sdds.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
+	$(AR) cr $@ $^ $(LDLIBS)
 
 %-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
 	$(shell ./generate.sh)

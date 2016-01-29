@@ -344,9 +344,11 @@ rc_t Network_send(NetBuffRef_t* buff) {
   unsigned int port = 0;
   struct netbuf* netbuf = NULL;
   void* data = NULL;
-
+  char addr_s[128];
   // Check the locator for uni or multicast socket
   Locator_t *loc = (Locator_t*) buff->locators->first_fn(buff->locators);
+  Locator_getAddress(loc,addr_s);
+  //Log_debug("Send %s\n", addr_s);
   conn_type = loc->type;
   // add locator to the netbuffref
   if(conn_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -370,7 +372,9 @@ rc_t Network_send(NetBuffRef_t* buff) {
       return SDDS_RT_FAIL;
     }
     memcpy (data, buff->buff_start, buff->curPos);
+    Log_debug ("Sending to %s...\n", addr_s);
     err = netconn_sendto(conn, netbuf, addr, ((AutobestLocator_t *) loc)->port);
+    Log_debug ("Finished...\n");
 #ifdef FEATURE_SDDS_TRACING_ENABLED
 #ifdef FEATURE_SDDS_TRACING_SIGNAL_SEND_PAKET
         Trace_setSignal(SDDS_TRACE_SIGNAL_SEND_PAKET);

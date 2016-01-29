@@ -4,7 +4,7 @@
     endian = "little"
     os = "linux"
     iface = "eth1"
-    ip = "fe80::a00:27ff:feea:1434" 
+    ip = "fe80::a00:27ff:feea:1434"
     port = "23234"
     protocol = "AF_INET6"
     >
@@ -15,6 +15,20 @@
         Includes are processed first, so XML in included files will be
         part of the XML tree
     -->
+
+    <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
+    <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
+    <define name = "FEATURE_SDDS_DISCOVERY_ENABLED" />
+
+    <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "20"/>
+    <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1"/>
+    <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10"/>
+    <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "60" />
+    <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0" />
+
     <include filename = "../topics/ipc.xml" />
+    <include filename = "../topics/beta.xml" />
+
     <role topic = "ipc" type = "publisher" />
+    <role topic = "beta" type = "subscriber" />
 </project>

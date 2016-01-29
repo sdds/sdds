@@ -10,6 +10,7 @@
 .#
 .#  Generate sDDS implementation header
 .#
+.if !file.exists ("$(project.name)_sdds_impl.h")
 .echo "Generating $(project.name)_sdds_impl.h ..."
 .output "$(project.name)_sdds_impl.h"
 /*  =========================================================================
@@ -40,9 +41,11 @@ extern DDS_Topic g_$(topic.c_name:)_topic;
 $(project.GENERATED_WARNING_HEADER:)
 */
 .close
+.endif
 .#
 .#  Generate sDDS implementation source
 .#
+.if !file.exists ("$(project.name)_sdds_impl.c")
 .echo "Generating $(project.name)_sdds_impl.c ..."
 .output "$(project.name)_sdds_impl.c"
 /*  =========================================================================
@@ -56,6 +59,11 @@ $(project.GENERATED_WARNING_HEADER:)
     =========================================================================
 */
 #include "$(project.name)_sdds_impl.h"
+.if project.os = "autobest"
+.   if autobest_role = "server"
+#include <hv_error.h>
+.   endif
+.endif
 
 DDS_ReturnCode_t DDS_DataReader_set_listener(
 	DDS_DataReader self,
@@ -88,6 +96,11 @@ sDDS_init (void)
     rc_t ret;
     //  Initializes all sDDS classes is defined in sDDS.c
     //  Must be first as all other classes depend on it
+.if project.os = "autobest"
+.   if autobest_role = "server"
+    assert(shm_server_init() == E_OK);
+.   endif
+.endif
 	assert(TaskMng_init() == SDDS_RT_OK);
     assert(BitArray_init() == SDDS_RT_OK);
     // Initalize classes
@@ -155,3 +168,4 @@ sDDS_init (void)
 $(project.GENERATED_WARNING_HEADER:)
 */
 .close
+.endif

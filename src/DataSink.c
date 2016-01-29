@@ -141,6 +141,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
             {
                 DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
+                Log_debug("return form DataSink_DataReader_by_topic \n");
                 if (data_reader == NULL) {
                     Log_debug("Couĺdn't get Data Reader for topic id %d: "
                               "Discard submessage\n", topic_id);
@@ -148,10 +149,13 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     return SDDS_RT_FAIL;
                 }
                 History_t* history = DataReader_history(data_reader);
+                Log_debug("return form DataReader_history \n");
 #ifdef SDDS_HAS_QOS_RELIABILITY
                 ret = sdds_History_enqueue_buffer(history, buff, seqNr);
+                Log_debug("return form sdds_History_enqueue_buffer \n");
 #else
                 ret = sdds_History_enqueue_buffer(history, buff);
+                Log_debug("return form sdds_History_enqueue_buffer \n");
 #endif
                 if (ret == SDDS_RT_FAIL) {
                     Log_warn("Can't parse data: Discard submessage\n");

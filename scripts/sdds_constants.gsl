@@ -10,10 +10,21 @@
 .#
 .#  Create local constants header file
 .#
-.if !file.exists ("local_constants.h")
+.#if !file.exists ("local_constants.h")
 .output "local_constants.h"
+.for project.define
+.   if defined (define.value)
+#ifndef $(define.name:)
+#define $(define.name:) $(define.value:)
+#endif
+.   else
+#ifndef $(define.name:)
+#define $(define.name:)
+#endif
+.   endif
+.endfor
 .close
-.endif
+.#endif
 .#
 .#  Generate sDDS constants
 .#
@@ -75,9 +86,6 @@ $(project.GENERATED_WARNING_HEADER:)
 #define SDDS_SEQNR_BIGGEST_TYPE uint8_t
 #define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 4
 .elsif project.biggestSeqNrBitSize = 8
-#define SDDS_SEQNR_BIGGEST_TYPE uint8_t
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 8
-.elsif project.biggestSeqNrBitSize = 16
 #define SDDS_SEQNR_BIGGEST_TYPE uint16_t
 #define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 16
 .else
@@ -222,8 +230,8 @@ $(project.GENERATED_WARNING_HEADER:)
 #endif
 
 .if project.os = "linux" | project.os = "autobest"
-#ifndef PLATFORM_$(PROJECT.OS)_SDDS_PROTOCOL
-#define PLATFORM_$(PROJECT.OS)_SDDS_PROTOCOL			$((project.protocol):upper)
+#ifndef PLATFORM_$(PROJECT.OS:c)_SDDS_PROTOCOL
+#define PLATFORM_$(PROJECT.OS:c)_SDDS_PROTOCOL			$((project.protocol):upper)
 #endif
 .endif
 .if project.os = "contiki"
