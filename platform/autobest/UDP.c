@@ -6,11 +6,13 @@
 #include <string.h>
 
 #include <hv.h>
+#ifdef __IS_SDDS_SERVER__
 #include <lwip/opt.h>
 #include <lwip/api.h>
 #include <lwip/inet.h>
 #include <lwip/netif.h>
 #include <lwip/err.h>
+#endif
 
 #ifdef UTILS_DEBUG
 #define PLATFORM_AUTOBEST_IPV6_MAX_CHAR_LEN 46
@@ -36,7 +38,7 @@
 #define PLATFORM_AUTOBEST_SDDS_ADDRESS "::1"
 #endif
 
-
+#ifdef __IS_SDDS_SERVER__
 struct Network_t {
     struct netconn* fd_uni_conn;
     struct netconn* fd_multi_conn;
@@ -44,6 +46,7 @@ struct Network_t {
     Thread recvThread;
     Thread multiRecvThread;
 };
+
 
 struct AutobestLocator_str{
     Locator_t loc;
@@ -67,17 +70,21 @@ Network_Multicast_init(void);
 
 static rc_t
 Network_Multicast_joinMulticastGroup(char* group);
-
+#endif
 
 
 size_t
 Network_size(void) {
+#ifdef __IS_SDDS_SERVER__
     return sizeof(struct Network_t);
+#else
+    return 0;
+#endif
 }
 
 rc_t
 Network_init(void) {
-
+#ifdef __IS_SDDS_SERVER__
     net.fd_uni_conn = create_connection(PLATFORM_AUTOBEST_SDDS_PORT);
     if( net.fd_uni_conn == NULL) {
         Log_error("error create_connection\n");
@@ -106,7 +113,6 @@ Network_init(void) {
         sys_abort();
     }
 
-
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
     ret = Network_Multicast_init();
     if(ret != SDDS_RT_OK) {
@@ -114,11 +120,13 @@ Network_init(void) {
         sys_abort();
     }
 #endif
+#endif
     return SDDS_RT_OK;
 }
 
 static rc_t
 Network_Multicast_init() {
+#ifdef __IS_SDDS_SERVER__
     rc_t ret;
 
     net.fd_multi_conn = create_connection(PLATFORM_AUTOBEST_SDDS_PORT + PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PORT_OFF);
@@ -128,22 +136,18 @@ Network_Multicast_init() {
     }
     ret = Network_Multicast_joinMulticastGroup(PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_ADDRESS);
     if (ret != SDDS_RT_OK) {
-        Log_error("unable to join group: %s\n", PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_ADDRESS);
         return SDDS_RT_FAIL;
     }
     ret = Network_Multicast_joinMulticastGroup(PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
     if (ret != SDDS_RT_OK) {
-        Log_error("unable to join group: %s\n", PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
         return SDDS_RT_FAIL;
     }
     ret = Network_Multicast_joinMulticastGroup(PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS);
     if (ret != SDDS_RT_OK) {
-        Log_error("unable to join group: %s\n", PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS);
         return SDDS_RT_FAIL;
     }
     ret = Network_Multicast_joinMulticastGroup(PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
     if (ret != SDDS_RT_OK) {
-        Log_error("unable to join group: %s\n", PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
         return SDDS_RT_FAIL;
     }
 
@@ -169,11 +173,13 @@ Network_Multicast_init() {
         sys_task_terminate();
         sys_abort();
     }
+#endif
     return SDDS_RT_OK;
 }
 
 static rc_t
 Network_Multicast_joinMulticastGroup(char* group) {
+#ifdef __IS_SDDS_SERVER__
     struct netif* netif = netif_default;
     ip_addr_t multi_addr;
     //ip_addr_t if_addr;
@@ -189,9 +195,11 @@ Network_Multicast_joinMulticastGroup(char* group) {
         Log_error("unable to join group: %s\n", lwip_strerr(err));
         return SDDS_RT_FAIL;
     }
+#endif
     return SDDS_RT_OK;
 }
 
+#ifdef __IS_SDDS_SERVER__
 static struct netconn*
 create_connection(int port) {
     struct netconn* conn =  NULL;
@@ -255,9 +263,7 @@ recvLoop(void* netBuff) {
     //reset the buffer
     NetBuffRef_renew(buff);
 
-    while (true)
-    {
-
+    while (true){
         err = netconn_recv(conn, &lwip_netbuf);
         if(err != ERR_OK ) {
             Log_error("Error checking if a netbuffer was recvied\n");
@@ -337,44 +343,40 @@ recvLoop(void* netBuff) {
     }
     return SDDS_RT_OK;
 }
+#endif
 
 rc_t Network_send(NetBuffRef_t* buff) {
-  struct netconn* conn;
-  unsigned int conn_type;
-  unsigned int port = 0;
-  struct netbuf* netbuf = NULL;
-  void* data = NULL;
-  char addr_s[128];
-  // Check the locator for uni or multicast socket
-  Locator_t *loc = (Locator_t*) buff->locators->first_fn(buff->locators);
-  Locator_getAddress(loc,addr_s);
-  //Log_debug("Send %s\n", addr_s);
-  conn_type = loc->type;
-  // add locator to the netbuffref
-  if(conn_type == SDDS_LOCATOR_TYPE_MULTI) {
-    conn = net.fd_multi_conn;
-  }
-  else if(conn_type == SDDS_LOCATOR_TYPE_UNI){
-    conn = net.fd_uni_conn;
-  }
+#ifdef __IS_SDDS_SERVER__
+    struct netconn* conn;
+    unsigned int conn_type;
+    unsigned int port = 0;
+    struct netbuf* netbuf = NULL;
+    void* data = NULL;
+    // Check the locator for uni or multicast socket
+    Locator_t *loc = (Locator_t*) buff->locators->first_fn(buff->locators);
+    conn_type = loc->type;
+    if(conn_type == SDDS_LOCATOR_TYPE_MULTI) {
+        conn = net.fd_multi_conn;
+    }
+    else if(conn_type == SDDS_LOCATOR_TYPE_UNI){
+        conn = net.fd_uni_conn;
+    }
 
-  while (loc != NULL ) {
-    err_t err;
-    ip_addr_t* addr = (ip_addr_t*) &(((AutobestLocator_t *) loc)->addr_storage);
-    netbuf = netbuf_new();
-    if(netbuf == NULL){
-      Log_error("Can't alloc netbuffer:\n");
-      return SDDS_RT_FAIL;
-    }
-    data = netbuf_alloc(netbuf, buff->curPos);
-    if(data == NULL){
-      Log_error("Can't alloc databuffer:\n");
-      return SDDS_RT_FAIL;
-    }
-    memcpy (data, buff->buff_start, buff->curPos);
-    Log_debug ("Sending to %s...\n", addr_s);
-    err = netconn_sendto(conn, netbuf, addr, ((AutobestLocator_t *) loc)->port);
-    Log_debug ("Finished...\n");
+    while (loc != NULL ) {
+        err_t err;
+        ip_addr_t* addr = (ip_addr_t*) &(((AutobestLocator_t *) loc)->addr_storage);
+        netbuf = netbuf_new();
+        if(netbuf == NULL){
+            Log_error("Can't alloc netbuffer:\n");
+            return SDDS_RT_FAIL;
+        }
+        data = netbuf_alloc(netbuf, buff->curPos);
+        if(data == NULL){
+            Log_error("Can't alloc databuffer:\n");
+            return SDDS_RT_FAIL;
+        }
+        memcpy (data, buff->buff_start, buff->curPos);
+        err = netconn_sendto(conn, netbuf, addr, ((AutobestLocator_t *) loc)->port);
 #ifdef FEATURE_SDDS_TRACING_ENABLED
 #ifdef FEATURE_SDDS_TRACING_SIGNAL_SEND_PAKET
         Trace_setSignal(SDDS_TRACE_SIGNAL_SEND_PAKET);
@@ -383,14 +385,14 @@ rc_t Network_send(NetBuffRef_t* buff) {
         Trace_point(SDDS_TRACE_EVENT_SEND_PAKET);
 #endif
 #endif
-    netbuf_delete(netbuf);
-    if (err != ERR_OK ) {
-      Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
-      return SDDS_RT_FAIL;
-    }
+        netbuf_delete(netbuf);
+        if (err != ERR_OK ) {
+            Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
+            return SDDS_RT_FAIL;
+        }
     loc = (Locator_t*)buff->locators->next_fn(buff->locators);
-
     }
+#endif
     return SDDS_RT_OK;
 }
 
@@ -402,6 +404,7 @@ Network_recvFrameHandler(Network _this) {
 
 rc_t
 Network_getFrameBuff(NetFrameBuff* buff) {
+#ifdef __IS_SDDS_SERVER__
     size_t size = SDDS_NET_MAX_BUF_SIZE * sizeof(byte_t);
     size += sizeof(struct NetFrameBuff_t);
 
@@ -413,25 +416,32 @@ Network_getFrameBuff(NetFrameBuff* buff) {
     memset(*buff, 0, size);
 
     (*buff)->size = SDDS_NET_MAX_BUF_SIZE;
+#endif
     return SDDS_RT_OK;
 }
 
 rc_t
 Network_getPayloadBegin(size_t* startByte) {
+#ifdef __IS_SDDS_SERVER__
     // payload starts at the beginning of the buffer, address is provided
     // Separately
     // buffer starts after the struct
     *startByte = sizeof(struct NetFrameBuff_t);
-
+#endif
     return SDDS_RT_OK;
 }
 size_t
 Network_locSize(void) {
+#ifdef __IS_SDDS_SERVER__
     return sizeof(AutobestLocator_t);
+#else
+    return 0;
+#endif
 }
 
 rc_t
 Network_setAddressToLocator(Locator_t* loc, char* addr) {
+#ifdef __IS_SDDS_SERVER__
     if (loc == NULL || addr == NULL) {
         return SDDS_RT_BAD_PARAMETER;
     }
@@ -454,12 +464,14 @@ Network_setAddressToLocator(Locator_t* loc, char* addr) {
     ret = Locator_getAddress(loc, a);
     Log_debug("Connection from %s\n", a);
 #endif
+#endif
     return SDDS_RT_OK;
 }
 
 
 rc_t
 Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
+#ifdef __IS_SDDS_SERVER__
     if (loc == NULL || addr == NULL) {
         return SDDS_RT_BAD_PARAMETER;
     }
@@ -481,16 +493,22 @@ Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
     aloc->port = PLATFORM_AUTOBEST_SDDS_PORT + PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PORT_OFF;
     char* address_buffer = inet6_ntoa(aloc->addr_storage);
     Log_debug("created a locator for [%s]\n", address_buffer);
+#endif
     return SDDS_RT_OK;
 }
 
 rc_t
 Network_setPlatformAddressToLocator(Locator_t* loc) {
+#ifdef __IS_SDDS_SERVER__
     return Network_setAddressToLocator(loc, PLATFORM_AUTOBEST_SDDS_ADDRESS);
+#else
+    return SDDS_RT_OK;
+#endif
 }
 
 rc_t
 Network_createLocator(Locator_t** loc) {
+#ifdef __IS_SDDS_SERVER__
     *loc = Memory_alloc(sizeof(AutobestLocator_t));
     if (*loc == NULL) {
         return SDDS_RT_NOMEM;
@@ -500,10 +518,14 @@ Network_createLocator(Locator_t** loc) {
     (*loc)->type = SDDS_LOCATOR_TYPE_UNI;
 
     return Network_setAddressToLocator(*loc, PLATFORM_AUTOBEST_SDDS_ADDRESS);
+#else
+    return SDDS_RT_OK;
+#endif
 }
 
 rc_t
 Network_createMulticastLocator(Locator_t** loc) {
+#ifdef __IS_SDDS_SERVER__
     *loc = Memory_alloc(sizeof(AutobestLocator_t));
     if(*loc == NULL) {
         return SDDS_RT_NOMEM;
@@ -511,10 +533,14 @@ Network_createMulticastLocator(Locator_t** loc) {
     // set type for recvLoop
     (*loc)->type = SDDS_LOCATOR_TYPE_MULTI;
     return Network_setMulticastAddressToLocator(*loc, PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_ADDRESS);
+#else
+    return SDDS_RT_OK;
+#endif
 }
 
 bool_t
 Locator_isEqual(Locator_t* l1, Locator_t* l2) {
+#ifdef __IS_SDDS_SERVER__
     AutobestLocator_t* a = (AutobestLocator_t*)l1;
     AutobestLocator_t* b = (AutobestLocator_t*)l2;
 
@@ -526,11 +552,14 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
     if (memcmp(addr[0], addr[1], sizeof(ip_addr_t)) == 0) {
         return true;
     }
+#endif
     return false;
 }
 
+
 rc_t
 Locator_getAddress(Locator_t* l, char* srcAddr) {
+#ifdef __IS_SDDS_SERVER__
     AutobestLocator_t* aloc = (AutobestLocator_t*) l;
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET
     char* ret = inet_ntoa(aloc->addr_storage);
@@ -544,15 +573,18 @@ Locator_getAddress(Locator_t* l, char* srcAddr) {
     if(ret == NULL) {
         return SDDS_RT_FAIL;
     }
+#endif
     return SDDS_RT_OK;
 }
 
 rc_t
 Locator_copy(Locator_t* src, Locator_t* dst) {
+#ifdef __IS_SDDS_SERVER__
     if(src == NULL || dst == NULL){
         return SDDS_RT_FAIL;
     }
     memcpy(dst, src, sizeof(AutobestLocator_t));
     dst->refCount =0;
+#endif
     return SDDS_RT_OK;
 }

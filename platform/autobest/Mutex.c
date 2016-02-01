@@ -11,7 +11,9 @@
 #include "Log.h"
 
 #include <hv.h>
+#ifdef __IS_SDDS_SERVER__
 #include <lwip/sys.h>
+#endif
 
 #define UNLOCK_STATE    0
 #define LOCK_STATE      1
@@ -56,6 +58,7 @@ Mutex_init(Mutex_t* mutex) {
  */
 ssw_rc_t
 Mutex_lock(Mutex_t* mutex) {
+#ifdef __IS_SDDS_SERVER__
     if(mutex == NULL){
         return SDDS_SSW_RT_FAIL;
     }
@@ -64,6 +67,7 @@ Mutex_lock(Mutex_t* mutex) {
     }
     mutex->old_prio =  sys_arch_protect();
     mutex->state = LOCK_STATE;
+#endif
     return SDDS_SSW_RT_OK;
 }
 
@@ -76,6 +80,7 @@ Mutex_lock(Mutex_t* mutex) {
  */
 ssw_rc_t
 Mutex_unlock(Mutex_t* mutex) {
+#ifdef __IS_SDDS_SERVER__
     if(mutex == NULL){
         return SDDS_SSW_RT_FAIL;
     }
@@ -84,5 +89,6 @@ Mutex_unlock(Mutex_t* mutex) {
     }
     sys_arch_unprotect(mutex->old_prio);
     mutex->state = UNLOCK_STATE;
+#endif
     return SDDS_SSW_RT_OK;
 }
