@@ -39,10 +39,6 @@ int main(void){
 	Log_setLvl(0);
 	printf("Initilaized sDDS\n");
 
-	for (;;){
-		sys_sleep(SLEEP_TIMEOUT_NSEC);
-	}
-
 	sys_task_terminate();
     sys_abort();
 	return 0;

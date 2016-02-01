@@ -9,7 +9,7 @@
 
 #include <hv.h>
 
-#define SLEEP_TIMEOUT_NSEC 100000000ULL
+#define SLEEP_TIMEOUT_NSEC 500000000ULL
 
 int main(void);
 

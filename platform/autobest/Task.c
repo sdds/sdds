@@ -10,7 +10,7 @@
 #define TASK_MNG_TASK_ID 3
 #define TASK_MNG_MUL_SEC_TO_NANO_SEC 1000000000ULL
 #define TASK_MNG_MUL_MSEC_TO_NANO_SEC 1000000UL
-#define TASK_MNG_PRI 102
+#define TASK_MNG_PRI 101
 
 struct Task_struct {
     void (* cb)(void* obj);

@@ -400,12 +400,10 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
     DDS_DataReader self,
     $(topic.c_name:)** data_values,
     DDS_SampleInfo* sample_info
-)
-{
-    g_shm_$(project.name:c)->$(topic.name:c)_seg.type = 0;
-    //g_shm_$(project.name:c)->$(topic.name:c)_seg.dds_obj = DDS_$(topic.NAME)_READER_ID;
+){
     unsigned int err;
     unsigned long recv_arg;
+    g_shm_$(project.name:c)->$(topic.name:c)_seg.type = 0;
     err = sys_rpc_call(CFG_RPC_rpc_sdds_$(project.name:c),DDS_$(topic.NAME)_READER_ID,-1, &recv_arg);
     assert(err ==  E_OK);
     $(topic.c_name:)* addr = *data_values;
@@ -421,10 +419,8 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
     const $(topic.c_name:)* instance_data,
     const DDS_InstanceHandle_t  handle
 
-)
-{
+){
     g_shm_$(project.name:c)->$(topic.name:c)_seg.type = 1;
-    //g_shm_$(project.name:c)->$(topic.name:c)_seg.dds_obj = DDS_$(topic.NAME)_WRITER_ID;
     memcpy(&g_shm_$(project.name:c)->$(topic.name:c)_seg.data, instance_data, sizeof($(topic.c_name:)));
     unsigned int err;
     unsigned long recv_arg;

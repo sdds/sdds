@@ -41,7 +41,9 @@ int main(void){
 		DDS_ReturnCode_t ret = DDS_IpcDataReader_take_next_sample(g_Ipc_reader, &data_used_ptr, NULL);
 		if (ret == DDS_RETCODE_OK){
             printf("received Ipc: %x\n", data_used.value );
-		}
+		}else{
+            printf("ret: %x\n", ret);
+        }
         ret = DDS_BetaDataWriter_write (g_Beta_writer, &beta_data, NULL);
         if (ret != DDS_RETCODE_OK){
             printf ("Failed to send topic beta\n");
