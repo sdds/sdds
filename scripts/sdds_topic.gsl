@@ -229,7 +229,6 @@ extern "C"
 #include <dds_obj_ids.h>
 #include <app.id.h>
 .if project.autobest_role = "client"
-#include <rpc_call_ids.h>
 #include "$(project.name:c)_shm.h"
 .endif
 .endif
