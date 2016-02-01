@@ -40,6 +40,7 @@ CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
 CFLAGS += $(INCLUDES)
+CFLAGS += -D__IS_SDDS_SERVER__
 CFLAGS += -std=c99
 CFLAGS += -ffreestanding
 

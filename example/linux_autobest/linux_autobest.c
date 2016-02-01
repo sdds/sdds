@@ -33,7 +33,7 @@ int main()
             printf("received Beta: 0x%x %s %s\n", (unsigned char)recv_beta.value, recv_beta.value2, recv_beta.value3 );
 		}
         //usleep (SEND_INTERVAL_US);
-		sleep(10);
+		sleep(1);
     }
 
     return 0;
