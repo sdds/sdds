@@ -126,6 +126,7 @@ sDDS_init (void)
 .for project.topic
     $(topic.c_name:)_init ();
     g_$(topic.c_name:)_topic = sDDS_$(topic.c_name:)Topic_create(g_$(topic.c_name:)_pool, SDDS_TOPIC_APP_MSG_COUNT);
+    assert(g_$(topic.c_name:)_topic != NULL);
 .   if count (project.role, role.topic = topic.name & role.type = "subscriber")
     g_$(topic.c_name:)_reader = DataSink_create_datareader(g_$(topic.c_name:)_topic, NULL, NULL, NULL);
 .       if defined (topic.history_depth)

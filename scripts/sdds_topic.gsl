@@ -307,11 +307,17 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 #ifdef SDDS_TOPIC_HAS_SUB
 	topic->Data_encode = TopicMarshalling_$(topic.c_name:)_encode;
 	topic->dsinks.list = List_initConcurrentLinkedList();
+    if(topic->dsinks.list == NULL){
+        return NULL;
+    }
 #endif
 
 #ifdef SDDS_TOPIC_HAS_PUB
 	topic->Data_decode = TopicMarshalling_$(topic.c_name:)_decode;
 	topic->dsources.list = List_initConcurrentLinkedList();
+    if(topic->dsources.list == NULL){
+        return NULL;
+    }
 #endif
 
 	topic->domain = SDDS_DOMAIN;
