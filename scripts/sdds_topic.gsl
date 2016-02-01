@@ -164,12 +164,14 @@ struct $(topic.c_name:)
 };
 typedef struct $(topic.c_name:) $(topic.c_name:);
 
-.   if defined (topic.history_depth)
+.   if project.os <> "autobest" | (defined (project.autobest_role) & project.autobest_role = "server")
+.       if defined (topic.history_depth)
 Sample_t $(topic.c_name)_samples_pool[$(topic.history_depth)];
 static $(topic.c_name:) $(topic.c_name)_sample_data[$(topic.history_depth)];
-.   else
+.       else
 Sample_t $(topic.c_name)_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_QOS_HISTORY_DEPTH];
+.       endif
 .   endif
 
 DDS_ReturnCode_t
