@@ -8,9 +8,8 @@
 #include <string.h>
 
 #include <hv.h>
-//#include <trace_api.h>
 
-#define SLEEP_TIMEOUT_NSEC 1000000000ULL
+#define SLEEP_TIMEOUT_NSEC 100000000ULL
 
 int main(void);
 
