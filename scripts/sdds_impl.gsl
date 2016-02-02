@@ -10,6 +10,7 @@
 .#
 .#  Generate sDDS implementation header
 .#
+.if !file.exists ("$(project.name)_sdds_impl.h")
 .echo "Generating $(project.name)_sdds_impl.h ..."
 .output "$(project.name)_sdds_impl.h"
 /*  =========================================================================
@@ -40,9 +41,11 @@ extern DDS_Topic g_$(topic.c_name:)_topic;
 $(project.GENERATED_WARNING_HEADER:)
 */
 .close
+.endif
 .#
 .#  Generate sDDS implementation source
 .#
+.if !file.exists ("$(project.name)_sdds_impl.c")
 .echo "Generating $(project.name)_sdds_impl.c ..."
 .output "$(project.name)_sdds_impl.c"
 /*  =========================================================================
@@ -56,6 +59,11 @@ $(project.GENERATED_WARNING_HEADER:)
     =========================================================================
 */
 #include "$(project.name)_sdds_impl.h"
+.if project.os = "autobest"
+.   if autobest_role = "server"
+#include <hv_error.h>
+.   endif
+.endif
 
 DDS_ReturnCode_t DDS_DataReader_set_listener(
 	DDS_DataReader self,
@@ -88,6 +96,11 @@ sDDS_init (void)
     rc_t ret;
     //  Initializes all sDDS classes is defined in sDDS.c
     //  Must be first as all other classes depend on it
+.if project.os = "autobest"
+.   if autobest_role = "server"
+    assert(shm_server_init() == E_OK);
+.   endif
+.endif
 	assert(TaskMng_init() == SDDS_RT_OK);
     assert(BitArray_init() == SDDS_RT_OK);
     // Initalize classes
@@ -109,13 +122,18 @@ sDDS_init (void)
 
     assert(LocatorDB_freeLocators() > 0);
 
-    Locator_t* l;
+    Locator_t* locator;
 .for project.topic
     $(topic.c_name:)_init ();
     g_$(topic.c_name:)_topic = sDDS_$(topic.c_name:)Topic_create(g_$(topic.c_name:)_pool, SDDS_TOPIC_APP_MSG_COUNT);
+    assert(g_$(topic.c_name:)_topic != NULL);
 .   if count (project.role, role.topic = topic.name & role.type = "subscriber")
     g_$(topic.c_name:)_reader = DataSink_create_datareader(g_$(topic.c_name:)_topic, NULL, NULL, NULL);
+.       if defined (topic.history_depth)
+    sdds_History_setup (DataReader_history (g_$(topic.c_name:)_reader), $(topic.c_name)_samples_pool, $(topic.history_depth));
+.       else
     sdds_History_setup (DataReader_history (g_$(topic.c_name:)_reader), $(topic.c_name)_samples_pool, SDDS_QOS_HISTORY_DEPTH);
+.       endif
 .   endif
 .   if count (project.role, role.topic = topic.name & role.type = "publisher")
     g_$(topic.c_name:)_writer = DataSource_create_datawriter(g_$(topic.c_name:)_topic, NULL, NULL, NULL);
@@ -123,30 +141,32 @@ sDDS_init (void)
 
 .   for project.role where topic.name = role.topic
 .       for role.subscriber
-    ret = LocatorDB_newLocator (&l);
+    ret = LocatorDB_newLocator (&locator);
     if (ret != SDDS_RT_OK)
         return ret;
 
-    Locator_upRef (l);
+    Locator_upRef (locator);
 
 .   if defined (subscriber.port)
-    ret = Network_set_locator_endpoint (l, "$(subscriber.ip)", $(subscriber.port));
+    ret = Network_set_locator_endpoint (locator, "$(subscriber.ip)", $(subscriber.port));
 .   else
-    ret = Network_setAddressToLocator (l, "$(subscriber.ip)");
+    ret = Network_setAddressToLocator (locator, "$(subscriber.ip)");
 .   endif
     if (ret != SDDS_RT_OK)
         return ret;
 
-    ret = Topic_addRemoteDataSink (g_$(topic.c_name:)_topic, l);
+    ret = Topic_addRemoteDataSink (g_$(topic.c_name:)_topic, locator);
     if (ret != SDDS_RT_OK)
         return ret;
-    Locator_downRef (l);
+
+    Locator_downRef (locator);
 .       endfor
 .   endfor
 .endfor
-
+    return ret;
 }
 /*
 $(project.GENERATED_WARNING_HEADER:)
 */
 .close
+.endif

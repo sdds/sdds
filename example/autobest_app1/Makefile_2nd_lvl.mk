@@ -1,23 +1,30 @@
 SDDS_TOPDIR := ../..
 
-SDDS_OBJDIR := objs-linux
-TARGET := linux
-SDDS_PLATFORM := linux
-SDDS_ARCH := x86
+SDDS_OBJDIR := objs-autobest
+TARGET := autobest
+SDDS_PLATFORM := autobest
+SDDS_ARCH := ARM
+
+DATASTRUCTURES_FILE := datastructures
 
 LOCAL_CONSTANTS := local_constants.h
 
-IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_autobest_sdds_impl.o
+IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/sdds_app1_sdds_impl.o
+IMPL_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds_app1_shm.o
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
-ALL_OBJS += $(SDDS_OBJDIR)/linux_autobest.o
+ALL_OBJS += $(SDDS_OBJDIR)/sdds_app1.o
 
-SDDS_CONSTANTS_FILE := ./gen_constants.h
+SDDS_CONSTANTS_FILE := gen_constants.h
+CC = $(CROSS)gcc
+LD = $(CROSS)ld
+AR = $(CROSS)ar
 
 include $(SDDS_TOPDIR)/sdds.mk
 
+INCLUDES += $(AUTOBEST_INCLUDES)
+
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/ipc-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/alpha-ds.o
 ALL_OBJS += $(DATA_DEPEND_OBJS)
 
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
@@ -31,8 +38,23 @@ CLEAN += $(IMPL_DEPEND_SRCS)
 CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
+CFLAGS += $(INCLUDES)
+CFLAGS += -std=c99
+CFLAGS += -ffreestanding
+
+ifeq ("$(DEBUG)", "no")
+CFLAGS += -DUTILS_NO_LOGGING
+CFLAGS += -Os -fomit-frame-pointer
+
+else
+CFLAGS += -g
+endif
+CFLAGS += $(AUTOBEST_CFLAGS)
+
+LDFLAGS := -r
 
 all:
+	echo $(DEBUG)
 
 $(SDDS_OBJDIR):
 	mkdir $(SDDS_OBJDIR)
@@ -40,28 +62,17 @@ $(SDDS_OBJDIR):
 $(LOCAL_CONSTANTS):
 	touch $(LOCAL_CONSTANTS)
 
-CFLAGS += -I.
-# required for timer_t (POSIX.1b (real-time extensions))
-# and getline
-CFLAGS += -g -D_POSIX_C_SOURCE=200809L
-LDLIBS += -lrt
 
 $(SDDS_OBJDIR)/%.o: %.c
 	echo $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
 	$(COMPILE.c)   $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
 
-$(SDDS_OBJDIR)/%.o: %.c
-	$(COMPILE.c) $(CFLAGS) -MMD $(OUTPUT_OPTION) $<
-
 $(APPLICATION_NAME).c: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR) $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
 
-$(APPLICATION_NAME): $(SDDS_OBJDIR)/linux_autobest.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
-	$(CC) -o $@ $^ $(LDLIBS)
+lib$(APPLICATION_NAME).a: $(SDDS_OBJDIR)/sdds_app1.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
+	$(AR) cr $@ $^ $(LDLIBS)
 
 %-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
-	$(shell ./generate.sh)
-
-code:
 	$(shell ./generate.sh)
 
 clean:

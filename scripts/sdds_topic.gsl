@@ -10,7 +10,10 @@
 .#
 .template 0
 
-
+.#
+.#  Resolve a topics DDS data types to C data types for encoding of data. Also
+.#  calculates the total size of a topic.
+.#
 function resolve_topic_type (topic)
     my.topic.size ?= 0
     my.topic.description ?= "$(string.trim (topic.?""):left)"
@@ -70,8 +73,10 @@ function resolve_topic_type (topic)
     endfor
 endfunction
 
+.#
+.#  Resolves a topics configuration pararmeters.
+.#
 function resolve_topic_config (topic)
-
     for my.topic.config
         if config.type = "qos_reliability"
             config.seqNrBitSize ?= ""
@@ -98,11 +103,16 @@ function resolve_topic_config (topic)
 
             if kind = "besteffort"
                 config.reliabilityKind = "0"
+                project.hasReliableKindBesteffort = "1"
             elsif kind = "ack"
                 config.reliabilityKind = "1"
+                project.hasReliableKindAck = "1"
             elsif kind = "nack"
                 config.reliabilityKind = "2"
+                project.hasReliableKindNack = "1"
             endif
+        elsif config.type = "qos_history"
+            my.topic.history_depth = config.depth
         else
             echo "E: Invalid config '$(config.type)' in topic $(topic.name:)"
         endif
@@ -110,6 +120,9 @@ function resolve_topic_config (topic)
 endfunction
 
 project.biggestSeqNrBitSize ?= "0"
+project.hasReliableKindBesteffort ?= "0"
+project.hasReliableKindAck ?= "0"
+project.hasReliableKindNack ?= "0"
 for project.topic
     resolve_topic_type (topic)
     resolve_topic_config (topic)
@@ -151,8 +164,15 @@ struct $(topic.c_name:)
 };
 typedef struct $(topic.c_name:) $(topic.c_name:);
 
+.   if project.os <> "autobest" | (defined (project.autobest_role) & project.autobest_role = "server")
+.       if defined (topic.history_depth)
+Sample_t $(topic.c_name)_samples_pool[$(topic.history_depth)];
+static $(topic.c_name:) $(topic.c_name)_sample_data[$(topic.history_depth)];
+.       else
 Sample_t $(topic.c_name)_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_QOS_HISTORY_DEPTH];
+.       endif
+.   endif
 
 DDS_ReturnCode_t
 $(topic.c_name:)_init ();
@@ -206,6 +226,15 @@ extern "C"
 #include <stdio.h>
 #include <string.h>
 
+.if project.os = "autobest"
+#include <hv.h>
+#include <dds_obj_ids.h>
+#include <app.id.h>
+.if project.autobest_role = "client"
+#include "$(project.name:c)_shm.h"
+.endif
+.endif
+
 #ifdef __cplusplus
 }
 #endif
@@ -213,14 +242,18 @@ extern "C"
 #define SDDS_DOMAIN 0x$(topic.domain)
 #define SDDS_TOPIC 0x$(topic.id)
 
-
+.if project.os <> "autobest" | (defined (project.autobest_role) & project.autobest_role = "server")
 rc_t TopicMarshalling_$(topic.c_name:)_cpy(Data dest, Data source);
 
 DDS_ReturnCode_t
 $(topic.c_name:)_init ()
 {
    int index;
+.   if defined (topic.history_depth)
+   for (index = 0; index < $(topic.history_depth); index++) {
+.   else
    for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
+.   endif
       $(topic.c_name)_samples_pool[index].data = &$(topic.c_name)_sample_data[index];
    }
 }
@@ -235,16 +268,17 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
     DDS_SampleInfo* sample_info
 )
 {
-	rc_t ret = DataReader_take_next_sample((DataReader_t *) self, (Data*) data_values, (DataInfo) sample_info);
+    rc_t ret = DataReader_take_next_sample((DataReader_t *) self, (Data*) data_values, (DataInfo) sample_info);
 
-	if (ret == SDDS_RT_NODATA)
-		return DDS_RETCODE_NO_DATA;
+    if (ret == SDDS_RT_NODATA)
+        return DDS_RETCODE_NO_DATA;
 
-	if (ret == SDDS_RT_OK)
-		return DDS_RETCODE_OK;
+    if (ret == SDDS_RT_OK)
+        return DDS_RETCODE_OK;
 
-	return DDS_RETCODE_ERROR;
+    return DDS_RETCODE_ERROR;
 }
+
 #endif
 
 #ifdef SDDS_TOPIC_HAS_SUB
@@ -273,11 +307,17 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 #ifdef SDDS_TOPIC_HAS_SUB
 	topic->Data_encode = TopicMarshalling_$(topic.c_name:)_encode;
 	topic->dsinks.list = List_initConcurrentLinkedList();
+    if(topic->dsinks.list == NULL){
+        return NULL;
+    }
 #endif
 
 #ifdef SDDS_TOPIC_HAS_PUB
 	topic->Data_decode = TopicMarshalling_$(topic.c_name:)_decode;
 	topic->dsources.list = List_initConcurrentLinkedList();
+    if(topic->dsources.list == NULL){
+        return NULL;
+    }
 #endif
 
 	topic->domain = SDDS_DOMAIN;
@@ -360,5 +400,41 @@ rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, s
 /*
 $(project.GENERATED_WARNING_HEADER:)
 */
+.else
+#ifdef SDDS_TOPIC_HAS_PUB
+DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
+    DDS_DataReader self,
+    $(topic.c_name:)** data_values,
+    DDS_SampleInfo* sample_info
+){
+    unsigned int err;
+    unsigned long recv_arg;
+    g_shm_$(project.name:c)->$(topic.name:c)_seg.type = 0;
+    err = sys_rpc_call(CFG_RPC_rpc_sdds_$(project.name:c),DDS_$(topic.NAME)_READER_ID,-1, &recv_arg);
+    assert(err ==  E_OK);
+    $(topic.c_name:)* addr = *data_values;
+    *addr = g_shm_$(project.name:c)->$(topic.name:c)_seg.data;
+    //printf("value: %x\\n",addr->value);
+    return (DDS_ReturnCode_t) recv_arg;
+}
+#endif
+
+#ifdef SDDS_TOPIC_HAS_SUB
+DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
+    DDS_DataWriter _this,
+    const $(topic.c_name:)* instance_data,
+    const DDS_InstanceHandle_t  handle
+
+){
+    g_shm_$(project.name:c)->$(topic.name:c)_seg.type = 1;
+    memcpy(&g_shm_$(project.name:c)->$(topic.name:c)_seg.data, instance_data, sizeof($(topic.c_name:)));
+    unsigned int err;
+    unsigned long recv_arg;
+    err = sys_rpc_call(CFG_RPC_rpc_sdds_$(project.name:c), DDS_$(topic.NAME)_WRITER_ID,-1, &recv_arg);
+    assert(err ==  E_OK);
+    return (DDS_ReturnCode_t) recv_arg;
+}
+#endif
+.endif
 .   close
 .endfor

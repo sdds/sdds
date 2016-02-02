@@ -69,6 +69,9 @@ BuiltinTopic_init(void) {
     BuiltinTopic_participantID = NodeConfig_getNodeID();
 
     g_DCPSParticipant_topic = sDDS_DCPSParticipantTopic_create();
+    if (g_DCPSParticipant_topic == NULL){
+        return SDDS_RT_FAIL;
+    }
     g_DCPSParticipant_reader = DataSink_create_datareader(g_DCPSParticipant_topic, NULL, NULL, NULL);
     sdds_History_setup (DataReader_history (g_DCPSParticipant_reader), dcps_participant_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSParticipant_writer = DataSource_create_datawriter(g_DCPSParticipant_topic, NULL, NULL, NULL);
@@ -97,6 +100,9 @@ BuiltinTopic_init(void) {
     }
 
     g_DCPSTopic_topic = sDDS_DCPSTopicTopic_create();
+    if(g_DCPSTopic_topic == NULL){
+        return SDDS_RT_FAIL;
+    }
     g_DCPSTopic_reader = DataSink_create_datareader(g_DCPSTopic_topic, NULL, NULL, NULL);
     sdds_History_setup (DataReader_history (g_DCPSTopic_reader), dcps_topic_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSTopic_writer = DataSource_create_datawriter(g_DCPSTopic_topic, NULL, NULL, NULL);
@@ -125,6 +131,9 @@ BuiltinTopic_init(void) {
     }
 
     g_DCPSPublication_topic = sDDS_DCPSPublicationTopic_create();
+    if(g_DCPSPublication_topic == NULL){
+        return SDDS_RT_FAIL;
+    }
     g_DCPSPublication_reader = DataSink_create_datareader(g_DCPSPublication_topic, NULL, NULL, NULL);
     sdds_History_setup (DataReader_history (g_DCPSPublication_reader), dcps_publication_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSPublication_writer = DataSource_create_datawriter(g_DCPSPublication_topic, NULL, NULL, NULL);
@@ -153,6 +162,9 @@ BuiltinTopic_init(void) {
     }
 
     g_DCPSSubscription_topic = sDDS_DCPSSubscriptionTopic_create();
+    if(g_DCPSSubscription_topic ==  NULL){
+        return SDDS_RT_FAIL;
+    }
     g_DCPSSubscription_reader = DataSink_create_datareader(g_DCPSSubscription_topic, NULL, NULL, NULL);
     sdds_History_setup (DataReader_history (g_DCPSSubscription_reader), dcps_subscription_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSSubscription_writer = DataSource_create_datawriter(g_DCPSSubscription_topic, NULL, NULL, NULL);
@@ -281,7 +293,13 @@ sDDS_DCPSParticipantTopic_create() {
     topic->id = DDS_DCPS_PARTICIPANT_TOPIC;
     topic->Data_cpy = TopicMarshalling_DCPSParticipant_cpy;
     topic->dsinks.list = List_initConcurrentLinkedList();
+    if(topic->dsinks.list == NULL){
+        return NULL;
+    }
     topic->dsources.list = List_initConcurrentLinkedList();
+    if(topic->dsources.list == NULL){
+        return NULL;
+    }
 
     return topic;
 }
@@ -398,7 +416,13 @@ sDDS_DCPSTopicTopic_create() {
     topic->id = DDS_DCPS_TOPIC_TOPIC;
     topic->Data_cpy = TopicMarshalling_DCPSTopic_cpy;
     topic->dsinks.list = List_initConcurrentLinkedList();
+    if(topic->dsinks.list == NULL){
+        return NULL;
+    }
     topic->dsources.list = List_initConcurrentLinkedList();
+    if(topic->dsources.list == NULL){
+        return NULL;
+    }
 
     return topic;
 }
@@ -518,7 +542,13 @@ sDDS_DCPSPublicationTopic_create() {
     topic->id = DDS_DCPS_PUBLICATION_TOPIC;
     topic->Data_cpy = TopicMarshalling_DCPSPublication_cpy;
     topic->dsinks.list = List_initConcurrentLinkedList();
+    if(topic->dsinks.list == NULL){
+        return NULL;
+    }
     topic->dsources.list = List_initConcurrentLinkedList();
+    if(topic->dsources.list == NULL){
+        return NULL;
+    }
 
     return topic;
 }
@@ -658,8 +688,13 @@ sDDS_DCPSSubscriptionTopic_create() {
     topic->id = DDS_DCPS_SUBSCRIPTION_TOPIC;
     topic->Data_cpy = TopicMarshalling_DCPSSubscription_cpy;
     topic->dsinks.list = List_initConcurrentLinkedList();
+    if(topic->dsinks.list == NULL){
+        return NULL;
+    }
     topic->dsources.list = List_initConcurrentLinkedList();
-
+    if(topic->dsources.list == NULL){
+        return NULL;
+    }
     return topic;
 }
 

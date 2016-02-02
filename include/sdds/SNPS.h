@@ -27,7 +27,7 @@ typedef uint8_t subMsg_t;
 typedef uint8_t addrType_t;
 typedef uint8_t castType_t;
 
-#define SDDS_SNPS_CAST_UNICAST  0
+#define SDDS_SNPS_CAST_UNICAST          0
 #define SDDS_SNPS_CAST_MULTICAST        1
 #define SDDS_SNPS_CAST_BROADCAST        2
 
@@ -37,13 +37,13 @@ typedef uint8_t castType_t;
 // unique ids of (extended)subMsg-type
 #define SDDS_SNPS_T_DOMAIN                 0
 #define SDDS_SNPS_T_TOPIC                  1
-#define SDDS_SNPS_T_DATA                        2
+#define SDDS_SNPS_T_DATA                   2
 #define SDDS_SNPS_T_SEQNR                  3
-#define SDDS_SNPS_T_TSSIMPLE            4
-#define SDDS_SNPS_T_ACKSEQ            5
-#define SDDS_SNPS_T_NACKSEQ        6
+#define SDDS_SNPS_T_TSSIMPLE               4
+#define SDDS_SNPS_T_ACKSEQ                 5
+#define SDDS_SNPS_T_NACKSEQ                6
 #define SDDS_SNPS_T_STATUS                 7
-#define SDDS_SNPS_T_ADDRESS             8
+#define SDDS_SNPS_T_ADDRESS                8
 
 #define SDDS_SNPS_T_ACK                    17
 #define SDDS_SNPS_T_NACK                   18
@@ -53,40 +53,40 @@ typedef uint8_t castType_t;
 #define SDDS_SNPS_T_CRC                    22
 #define SDDS_SNPS_T_TSUSEC                 33
 #define SDDS_SNPS_T_TSMSEC                 34
-#define SDDS_SNPS_T_SEQNRSMALL  35
-#define SDDS_SNPS_T_SEQNRBIG            36
-#define SDDS_SNPS_T_SEQNRHUGE      37
-#define SDDS_SNPS_T_FRAG           38
-#define SDDS_SNPS_T_FRAGNACK       39
-#define SDDS_SNPS_T_UNKNOWN             0xff
+#define SDDS_SNPS_T_SEQNRSMALL             35
+#define SDDS_SNPS_T_SEQNRBIG               36
+#define SDDS_SNPS_T_SEQNRHUGE              37
+#define SDDS_SNPS_T_FRAG                   38
+#define SDDS_SNPS_T_FRAGNACK               39
+#define SDDS_SNPS_T_UNKNOWN                0xff
 
 // 4-bit id for distinguishing subMsg-type
 #define SDDS_SNPS_SUBMSG_DOMAIN            0x00
 #define SDDS_SNPS_SUBMSG_TOPIC             0x01
-#define SDDS_SNPS_SUBMSG_DATA                 0x02
+#define SDDS_SNPS_SUBMSG_DATA              0x02
 #define SDDS_SNPS_SUBMSG_SEQNR             0x03
-#define SDDS_SNPS_SUBMSG_TS                        0x04
+#define SDDS_SNPS_SUBMSG_TS                0x04
 #define SDDS_SNPS_SUBMSG_ACKSEQ            0x05
-#define SDDS_SNPS_SUBMSG_NACKSEQ              0x06
+#define SDDS_SNPS_SUBMSG_NACKSEQ           0x06
 #define SDDS_SNPS_SUBMSG_STATUS            0x07
-#define SDDS_SNPS_SUBMGS_ADDR                 0x08
+#define SDDS_SNPS_SUBMGS_ADDR              0x08
 #define SDDS_SNPS_SUBMSG_EXTENDED          0x0f
 
 #define SDDS_SNPS_EXTSUBMSG_ACK            0x00
-#define SDDS_SNPS_EXTSUBMSG_NACK              0x01
+#define SDDS_SNPS_EXTSUBMSG_NACK           0x01
 #define SDDS_SNPS_EXTSUBMSG_SEP            0x02
 #define SDDS_SNPS_EXTSUBMSG_TSDDS          0x03
 #define SDDS_SNPS_EXTSUBMSG_ADDR16         0x04
 #define SDDS_SNPS_EXTSUBMSG_CRC            0x05
-#define SDDS_SNPS_EXTSUBMSG_TSUSEC     0x06
-#define SDDS_SNPS_EXTSUBMSG_TSMSEC     0x07
-#define SDDS_SNPS_EXTSUBMSG_SEQNRSMALL 0x08
-#define SDDS_SNPS_EXTSUBMSG_SEQNRBIG   0x09
-#define SDDS_SNPS_EXTSUBMSG_SEQNRHUGE  0x0A
+#define SDDS_SNPS_EXTSUBMSG_TSUSEC         0x06
+#define SDDS_SNPS_EXTSUBMSG_TSMSEC         0x07
+#define SDDS_SNPS_EXTSUBMSG_SEQNRSMALL     0x08
+#define SDDS_SNPS_EXTSUBMSG_SEQNRBIG       0x09
+#define SDDS_SNPS_EXTSUBMSG_SEQNRHUGE      0x0A
 #define SDDS_SNPS_EXTSUBMSG_TOPIC          0x0B
-#define SDDS_SNPS_EXTSUBMSG_FRAG       0x0C
-#define SDDS_SNPS_EXTSUBMSG_FRAGNACK   0x0D
-#define SDDS_SNPS_EXTSUBMSG_EXTENDED    0x0f
+#define SDDS_SNPS_EXTSUBMSG_FRAG           0x0C
+#define SDDS_SNPS_EXTSUBMSG_FRAGNACK       0x0D
+#define SDDS_SNPS_EXTSUBMSG_EXTENDED       0x0f
 
 #define SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_CHAR   20              // ffFS::00GG:GGGG:GGGG
 #define SNPS_MULTICAST_COMPRESSION_MIN_LENGTH_IN_CHAR   7               // ffFS::G
@@ -133,34 +133,46 @@ rc_t
 SNPS_writeStatus(NetBuffRef_t* ref);
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
+#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 rc_t
 SNPS_writeSeqNr(NetBuffRef_t* ref, uint8_t seqNr);
+#endif
 
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_writeSeqNrSmall(NetBuffRef_t* ref, uint8_t seqNr);
+#endif
 
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
 rc_t
 SNPS_writeSeqNrBig(NetBuffRef_t* ref, uint16_t seqNr);
+#endif
 
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
 rc_t
 SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, uint32_t seqNr);
+#endif
 
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
 rc_t
 SNPS_writeAckSeq(NetBuffRef_t* ref, uint8_t seqNr);
 
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_writeNack(NetBuffRef_t* ref);
-#endif
+#endif // QoS Reliability - KIND Reliable_ACK, ext. SubMsg
+#endif // QoS Reliability - KIND Reliable_ACK
 
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 rc_t
 SNPS_writeNackSeq(NetBuffRef_t* ref, uint8_t seqNr);
 
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_writeNack(NetBuffRef_t* ref);
-#endif
-#endif
+#endif // QoS Reliability - KIND Reliable_NACK, ext. SubMsg
+#endif // QoS Reliability - KIND Reliable_NACK
+#endif // QoS Reliability
 
 rc_t
 SNPS_writeTSuSec(NetBuffRef_t* ref);
@@ -190,8 +202,10 @@ rc_t
 SNPS_readTopic(NetBuffRef_t* ref, topicid_t* topic);
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
+#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 rc_t
 SNPS_readSeqNr(NetBuffRef_t* ref, uint8_t* seqNr);
+#endif
 
 #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
@@ -212,20 +226,22 @@ SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr);
 #rc_t
 SNPS_readAckSeq(NetBuffRef_t* ref, uint8_t* seqNr);
 
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
-SNPS_readAck(NetBuffRef_t* ref, uint16_t* seqNr);
-#endif
+SNPS_readAck(NetBuffRef_t* ref);
+#endif // QoS Reliability - KIND Reliable_ACK, ext. SubMsg
+#endif // QoS Reliability - KIND Reliable_ACK
 
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 rc_t
 SNPS_readNackSeq(NetBuffRef_t* ref, uint8_t* seqNr);
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE > SDDS_QOS_RELIABILITY_SEQSIZE_BASIC
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
-SNPS_readNack(NetBuffRef_t* ref, uint32_t* seqNr);
-#endif
-#endif
-#endif
+SNPS_readNack(NetBuffRef_t* ref);
+#endif // QoS Reliability - KIND Reliable_NACK, ext. SubMsg
+#endif // QoS Reliability - KIND Reliable_NACK
+#endif // QoS Reliability
 
 rc_t
 SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data);

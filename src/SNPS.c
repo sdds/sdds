@@ -22,8 +22,8 @@
 
 #define SNPS_MULTICAST_COMPRESSION_FRST_NIBBLE                  0
 #define SNPS_MULTICAST_COMPRESSION_SCND_NIBBLE                  1
-#define SNPS_MULTICAST_COMPRESSION_FLAGS                                2
-#define SNPS_MULTICAST_COMPRESSION_SLOPE                                3
+#define SNPS_MULTICAST_COMPRESSION_FLAGS                        2
+#define SNPS_MULTICAST_COMPRESSION_SLOPE                        3
 #define SNPS_MULTICAST_COMPRESSION_FRST_COLON                   4
 #define SNPS_MULTICAST_COMPRESSION_SCND_COLON                   5
 
@@ -154,6 +154,7 @@ SNPS_discardSubMsg(NetBuffRef_t* ref) {
     // 1 byte extsubmsg
     case (SDDS_SNPS_EXTSUBMSG_ACK):
     case (SDDS_SNPS_EXTSUBMSG_NACK):
+        break;
     case (SDDS_SNPS_EXTSUBMSG_SEP):
         // TODO
         return SDDS_RT_FAIL;
@@ -169,17 +170,15 @@ SNPS_discardSubMsg(NetBuffRef_t* ref) {
         // TODO
         return SDDS_RT_FAIL;
         break;
-#ifdef SDDS_HAS_QOS_RELIABILITY
     case (SDDS_SNPS_EXTSUBMSG_SEQNRSMALL):
-        ref->curPos += (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL/8);
+        ref->curPos += 1;
         break;
     case (SDDS_SNPS_EXTSUBMSG_SEQNRBIG):
-        ref->curPos += (SDDS_QOS_RELIABILITY_SEQSIZE_BIG/8);
+        ref->curPos += 2;
         break;
     case (SDDS_SNPS_EXTSUBMSG_SEQNRHUGE):
-        ref->curPos += (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE/8);
+        ref->curPos += 4;
         break;
-#endif
     case (SDDS_SNPS_EXTSUBMSG_TOPIC):     // ext topic has 2 bytes
         ref->curPos += 2;
         break;
@@ -192,7 +191,7 @@ SNPS_discardSubMsg(NetBuffRef_t* ref) {
         return SDDS_RT_FAIL;
         break;
     default:
-        // shouldn't happen
+        // An unknown SubMessage-type should not exit
         return SDDS_RT_FAIL;
     }
 
@@ -424,6 +423,7 @@ SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data
 }
 
 #if defined SDDS_HAS_QOS_RELIABILITY
+#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 //  -----------------------------------------------------------------------------
 //  Writes the least significant 4-bits of the given sequencenumber
 //  in the given NetBuffRef_t*. Returns SDDS_RT_OK on success.
@@ -438,6 +438,7 @@ SNPS_writeSeqNr(NetBuffRef_t* ref, uint8_t seqNr) {
 
     return ret;
 }
+#endif
 #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 //  -----------------------------------------------------------------------------
 //  Writes the given sequencenumber (1 byte size) of in the given
@@ -521,9 +522,8 @@ SNPS_writeNackSeq(NetBuffRef_t* ref, uint8_t seqNr) {
     return ret;
 }
 #endif
-#endif
 
-#ifdef SDDS_HAS_QOS_RELIABILITY
+#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 //  -----------------------------------------------------------------------------
 //  Reads a sequencenumber (4-bit size) from the given NetBuffRef_t* and writes
 //  it in the given seqNr_t*. Returns SDDS_RT_OK on success.
@@ -539,6 +539,7 @@ SNPS_readSeqNr(NetBuffRef_t* ref, uint8_t* seqNr) {
 
     return ret;
 }
+#endif
 
 //  -----------------------------------------------------------------------------
 //  Reads a sequencenumber (1 byte size) from the given NetBuffRef_t* and writes
@@ -604,7 +605,17 @@ SNPS_readAckSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
 
     return ret;
 }
-#endif
+
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+rc_t
+SNPS_readAck(NetBuffRef_t* ref){
+    ref->curPos += 1;
+    ref->subMsgCount -= 1;
+
+    return SDDS_RT_OK;
+}
+#endif // QoS Reliability - KIND Reliable_ACK, ext subMsg
+#endif // QoS Reliability - KIND Reliable_ACK
 
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 rc_t
@@ -618,9 +629,18 @@ SNPS_readNackSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
 
     return ret;
 }
-#endif
 
-#endif // Qos Reliability
+#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+rc_t
+SNPS_readNack(NetBuffRef_t* ref){
+    ref->curPos += 1;
+    ref->subMsgCount -= 1;
+
+    return SDDS_RT_OK;
+}
+#endif // QoS Reliability - KIND Reliable_NACK, ext subMsg
+#endif // QoS Reliability - KIND Reliable_NACK
+#endif // QoS Reliability
 
 //  -----------------------------------------------------------------------------
 //  Converts the given char to hex and writes it in the uint8_t*.

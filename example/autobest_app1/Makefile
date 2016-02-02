@@ -1,4 +1,5 @@
-APPLICATION_NAME = sdds
+
+APPLICATION_NAME = sdds_app1
 
 export APPLICATION_NAME
 
