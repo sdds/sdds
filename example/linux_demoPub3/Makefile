@@ -1,4 +1,4 @@
-APPLICATION_NAME = linux_mcast1
+APPLICATION_NAME = linux_demopub3
 
 export APPLICATION_NAME
 

@@ -27,6 +27,31 @@
 #define PLATFORM_CONTIKI_SDDS_ADDRESS "::"
 #endif
 
+#ifdef FEATURE_SDDS_MULTICAST_ENABLED
+#define NETSTACK_CONF_WITH_IPV6 1
+#define UIP_CONF_ROUTER			1
+#define	UIP_CONF_IPV6_MULTICAST 1
+#define UIP_CONF_IPV6_RPL		1
+
+#include "net/ipv6/multicast/uip-mcast6-engines.h"
+
+#define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_ROLL_TM
+
+#define ROLL_TM_CONF_IMIN_1         64
+
+#undef UIP_CONF_IPV6_RPL
+#undef UIP_CONF_ND6_SEND_RA
+#undef UIP_CONF_ROUTER
+#define UIP_CONF_ND6_SEND_RA         0
+#define UIP_CONF_ROUTER              1
+#define UIP_MCAST6_ROUTE_CONF_ROUTES 1
+
+#undef UIP_CONF_DS6_NBR_NBU
+#undef UIP_CONF_DS6_ROUTE_NBU
+#define UIP_CONF_DS6_NBR_NBU        10
+#define UIP_CONF_DS6_ROUTE_NBU      10
+#endif
+
 // IF BUILTIN
 Locator_t* g_builtin_topic_net_address;
 // ENDIF
