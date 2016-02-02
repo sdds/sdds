@@ -13,6 +13,9 @@
 
 int main(void);
 
+void
+callback_alpha(DDS_DataReader reader);
+
 static addr_t base;
 static size_t size;
 
@@ -28,9 +31,16 @@ int main(void){
 
 	Alpha data_used;
 	Alpha* data_used_ptr = &data_used;
+    struct DDS_DataReaderListener listStruct = { .on_data_available =
+            &callback_alpha};
+    DDS_ReturnCode_t dds_ret = DDS_DataReader_set_listener(g_Alpha_reader, &listStruct, NULL);
+
+    if(ret == DDS_RETCODE_ERROR){
+        printf("unable to set listenr\n");
+    }
 
 	for (;;){
-		DDS_ReturnCode_t ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader, &data_used_ptr, NULL);
+        dds_ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader, &data_used_ptr, NULL);
 		if (ret == DDS_RETCODE_OK){
             printf("received Alpha: %x\n", (unsigned char)data_used.value );
 		}
@@ -39,4 +49,9 @@ int main(void){
     sys_task_terminate();
     sys_abort();
 	return 0;
+}
+
+void
+callback_alpha(DDS_DataReader reader){
+    printf("New Data\n");
 }
