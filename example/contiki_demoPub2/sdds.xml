@@ -1,0 +1,37 @@
+<project
+    name = "contiki_demoPub2"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "contiki"
+    ip = "fe80::2e5:1aab:cd00:22b9"
+    port = "23234"
+    >
+	sende green Topic
+
+	<define name = "FEATURE_SDDS_MULTICAST_ENABLED"/>
+    <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED"/>
+    <define name = "FEATURE_SDDS_DISCOVERY_ENABLED"/>
+
+    <define name = "SDDS_NET_MAX_BUF_SIZE" value = "128"/>
+    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "3"/>
+    <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10"/>
+
+    <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1"/>
+    <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10"/>
+    <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "10"/>
+    <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0"/>
+
+    <define name = "SDDS_BUILTIN_MULTICAST_ADDRESS" value = "&quot;ff02::10&quot;"/>
+    <define name = "SDDS_BUILTIN_PARTICIPANT_ADDRESS" value = "&quot;ff02::20&quot;"/>
+    <define name = "SDDS_BUILTIN_SUB_PUB_ADDRESS" value = "&quot;ff02::20&quot;"/>
+    <define name = "SDDS_BUILTIN_TOPIC_ADDRESS" value = "&quot;ff02::20&quot;"/>
+
+
+    <define name = "DRIVER_LED_DIMMING" value = "1"/>
+    <define name = "DRIVER_LED_DIMMING_GAMMACORRECTION"/>
+    <define name = "DRIVER_LED_DIMMING_GAMMACORRECTION_10BIT"/>
+
+    <include filename = "../topics/green.xml" />
+    <role topic = "green" type = "publisher" />
+    -->
+</project>
