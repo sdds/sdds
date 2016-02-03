@@ -414,7 +414,6 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
     assert(err ==  E_OK);
     $(topic.c_name:)* addr = *data_values;
     *addr = g_shm_$(project.name:c)->$(topic.name:c)_seg.data;
-    //printf("value: %x\\n",addr->value);
     return (DDS_ReturnCode_t) recv_arg;
 }
 #endif

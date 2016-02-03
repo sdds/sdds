@@ -1,7 +1,7 @@
 #include "linux_autobest_sdds_impl.h"
 #include <unistd.h>
 
-#define SEND_INTERVAL_US 1000u
+#define SEND_INTERVAL_US 500000ULL
 
 int main()
 {
@@ -25,7 +25,7 @@ int main()
         if (ret != DDS_RETCODE_OK){
             printf ("Failed to send topic ipc\n");
         }
-        //sleep(1);
+        usleep (SEND_INTERVAL_US);
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
         if (ret != DDS_RETCODE_OK){
             printf ("Failed to send topic aplha\n");
@@ -34,8 +34,8 @@ int main()
         if (ret == DDS_RETCODE_OK){
             printf("received Beta: 0x%x %s %s\n", (unsigned char)recv_beta.value, recv_beta.value2, recv_beta.value3 );
 		}
-        //usleep (SEND_INTERVAL_US);
-		sleep(1);
+        usleep (SEND_INTERVAL_US);
+		//sleep(1);
     }
 
     return 0;

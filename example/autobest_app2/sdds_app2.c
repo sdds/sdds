@@ -35,13 +35,13 @@ int main(void){
             &callback_alpha};
     DDS_ReturnCode_t dds_ret = DDS_DataReader_set_listener(g_Alpha_reader, &listStruct, NULL);
 
-    if(ret == DDS_RETCODE_ERROR){
+    if(dds_ret == DDS_RETCODE_ERROR){
         printf("unable to set listenr\n");
     }
 
 	for (;;){
         dds_ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader, &data_used_ptr, NULL);
-		if (ret == DDS_RETCODE_OK){
+		if (dds_ret == DDS_RETCODE_OK){
             printf("received Alpha: %x\n", (unsigned char)data_used.value );
 		}
         sys_sleep(SLEEP_TIMEOUT_NSEC);
