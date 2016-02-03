@@ -35,11 +35,11 @@ int main(void){
     beta_data.value = 0xDE;
     memcpy(beta_data.value2, "Der", 4);
     memcpy(beta_data.value3, "Tod", 4);
-    
+
 	for (;;){
 		DDS_ReturnCode_t ret = DDS_IpcDataReader_take_next_sample(g_Ipc_reader, &data_used_ptr, NULL);
 		if (ret == DDS_RETCODE_OK){
-            printf("received Ipc: %x\n", data_used.value );
+            printf("received Ipc: 0x%04x\n", data_used.value );
 		}
         ret = DDS_BetaDataWriter_write (g_Beta_writer, &beta_data, NULL);
         if (ret != DDS_RETCODE_OK){

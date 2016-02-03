@@ -42,7 +42,7 @@ int main(void){
 	for (;;){
         dds_ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader, &data_used_ptr, NULL);
 		if (dds_ret == DDS_RETCODE_OK){
-            printf("received Alpha: %x\n", (unsigned char)data_used.value );
+            printf("received Alpha: 0x%02x\n", (unsigned char)data_used.value );
 		}
         sys_sleep(SLEEP_TIMEOUT_NSEC);
 	}

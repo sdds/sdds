@@ -18,7 +18,7 @@
     <define name = "FEATURE_SDDS_TRACING_RECV_PAKET" />
     <define name = "FEATURE_SDDS_TRACING_PROCESS_FRAME" />
     <define name = "FEATURE_SDDS_TRACING_HISTORY_ENQUEUE"/>
-    <define name = "SDDS_NET_MAX_BUF_SIZE" value = "128"/>
+    <define name = "SDDS_NET_MAX_BUF_SIZE" value = "512"/>
     <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10"/>
     <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1"/>
     <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10"/>
