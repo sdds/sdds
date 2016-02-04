@@ -112,14 +112,28 @@ sdds_rpc_sdds_app2(unsigned int reply_id, unsigned long dds_obj_id){
 
 void
 sdds_callback_sdds_app1_ipc(DDS_DataReader reader){
-    unsigned long recv_arg;
-    unsigned int err = sys_rpc_call(CFG_RPC_rpc_reader_callback_sdds_app1, DDS_IPC_READER_ID,-1, &recv_arg);
+    // reste status
+    g_shm_sdds_app1->cbs.status = 0;
+    g_shm_sdds_app1->cbs.events[g_shm_sdds_app1->cbs.write] = DDS_IPC_READER_ID;
+    g_shm_sdds_app1->cbs.write =      (g_shm_sdds_app1->cbs.write + 1) % PLATFORM_AUTOBEST_CALLBACK_EVENT_BUF_SIZE;
+    // check if we have an overflow and signal it
+    if(g_shm_sdds_app1->cbs.write == g_shm_sdds_app1->cbs.read){
+        g_shm_sdds_app1->cbs.status |= EVENT_OVERWIEW_FLAG;
+    }
+    unsigned int err = sys_ipev_set(CFG_IPEV_reader_callback_sdds_app1);
     assert (err == E_OK);
 }
 void
 sdds_callback_sdds_app2_alpha(DDS_DataReader reader){
-    unsigned long recv_arg;
-    unsigned int err = sys_rpc_call(CFG_RPC_rpc_reader_callback_sdds_app2, DDS_ALPHA_READER_ID,-1, &recv_arg);
+    // reste status
+    g_shm_sdds_app2->cbs.status = 0;
+    g_shm_sdds_app2->cbs.events[g_shm_sdds_app2->cbs.write] = DDS_ALPHA_READER_ID;
+    g_shm_sdds_app2->cbs.write =      (g_shm_sdds_app2->cbs.write + 1) % PLATFORM_AUTOBEST_CALLBACK_EVENT_BUF_SIZE;
+    // check if we have an overflow and signal it
+    if(g_shm_sdds_app2->cbs.write == g_shm_sdds_app2->cbs.read){
+        g_shm_sdds_app2->cbs.status |= EVENT_OVERWIEW_FLAG;
+    }
+    unsigned int err = sys_ipev_set(CFG_IPEV_reader_callback_sdds_app2);
     assert (err == E_OK);
 }
 
