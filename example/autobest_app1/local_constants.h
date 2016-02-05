@@ -37,3 +37,6 @@
 #ifndef SDDS_QOS_HISTORY_DEPTH
 #define SDDS_QOS_HISTORY_DEPTH 5
 #endif
+#ifndef SDDS_NET_MAX_BUF_SIZE
+#define SDDS_NET_MAX_BUF_SIZE 512
+#endif

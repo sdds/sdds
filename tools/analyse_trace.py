@@ -15,13 +15,20 @@ if len(sys.argv) == 2:
 with open(name, 'rb') as csvfile:
     bistScopeReader = csv.DictReader(csvfile, delimiter='\t', quoting=csv.QUOTE_NONE)
     for row in bistScopeReader:
-        if row['Bus'] == '00002' or row['Bus'] == '00003' or row['Bus'] == '00004' or row['Bus'] == '00005' or row['Bus'] == '00006':
+        if row['Bus'] == '00002' or row['Bus'] == '00003' or row['Bus'] == '00004' or row['Bus'] == '00005' or row['Bus'] == '00006' or row['Bus'] == '00000':
             time = float(row['Time'])
             if time > 10.0:
-                if row['Bus'] in time_dict.keys():
-                    time_dict[row['Bus']].append(float(row['Time'])/1000)
-                else:
-                    time_dict[row['Bus']] = [float(row['Time'])/1000]
+                if row['Bus'] != '00004' and row['Bus'] != '00002':
+                    if row['Bus'] in time_dict.keys():
+                        time_dict[row['Bus']].append(float(row['Time'])/1000)
+                    else:
+                        time_dict[row['Bus']] = [float(row['Time'])/1000]
+                elif time < 100000.0:
+                    if row['Bus'] in time_dict.keys():
+                        time_dict[row['Bus']].append(float(row['Time'])/1000)
+                    else:
+                        time_dict[row['Bus']] = [float(row['Time'])/1000]
+
 
 
 

@@ -137,9 +137,6 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
         return ret;
     }
     self->samples[self->in_needle].instance = loc;
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-    Trace_point(SDDS_TRACE_EVENT_STOP);
-#endif
     return s_History_enqueue (self);
 }
 
