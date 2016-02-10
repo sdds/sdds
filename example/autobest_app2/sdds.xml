@@ -19,11 +19,12 @@
     <define name = "FEATURE_SDDS_TRACING_PROCESS_FRAME" />
     <define name = "FEATURE_SDDS_TRACING_HISTORY_ENQUEUE"/>
     <define name = "SDDS_NET_MAX_BUF_SIZE" value = "512"/>
-    <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "20"/>
+    <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10"/>
     <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1"/>
     <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10"/>
     <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "60"/>
     <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0"/>
+    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "5"/>
 
     <include filename = "../topics/alpha.xml" />
 

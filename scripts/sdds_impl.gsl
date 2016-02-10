@@ -96,8 +96,10 @@ sDDS_init (void)
     rc_t ret;
     //  Initializes all sDDS classes is defined in sDDS.c
     //  Must be first as all other classes depend on it
+.# Additional inits for the autobest sdds server
 .if project.os = "autobest"
 .   if autobest_role = "server"
+    // init shms
     assert(shm_server_init() == E_OK);
 .   endif
 .endif
