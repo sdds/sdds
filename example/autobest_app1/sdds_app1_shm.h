@@ -18,7 +18,6 @@
 
 #include <stdio.h>
 #include "ipc-ds.h"
-#include "beta-ds.h"
 int shm_init(void);
 
 struct shm_seg_sdds_app1_ipc{
@@ -26,12 +25,6 @@ struct shm_seg_sdds_app1_ipc{
     Ipc data;
 } __aligned(8);
 typedef struct shm_seg_sdds_app1_ipc shm_seg_sdds_app1_ipc_t;
-
-struct shm_seg_sdds_app1_beta{
-    uint8_t type;
-    Beta data;
-} __aligned(8);
-typedef struct shm_seg_sdds_app1_beta shm_seg_sdds_app1_beta_t;
 
 struct cb_buff{
     uint8_t events[PLATFORM_AUTOBEST_CALLBACK_EVENT_BUF_SIZE];
@@ -44,7 +37,6 @@ typedef struct cb_buff cb_buff_t;
 
 struct shm_sdds_app1{
     shm_seg_sdds_app1_ipc_t ipc_seg;
-    shm_seg_sdds_app1_beta_t beta_seg;
     cb_buff_t cbs;
 } __aligned(8);
 
