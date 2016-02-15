@@ -32,10 +32,10 @@ main(void){
 	Log_setLvl(0);
 	printf("Initilaized sDDS\n");
 
-    Beta beta_data;
+    /*Beta beta_data;
     beta_data.value = 0xDE;
     memcpy(beta_data.value2, "Der", 4);
-    memcpy(beta_data.value3, "Tod", 4);
+    memcpy(beta_data.value3, "Tod", 4);*/
 
     struct DDS_DataReaderListener listStruct = { .on_data_available =
             &callback_ipc};
@@ -44,13 +44,13 @@ main(void){
         printf("unable to set listenr\n");
     }
 
-	for (;;){
+	/*for (;;){
         ret = DDS_BetaDataWriter_write (g_Beta_writer, &beta_data, NULL);
         if (ret != DDS_RETCODE_OK){
             printf ("Failed to send topic beta\n");
         }
         sys_sleep(SLEEP_TIMEOUT_NSEC);
-	}
+	}*/
     sys_task_terminate();
     sys_abort();
 	return 0;
@@ -58,9 +58,14 @@ main(void){
 
 void
 callback_ipc(DDS_DataReader reader){
+#ifdef FEATURE_SDDS_TRACING_CALL_LISTNER
+    Trace_point(SDDS_TRACE_EVENT_CALL_LISTNER);
+#endif
     DDS_IpcDataReader_take_next_sample(reader, &data_used_ptr, NULL);
 #ifdef FEATURE_SDDS_TRACING_ENABLED
+    Trace_point(SDDS_TRACE_EVENT_DUMMY_1);
+    Trace_point(SDDS_TRACE_EVENT_DUMMY_2);
     Trace_point(SDDS_TRACE_EVENT_STOP);
 #endif
-    printf("received Ipc: 0x%04x\n", data_used.value );
+    //printf("received Ipc: 0x%04x\n", data_used.value );
 }
