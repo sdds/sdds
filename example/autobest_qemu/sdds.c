@@ -16,6 +16,11 @@
 void
 sdds_rpc_sdds_app1(unsigned int reply_id, unsigned long dds_obj_id);
 
+<<<<<<< HEAD
+=======
+void
+sdds_callback_sdds_app1_ipc(DDS_DataReader reader);
+>>>>>>> chanhe tracing evnts to grey code
 
 struct {
 	char s[1024];
@@ -74,5 +79,3 @@ sdds_rpc_sdds_app1(unsigned int reply_id, unsigned long dds_obj_id){
     sys_task_terminate();
 	assert(0);
 }
-
-

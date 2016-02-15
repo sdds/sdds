@@ -178,6 +178,11 @@
 
 #endif //FEATURE_SDDS_TRACEING_SEND_ISOLATED
 
+#define SDDS_TRACE_EVENT_DUMMY_1            9u
+
+#define SDDS_TRACE_EVENT_DUMMY_2            8u
+
+
 typedef uint8_t Trace_event_t;
 typedef uint8_t Trace_signal_t;
 
