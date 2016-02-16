@@ -27,10 +27,10 @@
     <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0" />
 
     <include filename = "../topics/ipc.xml" />
-    <include filename = "../topics/beta.xml" />
-    <include filename = "../topics/alpha.xml" />
+    <!--<include filename = "../topics/beta.xml" />-->
+    <!--<include filename = "../topics/alpha.xml" />-->
 
-    <role topic = "ipc" type = "publisher" />
+    <role topic = "ipc" type = "subscriber" />
     <!--<role topic = "beta" type = "subscriber" />-->
     <!--<role topic = "alpha" type = "publisher" /> -->
 </project>

@@ -98,8 +98,10 @@ rc_t
 DataSink_processFrame(NetBuffRef_t* buff) {
     assert(buff);
 #ifdef FEATURE_SDDS_TRACING_ENABLED
+#if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
 #ifdef FEATURE_SDDS_TRACING_PROCESS_FRAME
     Trace_point(SDDS_TRACE_EVENT_PROCESS_FRAME);
+#endif
 #endif
 #endif
     //  Parse the header
