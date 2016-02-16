@@ -131,6 +131,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #       endif
 #   endif
 #endif
+#endif
     //  Parse the header
     rc_t ret;
     ret = SNPS_readHeader(buff);

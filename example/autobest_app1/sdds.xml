@@ -46,10 +46,6 @@
     <include filename = "../topics/ipc.xml" />
     <!--<include filename = "../topics/beta.xml" /> -->
 
-<<<<<<< HEAD
     <role topic = "ipc" type = "publisher" />
-=======
-    <role topic = "ipc" type = "subscriber" />
->>>>>>> chanhe tracing evnts to grey code
     <!-- <role topic = "beta" type = "publisher" /> -->
 </project>

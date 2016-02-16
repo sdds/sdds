@@ -141,6 +141,7 @@ sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
 #       endif
 #   endif
 #endif
+#endif
 
     Locator_t* loc = sample->instance;
     Locator_upRef(loc);
