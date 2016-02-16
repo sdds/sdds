@@ -61,7 +61,13 @@ rc_t
 DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     assert (self);
     (void) handle;
-
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
+#ifdef FEATURE_SDDS_TRACING_CALL_WRITE
+    Trace_point(SDDS_TRACE_EVENT_CALL_WRITE);
+#endif
+#endif
+#endif
     Mutex_lock(mutex);
     Topic_t* topic = self->topic;
     List_t* subscribers = topic->dsinks.list;
@@ -89,7 +95,13 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
     }
 #endif
-
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
+#ifdef FEATURE_SDDS_TRACING_CALL_WRITE
+    Trace_point(SDDS_TRACE_EVENT_PREPARE_SNPS);
+#endif
+#endif
+#endif
     domainid_t domain = topic->domain;
     if (out_buffer->curDomain != domain) {
         SNPS_writeDomain(out_buffer, domain);

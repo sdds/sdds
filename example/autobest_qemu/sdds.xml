@@ -24,6 +24,9 @@
     <define name = "FEATURE_SDDS_TRACING_RPC_CALL" />
     <define name = "FEATURE_SDDS_TRACING_RPC_TASK" />
     <define name = "FEATURE_SDDS_TRACING_RPC_REPLY" />
+    <define name = "FEATURE_SDDS_TRACING_CALL_WRITE" />
+    <define name = "FEATURE_SDDS_TRACING_PREPARE_SNPS" />
+    <define name = "FEATURE_SDDS_TRACING_SEND_ISOLATED" />
     <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10" />
     <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1" />
     <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10" />
@@ -32,6 +35,5 @@
     <define name = "SDDS_QOS_HISTORY_DEPTH" value = "5" />
     <define name = "SDDS_NET_MAX_BUF_SIZE" value = "512" />
     <include filename = "../topics/ipc.xml" />
-    <include filename = "../topics/beta.xml" />
-    <role topic = "ipc" type = "subscriber" />
+    <role topic = "ipc" type = "publisher" />
 </project>
