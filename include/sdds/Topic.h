@@ -51,7 +51,7 @@ struct _Topic_t {
 
 };                              /* ----------  end of struct Topic  ----------
                                    */
-typedef struct _Topic_t Topic_t;
+//typedef struct _Topic_t Topic_t;
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 /**

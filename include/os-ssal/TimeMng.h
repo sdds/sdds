@@ -34,7 +34,7 @@ struct TimeStampSimple_struct {
     uint8_t secondField;
     uint8_t thirdField;
 };
-typedef struct TimeStampSimple_struct TimeStampSimple_t;
+//typedef struct TimeStampSimple_struct TimeStampSimple_t;
 
 rc_t
 TimeMng_init();
