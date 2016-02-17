@@ -16,6 +16,7 @@
 void
 sdds_rpc_sdds_app1(unsigned int reply_id, unsigned long dds_obj_id);
 
+
 struct {
 	char s[1024];
 } __stack_rpc_sdds_app1 __aligned(16);
@@ -73,3 +74,5 @@ sdds_rpc_sdds_app1(unsigned int reply_id, unsigned long dds_obj_id){
     sys_task_terminate();
 	assert(0);
 }
+
+
