@@ -25,6 +25,7 @@
     <define name = "FEATURE_SDDS_TRACING_CALL_LISTNER" />
     <define name = "FEATURE_SDDS_TRACING_RPC_CALL"/>
     <define name = "FEATURE_SDDS_TRACING_RPC_TASK" />
+    <define name = "FEATURE_SDDS_TRACING_SEND_PAKET" />
     <define name = "FEATURE_SDDS_TRACING_RPC_REPLY"/>
     <define name = "FEATURE_SDDS_TRACING_CALL_WRITE"/>
     <define name = "FEATURE_SDDS_TRACING_PREPARE_SNPS"/>

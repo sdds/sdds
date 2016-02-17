@@ -23,10 +23,11 @@
     <define name = "FEATURE_SDDS_TRACING_CALL_LISTNER" />
     <define name = "FEATURE_SDDS_TRACING_RPC_CALL" />
     <define name = "FEATURE_SDDS_TRACING_RPC_TASK" />
+    <define name = "FEATURE_SDDS_TRACING_SEND_PAKET" />
     <define name = "FEATURE_SDDS_TRACING_RPC_REPLY" />
     <define name = "FEATURE_SDDS_TRACING_CALL_WRITE" />
     <define name = "FEATURE_SDDS_TRACING_PREPARE_SNPS" />
-    <define name = "FEATURE_SDDS_TRACING_SEND_ISOLATED" />
+    <define name = "FEATURE_SDDS_TRACING_SEND_NORMAL"/>
     <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10" />
     <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1" />
     <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10" />
