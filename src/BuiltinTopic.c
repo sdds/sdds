@@ -35,6 +35,13 @@ static SDDS_DCPSSubscription dcps_subscription_sample_data[SDDS_QOS_HISTORY_DEPT
 DDS_DataReader g_DCPSSubscription_reader;
 DDS_DataWriter g_DCPSSubscription_writer;
 
+DDS_Topic g_ParticipantStatelessMessage_topic;
+Sample_t dcps_psm_samples_pool[SDDS_QOS_HISTORY_DEPTH];
+static DDS_ParticipantStatelessMessage dcps_psm_sample_data[SDDS_QOS_HISTORY_DEPTH];
+DDS_DataReader g_ParticipantStatelessMessage_reader;
+DDS_DataWriter g_ParticipantStatelessMessage_writer;
+
+
 Topic_t*
 sDDS_DCPSParticipantTopic_create();
 Topic_t*
@@ -43,6 +50,8 @@ Topic_t*
 sDDS_DCPSPublicationTopic_create();
 Topic_t*
 sDDS_DCPSSubscriptionTopic_create();
+Topic_t*
+sDDS_ParticipantStatelessMessageTopic_create();
 
 static uint8_t generalByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
 static uint8_t participantByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
@@ -64,6 +73,7 @@ BuiltinTopic_init(void) {
         dcps_topic_samples_pool[index].data = &dcps_topic_sample_data[index];
         dcps_publication_samples_pool[index].data = &dcps_publication_sample_data[index];
         dcps_subscription_samples_pool[index].data = &dcps_subscription_sample_data[index];
+        dcps_psm_samples_pool[index].data = &dcps_psm_sample_data[index];
     }
 
     BuiltinTopic_participantID = NodeConfig_getNodeID();
@@ -187,6 +197,37 @@ BuiltinTopic_init(void) {
     }
 
     ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, l);
+    if (ret != SDDS_RT_OK) {
+        Locator_downRef(l);
+        return ret;
+    }
+
+    g_ParticipantStatelessMessage_topic = sDDS_ParticipantStatelessMessageTopic_create();
+    if (g_ParticipantStatelessMessage_topic == NULL){
+        return SDDS_RT_FAIL;
+    }
+    g_ParticipantStatelessMessage_reader = DataSink_create_datareader(g_ParticipantStatelessMessage_topic, NULL, NULL, NULL);
+    sdds_History_setup (DataReader_history (g_ParticipantStatelessMessage_reader), dcps_psm_samples_pool, SDDS_QOS_HISTORY_DEPTH);
+    g_ParticipantStatelessMessage_writer = DataSource_create_datawriter(g_ParticipantStatelessMessage_topic, NULL, NULL, NULL);
+
+    ret = LocatorDB_findLocatorByMcastAddr(SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS, &l);
+    if (ret == SDDS_RT_OK) {
+        Locator_upRef(l);
+    }
+    else {
+        ret = LocatorDB_newMultiLocator(&l);
+        if (ret != SDDS_RT_OK) {
+            return ret;
+        }
+
+        ret = Network_setMulticastAddressToLocator(l, SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS);
+        if (ret != SDDS_RT_OK) {
+            Locator_downRef(l);
+            return ret;
+        }
+    }
+
+    ret = Topic_addRemoteDataSink(g_ParticipantStatelessMessage_topic, l);
     if (ret != SDDS_RT_OK) {
         Locator_downRef(l);
         return ret;
@@ -765,6 +806,133 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
     return SDDS_RT_OK;
 }
 
+/******************************
+* ParticipantStatelessMessage *
+*******************************/
+/* Security */
+
+rc_t
+TopicMarshalling_ParticipantStatelessMessage_cpy(Data dest, Data source);
+
+rc_t
+TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data data, size_t* size);
+
+DDS_ReturnCode_t
+DDS_ParticipantStatelessMessageDataReader_take_next_sample(
+                                         DDS_DataReader _this,
+                                         DDS_ParticipantStatelessMessage** data_values,
+                                         DDS_SampleInfo* sample_info
+                                         ) {
+    rc_t ret = DataReader_take_next_sample((DataReader_t*) _this, (Data*) data_values, (DataInfo) sample_info);
+
+    if (ret == SDDS_RT_NODATA) {
+        return DDS_RETCODE_NO_DATA;
+    }
+
+    if (ret == SDDS_RT_OK) {
+        return DDS_RETCODE_OK;
+    }
+
+    return DDS_RETCODE_ERROR;
+}
+
+rc_t
+TopicMarshalling_ParticipantStatelessMessage_encode(NetBuffRef_t* buffer, Data data, size_t* size);
+
+DDS_ReturnCode_t
+DDS_ParticipantStatelessMessageDataWriter_write(
+                              DDS_DataWriter _this,
+                              const DDS_ParticipantStatelessMessage* instance_data,
+                              const DDS_InstanceHandle_t handle
+                              ) {
+    rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
+
+    if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+        return DDS_RETCODE_OK;
+    }
+
+    return DDS_RETCODE_ERROR;
+}
+
+Topic_t*
+sDDS_ParticipantStatelessMessageTopic_create() {
+    Topic_t* topic = TopicDB_createTopic();
+    topic->Data_encode = TopicMarshalling_ParticipantStatelessMessage_encode;
+    topic->Data_decode = TopicMarshalling_ParticipantStatelessMessage_decode;
+    topic->domain = DDS_PARTICIPANT_STATELESS_MESSAGE_DOMAIN;
+    topic->id = DDS_PARTICIPANT_STATELESS_MESSAGE_TOPIC;
+    topic->Data_cpy = TopicMarshalling_ParticipantStatelessMessage_cpy;
+    topic->dsinks.list = List_initConcurrentLinkedList();
+    if(topic->dsinks.list == NULL){
+        return NULL;
+    }
+    topic->dsources.list = List_initConcurrentLinkedList();
+    if(topic->dsources.list == NULL){
+        return NULL;
+    }
+
+    return topic;
+}
+
+rc_t
+TopicMarshalling_ParticipantStatelessMessage_cpy(Data dest, Data source) {
+    memcpy(dest, source, sizeof(DDS_ParticipantStatelessMessage));
+
+    return SDDS_RT_OK;
+}
+
+rc_t
+TopicMarshalling_ParticipantStatelessMessage_encode(NetBuffRef_t* buffer, Data data, size_t* size) {
+    *size = 0;
+    byte_t* start = buffer->buff_start + buffer->curPos;
+    DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
+
+    Marshalling_enc_uint16(start + *size, &real_data->key);
+    *size += sizeof(real_data->key);
+
+    Marshalling_enc_string(start + *size, real_data->message_class_id, CLASS_ID_STRLEN);
+    *size += CLASS_ID_STRLEN;
+
+    Marshalling_enc_string(start + *size, real_data->message_data.class_id, CLASS_ID_STRLEN);
+    *size += CLASS_ID_STRLEN;
+    
+    for(int i = 0; i < PROPERTIES_NUM; i++) {
+        Marshalling_enc_string(start + *size, real_data->message_data.props[i].key, PROPERTY_KEY_STRLEN);
+        *size += PROPERTY_KEY_STRLEN;    
+        Marshalling_enc_string(start + *size, real_data->message_data.props[i].value, PROPERTY_VAL_STRLEN);
+        *size += PROPERTY_VAL_STRLEN;    
+    }
+
+    return SDDS_RT_OK;
+}
+
+rc_t
+TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data data, size_t* size) {
+
+    *size = 0;
+    byte_t* start = buffer->buff_start + buffer->curPos;  
+    DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
+		
+    Marshalling_dec_uint16(start + *size, &real_data->key);
+    *size += sizeof(real_data->key);
+
+    Marshalling_dec_string(start + *size, real_data->message_class_id, CLASS_ID_STRLEN);
+    *size += CLASS_ID_STRLEN;
+
+    Marshalling_dec_string(start + *size, real_data->message_data.class_id, CLASS_ID_STRLEN);
+    *size += CLASS_ID_STRLEN;
+    
+    for(int i = 0; i < PROPERTIES_NUM; i++) {
+        Marshalling_dec_string(start + *size, real_data->message_data.props[i].key, PROPERTY_KEY_STRLEN);
+        *size += PROPERTY_KEY_STRLEN;    
+        Marshalling_dec_string(start + *size, real_data->message_data.props[i].value, PROPERTY_VAL_STRLEN);
+        *size += PROPERTY_VAL_STRLEN;    
+    }
+
+    return SDDS_RT_OK;
+
+}
+
 bool
 BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID) {
     if (
@@ -772,6 +940,7 @@ BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID) {
        || (DDS_DCPS_TOPIC_DOMAIN == dID) && (DDS_DCPS_TOPIC_TOPIC == tID)
        || (DDS_DCPS_PUBLICATION_DOMAIN == dID) && (DDS_DCPS_PUBLICATION_TOPIC == tID)
        || (DDS_DCPS_SUBSCRIPTION_DOMAIN == dID) && (DDS_DCPS_SUBSCRIPTION_TOPIC == tID)
+       || (DDS_PARTICIPANT_STATELESS_MESSAGE_DOMAIN == dID) && (DDS_PARTICIPANT_STATELESS_MESSAGE_TOPIC == tID)
         ) {
         return true;
     }
