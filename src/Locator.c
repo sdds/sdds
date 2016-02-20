@@ -4,7 +4,7 @@
  *  Created on: 10 Aug 2012
  *      Author: k_beckma
  */
-
+#include "sDDS.h"
 #include "Locator.h"
 #include "LocatorDB.h"
 #include "sdds_types.h"

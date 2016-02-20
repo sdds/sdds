@@ -30,7 +30,7 @@
 #define SDDS_LOCATOR_TYPE_MULTI         0x01
 #define SDDS_LOCATOR_TYPE_BROAD         0x02
 
-typedef struct _Locator_t Locator_t;
+// typedef struct _Locator_t Locator_t;
 struct _Locator_t {
     // TODO state reicht nicht ref counter?
     // wie geht das mit den bitmaps?

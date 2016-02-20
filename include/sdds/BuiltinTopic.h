@@ -25,6 +25,10 @@
 #define SDDS_BUILTIN_TOPIC_ADDRESS              "ff02::50"
 #endif
 
+#ifndef SDDS_BUILTIN_PAR_STATE_MSG
+#define SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS      "ff02::60"	
+#endif
+
 /* The last character is used for the terminating \0 */
 #define DDS_TOPIC_NAME_SIZE 26
 #define DDS_TOPIC_TYPE_SIZE 26
@@ -51,6 +55,10 @@ extern DDS_DataWriter g_DCPSSubscription_writer;
 extern DDS_Topic g_DCPSSubscription_topic;
 //extern DCPSSubscription_data_t
 // g_DCPSSubscription_pool[SDDS_TOPIC_APP_MSG_COUNT];
+
+extern DDS_DataReader g_ParticipantStatelessMessage_reader;
+extern DDS_DataWriter g_ParticipantStatelessMessage_writer;
+extern DDS_Topic g_ParticipantStatelessMessage_topic;
 
 SSW_NodeID_t BuiltinTopic_participantID;
 
@@ -165,6 +173,47 @@ DDS_DCPSSubscriptionDataWriter_write(
                                      const DDS_InstanceHandle_t handle
                                      );
 
+/* Security */
+#define CLASS_ID_STRLEN 16
+#define PROPERTIES_NUM 3
+#define PROPERTY_KEY_STRLEN 16
+#define PROPERTY_VAL_STRLEN 50
+
+struct Property_t {
+    DDS_char key[PROPERTY_KEY_STRLEN];
+    DDS_char value[PROPERTY_VAL_STRLEN];
+};
+
+typedef struct Property_t Property;
+
+struct DataHolder_t {
+    DDS_char class_id[CLASS_ID_STRLEN];
+    Property props[PROPERTIES_NUM];
+};
+
+typedef struct DataHolder_t DataHolder;
+
+struct ParticipantGenericMessage_t {
+    BuiltinTopicKey_t key;
+    DDS_char message_class_id[CLASS_ID_STRLEN];
+    DataHolder message_data;
+};
+
+typedef struct ParticipantGenericMessage_t DDS_ParticipantStatelessMessage;
+
+DDS_ReturnCode_t
+DDS_ParticipantStatelessMessageDataReader_take_next_sample(
+                                               DDS_DataReader _this,
+                                               DDS_ParticipantStatelessMessage** data_values,
+                                               DDS_SampleInfo* sample_info);
+
+DDS_ReturnCode_t
+DDS_ParticipantStatelessMessageDataWriter_write(
+                                    DDS_DataWriter _this,
+                                    const DDS_ParticipantStatelessMessage* instance_data,
+                                    const DDS_InstanceHandle_t handle
+                                    );
+
 // ENDIF APP + BUILTINTOPIC
 
 #define DDS_DCPS_PARTICIPANT_DOMAIN 0x1
@@ -175,7 +224,8 @@ DDS_DCPSSubscriptionDataWriter_write(
 #define DDS_DCPS_PUBLICATION_TOPIC 0x03
 #define DDS_DCPS_SUBSCRIPTION_DOMAIN 0x1
 #define DDS_DCPS_SUBSCRIPTION_TOPIC 0x04
-
+#define DDS_PARTICIPANT_STATELESS_MESSAGE_DOMAIN 0x1
+#define DDS_PARTICIPANT_STATELESS_MESSAGE_TOPIC 0x5
 
 rc_t
 BuiltinTopic_init(void);
