@@ -17,6 +17,17 @@
     <define name = "FEATURE_SDDS_TRACING_RECV_PAKET" />
     <define name = "FEATURE_SDDS_TRACING_PROCESS_FRAME" />
     <define name = "FEATURE_SDDS_TRACING_HISTORY_ENQUEUE" />
+    <define name = "FEATURE_SDDS_TRACING_SERVER_LISTNER" />
+    <define name = "FEATURE_SDDS_TRACING_IPEV_LISTNER" />
+    <define name = "FEATURE_SDDS_TRACING_CALL_MNG" />
+    <define name = "FEATURE_SDDS_TRACING_CALL_LISTNER" />
+    <define name = "FEATURE_SDDS_TRACING_RPC_CALL" />
+    <define name = "FEATURE_SDDS_TRACING_RPC_TASK" />
+    <define name = "FEATURE_SDDS_TRACING_SEND_PAKET" />
+    <define name = "FEATURE_SDDS_TRACING_RPC_REPLY" />
+    <define name = "FEATURE_SDDS_TRACING_CALL_WRITE" />
+    <define name = "FEATURE_SDDS_TRACING_PREPARE_SNPS" />
+    <define name = "FEATURE_SDDS_TRACING_SEND_NORMAL"/>
     <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10" />
     <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1" />
     <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10" />
@@ -25,23 +36,5 @@
     <define name = "SDDS_QOS_HISTORY_DEPTH" value = "5" />
     <define name = "SDDS_NET_MAX_BUF_SIZE" value = "512" />
     <include filename = "../topics/ipc.xml" />
-    <include filename = "../topics/beta.xml" />
-    <role topic = "ipc" type = "subscriber" />
-    <role topic = "beta" type = "publisher" />
-    <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
-    <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
-    <define name = "FEATURE_SDDS_DISCOVERY_ENABLED" />
-    <define name = "FEATURE_SDDS_TRACING_ENABLED" />
-    <define name = "FEATURE_SDDS_TRACING_RECV_PAKET" />
-    <define name = "FEATURE_SDDS_TRACING_PROCESS_FRAME" />
-    <define name = "FEATURE_SDDS_TRACING_HISTORY_ENQUEUE" />
-    <define name = "SDDS_NET_MAX_BUF_SIZE" value = "512" />
-    <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10" />
-    <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1" />
-    <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10" />
-    <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "60" />
-    <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0" />
-    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "5" />
-    <include filename = "../topics/alpha.xml" />
-    <role topic = "alpha" type = "subscriber" />
+    <role topic = "ipc" type = "publisher" />
 </project>

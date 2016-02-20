@@ -271,11 +271,10 @@ recvLoop(void* netBuff) {
             sys_abort();
         }
 #ifdef FEATURE_SDDS_TRACING_ENABLED
-#ifdef FEATURE_SDDS_TRACING_SIGNAL_RECV_PAKET
-        Trace_setSignal(SDDS_TRACE_SIGNAL_RECV_PAKET);
-#endif
+#if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
 #ifdef FEATURE_SDDS_TRACING_RECV_PAKET
         Trace_point(SDDS_TRACE_EVENT_RECV_PAKET);
+#endif
 #endif
 #endif
         err = netbuf_data(lwip_netbuf, &data, &recv_size);
@@ -347,6 +346,11 @@ recvLoop(void* netBuff) {
 
 rc_t Network_send(NetBuffRef_t* buff) {
 #ifdef __IS_SDDS_SERVER__
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_SEND_PAKET
+    Trace_point(SDDS_TRACE_EVENT_SEND_PAKET);
+#endif
+#endif
     struct netconn* conn;
     unsigned int conn_type;
     unsigned int port = 0;
@@ -377,20 +381,12 @@ rc_t Network_send(NetBuffRef_t* buff) {
         }
         memcpy (data, buff->buff_start, buff->curPos);
         err = netconn_sendto(conn, netbuf, addr, ((AutobestLocator_t *) loc)->port);
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-#ifdef FEATURE_SDDS_TRACING_SIGNAL_SEND_PAKET
-        Trace_setSignal(SDDS_TRACE_SIGNAL_SEND_PAKET);
-#endif
-#ifdef FEATURE_SDDS_TRACING_SEND_PAKET
-        Trace_point(SDDS_TRACE_EVENT_SEND_PAKET);
-#endif
-#endif
         netbuf_delete(netbuf);
         if (err != ERR_OK ) {
             Log_error("Can't send udp paket: %s\n", lwip_strerr(err));
             return SDDS_RT_FAIL;
         }
-    loc = (Locator_t*)buff->locators->next_fn(buff->locators);
+        loc = (Locator_t*)buff->locators->next_fn(buff->locators);
     }
 #endif
     return SDDS_RT_OK;

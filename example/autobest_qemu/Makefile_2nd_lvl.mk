@@ -10,7 +10,6 @@ DATASTRUCTURES_FILE := datastructures
 LOCAL_CONSTANTS := local_constants.h
 
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/sdds_sdds_impl.o
-IMPL_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds_server_shm.o
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
 ALL_OBJS += $(SDDS_OBJDIR)/sdds.o
 
@@ -24,8 +23,6 @@ include $(SDDS_TOPDIR)/sdds.mk
 INCLUDES += $(AUTOBEST_INCLUDES)
 
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/ipc-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/alpha-ds.o
 ALL_OBJS += $(DATA_DEPEND_OBJS)
 
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))

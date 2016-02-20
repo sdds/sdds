@@ -52,9 +52,14 @@ main(void){
 
 void
 callback_alpha(DDS_DataReader reader){
+#ifdef FEATURE_SDDS_TRACING_CALL_LISTNER
+    Trace_point(SDDS_TRACE_EVENT_CALL_LISTNER);
+#endif
     DDS_AlphaDataReader_take_next_sample(reader, &data_used_ptr, NULL);
-    #ifdef FEATURE_SDDS_TRACING_ENABLED
-        Trace_point(SDDS_TRACE_EVENT_STOP);
-    #endif
-    printf("received Alpha: 0x%02x\n", (unsigned char)data_used.value );
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+    Trace_point(SDDS_TRACE_EVENT_DUMMY_1);
+    Trace_point(SDDS_TRACE_EVENT_DUMMY_2);
+    Trace_point(SDDS_TRACE_EVENT_STOP);
+#endif
+    //printf("received Alpha: 0x%02x\n", (unsigned char)data_used.value );
 }

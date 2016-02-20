@@ -100,8 +100,10 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
     assert(self);
     assert(buff);
 #ifdef FEATURE_SDDS_TRACING_ENABLED
+#if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
 #ifdef FEATURE_SDDS_TRACING_HISTORY_ENQUEUE
     Trace_point(SDDS_TRACE_EVENT_HISTORY_ENQUEUE);
+#endif
 #endif
 #endif
 
@@ -190,11 +192,6 @@ sdds_History_dequeue(History_t* self) {
     if (self->in_needle == self->depth) {
         self->in_needle = out_needle_prev;
     }
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-#ifdef FEATURE_SDDS_TRACING_HISTORY_DEQUEUE
-    Trace_point(SDDS_TRACE_EVENT_HISTORY_DEQUEUE);
-#endif
-#endif
     return sample;
 }
 
