@@ -25,6 +25,8 @@
     <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10"/>
     <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "60" />
     <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0" />
+    <!--<define name = "UTILS_NO_LOGGING"/>-->
+    <define name = "UTILS_DEBUG"/>
 
     <include filename = "../topics/ipc.xml" />
     <!--<include filename = "../topics/beta.xml" />-->

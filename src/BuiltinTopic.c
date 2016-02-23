@@ -895,12 +895,12 @@ TopicMarshalling_ParticipantStatelessMessage_encode(NetBuffRef_t* buffer, Data d
 
     Marshalling_enc_string(start + *size, real_data->message_data.class_id, CLASS_ID_STRLEN);
     *size += CLASS_ID_STRLEN;
-    
+
     for(int i = 0; i < PROPERTIES_NUM; i++) {
         Marshalling_enc_string(start + *size, real_data->message_data.props[i].key, PROPERTY_KEY_STRLEN);
-        *size += PROPERTY_KEY_STRLEN;    
+        *size += PROPERTY_KEY_STRLEN;
         Marshalling_enc_string(start + *size, real_data->message_data.props[i].value, PROPERTY_VAL_STRLEN);
-        *size += PROPERTY_VAL_STRLEN;    
+        *size += PROPERTY_VAL_STRLEN;
     }
 
     return SDDS_RT_OK;
@@ -910,9 +910,9 @@ rc_t
 TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data data, size_t* size) {
 
     *size = 0;
-    byte_t* start = buffer->buff_start + buffer->curPos;  
+    byte_t* start = buffer->buff_start + buffer->curPos;
     DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
-		
+
     Marshalling_dec_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
 
@@ -921,12 +921,12 @@ TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data d
 
     Marshalling_dec_string(start + *size, real_data->message_data.class_id, CLASS_ID_STRLEN);
     *size += CLASS_ID_STRLEN;
-    
+
     for(int i = 0; i < PROPERTIES_NUM; i++) {
         Marshalling_dec_string(start + *size, real_data->message_data.props[i].key, PROPERTY_KEY_STRLEN);
-        *size += PROPERTY_KEY_STRLEN;    
+        *size += PROPERTY_KEY_STRLEN;
         Marshalling_dec_string(start + *size, real_data->message_data.props[i].value, PROPERTY_VAL_STRLEN);
-        *size += PROPERTY_VAL_STRLEN;    
+        *size += PROPERTY_VAL_STRLEN;
     }
 
     return SDDS_RT_OK;

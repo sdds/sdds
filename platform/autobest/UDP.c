@@ -387,7 +387,10 @@ rc_t Network_send(NetBuffRef_t* buff) {
             return SDDS_RT_FAIL;
         }
         loc = (Locator_t*)buff->locators->next_fn(buff->locators);
+        char* address_buffer = inet6_ntoa(*addr);
+        printf("created a locator for [%s]\n", address_buffer);
     }
+    printf("Leave send with OK\n");
 #endif
     return SDDS_RT_OK;
 }

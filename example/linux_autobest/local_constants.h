@@ -22,3 +22,6 @@
 #ifndef SDDS_DISCOVERY_TOPIC_TIMER
 #define SDDS_DISCOVERY_TOPIC_TIMER 0
 #endif
+#ifndef UTILS_DEBUG
+#define UTILS_DEBUG
+#endif
