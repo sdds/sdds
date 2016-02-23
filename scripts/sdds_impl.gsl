@@ -196,6 +196,9 @@ sDDS_init (void)
 #ifdef FEATURE_SDDS_GEOMETRY_ENABLED
     assert(GeometryStore_create(&g_geometryStore) == SDDS_RT_OK);
 #endif
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
+    assert(Security_init() == SDDS_RT_OK);
+#endif
 
     assert(LocatorDB_freeLocators() > 0);
 
