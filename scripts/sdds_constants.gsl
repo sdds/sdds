@@ -41,9 +41,9 @@ $(project.GENERATED_WARNING_HEADER:)
 #define SDDS_LOCAL_BYTEORDER_$(PROJECT.ENDIAN)_ENDIAN
 #define SDDS_NET_VERSION 0x01
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-#define SDDS_MAX_DATA_WRITERS $(count (project.role, role.type = "publisher") + 4)
+#define SDDS_MAX_DATA_WRITERS $(count (project.role, role.type = "publisher") + 5)
 #undef SDDS_DATA_READER_MAX_OBJS
-#define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber") + 4)
+#define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber") + 5)
 #else
 #define SDDS_MAX_DATA_WRITERS $(count (project.role, role.type = "publisher"))
 #undef SDDS_DATA_READER_MAX_OBJS

@@ -77,6 +77,9 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 #include "BuiltinTopic.h"
 #endif
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
+#include "Security.h"
+#endif
 #include "Management.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */
