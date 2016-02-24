@@ -352,6 +352,4 @@ The entry point is 'sdds.gsl':
 <A name="toc3-369" title="This Document" />
 ### This Document
 
-This document is originally at README.txt and is built using [gitdown](http://github.com/imatix/gitdown).
-
 _This documentation was generated using [Gitdown](https://github.com/zeromq/gitdown)_

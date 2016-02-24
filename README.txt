@@ -348,5 +348,3 @@ The entry point is 'sdds.gsl':
 * sdds_skeleton - Generates a skeleton for new examples dependent on topics and roles
 
 ### This Document
-
-This document is originally at README.txt and is built using [gitdown](http://github.com/imatix/gitdown).
