@@ -21,6 +21,10 @@
 #include "sdds_types.h"
 #include "os-ssal/TimeMng.h"
 
+#ifndef SDDS_QOS_HISTORY_BLOCKING_TIME
+#define SDDS_QOS_HISTORY_BLOCKING_TIME 5000
+#endif
+
 #ifdef SDDS_QOS_LATENCYBUDGET
 #ifndef SDDS_QOS_LATBUD_COMM
 #define SDDS_QOS_LATBUD_COMM 0
