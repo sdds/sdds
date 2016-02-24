@@ -47,8 +47,8 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth) {
     self->in_needle = 0;
     self->out_needle = depth;
 #ifdef SDDS_HAS_QOS_RELIABILITY
-    for (int i=0; i<depth; i++){
-        self->samples[i].seqNr = 0;
+    for (int index = 0; index < depth; index++){
+        self->samples[index].seqNr = 0;
     }
 #endif
     return SDDS_RT_OK;
@@ -106,16 +106,19 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
 #endif
 #endif
 #endif
-
     if (s_History_full (self)) {
+#   if (defined(SDDS_HAS_QOS_RELIABILITY) && defined(SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT)) \
+    || !defined(SDDS_HAS_QOS_RELIABILITY)
+        //  Dequeue the oldest item in the History and proceed.
+        (void *) sdds_History_dequeue(self);
+#   else
         return SDDS_RT_FAIL;
+#   endif
     }
-
     //  Insert sample into queue
     Topic_t* topic = buff->curTopic;
     Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
     Locator_upRef(loc);
-
 #ifdef SDDS_HAS_QOS_RELIABILITY
     //  Check validity of sequence number
     if (topic->seqNrBitSize > 0){ // topic has seqNr
@@ -126,7 +129,6 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
             Locator_downRef(loc);
             return SDDS_RT_FAIL;
         }
-
 #ifdef UTILS_DEBUG
         if (topic->seqNrBitSize > 0){
             sdds_History_print(self);
