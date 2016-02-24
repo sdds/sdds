@@ -1,4 +1,4 @@
-.set GIT=https://zenon.cs.hs-rm.de/sdds/sdds.git
+.set GIT=https://zenon.cs.hs-rm.de/sdds/sdds
 
 # sDDS
 
