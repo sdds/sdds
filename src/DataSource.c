@@ -31,11 +31,11 @@ typedef struct _InstantSender_t InstantSender_t;
 
 struct _DataSource_t {
 #if SDDS_MAX_DATA_WRITERS > 0
-#ifdef SDDS_HAS_QOS_RELIABILITY
+#   ifdef SDDS_HAS_QOS_RELIABILITY
     Reliable_DataWriter_t writers[SDDS_MAX_DATA_WRITERS];
-#else
+#   else
     DataWriter_t writers[SDDS_MAX_DATA_WRITERS];
-#endif
+#   endif
 #endif
     InstantSender_t sender;
     unsigned int remaining_datawriter : 4;
@@ -68,7 +68,7 @@ DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
     int index;
     for (index = 0; index < (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter);
          index++) {
-#ifdef SDDS_HAS_QOS_RELIABILITY
+#   ifdef SDDS_HAS_QOS_RELIABILITY
         DataWriter_t* dw = (DataWriter_t*) &(self->writers[index]);
         if (dw->topic->id == id) {
                 if (st != NULL) {
@@ -81,7 +81,7 @@ DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
             }
             return SDDS_RT_OK;
         }
-#else
+#   else
         if ((self->writers[index].topic->id == id)) {
             if (st != NULL) {
                 st->key = self->writers[index].id;
@@ -93,7 +93,7 @@ DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
             }
             return SDDS_RT_OK;
         }
-#endif
+#   endif
     }
 
     return SDDS_RT_FAIL;
@@ -107,8 +107,8 @@ DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len) {
     *len = 0;
 
     for (index = 0; index < (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter); index++) {
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-#ifdef SDDS_HAS_QOS_RELIABILITY
+#   ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+#       ifdef SDDS_HAS_QOS_RELIABILITY
         DataWriter_t* dw = (DataWriter_t*) &(self->writers[index]);
         if (!BuildinTopic_isBuiltinTopic(dw->topic->id,
                                          dw->topic->domain)) {
@@ -116,20 +116,20 @@ DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len) {
         pt[*len].key = dw->id;
         pt[*len].participant_key = BuiltinTopic_participantID;
         pt[*len].topic_id = dw->topic->id;
-#else
+#       else
         if (!BuildinTopic_isBuiltinTopic(self->writers[index].topic->id,
                                          self->writers[index].topic->domain)) {
 
         pt[*len].key = self->writers[index].id;
         pt[*len].participant_key = BuiltinTopic_participantID;
         pt[*len].topic_id = self->writers[index].topic->id;
-#endif
-#endif
+#       endif
+#   endif
 
         (*len)++;
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+#   ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
     }
-#endif
+#   endif
     }
     return SDDS_RT_OK;
 }
@@ -154,12 +154,12 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos,
     dw->id = (SDDS_MAX_DATA_WRITERS - self->remaining_datawriter);
     self->remaining_datawriter--;
 
-#ifdef SDDS_QOS_LATENCYBUDGET
+#   ifdef SDDS_QOS_LATENCYBUDGET
     dw->qos.latBudDuration = SDDS_QOS_DW_LATBUD - SDDS_QOS_LATBUD_COMM - SDDS_QOS_LATBUD_READ;
-#endif
-#ifdef SDDS_HAS_QOS_RELIABILITY
+#   endif
+#   ifdef SDDS_HAS_QOS_RELIABILITY
     ((Reliable_DataWriter_t*) dw)->seqNr = 0;
-#endif
+#   endif
     return dw;
 }
 #endif // SDDS_MAX_DATA_WRITERS
@@ -215,7 +215,7 @@ find_free_buffer(List_t* topic_locators) {
         while (loc != NULL) {
             if (Locator_contains(free_buffer->locators, loc) != SDDS_RT_OK) {
                 if (free_buffer->locators->add_fn(free_buffer->locators, loc) == SDDS_RT_OK) {
-                	Locator_upRef(loc);
+                    Locator_upRef(loc);
                 }
             }
             loc = (Locator_t*) topic_locators->next_fn(topic_locators);

@@ -149,9 +149,9 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 }
                 History_t* history = DataReader_history(data_reader);
 #ifdef SDDS_HAS_QOS_RELIABILITY
-                ret = sdds_History_enqueue_buffer(history, buff, seqNr);
+                ret = sdds_History_enqueue(history, buff, seqNr);
 #else
-                ret = sdds_History_enqueue_buffer(history, buff);
+                ret = sdds_History_enqueue(history, buff);
 #endif
                 if (ret == SDDS_RT_FAIL) {
                     Log_warn("Can't parse data: Discard submessage\n");

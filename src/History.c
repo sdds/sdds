@@ -1,5 +1,5 @@
 /*  =========================================================================
-    History - Queue for DDS samples
+    History - Subscriber sample queue.
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
 
@@ -10,17 +10,12 @@
 
 /*
    @header
-    History - This class queues samples of one instance for either a DataReader
-              or a DataWriter.
+    History - This class queues samples of one instance for a DataReader.
    @discuss
    @end
  */
 
 #include "sDDS.h"
-
-//  Local helper functions
-rc_t
-s_History_enqueue(History_t* self);
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static rc_t
@@ -66,25 +61,6 @@ s_History_full (History_t* self)
 
 
 //  ---------------------------------------------------------------------------
-//  Try to enqueue a sample into the history. If the history is full this call
-//  will discard the oldest sample in case of RELIABILITY best effort and block
-//  in case of RELIABILITY reliable until samples are taken out.
-
-rc_t
-sdds_History_enqueue_data(History_t* self, Data data) {
-    assert(self);
-    assert(data);
-
-    if (s_History_full (self)) {
-        return SDDS_RT_FAIL;
-    }
-    //  Insert sample into queue
-    self->samples[self->in_needle].data = data;
-    return s_History_enqueue(self);
-}
-
-
-//  ---------------------------------------------------------------------------
 //  Try to enqueue a sample as buffer into the history. If the history is full
 //  this call will discard the oldest sample in case of RELIABILITY best effort
 //  and block in case of RELIABILITY reliable until samples are taken out. If
@@ -92,28 +68,28 @@ sdds_History_enqueue_data(History_t* self, Data data) {
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
 rc_t
-sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+sdds_History_enqueue(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
 #else
 rc_t
-sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
+sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 #endif
     assert(self);
     assert(buff);
 #ifdef FEATURE_SDDS_TRACING_ENABLED
-#if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
-#ifdef FEATURE_SDDS_TRACING_HISTORY_ENQUEUE
+#   if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
+#       ifdef FEATURE_SDDS_TRACING_HISTORY_ENQUEUE
     Trace_point(SDDS_TRACE_EVENT_HISTORY_ENQUEUE);
-#endif
-#endif
+#       endif
+#   endif
 #endif
     if (s_History_full (self)) {
-#   if (defined(SDDS_HAS_QOS_RELIABILITY) && defined(SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT)) \
+#if (defined(SDDS_HAS_QOS_RELIABILITY) && defined(SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT)) \
     || !defined(SDDS_HAS_QOS_RELIABILITY)
         //  Dequeue the oldest item in the History and proceed.
         (void *) sdds_History_dequeue(self);
-#   else
+#else
         return SDDS_RT_FAIL;
-#   endif
+#endif
     }
     //  Insert sample into queue
     Topic_t* topic = buff->curTopic;
@@ -129,11 +105,11 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
             Locator_downRef(loc);
             return SDDS_RT_FAIL;
         }
-#ifdef UTILS_DEBUG
+#   ifdef UTILS_DEBUG
         if (topic->seqNrBitSize > 0){
             sdds_History_print(self);
         }
-#endif
+#   endif
     }
 #endif
     rc_t ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
@@ -141,12 +117,6 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
         return ret;
     }
     self->samples[self->in_needle].instance = loc;
-    return s_History_enqueue (self);
-}
-
-
-rc_t
-s_History_enqueue(History_t* self) {
     //  Move the input needle to the next free slot. If the input needle is at
     //  the end of the array move it to the beginning.
     unsigned int in_needle_prev = self->in_needle;
@@ -197,6 +167,7 @@ sdds_History_dequeue(History_t* self) {
     return sample;
 }
 
+
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static inline rc_t
 s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
@@ -245,7 +216,6 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
 }
 #endif
 
-#ifdef UTILS_DEBUG
 void
 sdds_History_print(History_t* self) {
     printf("History [id: %p] {\n", self);
@@ -260,4 +230,3 @@ sdds_History_print(History_t* self) {
 #endif
     printf("}\n");
 }
-#endif

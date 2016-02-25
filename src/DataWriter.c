@@ -85,22 +85,22 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #ifdef SDDS_QOS_LATENCYBUDGET
     //  If new deadline is earlier
     if ((out_buffer->sendDeadline == 0)) {
-#if SDDS_QOS_DW_LATBUD < 65536
+#   if SDDS_QOS_DW_LATBUD < 65536
         ret = Time_getTime16(&out_buffer->sendDeadline);
-#else
+#   else
         ret = Time_getTime32(&out_buffer->sendDeadline);
-#endif
+#   endif
         out_buffer->sendDeadline += self->qos.latBudDuration;
         out_buffer->latBudDuration = self->qos.latBudDuration;
         Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
     }
 #endif
 #ifdef FEATURE_SDDS_TRACING_ENABLED
-#if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
-#ifdef FEATURE_SDDS_TRACING_CALL_WRITE
+#   if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
+#       ifdef FEATURE_SDDS_TRACING_CALL_WRITE
     Trace_point(SDDS_TRACE_EVENT_PREPARE_SNPS);
-#endif
-#endif
+#       endif
+#   endif
 #endif
     domainid_t domain = topic->domain;
     if (out_buffer->curDomain != domain) {
@@ -119,38 +119,38 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
             SNPS_writeSeqNr(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
             Log_debug("dw seqNrBasic %d\n", ((uint8_t)((Reliable_DataWriter_t*)self)->seqNr)&0x0f);
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
             SNPS_writeSeqNrSmall(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
             Log_debug("dw seqNrSmall %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
-#endif
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+#   endif
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
         } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
             SNPS_writeSeqNrBig(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
             Log_debug("dw seqNrBig %d\n", (uint16_t)((Reliable_DataWriter_t*)self)->seqNr);
-#endif
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+#   endif
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
         } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
             SNPS_writeSeqNrHUGE(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
             Log_debug("dw seqNrHUGE %d\n", (uint32_t)((Reliable_DataWriter_t*)self)->seqNr);
-#endif
+#   endif
         }
     break;
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_ACK
+#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_ACK
     case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK):
         if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
             SNPS_writeAckSeq(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
             Log_debug("dw ackSeq %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
         }
     break;
-#endif
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_NACK
+#   endif
+#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_NACK
         case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK):
             if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
                 SNPS_writeNackSeq(out_buffer, self->seqNr);
             }
             break;
-#endif
+#   endif
     }
     ((Reliable_DataWriter_t*)self)->seqNr++;
 #endif
@@ -167,7 +167,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
     Mutex_unlock(mutex);
     ret = checkSending(out_buffer);
-    //  Caller doen't understand different return codes but FAIL and OK
+    //  Caller doesn't understand different return codes but FAIL and OK
     if (ret == SDDS_RT_FAIL) {
         return SDDS_RT_FAIL;
     }
@@ -232,17 +232,17 @@ checkSendingWrapper(void* buf) {
 rc_t
 checkSending(NetBuffRef_t* buf) {
     Mutex_lock(mutex);
-#if SDDS_QOS_DW_LATBUD < 65536
+#   if SDDS_QOS_DW_LATBUD < 65536
     time16_t time;
     Time_getTime16(&time);
     time16_t sendDeadline;
     time16_t latBudDuration;
-#else
+#   else
     time32_t time;
     Time_getTime32(&time);
     time32_t sendDeadline;
     time32_t latBudDuration;
-#endif
+#   endif
 
     sendDeadline = buf->sendDeadline;
     latBudDuration = buf->latBudDuration;
@@ -285,15 +285,15 @@ checkSending(NetBuffRef_t* buf) {
     else {
         Task_stop(sendTask);
         Task_setData(sendTask, (void*) buf);
-#if SDDS_QOS_DW_LATBUD < 65536
+#   if SDDS_QOS_DW_LATBUD < 65536
         msecu16_t taskTime;
         uint16_t taskSec;
         msecu16_t taskMSec;
-#else
+#   else
         msecu32_t taskTime;
         uint32_t taskSec;
         msecu32_t taskMSec;
-#endif
+#   endif
         taskTime = (sendDeadline - time);
         taskSec = taskTime / 1000;
         taskMSec = taskTime % 1000;
@@ -304,10 +304,10 @@ checkSending(NetBuffRef_t* buf) {
             return SDDS_RT_FAIL;
         }
 
-#ifdef UTILS_DEBUG
+#   ifdef UTILS_DEBUG
         Log_debug("Task startet, timer: %u\n", (sendDeadline - time));
         Log_debug("%u > %u\n", sendDeadline, time);
-#endif
+#   endif
         Mutex_unlock(mutex);
         return SDDS_RT_DEFERRED;
     }

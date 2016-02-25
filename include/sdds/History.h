@@ -1,5 +1,5 @@
 /*  =========================================================================
-    History - Queue for DDS samples
+    History - Subscriber sample queue.
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
 
@@ -14,8 +14,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-//  Callbacks of this class
 
 //  Structure of this class
 
@@ -40,10 +38,10 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth);
 //  in case of RELIABILITY reliable until samples are taken out.
 #ifdef SDDS_HAS_QOS_RELIABILITY
 rc_t
-sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr);
+sdds_History_enqueue(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr);
 #else
 rc_t
-sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff);
+sdds_History_enqueue(History_t* self, NetBuffRef_t* buff);
 #endif
 
 //  Takes the oldest sample out of the queue. Returns a pointer to the sample if
@@ -51,8 +49,11 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff);
 Sample_t*
 sdds_History_dequeue(History_t* self);
 
+#ifdef UTILS_DEBUG
 void
 sdds_History_print(History_t* self);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
