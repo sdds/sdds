@@ -43,6 +43,18 @@ rc_t
 DataWriter_write(DataWriter_t* self, Data data, void* handle);
 #endif// SDDS_TOPIC_HAS_SUB
 
+NetBuffRef_t*
+find_free_buffer(List_t* subscribers);
+
+rc_t
+checkSending(NetBuffRef_t* buf);
+
+rc_t
+DataWriter_mutex_lock();
+
+rc_t
+DataWriter_mutex_unlock();
+
 rc_t
 DataWriter_writeAddress(DataWriter_t* self,
                         castType_t castType,

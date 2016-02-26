@@ -47,14 +47,6 @@ Marshalling_enc_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size
     case SDDS_SNPS_EXTSUBMSG_SEQNRHUGE:
         encode(buff, value, sizeof(uint32_t));
         break;
-#ifdef SDDS_HAS_QOS_RELIABILITY
-    case SDDS_SNPS_EXTSUBMSG_ACK:
-        encode(buff, value, sizeof(SDDS_SEQNR_BIGGEST_TYPE));
-        break;
-    case SDDS_SNPS_EXTSUBMSG_NACK:
-        encode(buff, value, sizeof(SDDS_SEQNR_BIGGEST_TYPE));
-        break;
-#endif
     default: // should never happen
         return SDDS_RT_FAIL;
     }

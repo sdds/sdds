@@ -83,33 +83,33 @@ function resolve_topic_config (topic)
             config.reliabilityKind ?= ""
             if reliabilitySeqnrSize = "basic"
                 config.seqNrBitSize = "4"
-                if config.seqNrBitSize > project.biggestSeqNrBitSize
-                    project.biggestSeqNrBitSize = config.seqNrBitSize
+                if config.seqNrBitSize > project.qos_reliability_biggestSeqNrBitSize
+                    project.qos_reliability_biggestSeqNrBitSize = config.seqNrBitSize
                 endif
             elsif reliabilitySeqnrSize = "small"
                 config.seqNrBitSize = "8"
-                if config.seqNrBitSize > project.biggestSeqNrBitSize
-                    project.biggestSeqNrBitSize = config.seqNrBitSize
+                if config.seqNrBitSize > project.qos_reliability_biggestSeqNrBitSize
+                    project.qos_reliability_biggestSeqNrBitSize = config.seqNrBitSize
                 endif
             elsif reliabilitySeqnrSize = "big"
                 config.seqNrBitSize = "16"
-                if config.seqNrBitSize > project.biggestSeqNrBitSize
-                    project.biggestSeqNrBitSize = config.seqNrBitSize
+                if config.seqNrBitSize > project.qos_reliability_biggestSeqNrBitSize
+                    project.qos_reliability_biggestSeqNrBitSize = config.seqNrBitSize
                 endif
             elsif reliabilitySeqnrSize = "huge"
                 config.seqNrBitSize = "32"
-                project.biggestSeqNrBitSize = "32"
+                project.qos_reliability_biggestSeqNrBitSize = "32"
             endif
 
             if kind = "besteffort"
-                config.reliabilityKind = "0"
-                project.hasReliableKindBesteffort = "1"
-            elsif kind = "ack"
-                config.reliabilityKind = "1"
-                project.hasReliableKindAck = "1"
-            elsif kind = "nack"
-                config.reliabilityKind = "2"
-                project.hasReliableKindNack = "1"
+                project.qos_reliability_kind = "1"
+            elsif kind = "reliable"
+                project.qos_reliability_kind = "2"
+                if confirmationtype = "ack"
+                    project.qos_reliability_confirmationtype = "1"
+                elsif confirmationtype = "nack"
+                    project.qos_reliability_confirmationtype = "2"
+                endif
             endif
         elsif config.type = "qos_history"
             my.topic.history_depth = config.depth
@@ -119,10 +119,10 @@ function resolve_topic_config (topic)
     endfor
 endfunction
 
-project.biggestSeqNrBitSize ?= "0"
-project.hasReliableKindBesteffort ?= "0"
-project.hasReliableKindAck ?= "0"
-project.hasReliableKindNack ?= "0"
+project.qos_reliability_kind ?= "0"
+project.qos_reliability_biggestSeqNrBitSize ?= "0"
+project.qos_reliability_confirmationtype ?= "0"
+
 for project.topic
     resolve_topic_type (topic)
     resolve_topic_config (topic)
@@ -327,8 +327,8 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 .   for topic.config
 .       if config.type = "qos_reliability"
 #ifdef SDDS_HAS_QOS_RELIABILITY
-topic->seqNrBitSize = $(seqNrBitSize:);
-topic->reliabilityKind = $(reliabilityKind:);
+topic->seqNrBitSize = $(project.qos_reliability_biggestSeqNrBitSize:);
+topic->reliabilityKind = $(project.qos_reliability_kind:);
 #endif
 .       endif
 .   endfor

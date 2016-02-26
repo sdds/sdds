@@ -16,10 +16,6 @@ static Task sendTask;
 static Mutex_t* mutex;
 
 //  Internal helper functions
-NetBuffRef_t*
-find_free_buffer(List_t* subscribers);
-rc_t
-checkSending(NetBuffRef_t* buf);
 void
 checkSendingWrapper(void* buf);
 
@@ -116,9 +112,12 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
     switch(topic->reliabilityKind){
     case (SDDS_QOS_RELIABILITY_KIND_BESTEFFORT):
+    //printf("%s\n", "dw case Reliable besteffort");
         if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
+#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
             SNPS_writeSeqNr(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
             Log_debug("dw seqNrBasic %d\n", ((uint8_t)((Reliable_DataWriter_t*)self)->seqNr)&0x0f);
+#   endif
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
             SNPS_writeSeqNrSmall(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
@@ -136,15 +135,31 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #   endif
         }
     break;
-#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_ACK
+#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
     case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK):
         if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-            SNPS_writeAckSeq(buffRef, ((Reliable_DataWriter_t*)self)->seqNr);
+            SNPS_writeAckSeq(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
             Log_debug("dw ackSeq %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+                } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
+                    SNPS_writeSeqNrSmall(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
+                    Log_debug("dw seqNrSmall %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
+#       endif
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+                } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
+                    SNPS_writeSeqNrBig(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
+                    Log_debug("dw seqNrBig %d\n", (uint16_t)((Reliable_DataWriter_t*)self)->seqNr);
+#       endif
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+                } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
+                    SNPS_writeSeqNrHUGE(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
+                    Log_debug("dw seqNrHUGE %d\n", (uint32_t)((Reliable_DataWriter_t*)self)->seqNr);
+#       endif
+
         }
     break;
 #   endif
-#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_NACK
+#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
         case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK):
             if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
                 SNPS_writeNackSeq(out_buffer, self->seqNr);
@@ -172,9 +187,32 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         return SDDS_RT_FAIL;
     }
     return SDDS_RT_OK;
-}
-#endif // SDDS_TOPIC_HAS_SUB
+} // end of DataWriter_write
+#endif // end of SDDS_TOPIC_HAS_SUB
 
+rc_t
+DataWriter_mutex_lock() {
+    if (mutex == NULL) {
+        mutex = Mutex_create();
+        if (mutex == NULL) {
+            return SDDS_RT_FAIL;
+        }
+    }
+    Mutex_lock(mutex);
+    return SDDS_RT_OK;
+}
+
+rc_t
+DataWriter_mutex_unlock() {
+    if (mutex == NULL) {
+        mutex = Mutex_create();
+        if (mutex == NULL) {
+            return SDDS_RT_FAIL;
+        }
+    }
+    Mutex_unlock(mutex);
+    return SDDS_RT_OK;
+}
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 rc_t

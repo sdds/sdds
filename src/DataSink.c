@@ -45,7 +45,10 @@ DataSink_init(void) {
     return SDDS_RT_OK;
 }
 
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+#if defined(SDDS_TOPIC_HAS_PUB) || \
+    defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) || \
+    defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || \
+    defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
 rc_t
 DataSink_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
     uint8_t index;
@@ -98,11 +101,11 @@ rc_t
 DataSink_processFrame(NetBuffRef_t* buff) {
     assert(buff);
 #ifdef FEATURE_SDDS_TRACING_ENABLED
-#if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
-#ifdef FEATURE_SDDS_TRACING_PROCESS_FRAME
+    #if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
+        #ifdef FEATURE_SDDS_TRACING_PROCESS_FRAME
     Trace_point(SDDS_TRACE_EVENT_PROCESS_FRAME);
-#endif
-#endif
+        #endif
+    #endif
 #endif
     //  Parse the header
     rc_t ret;
@@ -148,18 +151,77 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     return SDDS_RT_FAIL;
                 }
                 History_t* history = DataReader_history(data_reader);
-#ifdef SDDS_HAS_QOS_RELIABILITY
+
+    #ifdef SDDS_HAS_QOS_RELIABILITY
                 ret = sdds_History_enqueue(history, buff, seqNr);
-#else
-                ret = sdds_History_enqueue(history, buff);
-#endif
                 if (ret == SDDS_RT_FAIL) {
                     Log_warn("Can't parse data: Discard submessage\n");
                     SNPS_discardSubMsg(buff);
                     return SDDS_RT_FAIL;
                 }
+
+        #if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+                Topic_t* topic = TopicDB_getTopic(topic_id);
+                switch(topic->reliabilityKind){
+            #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+                case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK):
+                    DataWriter_mutex_lock();
+
+                    Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
+                    //? Locator_upRef(loc);
+                    Topic_addRemoteDataSink(topic, loc);
+                    List_t* subscribers = topic->dsinks.list;
+                    NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
+
+                    domainid_t domain = topic->domain;
+                    if (out_buffer->curDomain != domain) {
+                        SNPS_writeDomain(out_buffer, domain);
+                        out_buffer->curDomain = domain;
+                    }
+
+                    if (out_buffer->curTopic != topic) {
+                        SNPS_writeTopic(out_buffer, topic->id);
+                        out_buffer->curTopic = topic;
+                    }
+
+                    if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
+                        SNPS_writeAckSeq(out_buffer, seqNr);
+                #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+                    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
+                        SNPS_writeAck(out_buffer);
+                        SNPS_writeSeqNrSmall(out_buffer, seqNr);
+                #endif
+                #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+                    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
+                        SNPS_writeAck(out_buffer);
+                        SNPS_writeSeqNrBig(out_buffer, seqNr);
+                #endif
+                #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+                    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
+                        //printf("%s, %x, %d\n", "HUGE", *loc, seqNr);
+                        SNPS_writeAck(out_buffer);
+                        SNPS_writeSeqNrHUGE(out_buffer, seqNr);
+                #endif
+                    }
+                    // ?latencyBudget
+                    DataWriter_mutex_unlock();
+                    break;
+            #endif // end of ACK
+            #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+            // TODO
+            #endif
+                }
+        #endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK/NACK
+    #else // else of SDDS_HAS_QOS_RELIABILITY
+                ret = sdds_History_enqueue(history, buff);
+                if (ret == SDDS_RT_FAIL) {
+                    Log_warn("Can't parse data: Discard submessage\n");
+                    SNPS_discardSubMsg(buff);
+                    return SDDS_RT_FAIL;
+                }
+    #endif // end of SDDS_HAS_QOS_RELIABILITY
             }
-#endif
+#endif // end of defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
             break;
         case (SDDS_SNPS_T_ADDRESS):
             //  Write address into global variable
@@ -172,25 +234,28 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         case (SDDS_SNPS_T_STATUS):
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
+    #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
         case (SDDS_SNPS_T_SEQNR):
             SNPS_readSeqNr(buff, (uint8_t*) &seqNr);
             break;
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+    #endif
+    #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         case (SDDS_SNPS_T_SEQNRSMALL):
             SNPS_readSeqNrSmall(buff, (uint8_t*) &seqNr);
             break;
-#endif
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+    #endif
+    #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
         case (SDDS_SNPS_T_SEQNRBIG):
             SNPS_readSeqNrBig(buff, (uint16_t*) &seqNr);
             break;
-#endif
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+    #endif
+    #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
         case (SDDS_SNPS_T_SEQNRHUGE):
             SNPS_readSeqNrHUGE(buff, (uint32_t*) &seqNr);
+            //printf("%s, %d\n", "DR HUGE", seqNr);
             break;
-#endif
-#endif
+    #endif
+#endif // end of SDDS_HAS_QOS_RELIABILITY
         default:
             //  Go to next submessage
             Log_warn("Invalid submessage type %d: Discard submessage\n", type);
