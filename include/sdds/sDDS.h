@@ -45,6 +45,7 @@ typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 #endif
 
 //  Abstraction
+#include "os-ssal/Random.h"
 #include "os-ssal/Task.h"
 #include "os-ssal/Trace.h"
 #include "os-ssal/Thread.h"
