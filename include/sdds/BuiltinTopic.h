@@ -25,7 +25,7 @@
 #define SDDS_BUILTIN_TOPIC_ADDRESS              "ff02::50"
 #endif
 
-#ifndef SDDS_BUILTIN_PAR_STATE_MSG
+#ifndef SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS
 #define SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS      "ff02::60"	
 #endif
 
@@ -194,7 +194,7 @@ struct DataHolder_t {
 typedef struct DataHolder_t DataHolder;
 
 struct ParticipantGenericMessage_t {
-    BuiltinTopicKey_t key;
+    SSW_NodeID_t key;
     DDS_char message_class_id[CLASS_ID_STRLEN];
     DataHolder message_data;
 };

@@ -121,9 +121,6 @@ sDDS_init (void)
 #ifdef FEATURE_SDDS_TRACEING_ENABLED
     assert(Trace_init() == SDDS_RT_OK);
 #endif
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
-    assert(Security_init() == SDDS_RT_OK);
-#endif
 
     assert(LocatorDB_freeLocators() > 0);
 
@@ -168,6 +165,11 @@ sDDS_init (void)
 .       endfor
 .   endfor
 .endfor
+
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
+    assert(Security_init() == SDDS_RT_OK);
+#endif
+
     return ret;
 }
 /*

@@ -20,6 +20,7 @@
 #define PLATFORM_CONTIKI_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS             SDDS_BUILTIN_PARTICIPANT_ADDRESS
 #define PLATFORM_CONTIKI_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS                   SDDS_BUILTIN_TOPIC_ADDRESS
 #define PLATFORM_CONTIKI_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS                 SDDS_BUILTIN_SUB_PUB_ADDRESS
+#define PLATFORM_CONTIKI_SDDS_BUILTIN_MULTICAST_PAR_STATE_MSG_ADDRESS           SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS
 
 #define PLATFORM_CONTIKI_SDDS_BUILTIN_MULTICAST_PORT_OFF                        20
 
@@ -29,7 +30,7 @@
 
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
 #define NETSTACK_CONF_WITH_IPV6 1
-#define UIP_CONF_ROUTER			1
+#define UIP_CONF_ROUTER			0
 #define	UIP_CONF_IPV6_MULTICAST 1
 #define UIP_CONF_IPV6_RPL		1
 
@@ -84,6 +85,8 @@ Network_init(void) {
 //	uip_ipaddr_t address;
 
 //	uiplib_ipaddrconv(PLATFORM_CONTIKI_SDDS_ADDRESS, &address);
+
+    uip_init();
 
     NetBuffRef_init(&g_incoming_buffer);
 
@@ -372,6 +375,11 @@ Network_Multicast_init() {
     rc_t ret;
 
     ret = Network_Multicast_joinMulticastGroup(PLATFORM_CONTIKI_SDDS_BUILTIN_MULTICAST_ADDRESS);
+    if (ret != SDDS_RT_OK) {
+        printf("ERROR\n");
+    }
+
+    ret = Network_Multicast_joinMulticastGroup(PLATFORM_CONTIKI_SDDS_BUILTIN_MULTICAST_PAR_STATE_MSG_ADDRESS);
     if (ret != SDDS_RT_OK) {
         printf("ERROR\n");
     }
