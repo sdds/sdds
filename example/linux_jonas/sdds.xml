@@ -1,0 +1,43 @@
+<project
+    name = "linux_jonas"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    iface = "usb0"
+    ip = "fe80::12:13ff:fe14:2323" 
+    port = "23234"
+    protocol = "AF_INET6"
+    >
+
+    KDC
+
+    <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
+    <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
+    <define name = "FEATURE_SDDS_SECURITY_ENABLED" />
+
+    <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10"/>
+    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "3"/>
+    <define name = "SDDS_NET_MAX_BUF_SIZE" value = "1024"/>
+
+    <define name = "SDDS_SECURITY_KDC" />
+
+    <define name = "SDDS_SECURITY_CA_PUBLIC_KEY_X" value = "&quot;acaa3ee6fa5c42ba6f0ea101f1ed7b2b25dc89b8e11460f4&quot;"/>
+    <define name = "SDDS_SECURITY_CA_PUBLIC_KEY_Y" value = "&quot;2d4fa1b79d374e466a31772d6f14bc08eeb612573db3acd7&quot;"/>
+
+    <define name = "SDDS_SECURITY_USER_ID" value = "&quot;user0001&quot;"/>
+    <define name = "SDDS_SECURITY_USER_PUBLIC_KEY_X" value = "&quot;03939b5d144c3b15abab767f64e607283cd6fd0a9b5054e1&quot;"/>
+    <define name = "SDDS_SECURITY_USER_PUBLIC_KEY_Y" value = "&quot;cdfb28d622bc31c279d2a88920137c2725a5658c87770f6e&quot;"/>
+    <define name = "SDDS_SECURITY_USER_CERT_SIG_R" value = "&quot;9235586f9a4e4c64c87c72e4d5a15697ba7c88fa92f75820&quot;"/>
+    <define name = "SDDS_SECURITY_USER_CERT_SIG_S" value = "&quot;76c32175b8373472bd33abe1af02500647547ad3a35cfee1&quot;"/>
+    <define name = "SDDS_SECURITY_USER_PRIVATE_KEY" value = "&quot;29a3419f3d6a9dac0c07374223118a2eb483d13b6231975b&quot;"/>
+
+    <include filename = "../topics/beta.xml" />
+
+    <role topic = "beta" type = "subscriber">
+    </role>
+
+</project>
+
+
+
+

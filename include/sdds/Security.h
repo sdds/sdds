@@ -34,6 +34,11 @@
 
 #define SDDS_SECURITY_HANDSHAKE_MAX 5
 
+#define XCBC_MAC_SIZE 12
+#define XCBC_K1 0x01
+#define XCBC_K2 0x02
+#define XCBC_K3 0x03
+
 typedef struct {
 	char* message;
 	long code;
@@ -42,7 +47,7 @@ typedef struct {
 
 typedef DataHolder Token;
 typedef Token HandshakeMessageToken;
-typedef void IdentityHandle;
+typedef SSW_NodeID_t IdentityHandle;
 typedef void SharedSecretHandle;
 
 typedef struct Remote_info {
@@ -56,6 +61,7 @@ typedef struct Remote_info {
 } Remote_info;
 
 typedef struct HandshakeHandle {
+  IdentityHandle node;
   char state;
   Remote_info info;
 } HandshakeHandle;
@@ -69,8 +75,17 @@ Security_auth();
 rc_t 
 Security_kdc();
 
+HandshakeHandle*
+Security_get_handshake_handle(IdentityHandle *node);
+
+void
+Security_cleanup_handshake_handle(HandshakeHandle *h);
+
 void 
 Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str);
+
+void 
+Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS]);
 
 void 
 Security_kdf(uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES], uint8_t shared_secret[NUM_ECC_DIGITS], uint8_t nonce[NUM_ECC_DIGITS]);
