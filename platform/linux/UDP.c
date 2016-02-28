@@ -98,6 +98,7 @@ Network_Multicast_joinMulticastGroup(char* multicast_group_ip) {
     struct addrinfo* multicast_address;
     struct addrinfo addrCriteria;                   // Criteria for address match
     char multicast_port[PLATFORM_LINUX_IPV6_MAX_CHAR_LEN];
+    unsigned int loop;
 
     memset(&addrCriteria, 0, sizeof(addrCriteria)); // Zero out structure
     addrCriteria.ai_family = AF_INET6;
@@ -133,6 +134,16 @@ Network_Multicast_joinMulticastGroup(char* multicast_group_ip) {
                    IPPROTO_IPV6, IPV6_JOIN_GROUP,
                    (char*) &multicast_request,
                    sizeof(multicast_request)) != 0) {
+        Log_error("%d ERROR: setsockopt() failed: %s\n", __LINE__, strerror(errno));
+        return SDDS_RT_FAIL;
+    }
+
+    //  Disable multicast loop
+    loop = 0;    
+    if (setsockopt(net.fd_multi_socket,
+                   IPPROTO_IPV6, IPV6_MULTICAST_LOOP,
+                   &loop,
+                   sizeof(loop)) != 0) {
         Log_error("%d ERROR: setsockopt() failed: %s\n", __LINE__, strerror(errno));
         return SDDS_RT_FAIL;
     }
