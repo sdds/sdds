@@ -194,6 +194,7 @@ struct DataHolder_t {
 typedef struct DataHolder_t DataHolder;
 
 struct ParticipantGenericMessage_t {
+    uint16_t msgid;
     SSW_NodeID_t key;
     DDS_char message_class_id[CLASS_ID_STRLEN];
     DataHolder message_data;
