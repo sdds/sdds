@@ -152,7 +152,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 }
                 History_t* history = DataReader_history(data_reader);
 
-#       ifdef SDDS_HAS_QOS_RELIABILITY
+#    ifdef SDDS_HAS_QOS_RELIABILITY
                 ret = sdds_History_enqueue(history, buff, seqNr);
                 if (ret == SDDS_RT_FAIL) {
                     Log_warn("Can't parse data: Discard submessage\n");
@@ -160,18 +160,32 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     return SDDS_RT_FAIL;
                 }
 
-#           if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+#       if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
                 Topic_t* topic = TopicDB_getTopic(topic_id);
-                switch(topic->reliabilityKind){
-#               ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
-                case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK):
+#           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+
+                if(topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK){
+
                     DataWriter_mutex_lock();
 
                     Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
-                    //? Locator_upRef(loc);
                     Topic_addRemoteDataSink(topic, loc);
+                    Locator_upRef(loc);
                     List_t* subscribers = topic->dsinks.list;
                     NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
+#               ifdef SDDS_QOS_LATENCYBUDGET
+                    //  If new deadline is earlier
+                    if ((out_buffer->sendDeadline == 0)) {
+#                   if SDDS_QOS_DW_LATBUD < 65536
+                        ret = Time_getTime16(&out_buffer->sendDeadline);
+#                   else
+                        ret = Time_getTime32(&out_buffer->sendDeadline);
+#                   endif
+                        out_buffer->sendDeadline += self->qos.latBudDuration;
+                        out_buffer->latBudDuration = self->qos.latBudDuration;
+                        Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
+                    }
+#               endif
 
                     domainid_t domain = topic->domain;
                     if (out_buffer->curDomain != domain) {
@@ -198,32 +212,25 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #               endif
 #               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
                     } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
-                        //printf("%s, %x, %d\n", "HUGE", *loc, seqNr);
                         SNPS_writeAck(out_buffer);
                         SNPS_writeSeqNrHUGE(out_buffer, seqNr);
 #               endif
                     }
+
 #               ifdef SDDS_QOS_LATENCYBUDGET
-                        //  If new deadline is earlier
-                    if ((out_buffer->sendDeadline == 0)) {
-#                   if SDDS_QOS_DW_LATBUD < 65536
-                        ret = Time_getTime16(&out_buffer->sendDeadline);
-#                   else
-                        ret = Time_getTime32(&out_buffer->sendDeadline);
-#                   endif
-                        out_buffer->sendDeadline += self->qos.latBudDuration;
-                        out_buffer->latBudDuration = self->qos.latBudDuration;
-                        Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
-                    }
+                    out_buffer->bufferOverflow = true;
 #               endif
                     DataWriter_mutex_unlock();
-                    break; // end of case SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+                    checkSending(out_buffer);
+
+                }  // end of topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK
 #           endif // end of ACK
+
 #           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-                case (SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK):
-                    break;
+                if (topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK){
+                    //printf("nack seqNr: %d\n", seqNr);
+                } // end of topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 #           endif
-                }
 #       endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK/NACK
 #    else // else of SDDS_HAS_QOS_RELIABILITY
                 ret = sdds_History_enqueue(history, buff);
@@ -233,8 +240,8 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     return SDDS_RT_FAIL;
                 }
 #    endif // end of SDDS_HAS_QOS_RELIABILITY
-            }
 #endif // end of defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+            } // end of case SDDS_SNPS_T_DATA
             break;
         case (SDDS_SNPS_T_ADDRESS):
             //  Write address into global variable
