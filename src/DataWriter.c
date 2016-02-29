@@ -58,11 +58,11 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     assert (self);
     (void) handle;
 #ifdef FEATURE_SDDS_TRACING_ENABLED
-#if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
-#ifdef FEATURE_SDDS_TRACING_CALL_WRITE
+#   if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
+#       ifdef FEATURE_SDDS_TRACING_CALL_WRITE
     Trace_point(SDDS_TRACE_EVENT_CALL_WRITE);
-#endif
-#endif
+#       endif
+#   endif
 #endif
     Mutex_lock(mutex);
     Topic_t* topic = self->topic;

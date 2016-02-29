@@ -83,32 +83,39 @@ function resolve_topic_config (topic)
             config.reliabilityKind ?= ""
             if reliabilitySeqnrSize = "basic"
                 config.seqNrBitSize = "4"
-                if config.seqNrBitSize > project.qos_reliability_biggestSeqNrBitSize
-                    project.qos_reliability_biggestSeqNrBitSize = config.seqNrBitSize
+                if config.seqNrBitSize > project.qos_reliability_biggest_seqNr_bitsize
+                    project.qos_reliability_biggest_seqNr_bitsize = config.seqNrBitSize
                 endif
             elsif reliabilitySeqnrSize = "small"
                 config.seqNrBitSize = "8"
-                if config.seqNrBitSize > project.qos_reliability_biggestSeqNrBitSize
-                    project.qos_reliability_biggestSeqNrBitSize = config.seqNrBitSize
+                if config.seqNrBitSize > project.qos_reliability_biggest_seqNr_bitsize
+                    project.qos_reliability_biggest_seqNr_bitsize = config.seqNrBitSize
                 endif
             elsif reliabilitySeqnrSize = "big"
                 config.seqNrBitSize = "16"
-                if config.seqNrBitSize > project.qos_reliability_biggestSeqNrBitSize
-                    project.qos_reliability_biggestSeqNrBitSize = config.seqNrBitSize
+                if config.seqNrBitSize > project.qos_reliability_biggest_seqNr_bitsize
+                    project.qos_reliability_biggest_seqNr_bitsize = config.seqNrBitSize
                 endif
             elsif reliabilitySeqnrSize = "huge"
                 config.seqNrBitSize = "32"
-                project.qos_reliability_biggestSeqNrBitSize = "32"
+                project.qos_reliability_biggest_seqNr_bitsize = "32"
             endif
 
             if kind = "besteffort"
-                project.qos_reliability_kind = "1"
+                project.qos_reliability_has_kind_besteffort = "1"
+                my.topic.qos_reliability_kind = "1"
             elsif kind = "reliable"
-                project.qos_reliability_kind = "2"
+                my.topic.qos_reliability_kind = "2"
+                my.topic.qos_reliability_max_blocking_time = max_blocking_time
+                if max_blocking_time > project.qos_reliability_biggest_max_blocking_time
+                    project.qos_reliability_biggest_max_blocking_time = max_blocking_time
+                endif
                 if confirmationtype = "ack"
-                    project.qos_reliability_confirmationtype = "1"
+                    project.qos_reliability_has_kind_reliableAck = "1"
+                    my.topic.qos_reliability_confirmationtype = "1"
                 elsif confirmationtype = "nack"
-                    project.qos_reliability_confirmationtype = "2"
+                    project.qos_reliability_has_kind_reliableNack = "1"
+                    my.topic.qos_reliability_confirmationtype = "2"
                 endif
             endif
         elsif config.type = "qos_history"
@@ -119,9 +126,12 @@ function resolve_topic_config (topic)
     endfor
 endfunction
 
-project.qos_reliability_kind ?= "0"
-project.qos_reliability_biggestSeqNrBitSize ?= "0"
-project.qos_reliability_confirmationtype ?= "0"
+
+project.qos_reliability_has_kind_besteffort ?= "0"
+project.qos_reliability_has_kind_reliableAck ?= "0"
+project.qos_reliability_has_kind_reliableNack ?= "0"
+project.qos_reliability_biggest_seqNr_bitsize ?= "0"
+project.qos_reliability_biggest_max_blocking_time ?= "0"
 
 for project.topic
     resolve_topic_type (topic)
@@ -327,8 +337,12 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 .   for topic.config
 .       if config.type = "qos_reliability"
 #ifdef SDDS_HAS_QOS_RELIABILITY
-topic->seqNrBitSize = $(project.qos_reliability_biggestSeqNrBitSize:);
-topic->reliabilityKind = $(project.qos_reliability_kind:);
+topic->seqNrBitSize = $(project.qos_reliability_biggest_seqNr_bitsize:);
+topic->reliabilityKind = $(topic.qos_reliability_kind:);
+.           if topic.qos_reliability_kind = "2"
+topic->confirmationtype = $(topic.qos_reliability_confirmationtype:);
+topic->max_blocking_time = $(topic.qos_reliability_max_blocking_time:);
+.           endif
 #endif
 .       endif
 .   endfor

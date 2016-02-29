@@ -83,24 +83,31 @@ $(project.GENERATED_WARNING_HEADER:)
 .endif
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-.if project.qos_reliability_biggestSeqNrBitSize = 4
-#define SDDS_SEQNR_BIGGEST_TYPE uint8_t
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 4
-.elsif project.qos_reliability_biggestSeqNrBitSize = 8
-#define SDDS_SEQNR_BIGGEST_TYPE uint16_t
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 16
+.if project.qos_reliability_has_kind_besteffort = 1
+#   define SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
+.endif
+.if project.qos_reliability_has_kind_reliableAck = 1
+#   define SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+.endif
+.if project.qos_reliability_has_kind_reliableNack = 1
+#   define SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+.endif
+.if project.qos_reliability_biggest_seqNr_bitsize = 4
+#   define SDDS_SEQNR_BIGGEST_TYPE uint8_t
+#   define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 4
+.   elsif project.qos_reliability_biggest_seqNr_bitsize = 8
+#   define SDDS_SEQNR_BIGGEST_TYPE uint16_t
+#   define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 16
+.   else
+#   define SDDS_SEQNR_BIGGEST_TYPE uint32_t
+#   define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 32
+.endif
+.if project.qos_reliability_biggest_max_blocking_time < 255
+#   define SDDS_MAX_BLOCKING_TIME_BIGGEST_TYPE uint8_t
+.elsif project.qos_reliability_biggest_max_blocking_time < 65535
+#   define SDDS_MAX_BLOCKING_TIME_BIGGEST_TYPE uint16_t
 .else
-#define SDDS_SEQNR_BIGGEST_TYPE uint32_t
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 32
-.endif
-.if project.qos_reliability_kind = 1
-#define SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
-.endif
-.if project.qos_reliability_kind = 2 & project.qos_reliability_confirmationtype = "1"
-#define SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
-.endif
-.if project.qos_reliability_kind = 2 & project.qos_reliability_confirmationtype = "2"
-#define SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+#   define SDDS_MAX_BLOCKING_TIME_BIGGEST_TYPE uint32_t
 .endif
 #endif
 
