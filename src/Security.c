@@ -311,9 +311,9 @@ DDS_Security_Authentication_begin_handshake_request(
 ) {
 
   memset(handshake_handle, 0, sizeof(HandshakeHandle));
-  handshake_handle->state = SDDS_SECURITY_HANDSHAKE_STATE_CERT;
+  handshake_handle->state = SDDS_SECURITY_HANDSHAKE_STATE_0;
 
-  // start with certificate
+  // start id and public key in handshake_message_out
   strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REQ);
   handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_ID, SDDS_SECURITY_USER_ID}; 
   handshake_message_out->props[1] = (Property) {SDDS_SECURITY_PROP_PUB_KEY_X, SDDS_SECURITY_USER_PUBLIC_KEY_X}; 
@@ -339,12 +339,14 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
     return VALIDATION_FAILED;
   }
 
+  handshake_handle->state = SDDS_SECURITY_HANDSHAKE_STATE_1;
+
   // fetch remote id and public key from handshake_message_in
   strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, CLASS_ID_STRLEN);
   Security_get_bytes(handshake_handle->info.public_key.x, handshake_message_in->props[1].value);
   Security_get_bytes(handshake_handle->info.public_key.y, handshake_message_in->props[2].value);
 
-  // start with certificate
+  // reply with id and public key in handshake_message_out
   strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
   handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_ID, SDDS_SECURITY_USER_ID}; 
   handshake_message_out->props[1] = (Property) {SDDS_SECURITY_PROP_PUB_KEY_X, SDDS_SECURITY_USER_PUBLIC_KEY_X}; 
@@ -367,33 +369,15 @@ DDS_Security_Authentication_process_handshake(
 
   switch (handshake_handle->state) {
 
-    case SDDS_SECURITY_HANDSHAKE_STATE_CERT:
+    case SDDS_SECURITY_HANDSHAKE_STATE_0:
       res = VALIDATION_PENDING_HANDSHAKE_MESSAGE;
-#ifdef SDDS_SECURITY_KDC
-      // fetch remote signature and nonce from handshake_message_in
-      Security_get_bytes(handshake_handle->info.signature_r, handshake_message_in->props[0].value);
-      Security_get_bytes(handshake_handle->info.signature_s, handshake_message_in->props[1].value);
-      Security_get_bytes(handshake_handle->info.remote_nonce, handshake_message_in->props[2].value);
 
-      // verify user certificate
-      if(Security_verify_certificate(handshake_handle) == SDDS_RT_FAIL) {
-        res = VALIDATION_FAILED;
-        break;
-      } 
-
-      // calculate shared secret
-      if(Security_set_key_material(handshake_handle, handshake_handle->info.remote_nonce) == SDDS_RT_FAIL) {
-        res = VALIDATION_FAILED;
-        break;
-      }
-
-#else
       // fetch remote id and public key from handshake_message_in
       strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, CLASS_ID_STRLEN);
       Security_get_bytes(handshake_handle->info.public_key.x, handshake_message_in->props[1].value);
       Security_get_bytes(handshake_handle->info.public_key.y, handshake_message_in->props[2].value);
-#endif
-      // set up token to send (signature and nonce) to handshake_message_out
+
+      // reply with signature and nonce in handshake_message_out
       getRandomBytes(handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
       strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
       handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_SIG_R, SDDS_SECURITY_USER_CERT_SIG_R}; 
@@ -401,21 +385,11 @@ DDS_Security_Authentication_process_handshake(
       strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_NONCE); 
       strncpy(handshake_message_out->props[2].value, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
 
-      handshake_handle->state = SDDS_SECURITY_HANDSHAKE_STATE_SIGN;
+      handshake_handle->state = SDDS_SECURITY_HANDSHAKE_STATE_1;
     break;
 
-    case SDDS_SECURITY_HANDSHAKE_STATE_SIGN:
-      res = VALIDATION_PENDING_HANDSHAKE_MESSAGE;
-#ifdef SDDS_SECURITY_KDC
-      // fetch remote mactag from handshake_message_in
-      Security_get_bytes(handshake_handle->info.mactag, handshake_message_in->props[0].value);
+    case SDDS_SECURITY_HANDSHAKE_STATE_1:
 
-      if(Security_verify_mactag(handshake_handle) == SDDS_RT_FAIL) {
-        res = VALIDATION_FAILED;
-        break;
-      } 
-
-#else
       // fetch remote signature and nonce from handshake_message_in
       Security_get_bytes(handshake_handle->info.signature_r, handshake_message_in->props[0].value);
       Security_get_bytes(handshake_handle->info.signature_s, handshake_message_in->props[1].value);
@@ -425,36 +399,62 @@ DDS_Security_Authentication_process_handshake(
       if(Security_verify_certificate(handshake_handle) == SDDS_RT_FAIL) {
         res = VALIDATION_FAILED;
         break;
-      } 
-
-      // calculate shared secret
-      if(Security_set_key_material(handshake_handle, handshake_handle->info.nonce) == SDDS_RT_FAIL) {
-        res = VALIDATION_FAILED;
-        break;
+      } else {
+        printf("certificate ok\n");
       }
 
+      // calculate shared secret
+#ifdef SDDS_SECURITY_KDC
+      if(Security_set_key_material(handshake_handle, handshake_handle->info.remote_nonce) == SDDS_RT_FAIL) {
+#else
+      if(Security_set_key_material(handshake_handle, handshake_handle->info.nonce) == SDDS_RT_FAIL) {
 #endif
-      // set up token to send (mactag) to handshake_message_out
-      strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
-      handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_MACTAG, "bla"}; 
+        res = VALIDATION_FAILED;
+        break;
+      } else {
+        printf("key material ok\n");
+      }
 
-      handshake_handle->state = SDDS_SECURITY_HANDSHAKE_STATE_MACT;
+#ifdef SDDS_SECURITY_KDC
+      // reply with signature and nonce in handshake_message_out
+      getRandomBytes(handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
+      strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
+      handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_SIG_R, SDDS_SECURITY_USER_CERT_SIG_R}; 
+      handshake_message_out->props[1] = (Property) {SDDS_SECURITY_PROP_SIG_S, SDDS_SECURITY_USER_CERT_SIG_S}; 
+      strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_NONCE); 
+      strncpy(handshake_message_out->props[2].value, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
+#else
+      // reply with mactag in handshake_message_out
+      strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
+      handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_MACTAG, "bla"};
+#endif
+      handshake_handle->state = SDDS_SECURITY_HANDSHAKE_STATE_2;
+      res = VALIDATION_PENDING_HANDSHAKE_MESSAGE;
     break;
 
-    case SDDS_SECURITY_HANDSHAKE_STATE_MACT:
-#ifdef SDDS_SECURITY_KDC
-      // set up token to send (mactag) to handshake_message_out
-      strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
-      handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_MACTAG, "bla"}; 
-      res = VALIDATION_OK_FINAL_MESSAGE;
-#else
+    case SDDS_SECURITY_HANDSHAKE_STATE_2:
+      // fetch remote mactag from handshake_message_in
       Security_get_bytes(handshake_handle->info.mactag, handshake_message_in->props[0].value);
-      res = VALIDATION_OK;
+
+      // verify mactag
+      if(Security_verify_mactag(handshake_handle) == SDDS_RT_FAIL) {
+        res = VALIDATION_FAILED;
+        break;
+      } else {
+        printf("mactag ok\n");
+#ifdef SDDS_SECURITY_KDC
+        // reply with final mactag in handshake_message_out
+        strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
+        handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_MACTAG, "bla"};
+        res = VALIDATION_OK_FINAL_MESSAGE;
+#else 
+        res = VALIDATION_OK;
 #endif
+      }
     break;
 
   }
-
+  printf("%d\n", res);
   return res;
 
 }
@@ -543,8 +543,6 @@ Security_verify_certificate(HandshakeHandle *h) {
   Security_get_string(str, h->info.public_key.y);
 	snprintf(p, NUM_ECC_DIGITS * 2 + 1, "%s", str);
 
-  printf("verifying certificate: %s\n", cert);
-
 	memset(hash, 0, NUM_ECC_DIGITS);
 	sha1(hash, cert, 8 * (SDDS_SECURITY_CERT_STRLEN - 1));
 
@@ -552,17 +550,16 @@ Security_verify_certificate(HandshakeHandle *h) {
   Security_get_bytes(ca_publicKey.y, SDDS_SECURITY_CA_PUBLIC_KEY_Y);
 
   if(ecdsa_verify(&ca_publicKey, hash, h->info.signature_r, h->info.signature_s)) {
-    printf ("verify remote public key OK\n");
     return SDDS_RT_OK;
-  } else {
-    return SDDS_RT_FAIL;
   }
+  
+  return SDDS_RT_FAIL;
   
 }
 
 rc_t
 Security_verify_mactag(HandshakeHandle *h) {
-
+  return SDDS_RT_OK;
 }
 
 void 
