@@ -28,7 +28,7 @@ Security_init() {
   }
 
   SharedSecretHandle ss_handle = DDS_Security_Authentication_get_shared_secret(
-                                              &g_handle, SecurityException *ex); 
+                                              &g_handle, NULL); 
 
 #endif    
 
