@@ -2,10 +2,12 @@
 #include "os-ssal/aes-128.h"
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
 
+static MessageIdentity msgid;
+
 #ifdef SDDS_SECURITY_KDC
-HandshakeHandle g_handles[SDDS_SECURITY_HANDSHAKE_MAX];
+static HandshakeHandle g_handles[SDDS_SECURITY_HANDSHAKE_MAX];
 #else  
-HandshakeHandle g_handle;
+static HandshakeHandle g_handle;
 #endif    
 
 rc_t 
@@ -56,11 +58,12 @@ Security_auth() {
       break;
 
       case VALIDATION_FAILED:
-        return SDDS_RT_FAIL;
+        printf("VALIDATION_FAILED\n");        
       break;
 
       case VALIDATION_PENDING_HANDSHAKE_MESSAGE:      
         // send token
+        msg.msgid = msgid++;
         msg.key = BuiltinTopic_participantID;
         strcpy((char *) msg.message_class_id, GMCLASSID_SECURITY_AUTH_HANDSHAKE);  
         
@@ -95,13 +98,14 @@ Security_auth() {
             break;
           }
          
-          res = VALIDATION_FAILED;
+          continue;
                           
         }
       break;
 
       case VALIDATION_OK_FINAL_MESSAGE:
         // send final token
+        msg.msgid = msgid++;
         msg.key = BuiltinTopic_participantID;
         strcpy((char *) msg.message_class_id, GMCLASSID_SECURITY_AUTH_HANDSHAKE);  
         
@@ -121,7 +125,7 @@ Security_auth() {
     }
   }
 
-  return SDDS_RT_OK;
+  return res;
 
 }
 
@@ -179,6 +183,7 @@ Security_kdc() {
 
         case VALIDATION_PENDING_HANDSHAKE_MESSAGE: 
           // send reply token
+          msg.msgid = msgid++;
           strcpy((char *) msg.message_class_id, GMCLASSID_SECURITY_AUTH_HANDSHAKE);  
           msg.message_data = msg_tok_out;
           r = DDS_ParticipantStatelessMessageDataWriter_write(g_ParticipantStatelessMessage_writer,
@@ -194,6 +199,7 @@ Security_kdc() {
 
         case VALIDATION_OK_FINAL_MESSAGE:
           // send final token
+          msg.msgid = msgid++;
           strcpy((char *) msg.message_class_id, GMCLASSID_SECURITY_AUTH_HANDSHAKE);            
           msg.message_data = msg_tok_out;
           r = DDS_ParticipantStatelessMessageDataWriter_write(g_ParticipantStatelessMessage_writer,
@@ -236,6 +242,7 @@ Security_kdc() {
 
         case VALIDATION_PENDING_HANDSHAKE_MESSAGE: 
           // send reply token
+          msg.msgid = msgid++;
           strcpy((char *) msg.message_class_id, GMCLASSID_SECURITY_AUTH_HANDSHAKE);  
           msg.message_data = msg_tok_out;
           r = DDS_ParticipantStatelessMessageDataWriter_write(g_ParticipantStatelessMessage_writer,
@@ -251,6 +258,7 @@ Security_kdc() {
 
         case VALIDATION_OK_FINAL_MESSAGE:
           // send final token
+          msg.msgid = msgid++;
           strcpy((char *) msg.message_class_id, GMCLASSID_SECURITY_AUTH_HANDSHAKE);            
           msg.message_data = msg_tok_out;
           r = DDS_ParticipantStatelessMessageDataWriter_write(g_ParticipantStatelessMessage_writer,

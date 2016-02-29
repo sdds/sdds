@@ -228,6 +228,7 @@ struct ParticipantGenericMessage_t {
         BuiltinTopicKey_t pkey;
         BuiltinTopicKey_t skey;
     };
+    uint16_t msgid;
     DDS_char message_class_id[CLASS_ID_STRLEN];
     DataHolder message_data;
 };

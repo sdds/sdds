@@ -1218,6 +1218,9 @@ TopicMarshalling_ParticipantStatelessMessage_encode(NetBuffRef_t* buffer, Data d
     byte_t* start = buffer->buff_start + buffer->curPos;
     DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
 
+    Marshalling_enc_uint16(start + *size, &real_data->msgid);
+    *size += sizeof(real_data->msgid);
+
     Marshalling_enc_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
 
@@ -1243,6 +1246,9 @@ TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data d
     *size = 0;
     byte_t* start = buffer->buff_start + buffer->curPos;
     DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
+
+    Marshalling_dec_uint16(start + *size, &real_data->msgid);
+    *size += sizeof(real_data->msgid);
 
     Marshalling_dec_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);

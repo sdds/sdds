@@ -48,6 +48,7 @@ typedef struct {
 typedef DataHolder Token;
 typedef Token HandshakeMessageToken;
 typedef SSW_NodeID_t IdentityHandle;
+typedef uint16_t MessageIdentity;
 typedef void SharedSecretHandle;
 
 typedef struct Remote_info {
