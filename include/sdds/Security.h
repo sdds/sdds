@@ -11,6 +11,8 @@
 #define VALIDATION_PENDING_HANDSHAKE_MESSAGE	3
 #define VALIDATION_OK_FINAL_MESSAGE	4
 
+#define SDDS_MAX_AUTH_ITERATIONS 100
+
 #define GMCLASSID_SECURITY_AUTH_HANDSHAKE "dds.sec.auth"
 #define SDDS_SECURITY_CLASS_AUTH_REQ "DDS:Auth:Req"
 #define SDDS_SECURITY_CLASS_AUTH_REP "DDS:Auth:Rep"
@@ -22,7 +24,7 @@
 #define SDDS_SECURITY_PROP_NONCE "dds.sec.nonce"
 #define SDDS_SECURITY_PROP_MACTAG "dds.sec.mactag"
 
-#define SDDS_SECURITY_KDF_KEY_BYTES 16
+#define SDDS_SECURITY_KDF_KEY_BYTES 32
 
 #define SDDS_SECURITY_RECEIVE_SLEEP_SEC 1
 
@@ -51,7 +53,7 @@ typedef DataHolder Token;
 typedef Token HandshakeMessageToken;
 typedef SSW_NodeID_t IdentityHandle;
 typedef uint16_t MessageIdentity;
-typedef void SharedSecretHandle;
+typedef uint8_t* SharedSecretHandle;
 
 typedef struct Remote_info {
   char uid[CLASS_ID_STRLEN];
@@ -61,6 +63,8 @@ typedef struct Remote_info {
   uint8_t mactag[NUM_ECC_DIGITS];
   uint8_t nonce[NUM_ECC_DIGITS];
   uint8_t remote_nonce[NUM_ECC_DIGITS];
+  uint8_t shared_secret[NUM_ECC_DIGITS];
+  uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
 } Remote_info;
 
 typedef struct HandshakeHandle {
@@ -68,6 +72,12 @@ typedef struct HandshakeHandle {
   char state;
   Remote_info info;
 } HandshakeHandle;
+
+HandshakeHandle*
+Security_get_handshake_handle(IdentityHandle *node);
+
+HandshakeHandle*
+Security_new_handshake_handle(IdentityHandle *node);
 
 rc_t 
 Security_init();
@@ -81,11 +91,11 @@ Security_kdc();
 rc_t
 Security_verify_certificate(HandshakeHandle *h);
 
-HandshakeHandle*
-Security_get_handshake_handle(IdentityHandle *node);
+rc_t
+Security_verify_mactag(HandshakeHandle *h);
 
-HandshakeHandle*
-Security_new_handshake_handle(IdentityHandle *node);
+rc_t
+Security_set_key_material(HandshakeHandle *h, uint8_t nonce[NUM_ECC_DIGITS]);
 
 void
 Security_cleanup_handshake_handle(HandshakeHandle *h);
@@ -120,7 +130,7 @@ DDS_Security_Authentication_begin_handshake_reply(
 );
 
 DDS_S_Result_t 
-process_handshake(
+DDS_Security_Authentication_process_handshake(
 	HandshakeMessageToken *handshake_message_out,
 	HandshakeMessageToken *handshake_message_in,
 	HandshakeHandle *handshake_handle,
@@ -128,7 +138,7 @@ process_handshake(
 );
 
 SharedSecretHandle 
-get_shared_secret(
+DDS_Security_Authentication_get_shared_secret(
 	HandshakeHandle *handshake_handle,
 	SecurityException *ex
 );
