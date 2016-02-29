@@ -94,7 +94,7 @@ void
 Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str);
 
 void 
-Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS], char reverse);
+Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS]);
 
 void 
 Security_kdf(uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES], uint8_t shared_secret[NUM_ECC_DIGITS], uint8_t nonce[NUM_ECC_DIGITS]);

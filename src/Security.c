@@ -476,26 +476,23 @@ Security_verify_certificate(HandshakeHandle *h) {
                 "%s,", h->info.uid);
   p += SDDS_SECURITY_USER_ID_STRLEN + 1;
 
-  Security_get_string(str, h->info.public_key.x, 1);
+  Security_get_string(str, h->info.public_key.x);
 	snprintf(p, NUM_ECC_DIGITS * 2 + 2, "%s,", str);
   p += NUM_ECC_DIGITS * 2 + 1;
 
-  Security_get_string(str, h->info.public_key.y, 1);
+  Security_get_string(str, h->info.public_key.y);
 	snprintf(p, NUM_ECC_DIGITS * 2 + 1, "%s", str);
 
   printf("verifying certificate: %s\n", cert);
 
 	memset(hash, 0, NUM_ECC_DIGITS);
-	sha1(hash, cert, 8 * SDDS_SECURITY_CERT_STRLEN - 1);
-
-  Security_get_string(str, hash, 0);
-
-  printf("hash %s\n", str);
+	sha1(hash, cert, 8 * (SDDS_SECURITY_CERT_STRLEN - 1));
 
   Security_get_bytes(ca_publicKey.x, SDDS_SECURITY_CA_PUBLIC_KEY_X);
   Security_get_bytes(ca_publicKey.y, SDDS_SECURITY_CA_PUBLIC_KEY_Y);
 
   if(ecdsa_verify(&ca_publicKey, hash, h->info.signature_r, h->info.signature_s)) {
+    printf ("verify remote public key OK\n");
     return SDDS_RT_OK;
   } else {
     return SDDS_RT_FAIL;
@@ -507,7 +504,6 @@ void
 Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str) {
 
 	int i;
-	uint8_t bytes[NUM_ECC_DIGITS];
   char buf[3];  
   unsigned chr;
 
@@ -515,29 +511,18 @@ Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str) {
     strncpy(buf, &str[2*i], 2);
     buf[2] = '\0';
     chr = (unsigned char) strtol(buf, (char **) NULL, 16);
-		bytes[i] = chr;
+		res[i] = chr;
 	}
-
-	ecc_bytes2native(res, bytes);
 	
 }
 
 void 
-Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS], char reverse) {
+Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS]) {
 
   int i;
-	uint8_t bytes[NUM_ECC_DIGITS];
-	uint8_t *ptr;
-
-  if(reverse) {
-  	ecc_native2bytes(bytes, num);
-    ptr = bytes;
-  } else {
-    ptr = num;
-  }
 
 	for(i = 0; i < NUM_ECC_DIGITS; i++) {
-    sprintf(&str[i*2], "%02x", ptr[i]);
+    sprintf(&str[i*2], "%02x", num[i]);
 	}
 
 }
