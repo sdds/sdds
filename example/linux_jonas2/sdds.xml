@@ -3,8 +3,8 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "vboxnet0"
-    ip = "fe80::800:27ff:fe00:0" 
+    iface = "eth0"
+    ip = "fe80::a00:27ff:fe90:fc89" 
     port = "23234"
     protocol = "AF_INET6"
     >
