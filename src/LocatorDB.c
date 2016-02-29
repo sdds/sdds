@@ -329,7 +329,9 @@ Locator_downRef(Locator_t* _this) {
     }
 
     Mutex_lock(mutex);
+#ifdef UTILS_TRACE
     print_trace(1);
+#endif    
     if (_this->refCount == 0) {
         Mutex_unlock(mutex);
         return;
