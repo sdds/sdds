@@ -29,7 +29,7 @@ struct _NetBuffRef_t {
 
     NetFrameBuff frame_start;
     byte_t* buff_start;
-    uint8_t curPos;
+    uint16_t curPos;
 
     // QOS part
 #if SDDS_QOS_DW_LARBUD < 65536

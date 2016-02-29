@@ -390,6 +390,7 @@ SNPS_writeData(NetBuffRef_t* ref, TopicMarshalling_encode_fn encode_fn, Data d) 
 
     // start 1 byte later, the header have to be written if the size is known
     if (encode_fn(ref, d, &writtenBytes) != SDDS_RT_OK) {
+    	Log_error("encoding failed\n");
         return SDDS_RT_FAIL;
     }
 
@@ -412,7 +413,6 @@ rc_t
 SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data) {
     size_t size = 0;
     Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t*) &size);
-
     ref->curPos += 1;
     if (decode_fn(ref, data, &size) != SDDS_RT_OK) {
         return SDDS_RT_FAIL;

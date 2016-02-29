@@ -271,7 +271,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
     uint8_t index;
     for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
         DataReader_t* data_reader = &self->readers[index];
-        if (!data_reader) {
+        if (!data_reader || !data_reader->topic) {
             continue;
         }
         int tpc = DataReader_topic(data_reader)->id;

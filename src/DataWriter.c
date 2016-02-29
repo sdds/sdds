@@ -180,8 +180,8 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
-    Mutex_unlock(mutex);
     ret = checkSending(out_buffer);
+    Mutex_unlock(mutex);
     //  Caller doesn't understand different return codes but FAIL and OK
     if (ret == SDDS_RT_FAIL) {
         return SDDS_RT_FAIL;
@@ -263,13 +263,14 @@ DataWriter_writeAddress(DataWriter_t* self,
 
 void
 checkSendingWrapper(void* buf) {
+	Mutex_lock(mutex);
     checkSending((NetBuffRef_t*) buf);
+    Mutex_unlock(mutex);
 }
 
 #ifdef SDDS_QOS_LATENCYBUDGET
 rc_t
 checkSending(NetBuffRef_t* buf) {
-    Mutex_lock(mutex);
 #   if SDDS_QOS_DW_LATBUD < 65536
     time16_t time;
     Time_getTime16(&time);
@@ -299,7 +300,6 @@ checkSending(NetBuffRef_t* buf) {
             rc_t ret = Network_send(buf);
             if (ret != SDDS_RT_OK) {
                 Log_error("Network_send failed\n");
-                Mutex_unlock(mutex);
                 return SDDS_RT_FAIL;
             }
             //  If frame was sent, free the buffer.
@@ -317,7 +317,6 @@ checkSending(NetBuffRef_t* buf) {
             Log_debug("No subscriber\n");
         }
 
-        Mutex_unlock(mutex);
         return SDDS_RT_OK;
     }
     else {
@@ -338,7 +337,6 @@ checkSending(NetBuffRef_t* buf) {
         ssw_rc_t ret = Task_start(sendTask, taskSec, taskMSec, SDDS_SSW_TaskMode_single);
         if (ret != SDDS_RT_OK) {
             Log_error("Task_start failed\n");
-            Mutex_unlock(mutex);
             return SDDS_RT_FAIL;
         }
 
@@ -346,14 +344,12 @@ checkSending(NetBuffRef_t* buf) {
         Log_debug("Task startet, timer: %u\n", (sendDeadline - time));
         Log_debug("%u > %u\n", sendDeadline, time);
 #   endif
-        Mutex_unlock(mutex);
         return SDDS_RT_DEFERRED;
     }
 }
 #else
 rc_t
 checkSending(NetBuffRef_t* buf) {
-    Mutex_lock(mutex);
     // update header
     SNPS_updateHeader(buf);
 
@@ -362,13 +358,11 @@ checkSending(NetBuffRef_t* buf) {
         if (ret != SDDS_RT_OK) {
             Log_error("Network_send failed\n");
             NetBuffRef_renew(buf);
-            Mutex_unlock(mutex);
             return SDDS_RT_FAIL;
         }
     }
     NetBuffRef_renew(buf);
 
-    Mutex_unlock(mutex);
     return SDDS_RT_OK;
 }
 #endif
