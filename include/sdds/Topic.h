@@ -47,6 +47,10 @@ struct _Topic_t {
 #if defined SDDS_HAS_QOS_RELIABILITY
     uint8_t seqNrBitSize:6;
     uint8_t reliabilityKind:2;
+#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+    SDDS_MAX_BLOCKING_TIME_BIGGEST_TYPE max_blocking_time;
+    uint8_t confirmationtype:2;
+#   endif
 #endif
 
 };                              /* ----------  end of struct Topic  ----------

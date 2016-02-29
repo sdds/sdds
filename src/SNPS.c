@@ -423,7 +423,6 @@ SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data
 }
 
 #if defined SDDS_HAS_QOS_RELIABILITY
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 //  -----------------------------------------------------------------------------
 //  Writes the least significant 4-bits of the given sequencenumber
 //  in the given NetBuffRef_t*. Returns SDDS_RT_OK on success.
@@ -438,7 +437,6 @@ SNPS_writeSeqNr(NetBuffRef_t* ref, uint8_t seqNr) {
 
     return ret;
 }
-#endif
 #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 //  -----------------------------------------------------------------------------
 //  Writes the given sequencenumber (1 byte size) of in the given
