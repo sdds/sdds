@@ -16,9 +16,20 @@ Security_init() {
   DDS_ReturnCode_t r;  
 
 #ifdef SDDS_SECURITY_KDC
+
   r = Security_kdc();    
+
 #else  
+
   r = Security_auth();
+
+  if(r = SDDS_RT_FAIL) {
+    return r;
+  }
+
+  SharedSecretHandle ss_handle = DDS_Security_Authentication_get_shared_secret(
+                                              &g_handle, SecurityException *ex); 
+
 #endif    
 
   return r;
@@ -37,7 +48,7 @@ Security_auth() {
   DDS_ParticipantStatelessMessage msg;
   DDS_ParticipantStatelessMessage *msg_ptr = &msg;
   DDS_SampleInfo info;
-  int j;
+  int i, j;
   
   res = DDS_Security_Authentication_begin_handshake_request(
     &g_handle,
@@ -48,13 +59,12 @@ Security_auth() {
     &ex 
   );
 
-
-  while(1) {
+  for(i = 0; i < SDDS_MAX_AUTH_ITERATIONS; i++) {
 
     switch(res) {
 
       case VALIDATION_OK:
-        printf("VALIDATION_OK\n");        
+        printf("VALIDATION_OK\n");
         return SDDS_RT_OK;
       break;
 
@@ -91,7 +101,7 @@ Security_auth() {
           if(r == DDS_RETCODE_OK && msg.key == BuiltinTopic_participantID) {
             printf("received reply from kdc\n");
             msg_tok_in = msg.message_data;
-            res = process_handshake(
+            res = DDS_Security_Authentication_process_handshake(
 	            &msg_tok_out,
 	            &msg_tok_in,
 	            &g_handle,
@@ -176,6 +186,9 @@ Security_kdc() {
 
         case VALIDATION_OK:
           printf("VALIDATION_OK\n");
+          SharedSecretHandle ss_handle = DDS_Security_Authentication_get_shared_secret(
+                                                      handle, &ex); 
+
         break;
 
         case VALIDATION_FAILED:
@@ -224,7 +237,7 @@ Security_kdc() {
         continue;
       }
       
-      res = process_handshake(
+      res = DDS_Security_Authentication_process_handshake(
         &msg_tok_out,
         &msg_tok_in,
         handle,
@@ -343,7 +356,7 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
 #endif
 
 DDS_S_Result_t 
-process_handshake(
+DDS_Security_Authentication_process_handshake(
 	HandshakeMessageToken *handshake_message_out,
 	HandshakeMessageToken *handshake_message_in,
 	HandshakeHandle *handshake_handle,
@@ -367,6 +380,13 @@ process_handshake(
         res = VALIDATION_FAILED;
         break;
       } 
+
+      // calculate shared secret
+      if(Security_set_key_material(handshake_handle, handshake_handle->info.remote_nonce) == SDDS_RT_FAIL) {
+        res = VALIDATION_FAILED;
+        break;
+      }
+
 #else
       // fetch remote id and public key from handshake_message_in
       strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, CLASS_ID_STRLEN);
@@ -389,6 +409,12 @@ process_handshake(
 #ifdef SDDS_SECURITY_KDC
       // fetch remote mactag from handshake_message_in
       Security_get_bytes(handshake_handle->info.mactag, handshake_message_in->props[0].value);
+
+      if(Security_verify_mactag(handshake_handle) == SDDS_RT_FAIL) {
+        res = VALIDATION_FAILED;
+        break;
+      } 
+
 #else
       // fetch remote signature and nonce from handshake_message_in
       Security_get_bytes(handshake_handle->info.signature_r, handshake_message_in->props[0].value);
@@ -400,6 +426,13 @@ process_handshake(
         res = VALIDATION_FAILED;
         break;
       } 
+
+      // calculate shared secret
+      if(Security_set_key_material(handshake_handle, handshake_handle->info.nonce) == SDDS_RT_FAIL) {
+        res = VALIDATION_FAILED;
+        break;
+      }
+
 #endif
       // set up token to send (mactag) to handshake_message_out
       strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
@@ -425,6 +458,33 @@ process_handshake(
   return res;
 
 }
+
+SharedSecretHandle
+DDS_Security_Authentication_get_shared_secret(HandshakeHandle *h, SecurityException *ex) {
+  return h->info.shared_secret;
+}
+
+rc_t
+Security_set_key_material(HandshakeHandle *h, uint8_t nonce[NUM_ECC_DIGITS]) {
+
+  uint8_t private_key[NUM_ECC_DIGITS];
+  uint8_t random[NUM_ECC_DIGITS];
+
+  Security_get_bytes(private_key, SDDS_SECURITY_USER_PRIVATE_KEY);
+  getRandomBytes(random, sizeof(random));
+
+  // calculate shared secret 
+  if(!ecdh_shared_secret(h->info.shared_secret, &h->info.public_key, private_key, random)) {
+    return SDDS_RT_FAIL;
+  }
+
+  // calculate key material MAC- and AES-Key  
+  Security_kdf(h->info.key_material, h->info.shared_secret, nonce);
+
+  return SDDS_RT_OK;
+
+}
+
 
 #ifdef SDDS_SECURITY_KDC
 HandshakeHandle*
@@ -500,6 +560,11 @@ Security_verify_certificate(HandshakeHandle *h) {
   
 }
 
+rc_t
+Security_verify_mactag(HandshakeHandle *h) {
+
+}
+
 void 
 Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str) {
 
@@ -528,27 +593,30 @@ Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS]) {
 }
 
 void 
-Security_kdf(uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES], uint8_t shared_secret[NUM_ECC_DIGITS], uint8_t nonce[NUM_ECC_DIGITS]) {
+Security_kdf(uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES], 
+             uint8_t shared_secret[NUM_ECC_DIGITS], 
+             uint8_t nonce[NUM_ECC_DIGITS]) 
+{
 
   int reps = (SDDS_SECURITY_KDF_KEY_BYTES / SHA1_HASH_BYTES);
-  int r = SDDS_SECURITY_KDF_KEY_BYTES % SHA1_HASH_BYTES;
+  int r = SDDS_SECURITY_KDF_KEY_BYTES % SHA1_HASH_BYTES;                           
+  char counter[4];  
+  uint32_t *ptr = (uint32_t *) counter;
+  uint8_t hash[SHA1_HASH_BYTES];
+  int size = sizeof(counter) + NUM_ECC_DIGITS * 2;
+  uint8_t data[size];
+
   if(r) {
     reps++;
-  }                                
-  char counter_str[32];
-  uint8_t hash[SHA1_HASH_BYTES];
-  int size = sizeof(counter_str) + NUM_ECC_DIGITS + sizeof(nonce);
-  uint8_t data[size];
+  }
 
   for(uint32_t i = 0; i < reps; i++) {
     
-    for (int j = 0; j < sizeof(counter_str); j++) {
-      counter_str[j] = ((1 << j) & (i + 1)) ? ('1') : ('0');
-    }
+    (*ptr)++;
     
-    memcpy(data, counter_str, sizeof(counter_str));
-    memcpy(data + sizeof(counter_str), shared_secret, NUM_ECC_DIGITS);
-    memcpy(data + sizeof(counter_str) + NUM_ECC_DIGITS, nonce, sizeof(nonce));
+    memcpy(data, counter, sizeof(counter));
+    memcpy(data + sizeof(counter), shared_secret, NUM_ECC_DIGITS);
+    memcpy(data + sizeof(counter) + NUM_ECC_DIGITS, nonce, NUM_ECC_DIGITS);
 
     sha1(hash, data, size*8);
     
