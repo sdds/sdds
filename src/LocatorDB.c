@@ -56,8 +56,6 @@ s_print() {
             type = "MUL";
         }
 
-        assert(!((i == 3) && (strcmp(srcAddr, "ff02::30") == 0)));
-
         printf("[(%p) %d,%d, %s, %s] ", db.pool[i], i, db.pool[i]->refCount, srcAddr, type);
     }
     printf("\nfreeLoc: %d\n\n", db.freeLoc);
@@ -263,30 +261,32 @@ LocatorDB_findLocatorByMcastAddr(char *addr, Locator_t** result) {
     return SDDS_RT_FAIL;
 }
 
+#ifdef UTILS_TRACE
 void
 print_trace (int fun)
 {
-//  void *array[10];
-//  size_t size;
-//  size_t i;
-//
-//  size = backtrace (array, 10);
-//
-//  switch (fun) {
-//  case 0:
-//      system("echo UP REF >> log.txt");
-//      break;
-//  case 1:
-//      system("echo DOWN REF >> log.txt");
-//      break;
-//  }
-//
-//  for (i = 0; i < size; i++) {
-//      char command[150];
-//      sprintf(command, "addr2line -e linux_mcast1 %p >> log.txt", array[i]);
-//      system(command);
-//  }
+  void *array[10];
+  size_t size;
+  size_t i;
+
+  size = backtrace (array, 10);
+
+  switch (fun) {
+  case 0:
+      system("echo UP REF >> log.txt");
+      break;
+  case 1:
+      system("echo DOWN REF >> log.txt");
+      break;
+  }
+
+  for (i = 0; i < size; i++) {
+      char command[150];
+      sprintf(command, "addr2line -e linux_mcast1 %p >> log.txt", array[i]);
+      system(command);
+  }
 }
+#endif
 
 
 void
@@ -306,8 +306,17 @@ Locator_upRef(Locator_t* _this) {
         s_print();
     }
 #endif
+#ifdef UTILS_TRACE
     print_trace(0);
-    assert(_this->refCount > 0);
+#endif
+    /*
+     *	A locator with refCount 0 is free. New locators are obtained with refCount 1.
+     *	upRef on a free Locator (refCount == 0) is illegal.
+     *	If this happens with a non-free locator, probably you used the downRef operation wrong.
+	 */
+    if (_this->refCount == 0) {
+    	Log_info("refCount is 0, this is a known bug. Please read the code commentary for detailed information.\n");
+    }
     if (_this->refCount < 254) {
         _this->refCount++;
     }
