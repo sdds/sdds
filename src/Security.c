@@ -18,10 +18,11 @@ Security_init() {
 #ifdef SDDS_SECURITY_KDC
   r = Security_kdc();    
 #else  
-  while((r = Security_auth()) != 0);
+  r = Security_auth();
 #endif    
 
   return r;
+
 }
 
 #ifndef SDDS_SECURITY_KDC 
@@ -59,6 +60,7 @@ Security_auth() {
 
       case VALIDATION_FAILED:
         printf("VALIDATION_FAILED\n");        
+        return SDDS_RT_FAIL;
       break;
 
       case VALIDATION_PENDING_HANDSHAKE_MESSAGE:      
@@ -125,7 +127,7 @@ Security_auth() {
     }
   }
 
-  return res;
+  return SDDS_RT_FAIL;
 
 }
 
@@ -135,7 +137,7 @@ rc_t
 Security_kdc() {
 
   DDS_S_Result_t res = VALIDATION_FAILED;
-  DDS_ReturnCode_t r;  
+  DDS_ReturnCode_t r;
   SecurityException ex;
   HandshakeHandle *handle;  
   HandshakeMessageToken msg_tok_out;
@@ -173,11 +175,11 @@ Security_kdc() {
       switch(res) {
 
         case VALIDATION_OK:
-          printf("VALIDATION_OK");
+          printf("VALIDATION_OK\n");
         break;
 
         case VALIDATION_FAILED:
-          printf("VALIDATION_FAILED");
+          printf("VALIDATION_FAILED\n");
           Security_cleanup_handshake_handle(handle);
         break;
 
@@ -232,11 +234,11 @@ Security_kdc() {
       switch(res) {
 
         case VALIDATION_OK:
-          printf("VALIDATION_OK");
+          printf("VALIDATION_OK\n");
         break;
 
         case VALIDATION_FAILED:
-          printf("VALIDATION_FAILED");
+          printf("VALIDATION_FAILED\n");
           Security_cleanup_handshake_handle(handle);
         break;
 
@@ -318,7 +320,7 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
 	SecurityException *ex /* inout (variable length) */
 ) {
 
-  handshake_handle = Security_get_handshake_handle(initiator_identity_handle);
+  handshake_handle = Security_new_handshake_handle(initiator_identity_handle);
 
   if(handshake_handle == NULL) {
     return VALIDATION_FAILED;
@@ -359,40 +361,12 @@ process_handshake(
       Security_get_bytes(handshake_handle->info.signature_r, handshake_message_in->props[0].value);
       Security_get_bytes(handshake_handle->info.signature_s, handshake_message_in->props[1].value);
       Security_get_bytes(handshake_handle->info.remote_nonce, handshake_message_in->props[2].value);
-      
-      char str[NUM_ECC_DIGITS * 2 + 1];
-      Security_get_string(str, handshake_handle->info.public_key.x);
 
-      printf("uid: %s\n", handshake_handle->info.uid);
-      printf("public key: %s\n", str);
-
-/*
-    	char cert[4 + 4 + 1 + NUM_ECC_DIGITS*2 + 1 + NUM_ECC_DIGITS*2 + 1];
-  		sprintf(cert, "%s,%s,%s", 
-              handshake_handle->info.uid, 
-              handshake_handle->info.public_key.x, 
-              handshake_handle->info.public_key.y);
-
-      printf("cert: %s\n", cert);
-
-      EccPoint ca_publicKey;
-*/
-
-/* ecdsa_verify() function.
-Verify an ECDSA signature.
-
-Usage: Compute the hash of the signed data using the same hash as the signer and
-pass it to this function along with the signer's public key and the signature values (r and s).
-
-Inputs:
-    p_publicKey - The signer's public key
-    p_hash      - The hash of the signed data.
-    r, s        - The signature values.
-
-Returns 1 if the signature is valid, 0 if it is invalid.
-*/
-//int ecdsa_verify(EccPoint *p_publicKey, uint8_t p_hash[NUM_ECC_DIGITS], uint8_t r[NUM_ECC_DIGITS], uint8_t s[NUM_ECC_DIGITS]);
-
+      // verify user certificate
+      if(Security_verify_certificate(handshake_handle) == SDDS_RT_FAIL) {
+        res = VALIDATION_FAILED;
+        break;
+      } 
 #else
       // fetch remote id and public key from handshake_message_in
       strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, CLASS_ID_STRLEN);
@@ -420,6 +394,12 @@ Returns 1 if the signature is valid, 0 if it is invalid.
       Security_get_bytes(handshake_handle->info.signature_r, handshake_message_in->props[0].value);
       Security_get_bytes(handshake_handle->info.signature_s, handshake_message_in->props[1].value);
       Security_get_bytes(handshake_handle->info.remote_nonce, handshake_message_in->props[2].value);
+
+      // verify user certificate
+      if(Security_verify_certificate(handshake_handle) == SDDS_RT_FAIL) {
+        res = VALIDATION_FAILED;
+        break;
+      } 
 #endif
       // set up token to send (mactag) to handshake_message_out
       strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
@@ -451,15 +431,23 @@ HandshakeHandle*
 Security_get_handshake_handle(IdentityHandle *node) {
 
   int i;
-
   for(i = 0; i < SDDS_SECURITY_HANDSHAKE_MAX; i++) {
     if(g_handles[i].node == *node) {
       return &g_handles[i];
     }
   }
-  
+
+  return NULL;
+
+}
+
+HandshakeHandle*
+Security_new_handshake_handle(IdentityHandle *node) {
+
+  int i;
   for(i = 0; i < SDDS_SECURITY_HANDSHAKE_MAX; i++) {
     if(g_handles[i].node == 0) {
+      g_handles[i].node = *node;
       return &g_handles[i];
     }
   }
@@ -473,6 +461,47 @@ Security_cleanup_handshake_handle(HandshakeHandle *h) {
   memset(h, 0, sizeof(HandshakeHandle));
 }
 #endif
+
+rc_t
+Security_verify_certificate(HandshakeHandle *h) {
+
+  EccPoint ca_publicKey;
+  uint8_t hash[NUM_ECC_DIGITS];
+  char str[NUM_ECC_DIGITS * 2 + 1];
+	char cert[SDDS_SECURITY_CERT_STRLEN];
+  char *p = cert;
+  int res;
+
+	snprintf(p, SDDS_SECURITY_USER_ID_STRLEN + 2, 
+                "%s,", h->info.uid);
+  p += SDDS_SECURITY_USER_ID_STRLEN + 1;
+
+  Security_get_string(str, h->info.public_key.x, 1);
+	snprintf(p, NUM_ECC_DIGITS * 2 + 2, "%s,", str);
+  p += NUM_ECC_DIGITS * 2 + 1;
+
+  Security_get_string(str, h->info.public_key.y, 1);
+	snprintf(p, NUM_ECC_DIGITS * 2 + 1, "%s", str);
+
+  printf("verifying certificate: %s\n", cert);
+
+	memset(hash, 0, NUM_ECC_DIGITS);
+	sha1(hash, cert, 8 * SDDS_SECURITY_CERT_STRLEN - 1);
+
+  Security_get_string(str, hash, 0);
+
+  printf("hash %s\n", str);
+
+  Security_get_bytes(ca_publicKey.x, SDDS_SECURITY_CA_PUBLIC_KEY_X);
+  Security_get_bytes(ca_publicKey.y, SDDS_SECURITY_CA_PUBLIC_KEY_Y);
+
+  if(ecdsa_verify(&ca_publicKey, hash, h->info.signature_r, h->info.signature_s)) {
+    return SDDS_RT_OK;
+  } else {
+    return SDDS_RT_FAIL;
+  }
+  
+}
 
 void 
 Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str) {
@@ -494,17 +523,21 @@ Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str) {
 }
 
 void 
-Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS]) {
+Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS], char reverse) {
 
   int i;
 	uint8_t bytes[NUM_ECC_DIGITS];
-  char buf[3];  
-  unsigned chr;
+	uint8_t *ptr;
 
-	ecc_native2bytes(bytes, num);
+  if(reverse) {
+  	ecc_native2bytes(bytes, num);
+    ptr = bytes;
+  } else {
+    ptr = num;
+  }
 
 	for(i = 0; i < NUM_ECC_DIGITS; i++) {
-    sprintf(&str[i*2], "%02x", num[i]);
+    sprintf(&str[i*2], "%02x", ptr[i]);
 	}
 
 }

@@ -27,6 +27,8 @@
 #define SDDS_SECURITY_RECEIVE_SLEEP_SEC 1
 
 #define SDDS_SECURITY_KDC_USER_ID "user0001"
+#define SDDS_SECURITY_USER_ID_STRLEN 8
+#define SDDS_SECURITY_CERT_STRLEN SDDS_SECURITY_USER_ID_STRLEN + 1 + NUM_ECC_DIGITS*2 + 1 + NUM_ECC_DIGITS*2 + 1
 
 #define SDDS_SECURITY_HANDSHAKE_STATE_CERT 0
 #define SDDS_SECURITY_HANDSHAKE_STATE_SIGN 1
@@ -76,8 +78,14 @@ Security_auth();
 rc_t 
 Security_kdc();
 
+rc_t
+Security_verify_certificate(HandshakeHandle *h);
+
 HandshakeHandle*
 Security_get_handshake_handle(IdentityHandle *node);
+
+HandshakeHandle*
+Security_new_handshake_handle(IdentityHandle *node);
 
 void
 Security_cleanup_handshake_handle(HandshakeHandle *h);
@@ -86,7 +94,7 @@ void
 Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str);
 
 void 
-Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS]);
+Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS], char reverse);
 
 void 
 Security_kdf(uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES], uint8_t shared_secret[NUM_ECC_DIGITS], uint8_t nonce[NUM_ECC_DIGITS]);
