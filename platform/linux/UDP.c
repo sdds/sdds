@@ -499,18 +499,6 @@ Network_send(NetBuffRef_t* buff) {
         transmitted = sendto(sock, buff->buff_start, buff->curPos, 0,
                              (struct sockaddr*) &addr, ((struct UDPLocator_t*) loc)->addr_len);
 
-//        printf("NETWORK SEND\n\n");
-//        printf("buff->curPos: %d\n", buff->curPos);
-//        printf("\n\n");
-//        for (int i = 0; i < buff->curPos; i++) {
-//        	if (i%8 == 0) {
-//        		printf("\n");
-//        	}
-//        	printf("[%x,%c] ", buff->buff_start[i], buff->buff_start[i]);
-//        }
-//        printf("\n\n");
-//        printf("NETWORK SEND\n\n");
-
         if (transmitted == -1) {
             perror("ERROR");
             Log_error("can't send udp packet\n");
@@ -598,7 +586,7 @@ Network_set_locator_endpoint(Locator_t* loc, char* endpoint, int port) {
     int gai_ret = getaddrinfo(endpoint, port_buffer, &hints, &address);
 
     if (gai_ret != 0) {
-        Log_error("can't obtain suitable addresses %s for setting UDP locator\n", endpoint);
+        Log_error("can't obtain suitable addresses %s for setting UDP locator: %s\n", endpoint, gai_strerror(errno));
         return SDDS_RT_FAIL;
     }
 
