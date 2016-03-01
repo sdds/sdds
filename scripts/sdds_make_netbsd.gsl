@@ -65,6 +65,7 @@ CLEAN += \$(IMPL_DEPEND_SRCS)
 CLEAN += \$(ALL_OBJS)
 CLEAN += \$(patsubst %.o,%.d,\$(ALL_OBJS))
 CLEAN += \$(SDDS_CONSTANTS_FILE)
+CLEAN += local_constants.h
 
 all:
 
