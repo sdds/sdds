@@ -1,7 +1,5 @@
 .set GIT=https://zenon.cs.hs-rm.de/sdds/sdds
 
-# sDDS
-
 [diagram]
     /------------------------------------\
     |+-----------------------------------/
@@ -330,17 +328,17 @@ The entry point is 'sdds.gsl':
     | skeletion and glue code.  |           | features.       cFDA|
     +-------------+-------------+           +---------------------+
                   |
-                  |                         +--------------------------+
-                  |       Output            | example/your_app/        |
-                  +------------------------>+--------------------------+
-                                            | * <your_app>_topic.(c|h) |
-                                            | * <your_app>_impl.(c|h)  |
-                                            | * gen_constants.h        |
-                                            | * local_constants.h      |
-                                            | * <your_app>.c           |
-                                            | * Makefile               |
-                                            | * Makefile_2nd_lvl   cFAD|
-                                            +--------------------------+
+                  |                         +----------------------------+
+                  |       Output            | example/your_app/          |
+                  +------------------------>+----------------------------+
+                                            | * your_app_topic.(c/h)     |
+                                            | * your_app_impl.(c/h)      |
+                                            | * gen_constants.h          |
+                                            | * local_constants.h        |
+                                            | * your_app.c               |
+                                            | * Makefile                 |
+                                            | * Makefile_2nd_lvl     cFAD|
+                                            +----------------------------+
 [/diagram]
 
 * sdds_topic.gsl - Generate the topics
