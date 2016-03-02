@@ -220,10 +220,10 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #               ifdef SDDS_QOS_LATENCYBUDGET
                     out_buffer->bufferOverflow = true;
 #               endif
-                    DataWriter_mutex_unlock();
                     checkSending(out_buffer);
+                    DataWriter_mutex_unlock();
 
-                }  // end of topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+                }  // end of (topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK)
 #           endif // end of ACK
 
 #           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
