@@ -171,48 +171,68 @@ sdds_History_dequeue(History_t* self) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static inline rc_t
 s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
-    rc_t ret = SDDS_RT_FAIL;
+    uint8_t indexOfHighestSeqNrForLoc = 0;
 
-    SDDS_SEQNR_BIGGEST_TYPE highestSeqNrOfLoc = 0;
-    for (int i=0; i<self->depth; i++){
-        if (self->samples[i].instance == loc
-        && self->samples[i].seqNr > highestSeqNrOfLoc){
-            highestSeqNrOfLoc = self->samples[i].seqNr;
+    // check if locator is already in hashmap
+    bool isInHashmap = false;
+    for (int index=0; index<SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS; index++){
+        if (self->qos_locator[index] == loc){
+            indexOfHighestSeqNrForLoc = index;
+            isInHashmap = true;
+            break;
         }
     }
 
-    switch(topic->seqNrBitSize){
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
-            if ((highestSeqNrOfLoc == 0)
-            ||  (seqNr > highestSeqNrOfLoc)
-            ||  (highestSeqNrOfLoc == 15)) {
-                ret = SDDS_RT_OK;
+    // if not already in hashmap, there has to be at least one free slot left
+    if (!isInHashmap){
+        for (int index=0; index<SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS; index++){
+            if (self->qos_locator[index] == 0){
+                self->qos_locator[index] = loc;
+                self->highestSeqNr[index] = seqNr;
+                return SDDS_RT_OK;
             }
-           break;
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
-            if ((highestSeqNrOfLoc == 0)
-            ||  (seqNr > highestSeqNrOfLoc)
-            ||  (highestSeqNrOfLoc == 255)) {
-                ret = SDDS_RT_OK;
-            }
-           break;
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
-            if ((highestSeqNrOfLoc == 0)
-            ||  (seqNr > highestSeqNrOfLoc)
-            ||  (highestSeqNrOfLoc == 65536)) {
-                ret = SDDS_RT_OK;
-            }
-           break;
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
-            if ((highestSeqNrOfLoc == 0)
-            ||  (seqNr > highestSeqNrOfLoc)
-            ||  (highestSeqNrOfLoc == 4294967296)) {
-                ret = SDDS_RT_OK;
-            }
-           break;
+        }
     }
 
-    return ret;
+    // check the validity of the new seqNr
+    switch(topic->seqNrBitSize){
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
+            if ((self->highestSeqNr[indexOfHighestSeqNrForLoc] == 0)
+            ||  (seqNr > self->highestSeqNr[indexOfHighestSeqNrForLoc])
+            ||  (self->highestSeqNr[indexOfHighestSeqNrForLoc] == 15)) {
+                return SDDS_RT_OK;
+            }
+           break;
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
+            if ((self->highestSeqNr[indexOfHighestSeqNrForLoc] == 0)
+            ||  (seqNr > self->highestSeqNr[indexOfHighestSeqNrForLoc])
+            ||  (self->highestSeqNr[indexOfHighestSeqNrForLoc] == 255)) {
+                return SDDS_RT_OK;
+            }
+           break;
+#   endif
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
+            if ((self->highestSeqNr[indexOfHighestSeqNrForLoc] == 0)
+            ||  (seqNr > self->highestSeqNr[indexOfHighestSeqNrForLoc])
+            ||  (self->highestSeqNr[indexOfHighestSeqNrForLoc] == 65536)) {
+                return SDDS_RT_OK;
+            }
+           break;
+#   endif
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
+            if ((self->highestSeqNr[indexOfHighestSeqNrForLoc] == 0)
+            ||  (seqNr > self->highestSeqNr[indexOfHighestSeqNrForLoc])
+            ||  (self->highestSeqNr[indexOfHighestSeqNrForLoc] == 4294967296)) {
+                return SDDS_RT_OK;
+            }
+           break;
+#   endif
+    }
+
+    return SDDS_RT_FAIL;
 }
 #endif
 
