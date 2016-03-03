@@ -93,7 +93,7 @@ DDS_DataWriter g_$(topic.c_name:)_writer;
 rc_t
 sDDS_init (void)
 {
-    rc_t ret;
+    rc_t ret = SDDS_RT_OK;
     //  Initializes all sDDS classes is defined in sDDS.c
     //  Must be first as all other classes depend on it
 .# Additional inits for the autobest sdds server
