@@ -331,7 +331,7 @@ Locator_downRef(Locator_t* _this) {
     Mutex_lock(mutex);
 #ifdef UTILS_TRACE
     print_trace(1);
-#endif    
+#endif
     if (_this->refCount == 0) {
         Mutex_unlock(mutex);
         return;
@@ -356,10 +356,7 @@ s_init(Locator_t* _this) {
     _this->isDest = false;
     _this->isSender = false;
 
-    _this->type = SDDS_LOCATOR_TYPE_UNI;
-    rc_t ret = Network_setPlatformAddressToLocator(_this);
-
-    return ret;
+    return SDDS_RT_OK;
 }
 
 uint8_t
