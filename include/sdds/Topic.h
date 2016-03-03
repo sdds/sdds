@@ -49,6 +49,7 @@ struct _Topic_t {
     uint8_t reliabilityKind:2;
 #   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
     SDDS_MAX_BLOCKING_TIME_BIGGEST_TYPE max_blocking_time;
+    SDDS_MAX_TIME_TO_RESPOND_BIGGEST_TYPE time_to_respond;
     uint8_t confirmationtype:2;
 #   endif
 #endif
