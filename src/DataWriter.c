@@ -12,6 +12,11 @@
 #include "sDDS.h"
 #include "Log.h"
 
+#ifdef TEST_SCALABILITY
+#include <stdio.h>
+static FILE* scalability_msg_count;
+#endif
+
 static Task sendTask;
 static Mutex_t* mutex;
 
@@ -48,6 +53,11 @@ DataWriter_init () {
         Log_error("Mutex_init failed\n");
         return SDDS_RT_FAIL;
     }
+
+#ifdef TEST_SCALABILITY
+    scalability_msg_count = fopen(SCALABILITY_LOG, "w");
+    fclose(scalability_msg_count);
+#endif
 
     return SDDS_RT_OK;
 }
@@ -144,6 +154,13 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
     ret = checkSending(out_buffer);
+#ifdef TEST_SCALABILITY
+    if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
+    	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
+    	fwrite("D", 1, 1, scalability_msg_count);
+		fclose(scalability_msg_count);
+    }
+#endif
     Mutex_unlock(mutex);
     //  Caller doesn't understand different return codes but FAIL and OK
     if (ret == SDDS_RT_FAIL) {
@@ -315,17 +332,23 @@ rc_t
 checkSending(NetBuffRef_t* buf) {
     // update header
     SNPS_updateHeader(buf);
-
+    rc_t ret = SDDS_RT_OK;
     if (buf->locators->size_fn(buf->locators) > 0) {
-        rc_t ret = Network_send(buf);
+        ret = Network_send(buf);
         if (ret != SDDS_RT_OK) {
             Log_error("Network_send failed\n");
             NetBuffRef_renew(buf);
             return SDDS_RT_FAIL;
         }
     }
+#ifdef TEST_SCALABILITY
+    else {
+    	ret = SDDS_RT_NO_SUB;
+    }
+#endif
+
     NetBuffRef_renew(buf);
 
-    return SDDS_RT_OK;
+    return ret;
 }
 #endif

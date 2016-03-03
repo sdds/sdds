@@ -11,6 +11,11 @@ extern "C"
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 
+#ifdef TEST_SCALABILITY
+#include <stdio.h>
+static FILE* scalability_msg_count;
+#endif
+
 DDS_Topic g_DCPSParticipant_topic;
 Sample_t dcps_participant_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSParticipant dcps_participant_sample_data[SDDS_QOS_HISTORY_DEPTH];
@@ -316,6 +321,11 @@ DDS_DCPSParticipantDataWriter_write(
     rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY
+    	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
+    	fwrite("I", 1, 1, scalability_msg_count);
+		fclose(scalability_msg_count);
+#endif
         return DDS_RETCODE_OK;
     }
     return DDS_RETCODE_ERROR;
@@ -440,6 +450,11 @@ DDS_DCPSTopicDataWriter_write(
     rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY
+    	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
+    	fwrite("T", 1, 1, scalability_msg_count);
+		fclose(scalability_msg_count);
+#endif
         return DDS_RETCODE_OK;
     }
 
@@ -564,6 +579,11 @@ DDS_DCPSPublicationDataWriter_write(
     rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY
+    	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
+    	fwrite("P", 1, 1, scalability_msg_count);
+		fclose(scalability_msg_count);
+#endif
         return DDS_RETCODE_OK;
     }
 
@@ -711,6 +731,11 @@ DDS_DCPSSubscriptionDataWriter_write(
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY
+    	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
+    	fwrite("S", 1, 1, scalability_msg_count);
+		fclose(scalability_msg_count);
+#endif
         return DDS_RETCODE_OK;
     }
 

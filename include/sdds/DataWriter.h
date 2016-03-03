@@ -16,6 +16,13 @@
 extern "C" {
 #endif
 
+
+#ifdef TEST_SCALABILITY
+#ifndef SCALABILITY_LOG
+#define SCALABILITY_LOG "../scalability_msg_count.log"
+#endif
+#endif
+
 //  Structure of this class
 
 struct _DataWriter_t {
