@@ -171,6 +171,7 @@ typedef uint8_t rc_t;
 #define SDDS_RT_BAD_PARAMETER 4
 #define SDDS_RT_KNOWN 5
 #define SDDS_RT_DEFERRED 6
+#define SDDS_RT_NO_SUB 7
 
 //  Abstract definition for Data
 struct Data_t;
