@@ -28,6 +28,8 @@ ArrayList_add(List_t* this, void* data);
 size_t
 ArrayList_size(List_t* this);
 rc_t
+ArrayList_delete(List_t* this);
+rc_t
 ArrayList_delete_all(List_t* this);
 
 //  Initialize List
@@ -56,6 +58,7 @@ List_initArrayList(size_t limit) {
     this->list.next_fn = ArrayList_next;
     this->list.add_fn = ArrayList_add;
     this->list.size_fn = ArrayList_size;
+    this->list.delete_fn = ArrayList_delete;
     this->list.delete_all_fn = ArrayList_delete_all;
 
     return (List_t*) this;
@@ -121,6 +124,13 @@ ArrayList_size(List_t* this) {
 
     ArrayList_t* arrayList = (ArrayList_t*) this;
     return arrayList->size;
+}
+
+//  Deletes the element at the cursor from the list.
+rc_t
+ArrayList_delete(List_t* this) {
+    assert(this);
+    return SDDS_RT_FAIL;
 }
 
 //  Deletes all elements from the list.

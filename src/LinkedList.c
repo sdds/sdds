@@ -33,15 +33,17 @@ static _Bool nodePoolInit = false;
 
 //  Forward declaration of function pointers
 void*
-LinkedList_first(List_t* this);
+LinkedList_first(List_t* list);
 void*
-LinkedList_next(List_t* this);
+LinkedList_next(List_t* list);
 rc_t
-LinkedList_add(List_t* this, void* data);
+LinkedList_add(List_t* list, void* data);
 size_t
-LinkedList_size(List_t* this);
+LinkedList_size(List_t* list);
 rc_t
-LinkedList_delete_all(List_t* this);
+LinkedList_delete(List_t* list);
+rc_t
+LinkedList_delete_all(List_t* list);
 
 //  initialize node pool
 static void
@@ -70,132 +72,139 @@ s_newNode() {
 //  Initialize List
 List_t*
 List_initLinkedList(void) {
-    LinkedList_t* this = Memory_alloc(sizeof(LinkedList_t));
-    if (this == NULL) {
-        return NULL;
-    }
+    LinkedList_t* self = Memory_alloc(sizeof(LinkedList_t));
+    assert(self);
 
     s_initNodePool();
-    this->list.first_fn = LinkedList_first;
-    this->list.next_fn = LinkedList_next;
-    this->list.add_fn = LinkedList_add;
-    this->list.size_fn = LinkedList_size;
-    this->list.delete_all_fn = LinkedList_delete_all;
+    self->list.first_fn = LinkedList_first;
+    self->list.next_fn = LinkedList_next;
+    self->list.add_fn = LinkedList_add;
+    self->list.size_fn = LinkedList_size;
+    self->list.delete_fn = LinkedList_delete;
+    self->list.delete_all_fn = LinkedList_delete_all;
 
-    this->head = NULL;
-    this->cursor = NULL;
-    this->size = 0;
+    self->head = NULL;
+    self->cursor = NULL;
+    self->size = 0;
 
-    return (List_t*) this;
+    return (List_t*) self;
 }
 
 // Provides the data of the first element, or NULL
 void*
-LinkedList_first(List_t* this) {
-    if (this == NULL) {
-        return NULL;
-    }
-
-    LinkedList_t* linkedList = (LinkedList_t*) this;
-    if (linkedList->head == NULL) {
-        return NULL;
+LinkedList_first(List_t* list) {
+    assert(list);
+    LinkedList_t* self = (LinkedList_t*) list;
+    self->cursor = self->head;
+    if(self->cursor) {
+        return self->head->data;
     }
     else {
-        linkedList->cursor = linkedList->head;
-        void* data = linkedList->head->data;
-        return data;
+        return NULL;
     }
 }
 
-//  Provides the data of the next element, or NUULL.
+//  Provides the data of the next element, or NULL.
 void*
-LinkedList_next(List_t* this) {
-    if (this == NULL) {
-        return NULL;
-    }
+LinkedList_next(List_t* list) {
+    assert(list);
+    LinkedList_t* self = (LinkedList_t*) list;
 
-    LinkedList_t* linkedList = (LinkedList_t*) this;
-
-    if (linkedList->cursor == NULL) {
-        linkedList->cursor = linkedList->head;
-    }
-
-    if (linkedList->head == NULL) {
-        return NULL;
+    if (self->cursor) {
+        self->cursor = self->cursor->next;
     }
     else {
-        linkedList->cursor = linkedList->cursor->next;
-        if (linkedList->cursor == NULL) {
-            return NULL;
-        }
-        void* data = linkedList->cursor->data;
-        return data;
+        self->cursor = self->head;
+    }
+
+    if (self->cursor) {
+        return self->cursor->data;
+    }
+    else {
+        return NULL;
     }
 }
 
-//  Adds data to the list, return SDDS_RT_OK or SDDS_RT_FAIL.
+//  Adds data to the list, returns SDDS_RT_OK if successful otherwise SDDS_RT_FAIL.
 rc_t
-LinkedList_add(List_t* this, void* data) {
-    if (this == NULL) {
+LinkedList_add(List_t* list, void* data) {
+    assert(list);
+    assert(data);
+    LinkedList_t* self = (LinkedList_t*) list;
+
+    Node_t* node = s_newNode();
+    if(!node) {
         return SDDS_RT_FAIL;
     }
+    node->data = data;
+    node->isEmpty = false;
+    node->next = NULL;
 
-    LinkedList_t* linkedList = (LinkedList_t*) this;
-
-    if (linkedList->head == NULL) {
-        Node_t* n = s_newNode();
-        if (n == NULL) {
-            return SDDS_RT_FAIL;
+    if (self->head) {
+        Node_t* tail = self->head;
+        while (tail->next) {
+            tail = tail->next;
         }
+        tail->next = node;
+    }
+    else {
+        self->head = node;
+    }
 
-        n->isEmpty = false;
-        n->data = data;
-        n->next = NULL;
-        linkedList->head = n;
-        linkedList->size++;
+    self->size++;
+    self->cursor = NULL;
+    return SDDS_RT_OK;
+}
+
+//  Delete the node currently pointed at by the cursor, returns SDDS_RT_OK if
+//  successful otherwise SDDS_RT_FAIL. The cursor is invalidated by self
+//  function.
+rc_t
+LinkedList_delete(List_t* list) {
+    assert(list);
+    LinkedList_t* self = (LinkedList_t*) list;
+
+    Node_t *node, *prev = NULL;
+    for(node = self->head; node != NULL; node = node->next) {
+        if(node == self->cursor) {
+            break;
+        }
+        prev = node;
+    }
+    if(node) {
+        if (prev) {
+            prev->next = node->next;
+        }
+        else {
+            self->head = node->next;
+        }
+        node->data = NULL;
+        node->next = NULL;
+        node->isEmpty = true;
+
+        self->cursor = prev;
+        self->size--;
         return SDDS_RT_OK;
     }
     else {
-        Node_t* it = linkedList->head;
-        while (it->next != NULL) {
-            it = it->next;
-        }
-
-        Node_t* n = s_newNode();
-        if (n == NULL) {
-            return SDDS_RT_FAIL;
-        }
-
-        n->isEmpty = false;
-        n->data = data;
-        n->next = NULL;
-        it->next = n;
-        linkedList->size++;
-
-        return SDDS_RT_OK;
+        return SDDS_RT_FAIL;
     }
 }
 
 //  Return the size of the list.
 size_t
-LinkedList_size(List_t* this) {
-    if (this == NULL) {
-        return -1;
-    }
-
-    LinkedList_t* linkedList = (LinkedList_t*) this;
-    size_t size = linkedList->size;
-    return size;
+LinkedList_size(List_t* list) {
+    assert(list);
+    LinkedList_t* self = (LinkedList_t*) list;
+    return self->size;
 }
 
 rc_t
-LinkedList_delete_all(List_t* this) {
-    if (this == NULL) {
-        return SDDS_RT_FAIL;
-    }
-    LinkedList_t* linkedList = (LinkedList_t*) this;
+LinkedList_delete_all(List_t* list) {
+    assert(list);
+    LinkedList_t* self = (LinkedList_t*) list;
 
-    Node_t* it = linkedList->head;
+    Node_t* it = self->head;
     while (it != NULL) {
         Node_t* next = it->next;
 
@@ -204,9 +213,9 @@ LinkedList_delete_all(List_t* this) {
         it->isEmpty = true;
         it = next;
     }
-    linkedList->head = NULL;
-    linkedList->cursor = NULL;
-    linkedList->size = 0;
+    self->head = NULL;
+    self->cursor = NULL;
+    self->size = 0;
 
     return SDDS_RT_OK;
 }
