@@ -21,6 +21,7 @@
 #define  NETBUFFREF_H_INC
 
 #include "List.h"
+#include "gen_constants.h"
 
 struct Locator_t;
 
@@ -32,7 +33,7 @@ struct _NetBuffRef_t {
     uint16_t curPos;
 
     // QOS part
-#if SDDS_QOS_DW_LARBUD < 65536
+#if SDDS_QOS_DW_LATBUD < 65536
     time16_t sendDeadline;
     time16_t latBudDuration;
 #else
