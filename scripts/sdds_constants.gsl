@@ -244,6 +244,14 @@ $(project.GENERATED_WARNING_HEADER:)
 .endif
 #endif
 
+#ifndef PLATFORM_$(PROJECT.OS)_SDDS_DEVICE
+.if defined (project.device)
+#define PLATFORM_$(PROJECT.OS)_SDDS_DEVICE		"$(project.device)"
+.else
+#define PLATFORM_$(PROJECT.OS)_SDDS_DEVICE		PLATFORM_$(PROJECT.OS)_SDDS_IFACE
+.endif
+#endif
+
 .if project.os = "linux" | project.os = "autobest"
 #ifndef PLATFORM_$(PROJECT.OS:c)_SDDS_PROTOCOL
 #define PLATFORM_$(PROJECT.OS:c)_SDDS_PROTOCOL			$((project.protocol):upper)

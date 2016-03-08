@@ -10,8 +10,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifndef PLATFORM_LINUX_SDDS_IFACE
-#define PLATFORM_LINUX_SDDS_IFACE "tap0"
+#ifndef PLATFORM_LINUX_SDDS_DEVICE
+#define PLATFORM_LINUX_SDDS_DEVICE "eth0"
 #endif
 
 SSW_NodeID_t
@@ -30,7 +30,7 @@ NodeConfig_getNodeID(void) {
         }
         if (  ifa->ifa_addr->sa_family != AF_INET
            &&  ifa->ifa_addr->sa_family != AF_INET6
-           &&  strcmp(ifa->ifa_name, PLATFORM_LINUX_SDDS_IFACE) ==0) {
+           &&  strcmp(ifa->ifa_name, PLATFORM_LINUX_SDDS_DEVICE) ==0) {
             //  The MAC address is from 10 to 15.
             Log_debug("Obtained mac for %s: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
                       ifa->ifa_name,
