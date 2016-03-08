@@ -109,13 +109,6 @@ $(project.GENERATED_WARNING_HEADER:)
 .else
 #   define SDDS_MAX_BLOCKING_TIME_BIGGEST_TYPE uint32_t
 .endif
-.if project.qos_reliability_biggest_time_to_respond < 255
-#   define SDDS_MAX_TIME_TO_RESPOND_BIGGEST_TYPE uint8_t
-.elsif project.qos_reliability_biggest_max_blocking_time < 65535
-#   define SDDS_MAX_TIME_TO_RESPOND_BIGGEST_TYPE uint16_t
-.else
-#   define SDDS_MAX_TIME_TO_RESPOND_BIGGEST_TYPE uint32_t
-.endif
 #endif
 
 #ifndef SDDS_TOPIC_APP_MSG_COUNT

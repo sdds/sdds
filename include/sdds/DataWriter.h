@@ -18,9 +18,19 @@ extern "C" {
 
 
 #ifdef TEST_SCALABILITY
-#ifndef SCALABILITY_LOG
+#   ifndef SCALABILITY_LOG
 #define SCALABILITY_LOG "../scalability_msg_count.log"
+#   endif
 #endif
+
+#if defined SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || defined SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+struct _ReliableSample_t {
+    Data data;
+    SDDS_SEQNR_BIGGEST_TYPE seqNr;
+    time32_t timeStamp;
+    bool_t isUsed;
+};
+typedef struct _ReliableSample_t ReliableSample_t;
 #endif
 
 //  Structure of this class
@@ -35,12 +45,15 @@ typedef struct _DataWriter_t DataWriter_t;
 #if defined SDDS_HAS_QOS_RELIABILITY
 struct Reliable_DataWriter {
    DataWriter_t dw;
-   History_t history;
    SDDS_SEQNR_BIGGEST_TYPE seqNr;
+
+#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+    //List_t* myList;
+    ReliableSample_t reliableSamples[SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
+#   endif
 };
 typedef struct Reliable_DataWriter Reliable_DataWriter_t;
 #endif
-
 
 rc_t
 DataWriter_init();

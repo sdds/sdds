@@ -68,11 +68,11 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     assert (self);
     (void) handle;
 #ifdef FEATURE_SDDS_TRACING_ENABLED
-#   if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
-#       ifdef FEATURE_SDDS_TRACING_CALL_WRITE
+#if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
+#ifdef FEATURE_SDDS_TRACING_CALL_WRITE
     Trace_point(SDDS_TRACE_EVENT_CALL_WRITE);
-#       endif
-#   endif
+#endif
+#endif
 #endif
     Mutex_lock(mutex);
     Topic_t* topic = self->topic;
@@ -120,27 +120,61 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     }
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-    if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-        SNPS_writeSeqNr(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
-        Log_debug("dw seqNrBasic %d\n", ((uint8_t)((Reliable_DataWriter_t*)self)->seqNr)&0x0f);
+    if (self->topic->reliabilityKind > 0){ // relevant topic for qos reliability
+        Reliable_DataWriter_t* dw_reliable_p = (Reliable_DataWriter_t*)self;
+
+#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+        // add current data of sample to acknowledgement-queue for possible re-sending
+        if (self->topic->reliabilityKind == 2){ // relevant topic for qos reliability_reliable
+            time32_t currentTime = 0;
+            Time_getTime32(&currentTime);
+            // find free/replaceable slot in acknowledgement-queue
+            // if no slot can be found, drop new data
+            for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
+                if(dw_reliable_p->reliableSamples[index].isUsed == 0
+                || (dw_reliable_p->reliableSamples[index].timeStamp + self->topic->max_blocking_time) < currentTime ){
+                    dw_reliable_p->reliableSamples[index].isUsed = 1;
+                    dw_reliable_p->reliableSamples[index].data = data;
+                    dw_reliable_p->reliableSamples[index].seqNr = dw_reliable_p->seqNr;
+                    dw_reliable_p->reliableSamples[index].timeStamp = currentTime;
+                    //printf("enq. ACK:%d, seqNr: %d\n", index, dw_reliable_p->seqNr);
+                    break;
+                }
+            }
+        } // end of relevant topic for qos reliability_reliable
+
+#      if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK)
+        // if topic has qos reliability_reliable_ack,
+        // send every sample which is not yet acknowledged
+        for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
+            if(dw_reliable_p->reliableSamples[index].isUsed == 1){
+#       endif
+#   endif // end of if SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || NACK
+
+                if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
+                    SNPS_writeSeqNr(out_buffer, dw_reliable_p->seqNr);
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
-    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
-        SNPS_writeSeqNrSmall(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
-        Log_debug("dw seqNrSmall %d\n", (uint8_t)((Reliable_DataWriter_t*)self)->seqNr);
+                } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
+                    SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->seqNr);
 #   endif
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
-    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
-        SNPS_writeSeqNrBig(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
-        Log_debug("dw seqNrBig %d\n", (uint16_t)((Reliable_DataWriter_t*)self)->seqNr);
+                } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
+                    SNPS_writeSeqNrBig(out_buffer, dw_reliable_p->seqNr);
 #   endif
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
-    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
-        SNPS_writeSeqNrHUGE(out_buffer, ((Reliable_DataWriter_t*)self)->seqNr);
-        Log_debug("dw seqNrHUGE %d\n", (uint32_t)((Reliable_DataWriter_t*)self)->seqNr);
+                } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
+                    SNPS_writeSeqNrHUGE(out_buffer, dw_reliable_p->seqNr);
 #   endif
-    }
+                }
 
-    ((Reliable_DataWriter_t*)self)->seqNr++;
+#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK)
+            } // end of if isUsed == 1
+        } // end of for all samples in acknowledgment-queue
+#   endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+
+        dw_reliable_p->seqNr++;
+    } // end of topic is relevant for reliability
+
 #endif // end if SDDS_HAS_QOS_RELIABILITY
 
     if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
@@ -161,6 +195,8 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 		fclose(scalability_msg_count);
     }
 #endif
+
+
     Mutex_unlock(mutex);
     //  Caller doesn't understand different return codes but FAIL and OK
     if (ret == SDDS_RT_FAIL) {

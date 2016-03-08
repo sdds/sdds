@@ -139,6 +139,9 @@ sDDS_init (void)
 .   endif
 .   if count (project.role, role.topic = topic.name & role.type = "publisher")
     g_$(topic.c_name:)_writer = DataSource_create_datawriter(g_$(topic.c_name:)_topic, NULL, NULL, NULL);
+.      if project.qos_reliability_has_kind_reliableAck | project.qos_reliability_has_kind_reliableNack
+.       endif
+
 .   endif
 
 .   for project.role where topic.name = role.topic

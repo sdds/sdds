@@ -626,7 +626,6 @@ SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr) {
 #endif
 
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC
 rc_t
 SNPS_readAckSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
     rc_t ret = SDDS_RT_FAIL;
@@ -638,7 +637,6 @@ SNPS_readAckSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
 
     return ret;
 }
-#endif
 
 #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t

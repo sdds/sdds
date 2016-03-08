@@ -39,6 +39,12 @@ DataSource_writeAddress(DataWriter_t* _this, castType_t castType, addrType_t add
 
 rc_t
 DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len);
+
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+Reliable_DataWriter_t*
+DataSource_DataWriter_by_topic(topicid_t id);
+#endif
+
 rc_t
 DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic);
 

@@ -106,10 +106,6 @@ function resolve_topic_config (topic)
                 my.topic.qos_reliability_kind = "1"
             elsif kind = "reliable"
                 my.topic.qos_reliability_kind = "2"
-                my.topic.qos_reliability_time_to_respond = time_to_respond
-                if time_to_respond > project.qos_reliability_biggest_time_to_respond
-                    project.qos_reliability_biggest_time_to_respond = time_to_respond
-                endif
                 my.topic.qos_reliability_max_blocking_time = max_blocking_time
                 if max_blocking_time > project.qos_reliability_biggest_max_blocking_time
                     project.qos_reliability_biggest_max_blocking_time = max_blocking_time
@@ -136,7 +132,6 @@ project.qos_reliability_has_kind_reliableAck ?= "0"
 project.qos_reliability_has_kind_reliableNack ?= "0"
 project.qos_reliability_biggest_seqNr_bitsize ?= "0"
 project.qos_reliability_biggest_max_blocking_time ?= "0"
-project.qos_reliability_biggest_time_to_respond ?= "0"
 
 for project.topic
     resolve_topic_type (topic)
@@ -347,7 +342,6 @@ topic->reliabilityKind = $(topic.qos_reliability_kind:);
 .           if topic.qos_reliability_kind = "2"
 topic->confirmationtype = $(topic.qos_reliability_confirmationtype:);
 topic->max_blocking_time = $(topic.qos_reliability_max_blocking_time:);
-topic->time_to_respond = $(topic.qos_reliability_time_to_respond:);
 .           endif
 #endif
 .       endif
