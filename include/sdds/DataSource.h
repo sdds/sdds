@@ -37,6 +37,7 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos, Listener list, StatusMask 
 rc_t
 DataSource_writeAddress(DataWriter_t* _this, castType_t castType, addrType_t addrType, uint8_t* addr, uint8_t addrLen);
 
+#if defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t
 DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len);
 
@@ -47,6 +48,7 @@ DataSource_DataWriter_by_topic(topicid_t id);
 
 rc_t
 DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic);
+#endif
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t

@@ -23,6 +23,12 @@
 #endif
 #include <string.h>
 
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+// participant ID is defined in src/BuiltinTopic.c
+extern SSW_NodeID_t BuiltinTopic_participantID;
+#endif
+
+
 struct _InstantSender_t {
     NetBuffRef_t highPrio;
     NetBuffRef_t out[SDDS_NET_MAX_OUT_QUEUE];
@@ -73,7 +79,9 @@ DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
         if (dw->topic->id == id) {
                 if (st != NULL) {
                 st->key = dw->id;
+#      ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
                 st->participant_key = BuiltinTopic_participantID;
+#      endif
                 st->topic_id = dw->topic->id;
             }
             if (topic != NULL) {
@@ -85,7 +93,9 @@ DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
         if ((self->writers[index].topic->id == id)) {
             if (st != NULL) {
                 st->key = self->writers[index].id;
+#     ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
                 st->participant_key = BuiltinTopic_participantID;
+#     endif
                 st->topic_id = self->writers[index].topic->id;
             }
             if (topic != NULL) {
@@ -114,14 +124,18 @@ DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len) {
                                          dw->topic->domain)) {
 
         pt[*len].key = dw->id;
+#            ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
         pt[*len].participant_key = BuiltinTopic_participantID;
+#            endif
         pt[*len].topic_id = dw->topic->id;
 #       else
         if (!BuildinTopic_isBuiltinTopic(self->writers[index].topic->id,
                                          self->writers[index].topic->domain)) {
 
         pt[*len].key = self->writers[index].id;
+#           ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
         pt[*len].participant_key = BuiltinTopic_participantID;
+#           endif
         pt[*len].topic_id = self->writers[index].topic->id;
 #       endif
 #   endif
