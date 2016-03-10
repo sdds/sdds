@@ -35,6 +35,9 @@ extern DDS_DataReader g_$(topic.c_name:)_reader;
 extern DDS_DataWriter g_$(topic.c_name:)_writer;
 extern DDS_Topic g_$(topic.c_name:)_topic;
 
+extern Sample_t $(topic.c_name)_samples_pool[];
+
+
 .endfor
 #endif
 /*

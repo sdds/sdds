@@ -19,6 +19,13 @@
 #include "sDDS.h"
 #include <os-ssal/Trace.h>
 
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+// participant ID is defined in src/BuiltinTopic.c
+extern SSW_NodeID_t BuiltinTopic_participantID;
+#endif
+
+
+
 struct _DataSink_t {
     DataReader_t readers[SDDS_DATA_READER_MAX_OBJS];
     uint64_t allocated_readers;
@@ -57,7 +64,9 @@ DataSink_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
            &&  DataReader_topic(&self->readers[index])->id == id) {
             if (st != NULL) {
                 st->key = DataReader_id(&self->readers[index]);
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
                 st->participant_key = BuiltinTopic_participantID;
+#endif
                 st->topic_id = DataReader_topic(&self->readers[index])->id;
             }
             if (topic != NULL) {
@@ -140,8 +149,9 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             checkTopic(buff, topic_id);
             break;
         case (SDDS_SNPS_T_DATA):
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
             {
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+
                 DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
                 if (data_reader == NULL) {
                     Log_debug("Couĺdn't get Data Reader for topic id %d: "

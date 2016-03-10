@@ -2,7 +2,7 @@
 
 #include "gen_constants.h"
 
-#include "cpuid.h"
+#include "periph/cpuid.h"
 
 #ifndef PLATFORM_RIOT_SDDS_IFACE
 #define PLATFORM_RIOT_SDDS_IFACE 0

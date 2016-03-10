@@ -11,10 +11,13 @@ extern "C"
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 
+SSW_NodeID_t BuiltinTopic_participantID;
+
 #ifdef TEST_SCALABILITY
 #include <stdio.h>
 static FILE* scalability_msg_count;
 #endif
+
 
 DDS_Topic g_DCPSParticipant_topic;
 Sample_t dcps_participant_samples_pool[SDDS_QOS_HISTORY_DEPTH];
