@@ -75,7 +75,7 @@ static struct Network_t net;
 static NetBuffRef_t inBuff;
 static NetBuffRef_t multiInBuff;
 
-const int recv_stack_size =  KERNEL_CONF_STACKSIZE_PRINTF_FLOAT * sizeof(char);
+const int recv_stack_size =  THREAD_STACKSIZE_DEFAULT * sizeof(char);
 
 void*
 recvLoop(void*);
@@ -122,10 +122,6 @@ Network_init(void) {
 
     // init the incoming frame buffer and add dummy unicast locator
     NetBuffRef_init(&inBuff);
-    int ret = Network_createLocator(&inBuff.addr);
-    if(ret == SDDS_RT_FAIL) {
-        return SDDS_RT_FAIL;
-    }
 
     // set up a thread to read from the udp socket
     char* stack_thread = (char*) Memory_alloc(recv_stack_size);
@@ -142,6 +138,11 @@ Network_init(void) {
 #endif
 
     return SDDS_RT_OK;
+}
+
+rc_t
+Network_setPlatformAddressToLocator(Locator_t* loc) {
+    return Network_setAddressToLocator(loc, PLATFORM_RIOT_SDDS_ADDRESS);
 }
 
 rc_t
@@ -169,8 +170,10 @@ Network_Multicast_init() {
         return SDDS_RT_FAIL;
     }
 
-    NetBuffRef_init(&multiInBuff);
-    Network_createMulticastLocator(&multiInBuff.addr);
+	NetBuffRef_init(&multiInBuff);
+    Locator_t* loc;
+    LocatorDB_newMultiLocator(&loc);
+    multiInBuff.locators->add_fn(multiInBuff.locators, loc);
 
     // set up a thread to read from the udp socket [multicast]
     char* stack_thread = (char*) Memory_alloc(recv_stack_size);
@@ -239,7 +242,7 @@ recvLoop(void* netBuff) {
 
 
     // Check the dummy locator for uni or multicast socket
-    Locator_t* l = (Locator_t*) buff->addr;
+    Locator_t* l = (Locator_t*) buff->locators->first_fn(buff->locators);
     sock_type = l->type;
 
     if(sock_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -255,10 +258,9 @@ recvLoop(void* netBuff) {
         NetBuffRef_renew(buff);
 
         uint32_t addr_len = sizeof(sockaddr6_t);
-        buff->addr = &addr;
         ssize_t recv_size = socket_base_recvfrom(sock, buff->buff_start,
                                                  buff->frame_start->size, 0,
-                                                 (sockaddr6_t*)buff->addr, &addr_len);
+                                                 (sockaddr6_t*)&addr, &addr_len);
         //(struct sockaddr *)&addr, &addr_len);
 
         if (recv_size == -1) {
@@ -266,7 +268,7 @@ recvLoop(void* netBuff) {
         }
 
         RiotLocator_t sloc;
-        memcpy(&(sloc.addr_storage), &buff->addr, addr_len);
+        memcpy(&(sloc.addr_storage), &addr, addr_len);
 
         Locator_t* loc;
         if (LocatorDB_findLocator((Locator_t*)&sloc, &loc) != SDDS_RT_OK) {
@@ -274,7 +276,7 @@ recvLoop(void* netBuff) {
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
                 continue;
             }
-            memcpy(&((RiotLocator_t*)loc)->addr_storage, &buff->addr, addr_len);
+            memcpy(&((RiotLocator_t*)loc)->addr_storage, &addr, addr_len);
         }
 
         // up ref counter
@@ -284,16 +286,14 @@ recvLoop(void* netBuff) {
         loc->isSender = true;
         loc->type = sock_type;
 
-
-        if(sock_type == SDDS_LOCATOR_TYPE_MULTI) {
-            multiInBuff.addr = loc;
-        }
-        else if(sock_type == SDDS_LOCATOR_TYPE_UNI) {
-            inBuff.addr = loc;
+		rc_t ret = buff->locators->add_fn(buff->locators, loc);
+        if (ret != SDDS_RT_OK) {
+            NetBuffRef_renew(buff);
+            continue;
         }
 
         DataSink_processFrame(buff);
-        LocatorDB_freeLocator(loc);
+        NetBuffRef_renew(buff);
     }
     return SDDS_RT_OK;
 }
@@ -304,7 +304,11 @@ Network_send(NetBuffRef_t* buff) {
     unsigned int sock_type;
 
     // Check the locator for uni or multicast socket
-    Locator_t* l = (Locator_t*) buff->addr;
+    Locator_t* l = (Locator_t*) buff->locators->first_fn(buff->locators);
+    if (l == NULL) {
+        Log_error("(%d) NetBuff has no locator.\n", __LINE__);
+        return SDDS_RT_FAIL;
+    }
     sock_type = l->type;
     // add locator to the netbuffref
     if(sock_type == SDDS_LOCATOR_TYPE_MULTI) {
@@ -314,7 +318,7 @@ Network_send(NetBuffRef_t* buff) {
         sock = net.fd_uni_socket;
     }
 
-    Locator_t* loc = buff->addr;
+    Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
 
     while (loc != NULL ) {
         ssize_t transmitted;
@@ -329,7 +333,7 @@ Network_send(NetBuffRef_t* buff) {
             Log_error("can't send udp packet\n");
             return SDDS_RT_FAIL;
         }
-        loc = loc->next;
+        loc = (Locator_t*) buff->locators->next_fn(buff->locators);
     }
     return SDDS_RT_OK;
 }

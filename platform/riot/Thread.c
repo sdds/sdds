@@ -9,11 +9,10 @@
 #include "os-ssal/SSW.h"
 #include "os-ssal/Memory.h"
 #include "Log.h"
-#include "thread.h"
-#include "kernel.h"
 #include "vtimer.h"
+#include <thread.h>
 
-const int thread_stack_size =  KERNEL_CONF_STACKSIZE_PRINTF_FLOAT * sizeof(char);
+const int thread_stack_size =  THREAD_STACKSIZE_DEFAULT * sizeof(char);
 Thread
 Thread_create() {
     int* pid = Memory_alloc(sizeof(int));

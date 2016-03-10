@@ -1,5 +1,6 @@
 #include <os-ssal/Task.h>
 #include <os-ssal/Memory.h>
+#include <sdds/Log.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -49,12 +50,18 @@ TaskMngLoop(void* foo) {
  */
 ssw_rc_t
 TaskMng_init(void) {
-    int taskMng_stack_size = KERNEL_CONF_STACKSIZE_PRINTF_FLOAT * sizeof(char);
+    int taskMng_stack_size = THREAD_STACKSIZE_DEFAULT * sizeof(char);
     char* stack_thread = (char*) Memory_alloc(taskMng_stack_size);
+	if (stack_thread == NULL) {
+		assert(false);
+		Log_error("No memory");
+        return SDDS_SSW_RT_FAIL;
+	}
     TaskMngPid = thread_create(stack_thread, taskMng_stack_size,
                                THREAD_PRIORITY_MAIN, 0,
                                TaskMngLoop, NULL, "TaskMng sDDS");
     if(TaskMngPid < 0) {
+		Log_error("Can't start task management thread. retcode %d", TaskMngPid);
         return SDDS_SSW_RT_FAIL;
     }
     return SDDS_SSW_RT_OK;
@@ -94,6 +101,17 @@ Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode) {
 ssw_rc_t
 Task_stop(Task _this) {
     vtimer_remove(&_this->timer);
+    return SDDS_SSW_RT_OK;
+}
+
+ssw_rc_t
+Task_setData(Task _this, void* data) {
+    if (_this == NULL) {
+        return SDDS_SSW_RT_FAIL;
+    }
+
+    _this->data = data;
+
     return SDDS_SSW_RT_OK;
 }
 
