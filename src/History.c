@@ -121,7 +121,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
     //  the end of the array move it to the beginning.
     unsigned int in_needle_prev = self->in_needle;
     self->in_needle++;
-    if (self->in_needle == self->depth) {
+    if (self->in_needle >= self->depth) {
         self->in_needle = 0;
     }
     //  Move the input needle to depth to indicate that the queue is full.
@@ -129,7 +129,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
         self->in_needle = self->depth;
     }
     //  If the queue was previously empty set the output needle.
-    if (self->out_needle == self->depth) {
+    if (self->out_needle >= self->depth) {
         self->out_needle = in_needle_prev;
     }
     return SDDS_RT_OK;
@@ -143,7 +143,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 Sample_t*
 sdds_History_dequeue(History_t* self) {
     assert(self);
-    if (self->out_needle == self->depth) {
+    if (self->out_needle >= self->depth) {
         return NULL;
     }
     //  Remove sample from queue
@@ -153,7 +153,7 @@ sdds_History_dequeue(History_t* self) {
     //  at the end of the array move it to the beginning.
     unsigned int out_needle_prev = self->out_needle;
     self->out_needle++;
-    if (self->out_needle == self->depth) {
+    if (self->out_needle >= self->depth) {
         self->out_needle = 0;
     }
     //  Move the output needle to depth to indicate that the queue is empty.
@@ -161,7 +161,7 @@ sdds_History_dequeue(History_t* self) {
         self->out_needle = self->depth;
     }
     //  If the queue was previously full set the input needle.
-    if (self->in_needle == self->depth) {
+    if (self->in_needle >= self->depth) {
         self->in_needle = out_needle_prev;
     }
     return sample;
