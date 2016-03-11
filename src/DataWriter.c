@@ -160,25 +160,25 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
                 if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
-                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed == 1)
+                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed != 0)
                     && ((dw_reliable_p->samplesToAcknowledge[index].seqNr)&0x0F == (dw_reliable_p->seqNr)&0x0F ) ) {
                         isAlreadyInList = 1;
                         break;
                     }
                 } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL) {
-                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed == 1)
+                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed != 0)
                     && ((dw_reliable_p->samplesToAcknowledge[index].seqNr)&0xFF == (dw_reliable_p->seqNr)&0xFF ) ) {
                         isAlreadyInList = 1;
                         break;
                     }
                 } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG) {
-                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed == 1)
+                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed != 0)
                     && ((dw_reliable_p->samplesToAcknowledge[index].seqNr)&0xFFFF == (dw_reliable_p->seqNr)&0xFFFF ) ) {
                         isAlreadyInList = 1;
                         break;
                     }
                 } else {
-                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed == 1)
+                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed != 0)
                     &&  (dw_reliable_p->samplesToAcknowledge[index].seqNr == dw_reliable_p->seqNr) ) {
                         isAlreadyInList = 1;
                         break;
@@ -219,7 +219,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         if (self->topic->confirmationtype == 1) {
             // send every sample which is not yet acknowledged
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
-                if(dw_reliable_p->samplesToAcknowledge[index].isUsed == 1){
+                if(dw_reliable_p->samplesToAcknowledge[index].isUsed != 0){
 
                     if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
                         SNPS_writeSeqNr(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
