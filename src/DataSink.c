@@ -108,6 +108,8 @@ DataSink_getAddr(SNPS_Address_t* address) {
 rc_t
 DataSink_processFrame(NetBuffRef_t* buff) {
     assert(buff);
+
+
 #ifdef FEATURE_SDDS_TRACING_ENABLED
 #   if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
 #       ifdef FEATURE_SDDS_TRACING_PROCESS_FRAME
@@ -128,7 +130,16 @@ DataSink_processFrame(NetBuffRef_t* buff) {
     SDDS_SEQNR_BIGGEST_TYPE seqNr = 0;
 #endif
 
+//NetBuffRef_print_subMsgs(buff);
+
     while (buff->subMsgCount > 0) {
+
+        //if (topic_id == 11){
+            //printf("subMsgCount %d\n", buff->subMsgCount+2);
+            //printf("topic_id %d\n", topic_id);
+
+        //}
+
         subMsg_t type;
         SNPS_evalSubMsg(buff, &type);
         switch (type) {
@@ -262,11 +273,12 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         case (SDDS_SNPS_T_STATUS):
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
         case (SDDS_SNPS_T_SEQNR):
+//NetBuffRef_print_subMsgType(buff, SDDS_SNPS_SUBMSG_SEQNR);
+
             SNPS_readSeqNr(buff, (uint8_t*) &seqNr);
+            //printf("            DS  seqNr : %d \n", seqNr);
             break;
-#   endif
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         case (SDDS_SNPS_T_SEQNRSMALL):
             SNPS_readSeqNrSmall(buff, (uint8_t*) &seqNr);
@@ -286,49 +298,52 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         case (SDDS_SNPS_T_ACKSEQ): {
             SNPS_readAckSeq(buff, (uint8_t*)&seqNr);
             Reliable_DataWriter_t* reliable_dw = DataSource_DataWriter_by_topic(topic_id);
-            //printf("readAckSeq\n");
+/*
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
-                if (reliable_dw->reliableSamples[index].seqNr == seqNr
-                && reliable_dw->reliableSamples[index].isUsed == 1) {
-                    reliable_dw->reliableSamples[index].isUsed = 0;
-                    reliable_dw->reliableSamples[index].timeStamp = 0;
-                    reliable_dw->reliableSamples[index].data = NULL;
-                    reliable_dw->reliableSamples[index].seqNr = 0;
+                if (reliable_dw->samplesToAcknowledge[index].seqNr == seqNr
+                && reliable_dw->samplesToAcknowledge[index].isUsed == 1) {
+                    reliable_dw->samplesToAcknowledge[index].isUsed = 0;
+                    reliable_dw->samplesToAcknowledge[index].timeStamp = 0;
+                    reliable_dw->samplesToAcknowledge[index].data = NULL;
+                    reliable_dw->samplesToAcknowledge[index].seqNr = 0;
                     //printf("ACK: %i; seqNr: %i, dequeued sample\n", index, seqNr);
                     break;
                 }
             }
+*/
             break;
         }
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         case (SDDS_SNPS_T_ACK): {
             Topic_t* topic = TopicDB_getTopic(topic_id);
             SNPS_readAck(buff);
             if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
                 SNPS_readSeqNrSmall(buff, (uint8_t*)&seqNr);
-#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+#           if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
             } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
                 SNPS_readSeqNrBig(buff, (uint16_t*)&seqNr);
-#       endif
-#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+#           endif
+#           if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
             } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
                 SNPS_readSeqNrHUGE(buff, (uint32_t*)&seqNr);
-#       endif
+#           endif
             }
 
             Reliable_DataWriter_t* reliable_dw = DataSource_DataWriter_by_topic(topic_id);
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
-                if(reliable_dw->reliableSamples[index].seqNr == seqNr
-                && reliable_dw->reliableSamples[index].isUsed == 1) {
-                    reliable_dw->reliableSamples[index].isUsed = 0;
-                    reliable_dw->reliableSamples[index].timeStamp = 0;
-                    reliable_dw->reliableSamples[index].data = NULL;
-                    reliable_dw->reliableSamples[index].seqNr = 0;
-                    //printf("ACK: %i; seqNr: %i, dequeued sample\n", index, seqNr);
+                if(reliable_dw->samplesToAcknowledge[index].seqNr == seqNr
+                && reliable_dw->samplesToAcknowledge[index].isUsed == 1) {
+                    reliable_dw->samplesToAcknowledge[index].isUsed = 0;
+                    reliable_dw->samplesToAcknowledge[index].timeStamp = 0;
+                    reliable_dw->samplesToAcknowledge[index].data = NULL;
+                    reliable_dw->samplesToAcknowledge[index].seqNr = 0;
+                    //printf("    ACK: %i; seqNr: %i, dequeued sample\n", index, seqNr);
                     break;
                 }
             }
             break;
         }
+#       endif // end of extended submsg
 #   endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
 #endif // end of SDDS_HAS_QOS_RELIABILITY
         default:

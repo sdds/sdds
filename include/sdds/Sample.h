@@ -22,7 +22,7 @@ extern "C" {
 struct _Sample_t {
     void* data;       //  Sample data
     Locator_t* instance;
-    uint32_t x;
+    //uint32_t x;
 #if defined SDDS_HAS_QOS_RELIABILITY
     SDDS_SEQNR_BIGGEST_TYPE seqNr;
 #endif

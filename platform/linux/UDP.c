@@ -419,6 +419,9 @@ recvLoop(void* netBuff) {
                                      buff->frame_start->size, 0,
                                      (struct sockaddr*)&addr, &addr_len);
 
+
+
+
         if (recv_size == -1) {
             Log_error("%d Error while receiving a udp frame: %s\n", __LINE__, strerror(errno));
             continue;
@@ -459,6 +462,7 @@ recvLoop(void* netBuff) {
             continue;
         }
 
+
         if (DataSink_processFrame(buff) != SDDS_RT_OK) {
             Log_debug("Failed to process frame\n");
         }
@@ -498,6 +502,11 @@ Network_send(NetBuffRef_t* buff) {
 
         transmitted = sendto(sock, buff->buff_start, buff->curPos, 0,
                              (struct sockaddr*) &addr, ((struct UDPLocator_t*) loc)->addr_len);
+
+if (buff->curTopic->id == 11) {
+//printf("                    transmitted %d bytes\n", transmitted);
+//NetBuffRef_print_subMsgType(buff, SDDS_SNPS_SUBMSG_SEQNR);
+}
 
         if (transmitted == -1) {
             perror("ERROR");
