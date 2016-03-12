@@ -5,7 +5,7 @@
     os = "linux"
     iface = "eth0"
     ip = "fe80::219:99ff:fede:9a7a"
-    port = "23235"
+    port = "23234"
 	protocol = "AF_INET6"
     >
 
@@ -14,22 +14,27 @@
         part of the XML tree
     -->
 
-    <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
-    <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
-    <define name = "FEATURE_SDDS_DISCOVERY_ENABLED" />
+
     <define name = "SDDS_HAS_QOS_RELIABILITY" />
 
-    <define name = "SDDS_NET_MAX_BUF_SIZE" value = "8192"/>
+    <define name = "SDDS_NET_MAX_BUF_SIZE" value = "32"/>
     <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "20"/>
-    <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1"/>
-    <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "1"/>
-    <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "5"/>
-    <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0"/>
+
+    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "5"/>
+    <define name = "SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS" value = "1"/>
+    <define name = "SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE" value = "4"/>
+
+
 
     <include filename = "../topics/qos_reliability.xml" />
 
+<!--
     <role topic = "testqosreliabilitybasic" type = "publisher" />
     <role topic = "testqosreliabilitysmall" type = "publisher" />
     <role topic = "testqosreliabilitybig" type = "publisher" />
     <role topic = "testqosreliabilityhuge" type = "publisher" />
+-->
+    <role topic = "testQosReliabilityBasicReliableAck" type = "publisher">
+        <subscriber ip="fe80::c0ef:62ff:fed4:d26a"/>
+    </role>
 </project>

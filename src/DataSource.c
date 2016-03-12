@@ -63,8 +63,11 @@ DataSource_init(void) {
     //  Init instant sender
     //  The init method alloc a frame buffer and adds it to the structure
     NetBuffRef_init(&(self->sender.highPrio));
-    NetBuffRef_init(&(self->sender.out[0]));
-    NetBuffRef_init(&(self->sender.out[1]));
+
+    for (uint8_t i=0; i<SDDS_NET_MAX_OUT_QUEUE; i++) {
+        NetBuffRef_init(&(self->sender.out[i]));
+    }
+
     return DataWriter_init();
 }
 
@@ -205,8 +208,8 @@ find_free_buffer(List_t* topic_locators) {
     NetBuffRef_t* free_buffer = NULL;
     bool_t same_locators = false;
     //  Try to find a buffer that has all topic locators attached to it
-    int index;
-    for (index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
+
+    for (uint8_t index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
         NetBuffRef_t* send_buffer = &self->sender.out[index];
         List_t* send_buff_locators = send_buffer->locators;
         if (send_buff_locators) {
@@ -228,7 +231,7 @@ find_free_buffer(List_t* topic_locators) {
 
     //  Try to find an empty buffer
     if (free_buffer == NULL) {
-        for (index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
+        for (uint8_t index = 0; index <SDDS_NET_MAX_OUT_QUEUE; index++) {
             if (self->sender.out[index].curPos == 0) {
                 free_buffer = &(self->sender.out[index]);
                 break;
@@ -237,6 +240,7 @@ find_free_buffer(List_t* topic_locators) {
     }
     //  If no buffer could be obtained use the high prio instead
     if (free_buffer == NULL) {
+        printf("find_free_buffer - no free Buffer found, high prio\n");
         free_buffer = &(self->sender.highPrio);
     }
     //  Initialize an empty buffer

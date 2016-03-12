@@ -62,17 +62,19 @@ DataWriter_init () {
     return SDDS_RT_OK;
 }
 
-#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
 rc_t
 DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     assert (self);
     (void) handle;
 #ifdef FEATURE_SDDS_TRACING_ENABLED
-#if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
-#ifdef FEATURE_SDDS_TRACING_CALL_WRITE
+#   if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
+#       ifdef FEATURE_SDDS_TRACING_CALL_WRITE
     Trace_point(SDDS_TRACE_EVENT_CALL_WRITE);
-#endif
-#endif
+#       endif
+#   endif
 #endif
     Mutex_lock(mutex);
     Topic_t* topic = self->topic;
@@ -183,10 +185,9 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
                 if(dw_reliable_p->samplesToAcknowledge[index].isUsed == 1){
 
-
                     if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
                         SNPS_writeSeqNr(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
-                        printf("DW send seqNr %d\n", dw_reliable_p->samplesToAcknowledge[index].seqNr &0x0f);
+                        //printf("DW send seqNr %d\n", dw_reliable_p->samplesToAcknowledge[index].seqNr &0x0f);
 #           if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
                     } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
                         SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
@@ -202,7 +203,6 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
                     }
 
                     if (SNPS_writeData(out_buffer, topic->Data_encode, dw_reliable_p->samplesToAcknowledge[index].data) != SDDS_RT_OK) {
-                        // something went wrong oO
                         Log_error("(%d) SNPS_writeData failed\n", __LINE__);
 #           ifdef SDDS_QOS_LATENCYBUDGET
                         out_buffer->bufferOverflow = true;
@@ -211,9 +211,6 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
                 }
             }
-    //printf("%x\n", out_buffer);
-
-
 
         }
 #       endif // end of ACK
@@ -436,7 +433,10 @@ checkSending(NetBuffRef_t* buf) {
     rc_t ret = SDDS_RT_OK;
     if (buf->locators->size_fn(buf->locators) > 0) {
 
+
+//printf("\n--------SENDING-------\n");
 //NetBuffRef_print_subMsgType(buf, SDDS_SNPS_SUBMSG_SEQNR);
+
 
         ret = Network_send(buf);
         if (ret != SDDS_RT_OK) {
@@ -450,7 +450,6 @@ checkSending(NetBuffRef_t* buf) {
     	ret = SDDS_RT_NO_SUB;
     }
 #endif
-
     NetBuffRef_renew(buf);
 
     return ret;

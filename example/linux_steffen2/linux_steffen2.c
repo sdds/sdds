@@ -11,31 +11,18 @@ int main()
 	}
 	Log_setLvl(5);
 
-    Testqosreliabilitybasic testqosreliabilitybasic_sub;
-    Testqosreliabilitybasic* testqosreliabilitybasic_sub_p = &testqosreliabilitybasic_sub;
+	TestQosReliabilityBasicReliableAck testQosReliabilityBasicReliableAck_sub;
+	TestQosReliabilityBasicReliableAck* testQosReliabilityBasicReliableAck_sub_p = &testQosReliabilityBasicReliableAck_sub;
 
-    Testqosreliabilitysmall testqosreliabilitysmall_sub;
-    Testqosreliabilitysmall* testqosreliabilitysmall_sub_p = &testqosreliabilitysmall_sub;
-
-    Testqosreliabilitybig testqosreliabilitybig_sub;
-    Testqosreliabilitybig* testqosreliabilitybig_sub_p = &testqosreliabilitybig_sub;
-
-    Testqosreliabilityhuge testqosreliabilityhuge_sub;
-    Testqosreliabilityhuge* testqosreliabilityhuge_sub_p = &testqosreliabilityhuge_sub;
-
-    int countNoData = 0;
+	rc_t retBasic = SDDS_RT_FAIL;
 
     for (;;) {
-        ret = DDS_TestqosreliabilitybasicDataReader_take_next_sample (g_Testqosreliabilitybasic_reader, &testqosreliabilitybasic_sub_p, NULL);
-        if (ret == DDS_RETCODE_NO_DATA) {printf("no data basic %d\n", countNoData);}
-        ret = DDS_TestqosreliabilitysmallDataReader_take_next_sample (g_Testqosreliabilitysmall_reader, &testqosreliabilitysmall_sub_p, NULL);
-        if (ret == DDS_RETCODE_NO_DATA) {printf("no data small %d\n", countNoData);}
-        ret = DDS_TestqosreliabilitybigDataReader_take_next_sample (g_Testqosreliabilitybig_reader, &testqosreliabilitybig_sub_p, NULL);
-        if (ret == DDS_RETCODE_NO_DATA) {printf("no data big %d\n", countNoData);}
-        ret = DDS_TestqosreliabilityhugeDataReader_take_next_sample (g_Testqosreliabilityhuge_reader, &testqosreliabilityhuge_sub_p, NULL);
-        if (ret == DDS_RETCODE_NO_DATA) {printf("no data huge %d\n", countNoData);}
 
-        countNoData++;
+		retBasic = DDS_TestQosReliabilityBasicReliableAckDataReader_take_next_sample (g_TestQosReliabilityBasicReliableAck_reader, &testQosReliabilityBasicReliableAck_sub_p, NULL);
+		if(retBasic == SDDS_RT_OK){
+			//printf("received Sample\n");
+		}
+
         sleep (1);
     }
 

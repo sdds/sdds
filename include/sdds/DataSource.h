@@ -40,17 +40,21 @@ DataSource_writeAddress(DataWriter_t* _this, castType_t castType, addrType_t add
 #if defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t
 DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len);
+#endif
 
 #if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
 Reliable_DataWriter_t*
 DataSource_DataWriter_by_topic(topicid_t id);
 #endif
 
+#if defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t
 DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic);
 #endif
 
-#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
 rc_t
 DataSource_write(DataWriter_t* _this, Data data, void* waste);
 #endif// SDDS_TOPIC_HAS_SUB

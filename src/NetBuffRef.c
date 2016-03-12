@@ -86,7 +86,8 @@ NetBuffRef_print_subMsgs (NetBuffRef_t* _this) {
     topicid_t topic_id = 0;
     uint32_t seqNr = 0;
 
-printf("                                subMsgCount %d\n", _this->subMsgCount);
+printf("  subMsgCount %d\n", _this->subMsgCount);
+
     for (int i=0; i<_this->subMsgCount; i++) {
         SNPS_evalSubMsg(_this, &readType);
 
@@ -149,27 +150,58 @@ printf("                                subMsgCount %d\n", _this->subMsgCount);
 
 void
 NetBuffRef_print_subMsgType (NetBuffRef_t* _this, subMsg_t type) {
-    if (_this->curTopic->id > 5){
-        int curPos = _this->curPos;
 
+    uint8_t curPos = _this->curPos;
+    uint8_t subMsgCount = _this->subMsgCount;
 
-        _this->curPos = 0;
-        uint32_t seqNr = 0;
-        int count = 0;
+    _this->curPos = 0;
+    topicid_t topic = 0;
+    uint32_t seqNr = 0;
+    bool_t isRelevantTopic = 0;
 
-            while (SNPS_gotoNextSubMsg(_this, type) == SDDS_RT_OK){
-#ifdef SDDS_HAS_QOS_RELIABILITY
-                SNPS_readSeqNr(_this, (uint8_t*) &seqNr);
-                printf("    netbuffer pos: %d seqNr: %d\n", _this->curPos, seqNr);
-#endif
-                count++;
-                if (count == 4) {
-                    break;
-                }
+    while (SNPS_gotoNextSubMsg(_this, SDDS_SNPS_SUBMSG_TOPIC) == SDDS_RT_OK){
+        if (_this->curPos >= SDDS_NET_MAX_BUF_SIZE) {
+            break;
+        }
+
+        SNPS_readTopic(_this, &topic);
+        if (topic == 11) {
+            isRelevantTopic = 1;
+        }
+    }
+
+    _this->curPos = 0;
+    _this->subMsgCount = subMsgCount;
+
+    if (isRelevantTopic) {
+        printf("    subMsgCount: %d\n", subMsgCount);
+
+        while (SNPS_gotoNextSubMsg(_this, SDDS_SNPS_SUBMSG_TOPIC) == SDDS_RT_OK){
+            if (_this->curPos >= SDDS_NET_MAX_BUF_SIZE) {
+                break;
             }
 
-        _this->curPos = curPos;
+            SNPS_readTopic(_this, &topic);
+            printf("    netbuffer subMsg: %d \t byte: %d \t topic: %d\n", _this->subMsgCount, _this->curPos, topic);
+
+        }
+
+        _this->curPos = 0;
+        _this->subMsgCount = subMsgCount;
+
+        while (SNPS_gotoNextSubMsg(_this, type) == SDDS_RT_OK){
+            if (_this->curPos >= SDDS_NET_MAX_BUF_SIZE) {
+                break;
+            }
+
+#ifdef SDDS_HAS_QOS_RELIABILITY
+            SNPS_readSeqNr(_this, (uint8_t*) &seqNr);
+            printf("    netbuffer subMsg: %d \t byte: %d \t seqNr: %d\n", _this->subMsgCount, _this->curPos, seqNr);
+#endif
+        }
     }
+    _this->curPos = curPos;
+    _this->subMsgCount = subMsgCount;
 }
 
 //#endif

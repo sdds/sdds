@@ -206,13 +206,13 @@ SNPS_discardSubMsg(NetBuffRef_t* ref) {
 rc_t
 SNPS_gotoNextSubMsg(NetBuffRef_t* buff, subMsg_t type) {
     subMsg_t readType;
-    while (buff->subMsgCount > 0) {
+    while (buff->subMsgCount > 0 && buff->curPos <= SDDS_NET_MAX_BUF_SIZE) {
         SNPS_evalSubMsg(buff, &readType);
         if (readType != type) {
             if (SNPS_discardSubMsg(buff) != SDDS_RT_OK) {
                 return SDDS_RT_FAIL;
             }
-        } else {
+        } else { // next SubMsg found
             return SDDS_RT_OK;
         }
     }

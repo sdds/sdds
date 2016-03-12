@@ -389,6 +389,7 @@ create_socket(struct addrinfo* address) {
 
 void*
 recvLoop(void* netBuff) {
+
     NetBuffRef_t* buff = (NetBuffRef_t*) netBuff;
     int sock;     // receive socket
     unsigned int sock_type;     // broad or multicast
@@ -418,8 +419,6 @@ recvLoop(void* netBuff) {
         ssize_t recv_size = recvfrom(sock, buff->buff_start,
                                      buff->frame_start->size, 0,
                                      (struct sockaddr*)&addr, &addr_len);
-
-
 
 
         if (recv_size == -1) {
@@ -503,10 +502,6 @@ Network_send(NetBuffRef_t* buff) {
         transmitted = sendto(sock, buff->buff_start, buff->curPos, 0,
                              (struct sockaddr*) &addr, ((struct UDPLocator_t*) loc)->addr_len);
 
-if (buff->curTopic->id == 11) {
-//printf("                    transmitted %d bytes\n", transmitted);
-//NetBuffRef_print_subMsgType(buff, SDDS_SNPS_SUBMSG_SEQNR);
-}
 
         if (transmitted == -1) {
             perror("ERROR");
