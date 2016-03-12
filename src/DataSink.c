@@ -254,7 +254,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 //printf("\n--------ACKNOWLEDGEMENT-STUFF-------\n");
 //NetBuffRef_print_subMsgType(out_buffer, SDDS_SNPS_SUBMSG_SEQNR);
 
-printf("                send ACK buffer: %d\n", seqNr);
+//printf("                send ACK buffer: %d\n", seqNr);
 
                     checkSending(out_buffer);
                     DataWriter_mutex_unlock();
@@ -328,7 +328,7 @@ printf("                send ACK buffer: %d\n", seqNr);
             SNPS_readAckSeq(buff, (uint8_t*)&seqNr);
             Reliable_DataWriter_t* reliable_dw = DataSource_DataWriter_by_topic(topic_id);
 
-            printf("                    rec ACKSEQ: %d\n", seqNr);
+            //printf("                    rec ACKSEQ: %d\n", seqNr);
 /*
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
                 if (reliable_dw->samplesToAcknowledge[index].seqNr == seqNr
@@ -362,7 +362,7 @@ printf("                send ACK buffer: %d\n", seqNr);
 #           endif
             }
 
-            printf("                    rec ACKSEQ: %d\n", seqNr);
+            //printf("                    rec ACKSEQ: %d\n", seqNr);
 /*
             Reliable_DataWriter_t* reliable_dw = DataSource_DataWriter_by_topic(topic_id);
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){

@@ -40,14 +40,18 @@ $(project.GENERATED_WARNING_HEADER:)
 
 #define SDDS_LOCAL_BYTEORDER_$(PROJECT.ENDIAN)_ENDIAN
 #define SDDS_NET_VERSION 0x01
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+
 .SDDS_BUILTIN_TOPICS_COUNT=5
-.SDDS_QOS_RELIABILITY_ADDITIONAL_ACK_NACK_WRITERS=1
-#define SDDS_MAX_DATA_WRITERS $(count (project.role, role.type = "publisher") + SDDS_BUILTIN_TOPICS_COUNT + SDDS_QOS_RELIABILITY_ADDITIONAL_ACK_NACK_WRITERS)
+
+
+#define TEST $(project.qos_reliability_additional_reliable_writers)
+
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+#define SDDS_MAX_DATA_WRITERS $(count (project.role, role.type = "publisher") + SDDS_BUILTIN_TOPICS_COUNT + .project.qos_reliability_additional_reliable_writers)
 #undef SDDS_DATA_READER_MAX_OBJS
 #define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber") + SDDS_BUILTIN_TOPICS_COUNT)
 #else
-#define SDDS_MAX_DATA_WRITERS $(count (project.role, role.type = "publisher") + SDDS_QOS_RELIABILITY_ADDITIONAL_ACK_NACK_WRITERS)
+#define SDDS_MAX_DATA_WRITERS $(count (project.role, role.type = "publisher") + project.qos_reliability_additional_reliable_writers)
 #undef SDDS_DATA_READER_MAX_OBJS
 #define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber"))
 #endif

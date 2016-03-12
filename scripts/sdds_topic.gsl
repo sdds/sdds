@@ -74,7 +74,7 @@ function resolve_topic_type (topic)
 endfunction
 
 .#
-.#  Resolves a topics configuration pararmeters.
+.#  Resolves a topics configuration parameters.
 .#
 function resolve_topic_config (topic)
     for my.topic.config
@@ -127,15 +127,32 @@ function resolve_topic_config (topic)
 endfunction
 
 
+function resolve_topic_reliable_datareaders (project)
+    for project.role
+        if role.type = "subscriber"
+            project.qos_reliability_additional_reliable_writers = project.qos_reliability_additional_reliable_writers +1
+
+            for topic
+                if topic.name = topicname & topic.config.kind = "reliable"
+                    project.qos_reliability_additional_reliable_writers = project.qos_reliability_additional_reliable_writers +1
+                endif
+            endfor
+
+        endif
+    endfor
+endfunction
+
 project.qos_reliability_has_kind_besteffort ?= "0"
 project.qos_reliability_has_kind_reliableAck ?= "0"
 project.qos_reliability_has_kind_reliableNack ?= "0"
 project.qos_reliability_biggest_seqNr_bitsize ?= "0"
 project.qos_reliability_biggest_max_blocking_time ?= "0"
+project.qos_reliability_additional_reliable_writers ?= "0"
 
 for project.topic
     resolve_topic_type (topic)
     resolve_topic_config (topic)
+    resolve_topic_reliable_datareaders (project)
 endfor
 
 .endtemplate
