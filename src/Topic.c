@@ -31,6 +31,7 @@ Topic_addRemoteDataSink(Topic_t* _this, Locator_t* addr) {
     }
 
     List_t* list = _this->dsinks.list;
+
     if (list->size_fn(list) == 0) {
         if (list->add_fn(list, addr) == SDDS_SSW_RT_FAIL) {
             return SDDS_RT_FAIL;
