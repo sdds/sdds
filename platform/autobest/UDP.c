@@ -318,8 +318,6 @@ recvLoop(void* netBuff) {
         }
 
         netbuf_delete(lwip_netbuf);
-        // up ref counter
-        Locator_upRef(loc);
 
         loc->isEmpty = false;
         loc->isSender = true;

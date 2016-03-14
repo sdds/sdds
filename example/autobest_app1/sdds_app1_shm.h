@@ -14,7 +14,7 @@
 #define __SDDS_AUTOBEST_SDDS_APP1_SHM_H_
 
 #define PLATFORM_AUTOBEST_CALLBACK_EVENT_BUF_SIZE 21
-#define EVENT_OVERWIEW_FLAG (1 << 0)
+#define EVENT_OVERFLOW_FLAG (1 << 0)
 
 #include <stdio.h>
 #include "ipc-ds.h"
