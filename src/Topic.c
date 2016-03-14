@@ -17,11 +17,10 @@
  */
 
 #include "sDDS.h"
-/*
+
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
  || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
  || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-*/
 rc_t
 Topic_addRemoteDataSink(Topic_t* _this, Locator_t* addr) {
 
@@ -47,7 +46,7 @@ Topic_addRemoteDataSink(Topic_t* _this, Locator_t* addr) {
 
     return SDDS_RT_FAIL;
 }
-//#endif
+#endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 rc_t
