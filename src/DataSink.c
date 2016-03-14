@@ -295,14 +295,14 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
         case (SDDS_SNPS_T_SEQNR):
             SNPS_readSeqNr(buff, (uint8_t*) &seqNr);
-            //printf("            DS - rec seqNr : %d \n", seqNr);
+            printf("            DS - rec seqNr : %d \n", seqNr);
             break;
 
 
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         case (SDDS_SNPS_T_SEQNRSMALL):
             SNPS_readSeqNrSmall(buff, (uint8_t*) &seqNr);
-            //printf("            DS - rec seqNr : %d \n", seqNr);
+            printf("            DS - rec seqNr : %d \n", seqNr);
             break;
 #   endif
 
