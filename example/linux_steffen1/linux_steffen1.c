@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include "linux_steffen1_sdds_impl.h"
+#include "unistd.h"
 
 int main()
 {
@@ -9,6 +10,7 @@ int main()
 		return 1;
 	}
 	Log_setLvl(5);
+
 
 	TestQosReliabilityBasicReliableAck testQosReliabilityBasicReliableAck_pub;
 	//TestQosReliabilitySmallReliableAck testQosReliabilitySmallReliableAck_pub;

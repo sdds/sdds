@@ -136,14 +136,14 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         if (self->topic->reliabilityKind == 1) { // relevant topic has qos reliability_besteffort
 
             if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-                SNPS_writeSeqNr(out_buffer, dw_reliable_p->seqNr);
+                SNPS_writeSeqNr(out_buffer, (dw_reliable_p->seqNr&0x0F) );
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
             } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
-                SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->seqNr);
+                SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->seqNr&0xFF);
 #   endif
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
             } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
-                SNPS_writeSeqNrBig(out_buffer, dw_reliable_p->seqNr);
+                SNPS_writeSeqNrBig(out_buffer, dw_reliable_p->seqNr&0xFFFF);
 #   endif
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
             } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
@@ -157,11 +157,32 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
             // check, if sample is already in acknowledgement-list
             bool_t isAlreadyInList = 0;
+
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
-                if ((dw_reliable_p->samplesToAcknowledge[index].isUsed == 1)
-                &&  (dw_reliable_p->samplesToAcknowledge[index].seqNr == dw_reliable_p->seqNr) ) {
-                    isAlreadyInList = 1;
-                    break;
+                if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
+                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed == 1)
+                    && ((dw_reliable_p->samplesToAcknowledge[index].seqNr)&0x0F == (dw_reliable_p->seqNr)&0x0F ) ) {
+                        isAlreadyInList = 1;
+                        break;
+                    }
+                } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL) {
+                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed == 1)
+                    && ((dw_reliable_p->samplesToAcknowledge[index].seqNr)&0xFF == (dw_reliable_p->seqNr)&0xFF ) ) {
+                        isAlreadyInList = 1;
+                        break;
+                    }
+                } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG) {
+                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed == 1)
+                    && ((dw_reliable_p->samplesToAcknowledge[index].seqNr)&0xFFFF == (dw_reliable_p->seqNr)&0xFFFF ) ) {
+                        isAlreadyInList = 1;
+                        break;
+                    }
+                } else {
+                    if ((dw_reliable_p->samplesToAcknowledge[index].isUsed == 1)
+                    &&  (dw_reliable_p->samplesToAcknowledge[index].seqNr == dw_reliable_p->seqNr) ) {
+                        isAlreadyInList = 1;
+                        break;
+                    }
                 }
             }
 
@@ -177,7 +198,15 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
                     || (dw_reliable_p->samplesToAcknowledge[index].timeStamp + self->topic->max_blocking_time) < currentTime ){
                         dw_reliable_p->samplesToAcknowledge[index].isUsed = 1;
                         dw_reliable_p->samplesToAcknowledge[index].data = data;
-                        dw_reliable_p->samplesToAcknowledge[index].seqNr = dw_reliable_p->seqNr;
+                        if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
+                            dw_reliable_p->samplesToAcknowledge[index].seqNr = (dw_reliable_p->seqNr)&0x0F;
+                        } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL) {
+                            dw_reliable_p->samplesToAcknowledge[index].seqNr = (dw_reliable_p->seqNr)&0xFF;
+                        } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG) {
+                            dw_reliable_p->samplesToAcknowledge[index].seqNr = (dw_reliable_p->seqNr)&0xFFFF;
+                        } else {
+                            dw_reliable_p->samplesToAcknowledge[index].seqNr = dw_reliable_p->seqNr;
+                        }
                         dw_reliable_p->samplesToAcknowledge[index].timeStamp = currentTime;
                         newSampleHasSlot = 1;
                         break;
@@ -227,11 +256,26 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
         if (self->topic->reliabilityKind == 2 ) {
             if (newSampleHasSlot) {
-                //printf("seqNr: %d\n", dw_reliable_p->seqNr);
-                dw_reliable_p->seqNr++;
+                if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
+                    dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xF;
+                } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
+                    dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xFF;
+                } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
+                    dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xFFFF;
+                }else{
+                    dw_reliable_p->seqNr++;
+                }
             }
         } else {
-            dw_reliable_p->seqNr++;
+            if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
+                dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xF;
+            } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
+                dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xFF;
+            } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
+                dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xFFFF;
+            }else{
+                dw_reliable_p->seqNr++;
+            }
         }
 
         //printf("DW-write, seqNr: %d \n", ((Reliable_DataWriter_t*)self)->seqNr);

@@ -34,11 +34,13 @@
     <role topic = "testqosreliabilitysmall" type = "publisher" />
     <role topic = "testqosreliabilitybig" type = "publisher" />
     <role topic = "testqosreliabilityhuge" type = "publisher" />
+
 -->
 
     <role topic = "testQosReliabilityBasicReliableAck" type = "publisher">
         <subscriber ip="fe80::921b:eff:fe11:30e8"/>
     </role>
+
 
 <!--
     <role topic = "testQosReliabilityBasicReliableAck" type = "publisher">

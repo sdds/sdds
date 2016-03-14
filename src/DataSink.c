@@ -75,7 +75,7 @@ DataSink_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
             return SDDS_RT_OK;
         }
     }
-    Log_debug("No DataReader found that listens for topics with id %d\n", id);
+    Log_debug("No DataReader found that listens for topics with id %u\n", id);
     return SDDS_RT_FAIL;
 }
 #endif
@@ -125,7 +125,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         return ret;
     }
 
-    //printf("\nsubMsgCount: %d\n", buff->subMsgCount);
+    //printf("\nsubMsgCount: %u\n", buff->subMsgCount);
     //NetBuffRef_print_subMsgs(buff);
 
     topicid_t topic_id;
@@ -161,7 +161,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 Log_error("Can't read Topic\n");
                 return ret;
             }
-            Log_debug("Read topic %d\n", topic_id);
+            Log_debug("Read topic %u\n", topic_id);
             checkTopic(buff, topic_id);
             break;
 
@@ -172,7 +172,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
                 DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
                 if (data_reader == NULL) {
-                    Log_debug("Couĺdn't get Data Reader for topic id %d: "
+                    Log_debug("Couĺdn't get Data Reader for topic id %u: "
                               "Discard submessage\n", topic_id);
                     SNPS_discardSubMsg(buff);
                     return SDDS_RT_FAIL;
@@ -230,6 +230,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
                     if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
                         SNPS_writeAckSeq(out_buffer, seqNr);
+                        printf("sending ackseq: %u\n", seqNr);
 #               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
                     } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
                         SNPS_writeAck(out_buffer);
@@ -251,11 +252,6 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     out_buffer->bufferOverflow = true;
 #               endif
 
-//printf("\n--------ACKNOWLEDGEMENT-STUFF-------\n");
-//NetBuffRef_print_subMsgType(out_buffer, SDDS_SNPS_SUBMSG_SEQNR);
-
-//printf("                send ACK buffer: %d\n", seqNr);
-
                     checkSending(out_buffer);
                     DataWriter_mutex_unlock();
 
@@ -265,7 +261,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
 #           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
                 if (topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK){
-                    //printf("nack seqNr: %d\n", seqNr);
+                    //printf("nack seqNr: %u\n", seqNr);
                 } // end of topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 #           endif
 #       endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK/NACK
@@ -295,14 +291,14 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
         case (SDDS_SNPS_T_SEQNR):
             SNPS_readSeqNr(buff, (uint8_t*) &seqNr);
-            printf("            DS - rec seqNr : %d \n", seqNr);
+            printf("            DS - rec seqNr : %u \n", seqNr);
             break;
 
 
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
         case (SDDS_SNPS_T_SEQNRSMALL):
             SNPS_readSeqNrSmall(buff, (uint8_t*) &seqNr);
-            printf("            DS - rec seqNr : %d \n", seqNr);
+            printf("            DS - rec seqNrSmall : %u \n", seqNr);
             break;
 #   endif
 
@@ -310,7 +306,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
         case (SDDS_SNPS_T_SEQNRBIG):
             SNPS_readSeqNrBig(buff, (uint16_t*) &seqNr);
-            //printf("            DS - rec seqNr : %d \n", seqNr);
+            printf("            DS - rec seqNrBig : %u \n", seqNr);
             break;
 #   endif
 
@@ -318,18 +314,18 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
         case (SDDS_SNPS_T_SEQNRHUGE):
             SNPS_readSeqNrHUGE(buff, (uint32_t*) &seqNr);
-            //printf("            DS - rec seqNr : %d \n", seqNr);
+            printf("            DS - rec seqNrHuge : %u \n", seqNr);
             break;
 #   endif
 
 
 #   if defined SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
         case (SDDS_SNPS_T_ACKSEQ): {
-            SNPS_readAckSeq(buff, (uint8_t*)&seqNr);
+            SNPS_readAckSeq(buff, (uint8_t*)&seqNr );
             Reliable_DataWriter_t* reliable_dw = DataSource_DataWriter_by_topic(topic_id);
 
-            //printf("                    rec ACKSEQ: %d\n", seqNr);
-/*
+            printf("                    rec ACKSEQ: %u\n", seqNr);
+
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
                 if (reliable_dw->samplesToAcknowledge[index].seqNr == seqNr
                 && reliable_dw->samplesToAcknowledge[index].isUsed == 1) {
@@ -337,11 +333,11 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     reliable_dw->samplesToAcknowledge[index].timeStamp = 0;
                     reliable_dw->samplesToAcknowledge[index].data = NULL;
                     reliable_dw->samplesToAcknowledge[index].seqNr = 0;
-                    //printf("ACK: %i; seqNr: %i, dequeued sample\n", index, seqNr);
+                    printf("ACK: %u; seqNr: %u, dequeued sample\n", index, seqNr);
                     break;
                 }
             }
-*/
+
             break;
         }
 
@@ -362,8 +358,8 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #           endif
             }
 
-            //printf("                    rec ACKSEQ: %d\n", seqNr);
-/*
+            printf("                    rec ACK: %u\n", seqNr);
+
             Reliable_DataWriter_t* reliable_dw = DataSource_DataWriter_by_topic(topic_id);
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
                 if(reliable_dw->samplesToAcknowledge[index].seqNr == seqNr
@@ -372,11 +368,11 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     reliable_dw->samplesToAcknowledge[index].timeStamp = 0;
                     reliable_dw->samplesToAcknowledge[index].data = NULL;
                     reliable_dw->samplesToAcknowledge[index].seqNr = 0;
-                    //printf("    ACK: %i; seqNr: %i, dequeued sample\n", index, seqNr);
+                    printf("    ACK: %u; seqNr: %u, dequeued sample\n", index, seqNr);
                     break;
                 }
             }
-*/
+
             break;
         }
 #       endif // end of extended submsg
@@ -384,7 +380,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #endif // end of SDDS_HAS_QOS_RELIABILITY
         default:
             //  Go to next submessage
-            Log_warn("Invalid submessage type %d: Discard submessage\n", type);
+            Log_warn("Invalid submessage type %u: Discard submessage\n", type);
             SNPS_discardSubMsg(buff);
             break;
         }
@@ -433,7 +429,7 @@ DataSink_create_datareader(Topic_t* topic, Qos qos, Listener listener, StatusMas
             reader->id = index;
             reader->topic = topic;
             reader->on_data_avail_listener = NULL;
-            Log_debug("Create data reader with id %d\n", DataReader_id(reader));
+            Log_debug("Create data reader with id %u\n", DataReader_id(reader));
             return reader;
         }
     }
