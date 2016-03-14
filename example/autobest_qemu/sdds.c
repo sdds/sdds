@@ -61,7 +61,7 @@ sdds_rpc_sdds_app1(unsigned int reply_id, unsigned long dds_obj_id){
                 sys_task_terminate();
             	assert(0);
             }
-            //TODO: if sdds implment more function of the dds standart then we need to check more types for the DataWirte.
+            //TODO: if in the future sdds implements more functions of the dds standard we need to check more types for the DataWriter.
             break;
     }
 #ifdef FEATURE_SDDS_TRACING_ENABLED

@@ -156,6 +156,7 @@ sdds_History_dequeue(History_t* self) {
     if (self->out_needle >= self->depth) {
         self->out_needle = 0;
     }
+    // TODO: change the if stamants to modulo calculations to reduce code.
     //  Move the output needle to depth to indicate that the queue is empty.
     if (self->out_needle == self->in_needle) {
         self->out_needle = self->depth;
