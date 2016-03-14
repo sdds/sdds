@@ -13,19 +13,20 @@
         Includes are processed first, so XML in included files will be
         part of the XML tree
     -->
-
+        <!-- vs07 ip="fd29:144d:4196:94::46" -->
 
     <define name = "SDDS_HAS_QOS_RELIABILITY" />
-
-    <define name = "SDDS_NET_MAX_BUF_SIZE" value = "32"/>
-    <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "20"/>
-
-    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "5"/>
     <define name = "SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS" value = "1"/>
     <define name = "SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE" value = "4"/>
+    <define name = "SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS" value = "1"/>
 
+    <define name = "SDDS_NET_MAX_BUF_SIZE" value = "32"/>
+    <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "5"/>
 
+    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "5"/>
 
+    <include filename = "../topics/beta" />
+    <include filename = "../topics/alpha" />
     <include filename = "../topics/qos_reliability.xml" />
 
 <!--
@@ -35,6 +36,36 @@
     <role topic = "testqosreliabilityhuge" type = "publisher" />
 -->
     <role topic = "testQosReliabilityBasicReliableAck" type = "publisher">
+        <subscriber ip="fe80::921b:eff:fe11:30e8"/>
+    </role>
+
+
+<!--
+    <role topic = "testQosReliabilityBasicReliableAck" type = "publisher">
         <subscriber ip="fe80::c0ef:62ff:fed4:d26a"/>
     </role>
+
+    <role topic = "testQosReliabilitySmallReliableAck" type = "publisher">
+        <subscriber ip="fe80::c0ef:62ff:fed4:d26a"/>
+    </role>
+    <role topic = "testQosReliabilityBigReliableAck" type = "publisher">
+        <subscriber ip="fe80::c0ef:62ff:fed4:d26a"/>
+    </role>
+    <role topic = "testQosReliabilityHugeReliableAck" type = "publisher">
+        <subscriber ip="fe80::c0ef:62ff:fed4:d26a"/>
+    </role>
+-->
+
+<!--
+    <role topic = "testQosReliabilitySmallReliableAck" type = "subscriber"/>
+-->
+    <role topic = "testQosReliabilitySmallReliableAck" type = "subscriber"/>
+-->
+<!--
+    <role topic = "testQosReliabilityBigReliableAck" type = "subscriber"/>
+
+    <role topic = "testQosReliabilityHugeReliableAck" type = "subscriber"/>
+-->
+
+
 </project>

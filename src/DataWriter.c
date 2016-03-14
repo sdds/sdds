@@ -67,6 +67,7 @@ DataWriter_init () {
  || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
 rc_t
 DataWriter_write(DataWriter_t* self, Data data, void* handle) {
+
     assert (self);
     (void) handle;
 #ifdef FEATURE_SDDS_TRACING_ENABLED
@@ -76,6 +77,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #       endif
 #   endif
 #endif
+
     Mutex_lock(mutex);
     Topic_t* topic = self->topic;
     List_t* subscribers = topic->dsinks.list;
@@ -90,6 +92,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         subscriber = (Locator_t*) subscribers->next_fn(subscribers);
     }
     rc_t ret;
+
 #ifdef SDDS_QOS_LATENCYBUDGET
     //  If new deadline is earlier
     if ((out_buffer->sendDeadline == 0)) {
@@ -103,6 +106,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
     }
 #endif
+
 #ifdef FEATURE_SDDS_TRACING_ENABLED
 #   if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
 #       ifdef FEATURE_SDDS_TRACING_CALL_WRITE
@@ -110,6 +114,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #       endif
 #   endif
 #endif
+
     domainid_t domain = topic->domain;
     if (out_buffer->curDomain != domain) {
         SNPS_writeDomain(out_buffer, domain);
@@ -122,7 +127,9 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     }
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
+
     if (self->topic->reliabilityKind > 0){ // relevant topic for qos reliability
+
         Reliable_DataWriter_t* dw_reliable_p = (Reliable_DataWriter_t*)self;
         bool_t newSampleHasSlot = 0;
 
@@ -144,9 +151,9 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #   endif
             }
 
-    }
+        }
 #   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-        else if (self->topic->reliabilityKind == 2) { // relevant topic has qos reliability_reliable
+         else if (self->topic->reliabilityKind == 2) { // relevant topic has qos reliability_reliable
 
             // check, if sample is already in acknowledgement-list
             bool_t isAlreadyInList = 0;
@@ -246,10 +253,14 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #endif
 
 //NetBuffRef_print_subMsgType(out_buffer, SDDS_SNPS_SUBMSG_SEQNR);
+//printf("\n--------SENDING-------\n");
+//printf("writing to domain %d and topic %d \n", topic->domain, topic->id);
+//NetBuffRef_print_subMsgs(out_buffer);
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
     ret = checkSending(out_buffer);
+
 #ifdef TEST_SCALABILITY
     if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
     	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
@@ -435,7 +446,7 @@ checkSending(NetBuffRef_t* buf) {
 
 
 //printf("\n--------SENDING-------\n");
-//NetBuffRef_print_subMsgType(buf, SDDS_SNPS_SUBMSG_SEQNR);
+//NetBuffRef_print_subMsgs(buf);
 
 
         ret = Network_send(buf);

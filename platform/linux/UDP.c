@@ -474,6 +474,7 @@ recvLoop(void* netBuff) {
 
 rc_t
 Network_send(NetBuffRef_t* buff) {
+
     int sock;
     unsigned int sock_type;
     // Check the locator for uni or multicast socket
@@ -501,7 +502,6 @@ Network_send(NetBuffRef_t* buff) {
 
         transmitted = sendto(sock, buff->buff_start, buff->curPos, 0,
                              (struct sockaddr*) &addr, ((struct UDPLocator_t*) loc)->addr_len);
-
 
         if (transmitted == -1) {
             perror("ERROR");

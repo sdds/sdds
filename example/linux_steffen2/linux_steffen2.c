@@ -11,17 +11,33 @@ int main()
 	}
 	Log_setLvl(5);
 
+	//TestQosReliabilityBasicReliableAck testQosReliabilityBasicReliableAck_pub;
+	TestQosReliabilitySmallReliableAck testQosReliabilitySmallReliableAck_pub;
+	//TestQosReliabilityBigReliableAck testQosReliabilityBigReliableAck_pub;
+	//TestQosReliabilityHugeReliableAck testQosReliabilityHugeReliableAck_pub;
+
 	TestQosReliabilityBasicReliableAck testQosReliabilityBasicReliableAck_sub;
 	TestQosReliabilityBasicReliableAck* testQosReliabilityBasicReliableAck_sub_p = &testQosReliabilityBasicReliableAck_sub;
+	//TestQosReliabilitySmallReliableAck testQosReliabilitySmallReliableAck_sub;
+	//TestQosReliabilitySmallReliableAck* testQosReliabilitySmallReliableAck_sub_p = &testQosReliabilitySmallReliableAck_sub;
+	//TestQosReliabilityBigReliableAck testQosReliabilityBigReliableAck_sub;
+	//TestQosReliabilityBigReliableAck* testQosReliabilityBigReliableAck_sub_p = &testQosReliabilityBigReliableAck_sub;
+	//TestQosReliabilityHugeReliableAck testQosReliabilityHugeReliableAck_sub;
+	//TestQosReliabilityHugeReliableAck* testQosReliabilityHugeReliableAck_sub_p = &testQosReliabilityHugeReliableAck_sub;
+
 
 	rc_t retBasic = SDDS_RT_FAIL;
 
     for (;;) {
+		//DDS_TestQosReliabilityBasicReliableAckDataWriter_write (g_TestQosReliabilityBasicReliableAck_writer, &testQosReliabilityBasicReliableAck_pub, NULL);
+		DDS_TestQosReliabilitySmallReliableAckDataWriter_write (g_TestQosReliabilitySmallReliableAck_writer, &testQosReliabilitySmallReliableAck_pub, NULL);
+		//DDS_TestQosReliabilityBigReliableAckDataWriter_write (g_TestQosReliabilityBigReliableAck_writer, &testQosReliabilityBigReliableAck_pub, NULL);
+		//DDS_TestQosReliabilityHugeReliableAckDataWriter_write (g_TestQosReliabilityHugeReliableAck_writer, &testQosReliabilityHugeReliableAck_pub, NULL);
 
 		retBasic = DDS_TestQosReliabilityBasicReliableAckDataReader_take_next_sample (g_TestQosReliabilityBasicReliableAck_reader, &testQosReliabilityBasicReliableAck_sub_p, NULL);
-		if(retBasic == SDDS_RT_OK){
-			//printf("received Sample\n");
-		}
+		//retSmall = DDS_TestQosReliabilitySmallReliableAckDataReader_take_next_sample (g_TestQosReliabilitySmallReliableAck_reader, &testQosReliabilitySmallReliableAck_sub_p, NULL);
+		//retBig = DDS_TestQosReliabilityBigReliableAckDataReader_take_next_sample (g_TestQosReliabilityBigReliableAck_reader, &testQosReliabilityBigReliableAck_sub_p, NULL);
+		//retHuge = DDS_TestQosReliabilityHugeReliableAckDataReader_take_next_sample (g_TestQosReliabilityHugeReliableAck_reader, &testQosReliabilityHugeReliableAck_sub_p, NULL);
 
         sleep (1);
     }
