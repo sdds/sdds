@@ -63,8 +63,11 @@ DataSource_init(void) {
     //  Init instant sender
     //  The init method alloc a frame buffer and adds it to the structure
     NetBuffRef_init(&(self->sender.highPrio));
-    NetBuffRef_init(&(self->sender.out[0]));
-    NetBuffRef_init(&(self->sender.out[1]));
+
+    for (uint8_t i=0; i<SDDS_NET_MAX_OUT_QUEUE; i++) {
+        NetBuffRef_init(&(self->sender.out[i]));
+    }
+
     return DataWriter_init();
 }
 
@@ -188,9 +191,9 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos,
     ((Reliable_DataWriter_t*) dw)->seqNr = 0;
 #       if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
     for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
-        ((Reliable_DataWriter_t*) dw)->reliableSamples[index].seqNr = 0;
-        ((Reliable_DataWriter_t*) dw)->reliableSamples[index].timeStamp = 0;
-        ((Reliable_DataWriter_t*) dw)->reliableSamples[index].isUsed = 0;
+        ((Reliable_DataWriter_t*) dw)->samplesToAcknowledge[index].seqNr = 0;
+        ((Reliable_DataWriter_t*) dw)->samplesToAcknowledge[index].timeStamp = 0;
+        ((Reliable_DataWriter_t*) dw)->samplesToAcknowledge[index].isUsed = 0;
     }
 #       endif
 #   endif
@@ -205,8 +208,8 @@ find_free_buffer(List_t* topic_locators) {
     NetBuffRef_t* free_buffer = NULL;
     bool_t same_locators = false;
     //  Try to find a buffer that has all topic locators attached to it
-    int index;
-    for (index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
+
+    for (uint8_t index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
         NetBuffRef_t* send_buffer = &self->sender.out[index];
         List_t* send_buff_locators = send_buffer->locators;
         if (send_buff_locators) {
@@ -228,7 +231,7 @@ find_free_buffer(List_t* topic_locators) {
 
     //  Try to find an empty buffer
     if (free_buffer == NULL) {
-        for (index = 0; index < SDDS_NET_MAX_OUT_QUEUE; index++) {
+        for (uint8_t index = 0; index <SDDS_NET_MAX_OUT_QUEUE; index++) {
             if (self->sender.out[index].curPos == 0) {
                 free_buffer = &(self->sender.out[index]);
                 break;

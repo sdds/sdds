@@ -18,9 +18,13 @@
 
 #include "sDDS.h"
 
-#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
 rc_t
 Topic_addRemoteDataSink(Topic_t* _this, Locator_t* addr) {
+
+
     if (_this == NULL || addr == NULL) {
         Log_error("SDDS_RT_BAD_PARAMETER\n");
         return SDDS_RT_BAD_PARAMETER;
@@ -31,12 +35,11 @@ Topic_addRemoteDataSink(Topic_t* _this, Locator_t* addr) {
         if (list->add_fn(list, addr) == SDDS_SSW_RT_FAIL) {
             return SDDS_RT_FAIL;
         }
-
         return SDDS_RT_OK;
     }
     else if (Locator_contains(list, addr) != SDDS_RT_OK) {
         if (list->add_fn(list, addr) == SDDS_SSW_RT_FAIL) {
-                return SDDS_RT_FAIL;
+            return SDDS_RT_FAIL;
         }
         return SDDS_RT_OK;
     }

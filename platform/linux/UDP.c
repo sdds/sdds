@@ -389,6 +389,7 @@ create_socket(struct addrinfo* address) {
 
 void*
 recvLoop(void* netBuff) {
+
     NetBuffRef_t* buff = (NetBuffRef_t*) netBuff;
     int sock;     // receive socket
     unsigned int sock_type;     // broad or multicast
@@ -418,6 +419,7 @@ recvLoop(void* netBuff) {
         ssize_t recv_size = recvfrom(sock, buff->buff_start,
                                      buff->frame_start->size, 0,
                                      (struct sockaddr*)&addr, &addr_len);
+
 
         if (recv_size == -1) {
             Log_error("%d Error while receiving a udp frame: %s\n", __LINE__, strerror(errno));
@@ -459,6 +461,7 @@ recvLoop(void* netBuff) {
             continue;
         }
 
+
         if (DataSink_processFrame(buff) != SDDS_RT_OK) {
             Log_debug("Failed to process frame\n");
         }
@@ -471,6 +474,7 @@ recvLoop(void* netBuff) {
 
 rc_t
 Network_send(NetBuffRef_t* buff) {
+
     int sock;
     unsigned int sock_type;
     // Check the locator for uni or multicast socket

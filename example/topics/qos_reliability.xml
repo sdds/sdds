@@ -1,23 +1,64 @@
+<!-- WARNING!! IDs are equal to IDs from topics in basic.xml -->
 <domain id = "1">
-    <topic name = "testqosreliabilitybasic" domain = "1" id = "A">
+    <topic name = "testQosReliabilityBasicBesteffort" domain = "1" id = "F">
         Test topic which sends some data for testing QoS RELIABILITY
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
         <config type="qos_reliability" reliabilitySeqnrSize="basic" kind="besteffort"/>
     </topic>
-    <topic name = "testqosreliabilitysmall" domain = "1" id = "B">
+    <topic name = "testQosReliabilitySmallBesteffort" domain = "1" id = "E">
         Test topic which sends some data for testing QoS RELIABILITY
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
         <config type="qos_reliability" reliabilitySeqnrSize="small" kind="besteffort"/>
     </topic>
-    <topic name = "testqosreliabilitybig" domain = "1" id = "C">
+    <topic name = "testQosReliabilityBigBesteffort" domain = "1" id = "D">
         Test topic which sends some data for testing QoS RELIABILITY
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
         <config type="qos_reliability" reliabilitySeqnrSize="big" kind="besteffort"/>
     </topic>
-    <topic name = "testqosreliabilityhuge" domain = "1" id = "D">
+    <topic name = "testQosReliabilityHugeBesteffort" domain = "1" id = "C">
         Test topic which sends some data for testing QoS RELIABILITY
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
         <config type="qos_reliability" reliabilitySeqnrSize="huge" kind="besteffort"/>
     </topic>
+    <topic name = "testQosReliabilityBasicReliableAck" domain = "1" id = "B">
+        Test topic which sends some data for testing QoS RELIABILITY
+        <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
+        <config type="qos_reliability" reliabilitySeqnrSize="basic" kind="reliable" confirmationtype="ack" max_blocking_time="10000"/>
+    </topic>
+    <topic name = "testQosReliabilitySmallReliableAck" domain = "1" id = "A">
+        Test topic which sends some data for testing QoS RELIABILITY
+        <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
+        <config type="qos_reliability" reliabilitySeqnrSize="small" kind="reliable" confirmationtype="ack" max_blocking_time="100"/>
+    </topic>
+    <topic name = "testQosReliabilityBigReliableAck" domain = "1" id = "9">
+        Test topic which sends some data for testing QoS RELIABILITY
+        <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
+        <config type="qos_reliability" reliabilitySeqnrSize="big" kind="reliable" confirmationtype="ack" max_blocking_time="100"/>
+    </topic>
+    <topic name = "testQosReliabilityHugeReliableAck" domain = "1" id = "8">
+        Test topic which sends some data for testing QoS RELIABILITY
+        <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
+        <config type="qos_reliability" reliabilitySeqnrSize="huge" kind="reliable" confirmationtype="ack" max_blocking_time="100"/>
+    </topic>
+    <topic name = "testQosReliabilityBasicReliableNack" domain = "1" id = "7">
+        Test topic which sends some data for testing QoS RELIABILITY
+        <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
+        <config type="qos_reliability" reliabilitySeqnrSize="basic" kind="reliable" confirmationtype="nack" max_blocking_time="150"/>
+    </topic>
+    <topic name = "testQosReliabilitySmallReliableNack" domain = "1" id = "6">
+        Test topic which sends some data for testing QoS RELIABILITY
+        <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
+        <config type="qos_reliability" reliabilitySeqnrSize="small" kind="reliable" confirmationtype="nack" max_blocking_time="250"/>
+    </topic>
+<!-- WARNING!! IDs are equal to testQosReliabilityBasicBesteffort and testQosReliabilitySmallBesteffort -->
+    <topic name = "testQosReliabilityBigReliableNack" domain = "1" id = "F">
+        Test topic which sends some data for testing QoS RELIABILITY
+        <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
+        <config type="qos_reliability" reliabilitySeqnrSize="big" kind="reliable" confirmationtype="nack" max_blocking_time="350"/>
+    </topic>
+    <topic name = "testQosReliabilityHugeReliableNack" domain = "1" id = "E">
+        Test topic which sends some data for testing QoS RELIABILITY
+        <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
+        <config type="qos_reliability" reliabilitySeqnrSize="huge" kind="reliable" confirmationtype="nack" max_blocking_time="450"/>
+    </topic>
 </domain>
-

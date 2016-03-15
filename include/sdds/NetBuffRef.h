@@ -54,8 +54,14 @@ NetBuffRef_init(NetBuffRef_t* _this);
 rc_t
 NetBuffRef_renew(NetBuffRef_t* _this);
 
-#ifdef UTILS_DEBUG
+//#ifdef UTILS_DEBUG
 void
 NetBuffRef_print(NetBuffRef_t* _this);
-#endif
+
+void
+NetBuffRef_print_subMsgs (NetBuffRef_t* _this);
+
+void
+NetBuffRef_print_subMsgType(NetBuffRef_t* _this, subMsg_t type);
+//#endif
 #endif   /* ----- #ifndef NETBUFFREF_H_INC  ----- */

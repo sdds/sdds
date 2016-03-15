@@ -74,48 +74,52 @@ function resolve_topic_type (topic)
 endfunction
 
 .#
-.#  Resolves a topics configuration pararmeters.
+.#  Resolves a topics configuration parameters.
 .#
 function resolve_topic_config (topic)
     for my.topic.config
         if config.type = "qos_reliability"
-            config.seqNrBitSize ?= ""
             config.reliabilityKind ?= ""
+
             if reliabilitySeqnrSize = "basic"
-                config.seqNrBitSize = "4"
-                if config.seqNrBitSize > project.qos_reliability_biggest_seqNr_bitsize
-                    project.qos_reliability_biggest_seqNr_bitsize = config.seqNrBitSize
+                my.topic.qos_seqNrBitSize = 4
+                config.qos_seqNrBitSize = 4
+                if project.qos_reliability_biggest_seqNr_bitsize < 4
+                    project.qos_reliability_biggest_seqNr_bitsize = 4
                 endif
             elsif reliabilitySeqnrSize = "small"
-                config.seqNrBitSize = "8"
-                if config.seqNrBitSize > project.qos_reliability_biggest_seqNr_bitsize
-                    project.qos_reliability_biggest_seqNr_bitsize = config.seqNrBitSize
+                my.topic.qos_seqNrBitSize = "8"
+                config.qos_seqNrBitSize = "8"
+                if project.qos_reliability_biggest_seqNr_bitsize < 8
+                    project.qos_reliability_biggest_seqNr_bitsize = 8
                 endif
             elsif reliabilitySeqnrSize = "big"
-                config.seqNrBitSize = "16"
-                if config.seqNrBitSize > project.qos_reliability_biggest_seqNr_bitsize
-                    project.qos_reliability_biggest_seqNr_bitsize = config.seqNrBitSize
+                my.topic.qos_seqNrBitSize = "16"
+                config.qos_seqNrBitSize = "16"
+                if project.qos_reliability_biggest_seqNr_bitsize < 16
+                    project.qos_reliability_biggest_seqNr_bitsize = 16
                 endif
             elsif reliabilitySeqnrSize = "huge"
-                config.seqNrBitSize = "32"
-                project.qos_reliability_biggest_seqNr_bitsize = "32"
+                my.topic.qos_seqNrBitSize = 32
+                config.qos_seqNrBitSize = 32
+                project.qos_reliability_biggest_seqNr_bitsize = 32
             endif
 
             if kind = "besteffort"
-                project.qos_reliability_has_kind_besteffort = "1"
-                my.topic.qos_reliability_kind = "1"
+                project.qos_reliability_has_kind_besteffort = 1
+                my.topic.qos_reliability_kind = 1
             elsif kind = "reliable"
-                my.topic.qos_reliability_kind = "2"
+                my.topic.qos_reliability_kind = 2
                 my.topic.qos_reliability_max_blocking_time = max_blocking_time
                 if max_blocking_time > project.qos_reliability_biggest_max_blocking_time
                     project.qos_reliability_biggest_max_blocking_time = max_blocking_time
                 endif
                 if confirmationtype = "ack"
-                    project.qos_reliability_has_kind_reliableAck = "1"
-                    my.topic.qos_reliability_confirmationtype = "1"
+                    project.qos_reliability_has_kind_reliableAck = 1
+                    my.topic.qos_reliability_confirmationtype = 1
                 elsif confirmationtype = "nack"
-                    project.qos_reliability_has_kind_reliableNack = "1"
-                    my.topic.qos_reliability_confirmationtype = "2"
+                    project.qos_reliability_has_kind_reliableNack = 1
+                    my.topic.qos_reliability_confirmationtype = 2
                 endif
             endif
         elsif config.type = "qos_history"
@@ -127,11 +131,12 @@ function resolve_topic_config (topic)
 endfunction
 
 
-project.qos_reliability_has_kind_besteffort ?= "0"
-project.qos_reliability_has_kind_reliableAck ?= "0"
-project.qos_reliability_has_kind_reliableNack ?= "0"
-project.qos_reliability_biggest_seqNr_bitsize ?= "0"
-project.qos_reliability_biggest_max_blocking_time ?= "0"
+project.qos_reliability_has_kind_besteffort ?= 0
+project.qos_reliability_has_kind_reliableAck ?= 0
+project.qos_reliability_has_kind_reliableNack ?= 0
+project.qos_reliability_biggest_seqNr_bitsize ?= 0
+project.qos_reliability_biggest_max_blocking_time ?= 0
+
 
 for project.topic
     resolve_topic_type (topic)
@@ -270,7 +275,7 @@ $(topic.c_name:)_init ()
    }
 }
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined (SDDS_TOPIC_HAS_PUB)
 
 rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, size_t* size);
 
@@ -293,7 +298,7 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
 
 #endif
 
-#ifdef SDDS_TOPIC_HAS_SUB
+#if defined (SDDS_TOPIC_HAS_SUB) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
 
 rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, size_t* size);
 
@@ -316,7 +321,7 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 {
 	Topic_t *topic = TopicDB_createTopic();
     assert (topic!=NULL);
-#ifdef SDDS_TOPIC_HAS_SUB
+#if defined (SDDS_TOPIC_HAS_SUB) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK)
 	topic->Data_encode = TopicMarshalling_$(topic.c_name:)_encode;
 	topic->dsinks.list = List_initConcurrentLinkedList();
     if(topic->dsinks.list == NULL){
@@ -339,7 +344,7 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 .   for topic.config
 .       if config.type = "qos_reliability"
 #ifdef SDDS_HAS_QOS_RELIABILITY
-topic->seqNrBitSize = $(project.qos_reliability_biggest_seqNr_bitsize:);
+topic->seqNrBitSize = $(topic.qos_seqNrBitSize:);
 topic->reliabilityKind = $(topic.qos_reliability_kind:);
 .           if topic.qos_reliability_kind = "2"
 topic->confirmationtype = $(topic.qos_reliability_confirmationtype:);
