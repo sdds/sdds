@@ -240,7 +240,6 @@ find_free_buffer(List_t* topic_locators) {
     }
     //  If no buffer could be obtained use the high prio instead
     if (free_buffer == NULL) {
-        printf("find_free_buffer - no free Buffer found, high prio\n");
         free_buffer = &(self->sender.highPrio);
     }
     //  Initialize an empty buffer
