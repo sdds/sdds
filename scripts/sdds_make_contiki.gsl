@@ -13,7 +13,8 @@
 .#
 .echo "Generating Makefile ..."
 .output "Makefile"
-CONTIKI = ../../../platform/contiki
+SDDS_TOPDIR := \$(shell dirname \$(shell dirname \$(shell readlink generate.sh)))
+CONTIKI = \$(SDDS_TOPDIR)/../platform/contiki
 BUILD = sensor_board
 TARGET_USE_DERFMEGA128 = 1
 UIP_CONF_RPL=0
@@ -49,7 +50,7 @@ clean:
 .#
 .echo "Generating Makefile_2nd_lvl.mk"
 .output "Makefile_2nd_lvl.mk"
-SDDS_TOPDIR := ../../
+SDDS_TOPDIR := \$(shell dirname \$(shell dirname \$(shell readlink generate.sh)))
 
 DRIVER := \$(SDDS_TOPDIR)/include/
 
@@ -146,7 +147,7 @@ flash:
 	avarice -g -e -p -f \$(APPLICATION_NAME).hex \$(FLASH_ARGS)
 
 dude:
-	sudo avrdude -c dragon_jtag -p m128rfa1 -P usb -U flash:w:\$(APPLICATION_NAME).hex
+	avrdude -c dragon_jtag -p m128rfa1 -P usb -U flash:w:\$(APPLICATION_NAME).hex
 
 gdb-server:
 	sudo avarice -g -j usb -P atmega128rfa1 :4242
