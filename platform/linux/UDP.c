@@ -474,7 +474,11 @@ recvLoop(void* netBuff) {
 
 rc_t
 Network_send(NetBuffRef_t* buff) {
-
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_SEND_PAKET
+    Trace_point(SDDS_TRACE_EVENT_SEND_PAKET);
+#endif
+#endif
     int sock;
     unsigned int sock_type;
     // Check the locator for uni or multicast socket

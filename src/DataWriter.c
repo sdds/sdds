@@ -109,7 +109,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
 #ifdef FEATURE_SDDS_TRACING_ENABLED
 #   if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
-#       ifdef FEATURE_SDDS_TRACING_CALL_WRITE
+#       ifdef FEATURE_SDDS_TRACING_PREPARE_SNPS
     Trace_point(SDDS_TRACE_EVENT_PREPARE_SNPS);
 #       endif
 #   endif
