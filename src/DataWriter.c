@@ -216,41 +216,45 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
 
 #      if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK)
-        if (self->topic->confirmationtype == 1) {
+            if (self->topic->confirmationtype == 1) {
             // send every sample which is not yet acknowledged
-            for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
-                if(dw_reliable_p->samplesToAcknowledge[index].isUsed != 0){
+                for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
+                    if(dw_reliable_p->samplesToAcknowledge[index].isUsed != 0){
 
-                    if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-                        SNPS_writeSeqNr(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
-                        //printf("DW send seqNr %d\n", dw_reliable_p->samplesToAcknowledge[index].seqNr &0x0f);
+                        if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
+                            SNPS_writeSeqNr(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
+                            //printf("DW send seqNr %d\n", dw_reliable_p->samplesToAcknowledge[index].seqNr &0x0f);
 #           if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
-                    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
-                        SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
+                        } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
+                            SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
 #           endif
 #           if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
-                    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
-                        SNPS_writeSeqNrBig(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
+                        } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
+                            SNPS_writeSeqNrBig(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
 #           endif
 #           if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
-                    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
-                        SNPS_writeSeqNrHUGE(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
+                        } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
+                            SNPS_writeSeqNrHUGE(out_buffer, dw_reliable_p->samplesToAcknowledge[index].seqNr);
 #           endif
-                    }
+                        }
 
-                    if (SNPS_writeData(out_buffer, topic->Data_encode, dw_reliable_p->samplesToAcknowledge[index].data) != SDDS_RT_OK) {
-                        Log_error("(%d) SNPS_writeData failed\n", __LINE__);
+                        if (SNPS_writeData(out_buffer, topic->Data_encode, dw_reliable_p->samplesToAcknowledge[index].data) != SDDS_RT_OK) {
+                            Log_error("(%d) SNPS_writeData failed\n", __LINE__);
 #           ifdef SDDS_QOS_LATENCYBUDGET
-                        out_buffer->bufferOverflow = true;
+                            out_buffer->bufferOverflow = true;
 #           endif
-                    }
+                        }
 
+                    }
                 }
-            }
+
+            } // end of confirmationtype == 1
+#       endif // end of ACK
+#       ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+        else if (self->topic->confirmationtype == 2) {
 
         }
-#       endif // end of ACK
-
+#       endif
         } // end of relevant topic has qos reliability_reliable
 #   endif // end of if SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || NACK
 
