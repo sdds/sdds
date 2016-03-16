@@ -44,7 +44,7 @@ Discovery_receive_SubscriptionTopics();
 static rc_t
 Discovery_addParticipant(SDDS_DCPSParticipant* p);
 static rc_t
-Discovery_handleParticipant(SDDS_DCPSParticipant p);
+Discovery_handleParticipant(SDDS_DCPSParticipant* p);
 
 /***********************************************************************************
                                                                         Implementierung
@@ -77,22 +77,22 @@ Discovery_addParticipant(SDDS_DCPSParticipant* p) {
 }
 
 static rc_t
-Discovery_handleParticipant(SDDS_DCPSParticipant p) {
-    rc_t ret = Discovery_addParticipant(&p);
+Discovery_handleParticipant(SDDS_DCPSParticipant* p) {
+    rc_t ret = Discovery_addParticipant(p);
 
     if (ret == SDDS_RT_OK) {
 #if defined(SDDS_TOPIC_HAS_PUB)
-        ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, p.addr);
+        ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, p->addr);
         if (ret != SDDS_RT_OK) {
-            Locator_downRef(p.addr);
+            Locator_downRef(p->addr);
             return ret;
         }
 #endif
 
 #if defined(SDDS_TOPIC_HAS_SUB)
-        ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, p.addr);
+        ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, p->addr);
         if (ret != SDDS_RT_OK) {
-            Locator_downRef(p.addr);
+            Locator_downRef(p->addr);
             return ret;
         }
         Discovery_sendPublicationTopics();
@@ -101,7 +101,7 @@ Discovery_handleParticipant(SDDS_DCPSParticipant p) {
         Discovery_sendParticipantTopics(NULL);
         return SDDS_RT_OK;
     }
-    Locator_downRef(p.addr);
+    Locator_downRef(p->addr);
     return SDDS_RT_OK;
 }
 
@@ -185,7 +185,7 @@ Discovery_receiveParticipantTopics() {
         }
         else {
             Log_info("Received (participant):[%x]\n", p_data_used.data.key);
-            Discovery_handleParticipant(p_data_used);
+            Discovery_handleParticipant(&p_data_used);
         }
     } while (ret != DDS_RETCODE_NO_DATA);
 }
