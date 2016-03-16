@@ -121,7 +121,7 @@ sDDS_init (void)
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 	assert(Discovery_init() == SDDS_RT_OK);
 #endif
-#ifdef FEATURE_SDDS_TRACEING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_ENABLED
     assert(Trace_init() == SDDS_RT_OK);
 #endif
 
