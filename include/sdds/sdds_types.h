@@ -122,6 +122,10 @@ typedef long double float128_t;
 #include <assert.h>
 #ifdef SDDS_PLATFORM_autobest
 typedef uint8_t bool;
+#define true 1
+#define false 0
+#define AF_INET 1
+#define AF_INET6 2
 #else
 #include <stdbool.h>
 #endif
@@ -130,8 +134,6 @@ typedef uint8_t bool;
 typedef short int int16_t;
 typedef int int32_t;
 #endif
-//#define AF_INET 1
-//#define AF_INET6 2
 
 typedef unsigned char bool_t;           /*  */
 typedef char char_t;
@@ -139,8 +141,7 @@ typedef unsigned char byte_t;
 typedef float float32_t;
 typedef double float64_t;
 typedef long double float128_t;
-#define true 1
-#define false 0
+
 #ifndef __size_t
 #define __size_t__
 typedef unsigned int size_t;

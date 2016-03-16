@@ -41,11 +41,11 @@
     <role topic = "testQosReliabilityBasicReliableAck" type = "publisher">
         <subscriber ip="fe80::219:99ff:fede:9a7a"/>
     </role>
--->
-    <role topic = "testQosReliabilitySmallReliableAck" type = "publisher">
+
+    <role topic = "testQosReliabilitySmallReliableNack" type = "publisher">
         <subscriber ip="fe80::219:99ff:fede:9a7a"/>
     </role>
-<!--
+
     <role topic = "testQosReliabilityBigReliableAck" type = "publisher">
         <subscriber ip="fe80::219:99ff:fede:9a7a"/>
     </role>
@@ -55,7 +55,7 @@
 -->
 
 
-    <role topic = "testQosReliabilityBasicReliableAck" type = "subscriber"/>
+    <role topic = "testQosReliabilityBasicReliableNack" type = "subscriber"/>
 <!--
     <role topic = "testQosReliabilitySmallReliableAck" type = "subscriber"/>
 
