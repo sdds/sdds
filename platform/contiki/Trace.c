@@ -10,8 +10,6 @@ Trace_init(void){
     DDRE |= (1 << PE7);
     DDRF |= (1 << PF0);
 
-    printf("Trace init\n");
-
 	return SDDS_RT_OK;
 }
 
