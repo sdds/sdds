@@ -133,7 +133,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         Reliable_DataWriter_t* dw_reliable_p = (Reliable_DataWriter_t*)self;
         bool_t newSampleHasSlot = 0;
 
-        if (self->topic->reliabilityKind == 1) { // relevant topic has qos reliability_besteffort
+        if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_BESTEFFORT) { // relevant topic has qos reliability_besteffort
 
             if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
                 SNPS_writeSeqNr(out_buffer, (dw_reliable_p->seqNr&0x0F) );
@@ -153,7 +153,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
         }
 #   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-         else if (self->topic->reliabilityKind == 2) { // relevant topic has qos reliability_reliable
+         else if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_RELIABLE) { // relevant topic has qos reliability_reliable
 
             // check, if sample is already in acknowledgement-list
             bool_t isAlreadyInQueue = 0;
@@ -216,7 +216,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
 
 #      if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK)
-            if (self->topic->confirmationtype == 1) {
+            if (self->topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK) {
             // send every sample which is not yet acknowledged
                 for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
                     if(dw_reliable_p->samplesToKeep[index].isUsed != 0){
@@ -248,17 +248,17 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
                     }
                 }
 
-            } // end of confirmationtype == 1
+            } // end of confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK
 #       endif // end of ACK
 #       ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-        else if (self->topic->confirmationtype == 2) {
+        else if (self->topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK) {
 
         }
 #       endif
         } // end of relevant topic has qos reliability_reliable
 #   endif // end of if SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || NACK
 
-        if (self->topic->reliabilityKind == 2 ) {
+        if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_RELIABLE ) {
             if (newSampleHasSlot) {
                 if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
                     dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xF;
@@ -288,7 +288,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #endif // end if SDDS_HAS_QOS_RELIABILITY
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-    if (self->topic->reliabilityKind != 2) {
+    if (self->topic->reliabilityKind != SDDS_QOS_RELIABILITY_KIND_RELIABLE) {
 #endif
             if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
                 Log_error("(%d) SNPS_writeData failed\n", __LINE__);

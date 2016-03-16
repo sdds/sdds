@@ -190,7 +190,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 Topic_t* topic = TopicDB_getTopic(topic_id);
 
 #           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
-                if(topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK){
+                if(topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK){
 
                     DataWriter_mutex_lock();
 
@@ -254,14 +254,14 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     checkSending(out_buffer);
                     DataWriter_mutex_unlock();
 
-                }  // end of (topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_ACK)
+                }  // end of (topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK)
 #           endif // end of ACK
 
 
 #           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-                if (topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK){
+                if (topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK){
                     //printf("nack seqNr: %u\n", seqNr);
-                } // end of topic->confirmationtype == SDDS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+                } // end of topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK
 #           endif
 #       endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK/NACK
 #    else // else of: if SDDS_HAS_QOS_RELIABILITY
