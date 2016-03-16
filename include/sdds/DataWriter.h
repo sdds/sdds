@@ -48,7 +48,7 @@ struct Reliable_DataWriter {
    SDDS_SEQNR_BIGGEST_TYPE seqNr;
 
 #   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-    ReliableSample_t samplesToAcknowledge[SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
+    ReliableSample_t samplesToKeep[SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
 #   endif
 };
 typedef struct Reliable_DataWriter Reliable_DataWriter_t;

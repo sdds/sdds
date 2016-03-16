@@ -191,9 +191,9 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos,
     ((Reliable_DataWriter_t*) dw)->seqNr = 0;
 #       if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
     for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
-        ((Reliable_DataWriter_t*) dw)->samplesToAcknowledge[index].seqNr = 0;
-        ((Reliable_DataWriter_t*) dw)->samplesToAcknowledge[index].timeStamp = 0;
-        ((Reliable_DataWriter_t*) dw)->samplesToAcknowledge[index].isUsed = 0;
+        ((Reliable_DataWriter_t*) dw)->samplesToKeep[index].seqNr = 0;
+        ((Reliable_DataWriter_t*) dw)->samplesToKeep[index].timeStamp = 0;
+        ((Reliable_DataWriter_t*) dw)->samplesToKeep[index].isUsed = 0;
     }
 #       endif
 #   endif

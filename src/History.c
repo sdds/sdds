@@ -17,6 +17,8 @@
 
 #include "sDDS.h"
 
+static Mutex_t* mutex;
+
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static rc_t
 s_History_checkSeqNr_Besteffort(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr);
@@ -30,6 +32,13 @@ s_History_checkSeqNr_ReliableAck(History_t* self, Topic_t* topic, Locator_t* loc
 
 rc_t
 sdds_History_init() {
+    mutex = Mutex_create();
+    if (mutex == NULL) {
+        return SDDS_RT_FAIL;
+    }
+    if (Mutex_init(mutex) == SDDS_SSW_RT_FAIL) {
+        return SDDS_RT_FAIL;
+    }
     return SDDS_RT_OK;
 }
 
@@ -77,6 +86,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 #endif
     assert(self);
     assert(buff);
+	Mutex_lock(mutex);
 
 #ifdef FEATURE_SDDS_TRACING_ENABLED
 #   if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
@@ -88,7 +98,9 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 
     if (s_History_full (self)) {
         //  Dequeue the oldest item in the History and proceed.
+        Mutex_unlock(mutex);
         (void *) sdds_History_dequeue(self);
+        Mutex_lock(mutex);
     }
 
     //  Insert sample into queue
@@ -106,14 +118,15 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
         } else {
             SNPS_discardSubMsg(buff);
             Locator_downRef(loc);
-
+            Mutex_unlock(mutex);
             return SDDS_RT_OK;
         }
     }
-#endif // en of SDDS_HAS_QOS_RELIABILITY
+#endif //  End of SDDS_HAS_QOS_RELIABILITY
 
     rc_t ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
     if (ret == SDDS_RT_FAIL) {
+        Mutex_unlock(mutex);
         return ret;
     }
     self->samples[self->in_needle].instance = loc;
@@ -133,6 +146,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
     if (self->out_needle >= self->depth) {
         self->out_needle = in_needle_prev;
     }
+    Mutex_unlock(mutex);
     return SDDS_RT_OK;
 }
 
@@ -144,7 +158,10 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 Sample_t*
 sdds_History_dequeue(History_t* self) {
     assert(self);
+	Mutex_lock(mutex);
+
     if (self->out_needle >= self->depth) {
+        Mutex_unlock(mutex);
         return NULL;
     }
     //  Remove sample from queue
@@ -157,7 +174,7 @@ sdds_History_dequeue(History_t* self) {
     if (self->out_needle >= self->depth) {
         self->out_needle = 0;
     }
-    // TODO: change the if stamants to modulo calculations to reduce code.
+    //  TODO: change the if statements to modulo calculations to reduce code.
     //  Move the output needle to depth to indicate that the queue is empty.
     if (self->out_needle >= self->in_needle) {
         self->out_needle = self->depth;
@@ -166,6 +183,8 @@ sdds_History_dequeue(History_t* self) {
     if (self->in_needle >= self->depth) {
         self->in_needle = out_needle_prev;
     }
+
+    Mutex_unlock(mutex);
     return sample;
 }
 
