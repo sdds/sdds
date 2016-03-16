@@ -11,7 +11,16 @@
 /*
  *  Define sDDS posible trace events for sDDS.
  *  The Events are only in use when the traceing feature is defined and
- *  the feature for the ebents are defined.
+ *  the feature for the events are defined.
+ *
+ * There are two types of events for recving and sending,
+ * the isolated and normal events.
+ * isolated events are for trace of a sdds version which is
+ * splittet into sdds middleware and sdds applications.
+ * For this version we need more events.
+ * At this time we only have ja isolated version for the
+ * AUTOBEST kernel, so the trace events are accommodated to this
+ * version.
  */
 #define SDDS_TRACE_EVENT_STOP				0u
 
@@ -149,12 +158,28 @@
 typedef uint8_t Trace_event_t;
 typedef uint8_t Trace_signal_t;
 
+// Init function for the trace module
 ssw_rc_t
 Trace_init(void);
 
+/*
+ * function set a trace point in the code.
+ * Trace point are places in the code to
+ * show the external world what is happening in the system.
+ * So to can interpret them as start point of phaseses in your
+ * software.
+ */
 ssw_rc_t
 Trace_point(Trace_event_t trace_event);
 
+/*
+ * functions set and reset trace signals.
+ * Unlike trace events, trace signals are
+ * signals to the external world of your system.
+ * So you can give additinal infomations to phases
+ * of your software e. g. when did start rescheduling
+ * of a process or so on,
+ */
 ssw_rc_t
 Trace_setSignal(Trace_signal_t trace_signal);
 
