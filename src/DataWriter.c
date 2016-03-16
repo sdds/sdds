@@ -291,9 +291,9 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     if (self->topic->reliabilityKind != 2) {
 #endif
             if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
-    	       Log_error("(%d) SNPS_writeData failed\n", __LINE__);
+                Log_error("(%d) SNPS_writeData failed\n", __LINE__);
 #ifdef SDDS_QOS_LATENCYBUDGET
-    	       out_buffer->bufferOverflow = true;
+                out_buffer->bufferOverflow = true;
 #endif
             }
 #ifdef SDDS_HAS_QOS_RELIABILITY
@@ -311,9 +311,9 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
 #ifdef TEST_SCALABILITY
     if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
-    	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
-    	fwrite("D", 1, 1, scalability_msg_count);
-		fclose(scalability_msg_count);
+        scalability_msg_count = fopen(SCALABILITY_LOG, "a");
+        fwrite("D", 1, 1, scalability_msg_count);
+        fclose(scalability_msg_count);
     }
 #endif
 
@@ -369,7 +369,7 @@ DataWriter_writeAddress(DataWriter_t* self,
     while (subscriber) {
         if (Locator_contains(out_buffer->locators, subscriber) != SDDS_RT_OK) {
             if (out_buffer->locators->add_fn(out_buffer->locators, subscriber) == SDDS_RT_OK) {
-            	Locator_upRef(subscriber);
+                Locator_upRef(subscriber);
             }
         }
         subscriber = (Locator_t*) subscribers->next_fn(subscribers);
@@ -400,7 +400,7 @@ DataWriter_writeAddress(DataWriter_t* self,
 
 void
 checkSendingWrapper(void* buf) {
-	Mutex_lock(mutex);
+    Mutex_lock(mutex);
     checkSending((NetBuffRef_t*) buf);
     Mutex_unlock(mutex);
 }
@@ -506,7 +506,7 @@ checkSending(NetBuffRef_t* buf) {
     }
 #ifdef TEST_SCALABILITY
     else {
-    	ret = SDDS_RT_NO_SUB;
+        ret = SDDS_RT_NO_SUB;
     }
 #endif
     NetBuffRef_renew(buf);
