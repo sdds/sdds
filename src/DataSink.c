@@ -326,12 +326,12 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             //printf("                    rec ACKSEQ: %u\n", seqNr);
 
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
-                if (reliable_dw->samplesToAcknowledge[index].seqNr == seqNr
-                && reliable_dw->samplesToAcknowledge[index].isUsed != 0) {
-                    reliable_dw->samplesToAcknowledge[index].isUsed = 0;
-                    reliable_dw->samplesToAcknowledge[index].timeStamp = 0;
-                    reliable_dw->samplesToAcknowledge[index].data = NULL;
-                    reliable_dw->samplesToAcknowledge[index].seqNr = 0;
+                if (reliable_dw->samplesToKeep[index].seqNr == seqNr
+                && reliable_dw->samplesToKeep[index].isUsed != 0) {
+                    reliable_dw->samplesToKeep[index].isUsed = 0;
+                    reliable_dw->samplesToKeep[index].timeStamp = 0;
+                    reliable_dw->samplesToKeep[index].data = NULL;
+                    reliable_dw->samplesToKeep[index].seqNr = 0;
                     //printf("ACK: %u; seqNr: %u, dequeued sample\n", index, seqNr);
                     break;
                 }
@@ -361,12 +361,12 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
             Reliable_DataWriter_t* reliable_dw = DataSource_DataWriter_by_topic(topic_id);
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
-                if(reliable_dw->samplesToAcknowledge[index].seqNr == seqNr
-                && reliable_dw->samplesToAcknowledge[index].isUsed != 0) {
-                    reliable_dw->samplesToAcknowledge[index].isUsed = 0;
-                    reliable_dw->samplesToAcknowledge[index].timeStamp = 0;
-                    reliable_dw->samplesToAcknowledge[index].data = NULL;
-                    reliable_dw->samplesToAcknowledge[index].seqNr = 0;
+                if(reliable_dw->samplesToKeep[index].seqNr == seqNr
+                && reliable_dw->samplesToKeep[index].isUsed != 0) {
+                    reliable_dw->samplesToKeep[index].isUsed = 0;
+                    reliable_dw->samplesToKeep[index].timeStamp = 0;
+                    reliable_dw->samplesToKeep[index].data = NULL;
+                    reliable_dw->samplesToKeep[index].seqNr = 0;
                     //printf("    ACK: %u; seqNr: %u, dequeued sample\n", index, seqNr);
                     break;
                 }
