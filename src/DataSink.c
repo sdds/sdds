@@ -260,7 +260,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
 #           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
                 if (topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK){
-                    //printf("nack seqNr: %u\n", seqNr);
+                    // for all missing samples, send nack
                 } // end of topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK
 #           endif
 #       endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK/NACK
