@@ -98,7 +98,9 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 
     if (s_History_full (self)) {
         //  Dequeue the oldest item in the History and proceed.
+        Mutex_unlock(mutex);
         (void *) sdds_History_dequeue(self);
+        Mutex_lock(mutex);
     }
 
     //  Insert sample into queue
