@@ -133,27 +133,9 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         Reliable_DataWriter_t* dw_reliable_p = (Reliable_DataWriter_t*)self;
         bool_t newSampleHasSlot = 0;
 
-        if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_BESTEFFORT) { // relevant topic has qos reliability_besteffort
 
-            if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-                SNPS_writeSeqNr(out_buffer, (dw_reliable_p->seqNr&0x0F) );
-#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
-            } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
-                SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->seqNr&0xFF);
-#   endif
-#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
-            } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
-                SNPS_writeSeqNrBig(out_buffer, dw_reliable_p->seqNr&0xFFFF);
-#   endif
-#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
-            } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
-                SNPS_writeSeqNrHUGE(out_buffer, dw_reliable_p->seqNr);
-#   endif
-            }
-
-        }
 #   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-         else if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_RELIABLE) { // relevant topic has qos reliability_reliable
+        if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_RELIABLE) { // relevant topic has qos reliability_reliable
 
             // check, if sample is already in acknowledgement-list
             bool_t isAlreadyInQueue = 0;
@@ -247,16 +229,39 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
                     }
                 }
-
             } // end of confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK
 #       endif // end of ACK
-#       ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-        else if (self->topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK) {
 
-        }
+#       ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+            if (self->topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK) {
+
+            }
 #       endif
+
         } // end of relevant topic has qos reliability_reliable
 #   endif // end of if SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || NACK
+
+#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
+        if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_BESTEFFORT) { // relevant topic has qos reliability_besteffort
+
+            if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
+                SNPS_writeSeqNr(out_buffer, (dw_reliable_p->seqNr&0x0F) );
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+            } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
+                SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->seqNr&0xFF);
+#       endif
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+            } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
+                SNPS_writeSeqNrBig(out_buffer, dw_reliable_p->seqNr&0xFFFF);
+#       endif
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+            } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
+                SNPS_writeSeqNrHUGE(out_buffer, dw_reliable_p->seqNr);
+#       endif
+            }
+
+        }
+#   endif
 
         if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_RELIABLE ) {
             if (newSampleHasSlot) {
