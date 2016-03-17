@@ -39,6 +39,8 @@ ssw_rc_t
 Task_start(Task _this, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode);
 ssw_rc_t
 Task_stop(Task _this);
+bool
+Task_isRunning(Task _this);
 ssw_rc_t
 Task_delete(Task _this);
 
