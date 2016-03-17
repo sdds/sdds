@@ -55,7 +55,7 @@ NetBuffRef_renew(NetBuffRef_t* _this) {
     return SDDS_RT_OK;
 }
 
-//#ifdef UTILS_DEBUG
+#ifdef UTILS_DEBUG
 void
 NetBuffRef_print(NetBuffRef_t* _this) {
 
@@ -204,4 +204,4 @@ NetBuffRef_print_subMsgType (NetBuffRef_t* _this, subMsg_t type) {
     _this->subMsgCount = subMsgCount;
 }
 
-//#endif
+#endif

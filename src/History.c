@@ -28,10 +28,10 @@ static Task blockTask;
 static rc_t
 s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr);
 
-#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+//#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 static rc_t
 s_History_checkSeqNr_ReliableNack(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr);
-#   endif
+//#   endif
 #endif
 
 #if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
@@ -137,7 +137,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
     if (topic->seqNrBitSize > 0){ // topic has qos_reliability
         //  Check validity of sequence number
-        if (s_History_checkSeqNr(self, topic, loc, seqNr) == SDDS_RT_FAIL){
+        if (s_History_checkSeqNr_ReliableNack(self, topic, loc, seqNr) == SDDS_RT_FAIL){
             SNPS_discardSubMsg(buff);
             Locator_downRef(loc);
             Mutex_unlock(mutex);
@@ -318,7 +318,7 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
     return SDDS_RT_FAIL;
 }
 
-#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+//#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 static inline rc_t
 s_History_checkSeqNr_ReliableNack(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
 
@@ -456,7 +456,7 @@ s_History_checkSeqNr_ReliableNack(History_t* self, Topic_t* topic, Locator_t* lo
 
     return SDDS_RT_FAIL;
 }
-#   endif // end of QoS_Reliability reliableNack
+//#   endif // end of QoS_Reliability reliableNack
 #endif // end of QoS_Reliability
 
 void
