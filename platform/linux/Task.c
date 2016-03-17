@@ -23,7 +23,7 @@ struct Task_struct {
     timer_t timer;
     struct sigevent evp;
 
-    void (* cb)(void* obj);
+    void (* callback)(void* obj);
     void* data;
     SDDS_usec_t interval;
     SSW_TaskMode_t mode;
@@ -47,8 +47,10 @@ void
 Task_callback(union sigval v) {
     Task t = (Task) v.sival_ptr;
 
-    t->cb(t->data);
-    t->active = false;
+    t->callback(t->data);
+    if (t->mode == SDDS_SSW_TaskMode_single)  {
+        t->active = false;
+    }
 }
 
 static void
@@ -76,7 +78,7 @@ Task_init(Task _this, void (* callback)(void* obj), void* data) {
         return SDDS_SSW_RT_FAIL;
     }
 
-    _this->cb = callback;
+    _this->callback = callback;
 
     // init the signal structure
     memset(&(_this->evp), 0, sizeof(struct sigevent));
@@ -101,10 +103,16 @@ Task_init(Task _this, void (* callback)(void* obj), void* data) {
     return SDDS_SSW_RT_OK;
 }
 
+bool
+Task_isRunning(Task _this)
+{
+    assert (_this);
+    return _this->active;
+}
+
 ssw_rc_t
-Task_start(Task _this, uint8_t sec, SDDS_msec_t msec,
-           SSW_TaskMode_t mode) {
-    if (_this == NULL || _this->cb == NULL) {
+Task_start(Task _this, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode) {
+    if (_this == NULL || _this->callback == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
 
@@ -137,6 +145,7 @@ Task_start(Task _this, uint8_t sec, SDDS_msec_t msec,
     }
     return SDDS_SSW_RT_OK;
 }
+
 ssw_rc_t
 Task_stop(Task _this) {
     if (_this == NULL || _this->timer == 0) {
@@ -190,9 +199,11 @@ task_thread(void *args) {
     do {
         sleep (self->sec);
         usleep (self->msec);
-
-        self->callback_fn (self->data);
+        if (self->active) {
+            self->callback_fn (self->data);
+        }
     } while (self->active && self->mode == SDDS_SSW_TaskMode_repeat);
+    self->active = false;
 }
 
 
@@ -235,6 +246,12 @@ Task_setData(Task self, void* data) {
     return SDDS_SSW_RT_OK;
 }
 
+bool
+Task_isRunning(Task self)
+{
+    assert (self);
+    return self->active;
+}
 
 ssw_rc_t
 Task_start(Task self, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode) {
@@ -258,8 +275,8 @@ Task_start(Task self, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode) {
 ssw_rc_t
 Task_stop(Task self) {
     assert (self);
-    // stop the timer
 
+    // stop the timer
     self->active = false;
     return SDDS_SSW_RT_OK;
 }
