@@ -26,6 +26,10 @@
 
 #ifdef FEATURE_SDDS_TRACING_RECV_NORMAL
 
+#define SDDS_TRACE_EVENT_DUMMY_1            1u
+#define SDDS_TRACE_EVENT_DUMMY_2            3u
+#define SDDS_TRACE_EVENT_DUMMY_3           	2u
+
 #ifdef FEATURE_SDDS_TRACING_RECV_PAKET
 #define SDDS_TRACE_EVENT_RECV_PAKET			6u
 #endif
@@ -109,6 +113,9 @@
 
  // lwip: 6u
  // ETH: 7u
+
+#define SDDS_TRACE_EVENT_DUMMY_3            6u
+#define SDDS_TRACE_EVENT_DUMMY_4            7u
 
 #define SDDS_TRACE_EVENT_DUMMY_1            5u
 #define SDDS_TRACE_EVENT_DUMMY_2            4u
