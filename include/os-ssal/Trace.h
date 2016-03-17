@@ -18,9 +18,15 @@
  * isolated events are for trace of a sdds version which is
  * splittet into sdds middleware and sdds applications.
  * For this version we need more events.
- * At this time we only have ja isolated version for the
+ * At this time we only have a isolated version for the
  * AUTOBEST kernel, so the trace events are accommodated to this
  * version.
+ *
+ * The events are defined as gray code. So if you want
+ * to measure a write or a read you need to set the
+ * events in the order as they define here (from Top to Down)
+ * The values of the IP-stack and the Ethernet driver are
+ * in commented at there right position for the diverend types  
  */
 #define SDDS_TRACE_EVENT_STOP				0u
 
