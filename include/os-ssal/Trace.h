@@ -26,7 +26,8 @@
  * to measure a write or a read you need to set the
  * events in the order as they define here (from Top to Down)
  * The values of the IP-stack and the Ethernet driver are
- * in commented at there right position for the diverend types  
+ * in commented at there right position for the diverend types
+ * of the event.
  */
 #define SDDS_TRACE_EVENT_STOP				0u
 
