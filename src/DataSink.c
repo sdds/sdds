@@ -202,19 +202,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
 
 
-#               ifdef SDDS_QOS_LATENCYBUDGET
-                    //  If new deadline is earlier
-                    if ((out_buffer->sendDeadline == 0)) {
-#                   if SDDS_QOS_DW_LATBUD < 65536
-                        ret = Time_getTime16(&out_buffer->sendDeadline);
-#                   else
-                        ret = Time_getTime32(&out_buffer->sendDeadline);
-#                   endif
-                        out_buffer->sendDeadline += self->qos.latBudDuration;
-                        out_buffer->latBudDuration = self->qos.latBudDuration;
-                        Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
-                    }
-#               endif
+
 
                     domainid_t domain = topic->domain;
                     if (out_buffer->curDomain != domain) {
@@ -247,9 +235,17 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #               endif
                     }
 
+
 #               ifdef SDDS_QOS_LATENCYBUDGET
-                    out_buffer->bufferOverflow = true;
+#                   if SDDS_QOS_DW_LATBUD < 65536
+                        ret = Time_getTime16(&out_buffer->sendDeadline);
+#                   else
+                        ret = Time_getTime32(&out_buffer->sendDeadline);
+#                   endif
+                        out_buffer->latBudDuration = self->qos.latBudDuration;
+                        Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
 #               endif
+
 
                     checkSending(out_buffer);
                     DataWriter_mutex_unlock();
