@@ -425,7 +425,13 @@ recvLoop(void* netBuff) {
             Log_error("%d Error while receiving a udp frame: %s\n", __LINE__, strerror(errno));
             continue;
         }
-
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#	ifdef FEATURE_SDDS_TRACING_RECV_NORMAL
+#		ifdef FEATURE_SDDS_TRACING_RECV_PAKET
+        Trace_point(SDDS_TRACE_EVENT_RECV_PAKET);
+#		endif
+#	endif
+#endif
         Log_debug("[%u]%i bytes received.\n", sock_type, (int) recv_size);
 
         struct UDPLocator_t sloc;
