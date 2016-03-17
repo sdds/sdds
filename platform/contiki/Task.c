@@ -16,12 +16,13 @@ Task_checkTimer();
 
 struct Task_struct {
     struct etimer timer;
-    void (* cb)(void* obj);
+    void (* callback)(void* obj);
     void* data;
     SSW_TaskMode_t mode;
     SDDS_usec_t usec_interval;
     clock_time_t sec_interval;
     Task next;
+    bool active;
 };
 
 static Task Task_list = NULL;
@@ -76,8 +77,9 @@ Task_init(Task _this, void (* callback)(void* obj), void* data) {
     if (_this == NULL || callback == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
-    _this->cb = callback;
+    _this->callback = callback;
     _this->data = data;
+    _this->active = false;
 
     return SDDS_SSW_RT_OK;
 }
@@ -92,9 +94,16 @@ Task_setData(Task _this,  void* data) {
     return SDDS_SSW_RT_OK;
 }
 
+bool
+Task_isRunning(Task _this)
+{
+    assert (_this);
+    return _this->active;
+}
+
 ssw_rc_t
 Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode) {
-    if (_this == NULL || _this->cb == NULL) {
+    if (_this == NULL || _this->callback == NULL) {
         return SDDS_SSW_RT_FAIL;
     }
     _this->usec_interval = usec;
@@ -102,7 +111,7 @@ Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode) {
     _this->mode = mode;
 
     etimer_set(&(_this->timer), _this->sec_interval);
-
+    _this->active = true;
     return SDDS_SSW_RT_OK;
 }
 
@@ -112,7 +121,7 @@ Task_stop(Task _this) {
         return SDDS_SSW_RT_FAIL;
     }
     etimer_stop(&(_this->timer));
-
+    _this->active = false;
     return SDDS_SSW_RT_OK;
 }
 
@@ -159,9 +168,12 @@ Task_checkTimer() {
 
     while (it != NULL) {
         if (etimer_expired(&(it->timer))) {
-            it->cb(it->data);
+            it->callback(it->data);
             if (it->mode == SDDS_SSW_TaskMode_repeat) {
                 etimer_reset(&(it->timer));
+            }
+            else {
+                it->active = false;
             }
         }
 

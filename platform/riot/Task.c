@@ -14,10 +14,11 @@ struct Task_struct {
 
     vtimer_t timer;
 
-    void (* cb)(void* obj);
+    void (* callback)(void* obj);
     void* data;
     timex_t interval;
     SSW_TaskMode_t mode;
+    bool active;
 };
 
 static int TaskMngPid;
@@ -25,7 +26,7 @@ static int TaskMngPid;
 /*void Task_callback(void* task){
     Task t = (Task) task;
 
-    t->cb(t->data);
+    t->callback(t->data);
    }*/
 
 void*
@@ -41,7 +42,10 @@ TaskMngLoop(void* foo) {
         if(t->mode == SDDS_SSW_TaskMode_repeat) {
             vtimer_set_msg(&t->timer, t->interval, TaskMngPid, 0, t);
         }
-        t->cb(t->data);
+        t->callback(t->data);
+        if (t->mode == SDDS_SSW_TaskMode_single)  {
+            t->active = false;
+        }
     }
 }
 
@@ -82,10 +86,18 @@ Task_init(Task _this, void (* callback)(void* obj), void* data) {
         return SDDS_SSW_RT_FAIL;
     }
 
-    _this->cb = callback;
+    _this->callback = callback;
     _this->data = data;
+    _this->active = false;
 
     return SDDS_SSW_RT_OK;
+}
+
+bool
+Task_isRunning(Task _this)
+{
+    assert (_this);
+    return _this->active;
 }
 
 ssw_rc_t
@@ -95,12 +107,14 @@ Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode) {
     _this->interval.microseconds = usec;
 
     vtimer_set_msg(&_this->timer, _this->interval, TaskMngPid, 0, _this);
+    _this->active = true;
     return SDDS_SSW_RT_OK;
 }
 
 ssw_rc_t
 Task_stop(Task _this) {
     vtimer_remove(&_this->timer);
+    _this->active = false;
     return SDDS_SSW_RT_OK;
 }
 
