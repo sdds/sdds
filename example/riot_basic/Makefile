@@ -68,7 +68,6 @@ USEMODULE += gnrc_ndp
 USEMODULE += prng_minstd
 
 CFLAGS += -DGNRC_IPV6_NETIF_ADDR_NUMOF=12
-CFLAGS += -DENABLE_DEBUG=1
 
 
 FEATURES_OPTIONAL += transceiver
@@ -80,7 +79,7 @@ ifneq (,$(filter msb-430,$(BOARD)))
 endif
 ifneq (,$(filter msba2,$(BOARD)))
 	USEMODULE += sht11
-	USEMODULE += ltc4150
+#	USEMODULE += ltc4150
 	USEMODULE += mci
 	USEMODULE += random
 endif
