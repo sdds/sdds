@@ -25,7 +25,7 @@
  * The events are defined as gray code. So if you want
  * to measure a write or a read you need to set the
  * events in the order as they define here (from Top to Down)
- * The values of the IP-stack and the Ethernet driver are
+ * The values of appearnes IRQ, IP-stack and the Ethernet driver are
  * in commented at there right position for the diverend types
  * of the event.
  */
@@ -33,9 +33,14 @@
 
 #ifdef FEATURE_SDDS_TRACING_RECV_NORMAL
 
+
 #define SDDS_TRACE_EVENT_DUMMY_1            1u
 #define SDDS_TRACE_EVENT_DUMMY_2            3u
 #define SDDS_TRACE_EVENT_DUMMY_3           	2u
+
+// irq im KLernel 1u
+// ISR ETH 3u
+// lwIP 2u
 
 #ifdef FEATURE_SDDS_TRACING_RECV_PAKET
 #define SDDS_TRACE_EVENT_RECV_PAKET			6u
@@ -57,6 +62,10 @@
 
 
 #ifdef FEATURE_SDDS_TRACING_RECV_ISOLATED
+
+// irq in the kernel 1u
+// ISR ETH 3u
+// lwIP 2u
 
 #ifdef FEATURE_SDDS_TRACING_RECV_PAKET
 #define SDDS_TRACE_EVENT_RECV_PAKET			6u

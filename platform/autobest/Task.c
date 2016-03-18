@@ -175,7 +175,7 @@ stopTask(struct Task_struct* t) {
 static inline void
 deleteTask(struct Task_struct* t) {
     stopTask(t);
-    Memory_free(t);
+    //Memory_free(t);
 }
 
 static inline void
