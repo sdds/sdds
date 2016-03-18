@@ -144,7 +144,7 @@ Task_delete(Task _this) {
         return SDDS_SSW_RT_FAIL;
     }
     deleteTask(_this);
-    Memory_free(t);
+    Memory_free(_this);
     return SDDS_RT_OK;
 }
 
@@ -170,7 +170,7 @@ stopTask(struct Task_struct* t) {
     if(t->prev == taskList && t->next == NULL) {
         isTaskListEmpty = true;
     }
-    _this->isActive = false;
+    t->isActive = false;
 }
 
 static inline void
