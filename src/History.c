@@ -27,11 +27,6 @@ static Task blockTask;
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static rc_t
 s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr);
-
-//#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-static rc_t
-s_History_checkSeqNr_ReliableNack(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr);
-//#   endif
 #endif
 
 #if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
@@ -137,7 +132,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
     if (topic->seqNrBitSize > 0){ // topic has qos_reliability
         //  Check validity of sequence number
-        if (s_History_checkSeqNr_ReliableNack(self, topic, loc, seqNr) == SDDS_RT_FAIL){
+        if (s_History_checkSeqNr(self, topic, loc, seqNr) == SDDS_RT_FAIL){
             SNPS_discardSubMsg(buff);
             Locator_downRef(loc);
             Mutex_unlock(mutex);
@@ -249,78 +244,6 @@ sdds_History_dequeue(History_t* self) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static inline rc_t
 s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
-    uint8_t indexOfLoc = 0;
-    bool_t isInHashmap = false;
-
-    // check if locator is in list
-    for (int index=0; index<SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS; index++){
-        if (self->qos_locator[index] == loc){
-            indexOfLoc = index;
-            isInHashmap = true;
-            break;
-        }
-    }
-
-    // if not already in list, there has to be at least one free slot left
-    if (!isInHashmap){
-        for (int index=0; index<SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS; index++){
-            if (self->qos_locator[index] == 0){
-                //printf("\nHistory - new loc at: %d\n", index);
-                self->highestSeqNrbyLoc[index] = seqNr;
-                self->qos_locator[index] = loc;
-                return SDDS_RT_OK;
-            }
-        }
-    }
-
-    // check the validity of the new seqNr
-    switch(topic->seqNrBitSize){
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
-            if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
-            ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
-            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 15)) {
-                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
-                return SDDS_RT_OK;
-            }
-           break;
-#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
-            if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
-            ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
-            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 255)) {
-                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
-                return SDDS_RT_OK;
-            }
-           break;
-#   endif
-#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
-            if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
-            ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
-            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 65536)) {
-                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
-                return SDDS_RT_OK;
-            }
-           break;
-#   endif
-#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
-            if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
-            ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
-            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 4294967296)) {
-                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
-                return SDDS_RT_OK;
-            }
-           break;
-#   endif
-    }
-
-    return SDDS_RT_FAIL;
-}
-
-//#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-static inline rc_t
-s_History_checkSeqNr_ReliableNack(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
 
     uint8_t indexOfLoc = 0;
     bool_t isInHashmap = false;
@@ -338,7 +261,6 @@ s_History_checkSeqNr_ReliableNack(History_t* self, Topic_t* topic, Locator_t* lo
     if (!isInHashmap){
         for (int index=0; index<SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS; index++){
             if (self->qos_locator[index] == 0){
-                //printf("\nHistory - new loc at: %d\n", index);
                 self->highestSeqNrbyLoc[index] = seqNr;
                 self->qos_locator[index] = loc;
                 return SDDS_RT_OK;
@@ -351,7 +273,6 @@ s_History_checkSeqNr_ReliableNack(History_t* self, Topic_t* topic, Locator_t* lo
 
         if (seqNr > (self->highestSeqNrbyLoc[indexOfLoc]) ){
             uint8_t diff = (seqNr - self->highestSeqNrbyLoc[indexOfLoc]);
-            //printf("diff: %d, highestSeqNrbyLoc: %d, seqNr: %d \n", diff, self->highestSeqNrbyLoc[indexOfLoc], seqNr);
 
             // everything's alright
             if (diff == 1){
@@ -360,12 +281,12 @@ s_History_checkSeqNr_ReliableNack(History_t* self, Topic_t* topic, Locator_t* lo
             }
 
             // some seqNrs are missing, trying to insert in missing list
-            //printf("History - missing seqNr: %d\n", seqNr);
             SDDS_SEQNR_BIGGEST_TYPE candidate = seqNr - 1;
             bool_t candidateAlreadyInList;
 
             for (int slot=0; slot<SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; slot++) {
-                if (candidate < self->highestSeqNrbyLoc[indexOfLoc]) {
+                // is candidate <= previous received seqNr?
+                if (candidate <= self->highestSeqNrbyLoc[indexOfLoc]) {
                     break;
                 }
                 candidateAlreadyInList = 0;
@@ -399,14 +320,12 @@ s_History_checkSeqNr_ReliableNack(History_t* self, Topic_t* topic, Locator_t* lo
 
 
         if (seqNr < (self->highestSeqNrbyLoc[indexOfLoc])){
-//printf("  missingSeqNr: %d\n", seqNr);
             // check if received seqNr is one of the missing seqNrs in list
             for (int index=0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
                 if (self->missingSeqNrsByLoc[indexOfLoc][index] == seqNr
                 && self->missingSeqNrSlotIsUsed[indexOfLoc][index] == 1){
                     self->missingSeqNrSlotIsUsed[indexOfLoc][index] = 0;
                     self->missingSeqNrsByLoc[indexOfLoc][index] = 0;
-//printf("    missingSeqNr dequeued: %d\n", seqNr);
                     return SDDS_RT_OK;
                 }
             }
@@ -456,7 +375,6 @@ s_History_checkSeqNr_ReliableNack(History_t* self, Topic_t* topic, Locator_t* lo
 
     return SDDS_RT_FAIL;
 }
-//#   endif // end of QoS_Reliability reliableNack
 #endif // end of QoS_Reliability
 
 void
