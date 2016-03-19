@@ -321,6 +321,12 @@ DDS_DCPSParticipantDataWriter_write(
     addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
 #endif
 
+#ifdef DISCOVERY_UNICAST_SUBSCRIPTION
+    castType = SDDS_SNPS_CAST_UNICAST;
+    addr = "";
+    addrLen = 0;
+#endif
+
     rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
