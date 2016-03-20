@@ -5,7 +5,7 @@
     os = "linux"
     iface = "eth0"
     ip = "fe80::219:99ff:fede:9a7a"
-    port = "23234"
+    port = "23236"
 	protocol = "AF_INET6"
     >
 
@@ -35,12 +35,15 @@
     <role topic = "testqosreliabilitybig" type = "publisher" />
     <role topic = "testqosreliabilityhuge" type = "publisher" />
 
--->
 
-    <role topic = "testQosReliabilityBasicReliableNack" type = "publisher">
-        <subscriber ip="fe80::921b:eff:fe11:30e8"/>
+
+    <role topic = "testQosReliabilityBasicReliableAck" type = "publisher">
+        <subscriber ip="fe80::c0ef:62ff:fed4:d26a"/>
     </role>
-
+-->
+<role topic = "testQosReliabilityBasicReliableAck" type = "publisher">
+    <subscriber ip="fd29:144d:4196:94::46"/>
+</role>
 
 <!--
     <role topic = "testQosReliabilityBasicReliableAck" type = "publisher">
@@ -61,8 +64,7 @@
 <!--
     <role topic = "testQosReliabilitySmallReliableAck" type = "subscriber"/>
 -->
-    <role topic = "testQosReliabilitySmallReliableAck" type = "subscriber"/>
--->
+
 <!--
     <role topic = "testQosReliabilityBigReliableAck" type = "subscriber"/>
 
