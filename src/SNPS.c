@@ -41,8 +41,8 @@ _writeExtTopic(NetBuffRef_t* ref, topicid_t topic);
 //  the subMsg-type in the given subMsg_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_evalSubMsg(NetBuffRef_t* ref, subMsg_t* type) {
-    if (ret == NULL || type == NULL) {
+SNPS_evalSueMsg(NetBuffRef_t* ref, subMsg_t* type) {
+    if (ref == NULL || type == NULL) {
         return SDDS_RT_FAIL;
     }
 
@@ -119,7 +119,7 @@ SNPS_evalSubMsg(NetBuffRef_t* ref, subMsg_t* type) {
 
 rc_t
 SNPS_discardSubMsg(NetBuffRef_t* ref) {
-    if (ret == NULL) {
+    if (ref == NULL) {
         return SDDS_RT_FAIL;
     }
     if (ref->subMsgCount <= 0) {
@@ -1012,7 +1012,7 @@ SNPS_writeAddress(NetBuffRef_t* ref, castType_t castType, addrType_t addrType, u
 
 rc_t
 SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, Locator_t** addr) {
-    if (ref == NULL || sddrCast == NULL || addrType == NULL || addr == NULL) {
+    if (ref == NULL || addrCast == NULL || addrType == NULL || addr == NULL) {
         return SDDS_RT_FAIL;
     }
     rc_t ret;
