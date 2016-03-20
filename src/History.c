@@ -341,6 +341,7 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
             if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
             ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
             ||  (self->highestSeqNrbyLoc[indexOfLoc] == 15)) {
+                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
                 return SDDS_RT_OK;
             }
            break;
@@ -349,6 +350,7 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
             if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
             ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
             ||  (self->highestSeqNrbyLoc[indexOfLoc] == 255)) {
+                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
                 return SDDS_RT_OK;
             }
            break;
@@ -358,6 +360,7 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
             if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
             ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
             ||  (self->highestSeqNrbyLoc[indexOfLoc] == 65536)) {
+                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
                 return SDDS_RT_OK;
             }
            break;
@@ -367,6 +370,7 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
             if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
             ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
             ||  (self->highestSeqNrbyLoc[indexOfLoc] == 4294967296)) {
+                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
                 return SDDS_RT_OK;
             }
            break;

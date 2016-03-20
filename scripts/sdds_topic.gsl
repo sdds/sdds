@@ -123,6 +123,7 @@ function resolve_topic_config (topic)
                 endif
             endif
         elsif config.type = "qos_history"
+            config.depth ?= "1"
             my.topic.history_depth = config.depth
         else
             echo "E: Invalid config '$(config.type)' in topic $(topic.name:)"
