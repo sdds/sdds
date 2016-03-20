@@ -133,13 +133,11 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
     if (topic->seqNrBitSize > 0){ // topic has qos_reliability
         //  Check validity of sequence number
         if (s_History_checkSeqNr(self, topic, loc, seqNr) == SDDS_RT_FAIL){
-            printf("  invalid seqNr %d, drop sample\n", seqNr);
             SNPS_discardSubMsg(buff);
             Locator_downRef(loc);
             Mutex_unlock(mutex);
             return SDDS_RT_OK;
         }
-            printf("valid seqNr %d, equeueing sample\n", seqNr);
     }
 #endif //  End of SDDS_HAS_QOS_RELIABILITY
 
