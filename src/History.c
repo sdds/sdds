@@ -221,7 +221,7 @@ sdds_History_dequeue(History_t* self) {
     }
     //  TODO: change the if statements to modulo calculations to reduce code.
     //  Move the output needle to depth to indicate that the queue is empty.
-    if (self->out_needle >= self->in_needle) {
+    if (self->out_needle == self->in_needle) {
         self->out_needle = self->depth;
     }
     //  If the queue was previously full set the input needle.
@@ -387,6 +387,19 @@ sdds_History_print(History_t* self) {
     printf("    depth: %d,\n", self->depth);
     printf("    in needle: %d,\n", self->in_needle);
     printf("    out needle: %d,\n", self->out_needle);
+    printf("    isEmpty: %d,\n", self->out_needle == self->depth);
+    printf("    isFull: %d,\n", self->in_needle == self->depth);
+    for (int i = 0; i < self->depth; i++)
+        printf("+---");
+    printf ("+\n");
+    for (int i = 0; i < self->depth; i++)
+        printf("| %c ", s_History_full (self) || self->out_needle < self->depth && (
+                        (self->in_needle > self->out_needle && i >= self->out_needle && i < self->in_needle) ||
+                        (self->in_needle < self->out_needle && (i >= self->out_needle || i < self->in_needle)))   ? 'X': ' ');
+    printf ("|\n");
+    for (int i = 0; i < self->depth; i++)
+        printf("+---");
+    printf ("+\n");
 #ifdef SDDS_HAS_QOS_RELIABILITY
     printf("    samples:\n");
     for (int i=0; i<self->in_needle; i++){
