@@ -1,9 +1,33 @@
 #include <unistd.h>
 #include "linux_steffen2_sdds_impl.h"
 #include "unistd.h"
+#include <pthread.h>
+
+
+
+Reliable_DataWriter_t* writer_basic_p;
+Reliable_DataWriter_t* writer_small_p;
+Reliable_DataWriter_t* writer_big_p;
+Reliable_DataWriter_t* writer_huge_p;
+DataReader_t* reader_basic_p;
+DataReader_t* reader_small_p;
+DataReader_t* reader_big_p;
+DataReader_t* reader_huge_p;
+
+
+void *getKeyboardInput(){
+	while (1) {
+		scanf("%d", &g_processingNetworkData);
+
+		printf("INFO: Processing of data from nebuffer is set to %d\n", g_processingNetworkData);
+	}
+}
 
 int main()
 {
+
+	g_processingNetworkData = 1;
+
 	DDS_ReturnCode_t ret;
 
 	if (sDDS_init() == SDDS_RT_FAIL) {
@@ -11,13 +35,22 @@ int main()
 	}
 	Log_setLvl(5);
 
+	pthread_t p1;
+
+	//pthread_create (&p1, NULL, getKeyboardInput, NULL);
+
+
 	//TestQosReliabilityBasicReliableNack testQosReliabilityBasicReliableNack_pub;
 	//TestQosReliabilitySmallReliableNack testQosReliabilitySmallReliableNack_pub;
 	//TestQosReliabilityBigReliableNack testQosReliabilityBigReliableNack_pub;
 	//TestQosReliabilityHugeReliableNack testQosReliabilityHugeReliableNack_pub;
 
-	TestQosReliabilityBasicReliableNack testQosReliabilityBasicReliableNack_sub;
-	TestQosReliabilityBasicReliableNack* testQosReliabilityBasicReliableNack_sub_p = &testQosReliabilityBasicReliableNack_sub;
+	TestQosReliabilityBasicReliableAck testQosReliabilityBasicReliableAck_sub;
+	TestQosReliabilityBasicReliableAck* testQosReliabilityBasicReliableAck_sub_p = &testQosReliabilityBasicReliableAck_sub;
+
+	//TestQosReliabilityBasicBesteffort testQosReliabilityBasicBesteffort_sub;
+	//TestQosReliabilityBasicBesteffort* testQosReliabilityBasicBesteffort_sub_p = &testQosReliabilityBasicBesteffort_sub;
+
 	//TestQosReliabilitySmallReliableNack testQosReliabilitySmallReliableNack_sub;
 	//TestQosReliabilitySmallReliableNack* testQosReliabilitySmallReliableNack_sub_p = &testQosReliabilitySmallReliableNack_sub;
 	//TestQosReliabilityBigReliableNack testQosReliabilityBigReliableNack_sub;
@@ -42,7 +75,7 @@ int main()
 		//DDS_TestQosReliabilityBigReliableNackDataWriter_write (g_TestQosReliabilityBigReliableNack_writer, &testQosReliabilityBigReliableNack_pub, NULL);
 		//DDS_TestQosReliabilityHugeReliableNackDataWriter_write (g_TestQosReliabilityHugeReliableNack_writer, &testQosReliabilityHugeReliableNack_pub, NULL);
 
-		retBasic = DDS_TestQosReliabilityBasicReliableNackDataReader_take_next_sample (g_TestQosReliabilityBasicReliableNack_reader, &testQosReliabilityBasicReliableNack_sub_p, NULL);
+		//retBasic = DDS_TestQosReliabilityBasicReliableAckDataReader_take_next_sample (g_TestQosReliabilityBasicReliableAck_reader, &testQosReliabilityBasicReliableAck_sub_p, NULL);
 		//retSmall = DDS_TestQosReliabilitySmallReliableNackDataReader_take_next_sample (g_TestQosReliabilitySmallReliableNack_reader, &testQosReliabilitySmallReliableNack_sub_p, NULL);
 		//retBig = DDS_TestQosReliabilityBigReliableNackDataReader_take_next_sample (g_TestQosReliabilityBigReliableNack_reader, &testQosReliabilityBigReliableNack_sub_p, NULL);
 		//retHuge = DDS_TestQosReliabilityHugeReliableNackDataReader_take_next_sample (g_TestQosReliabilityHugeReliableNack_reader, &testQosReliabilityHugeReliableNack_sub_p, NULL);
