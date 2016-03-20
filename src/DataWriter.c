@@ -276,10 +276,13 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #   endif
         {
 #endif
-            if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
+            ret = SNPS_writeData(out_buffer, topic->Data_encode, data);
+            if (ret != SDDS_RT_OK) {
                 Log_error("(%d) SNPS_writeData failed\n", __LINE__);
 #ifdef SDDS_QOS_LATENCYBUDGET
-                out_buffer->bufferOverflow = true;
+                    if (ret == SDDS_RT_FAIL) {
+                        out_buffer->bufferOverflow = true;
+                    }
 #endif
             }
 #ifdef SDDS_HAS_QOS_RELIABILITY
