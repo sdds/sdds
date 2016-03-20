@@ -38,7 +38,7 @@ int main()
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
 	}
-	Log_setLvl(0);
+	Log_setLvl(6);  // Disable logs, set to 0 for to see everything.
 
 .       for project.role
 .           for project.topic where role.topic = topic.name
@@ -76,8 +76,12 @@ int main()
 .           for project.topic where role.topic = topic.name
 .              if role.type = "publisher"
         ret = DDS_$(topic.c_name:)DataWriter_write (g_$(topic.c_name:)_writer, &$(topic.c_name:c)_pub, NULL);
-        if (ret != DDS_RETCODE_OK)
+        if (ret != DDS_RETCODE_OK) {
             printf ("Failed to send topic $(topic.name)\\n");
+        }
+        else {
+            printf ("Send a $(topic.name) sample\\n");
+        }
 .           elsif role.type = "subscriber"
         ret = DDS_$(topic.c_name:)DataReader_take_next_sample(g_$(topic.c_name:)_reader,
                 &$(topic.c_name:c)_sub_p, NULL);
