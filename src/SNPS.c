@@ -421,7 +421,7 @@ SNPS_readTopic(NetBuffRef_t* ref, topicid_t* topic) {
 
 rc_t
 SNPS_writeData(NetBuffRef_t* ref, TopicMarshalling_encode_fn encode_fn, Data d) {
-    if (ref == NULL) {
+    if (ref == NULL || d == NULL) {
         return SDDS_RT_FAIL;
     }
     size_t writtenBytes = 0;
