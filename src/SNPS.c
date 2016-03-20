@@ -41,7 +41,7 @@ _writeExtTopic(NetBuffRef_t* ref, topicid_t topic);
 //  the subMsg-type in the given subMsg_t*. Returns SDDS_RT_OK on success.
 
 rc_t
-SNPS_evalSueMsg(NetBuffRef_t* ref, subMsg_t* type) {
+SNPS_evalSubMsg(NetBuffRef_t* ref, subMsg_t* type) {
     if (ref == NULL || type == NULL) {
         return SDDS_RT_FAIL;
     }
