@@ -462,8 +462,10 @@ Security_kdf(HandshakeHandle *h) {
     memcpy(data + sizeof(counter) + sizeof(h->info.shared_secret), h->info.nonce, sizeof(h->info.nonce));
 #endif
 
+    Security_print_key(data, size);
+
     sha1(hash, data, size*8);
-    Security_print_key(hash, sizeof(hash));
+    printf("nein\n");
       
     if(i == reps - 1 && r) {
       memcpy(h->info.key_material + (i*SHA1_HASH_BYTES), hash, r);    
