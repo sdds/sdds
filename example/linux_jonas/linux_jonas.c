@@ -13,12 +13,7 @@ int main(void) {
 	}
 	Log_setLvl(0);
 
-  for (;;) {
-
-    Security_init();
-    sleep(5);
-
-  }
+  Security_kdc();
 
 	return 0;
 }

@@ -168,6 +168,20 @@ sDDS_init (void)
 
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
     assert(Security_init() == SDDS_RT_OK);
+
+#ifdef SDDS_SECURITY_KDC
+
+  Security_kdc_init();
+
+.for project->access_control.ac_topic as t
+.  for t.ac_application as a
+
+  Security_kdc_add_rule($(t.id), "$(a.id)");
+
+.  endfor
+.endfor
+
+#endif
 #endif
 
     return ret;
