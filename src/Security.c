@@ -256,13 +256,11 @@ DDS_Security_Authentication_process_handshake(
       memcpy(mactag_data_offset, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
       mactag_data_offset += sizeof(handshake_handle->info.nonce);
       memcpy(mactag_data_offset, handshake_handle->info.remote_nonce, sizeof(handshake_handle->info.remote_nonce));
+
       // calculate xcbc mac
       Security_aes_xcbc_mac(handshake_handle->info.key_material + AES_128_KEY_LENGTH, 
                             mactag_data, sizeof(mactag_data), 
                             handshake_handle->info.mactag);
-
-      printf("mactag sensor ");
-      Security_print_key(handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
 
       strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_MACTAG); 
       memcpy(handshake_message_out->props[0].value, handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
@@ -289,14 +287,11 @@ DDS_Security_Authentication_process_handshake(
         memcpy(mactag_data_offset, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
         mactag_data_offset += sizeof(handshake_handle->info.nonce);
         memcpy(mactag_data_offset, handshake_handle->info.remote_nonce, sizeof(handshake_handle->info.remote_nonce));
+
         // calculate xcbc mac
         Security_aes_xcbc_mac(handshake_handle->info.key_material + AES_128_KEY_LENGTH, 
                               mactag_data, sizeof(mactag_data), 
                               handshake_handle->info.mactag);
-
-        printf("mactag kdc ");
-        Security_print_key(handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
-
 
         strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_MACTAG); 
         memcpy(handshake_message_out->props[0].value, handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
@@ -387,14 +382,11 @@ Security_verify_mactag(HandshakeHandle *h) {
   memcpy(mactag_data_offset, h->info.remote_nonce, sizeof(h->info.remote_nonce));
   mactag_data_offset += sizeof(h->info.remote_nonce);
   memcpy(mactag_data_offset, h->info.nonce, sizeof(h->info.nonce));
+
   // calculate xcbc mac
   Security_aes_xcbc_mac(h->info.key_material + AES_128_KEY_LENGTH, 
                         mactag_data, sizeof(mactag_data), 
                         mactag);
-
-  Security_print_key(mactag_data, sizeof(mactag_data));
-  Security_print_key(mactag, sizeof(mactag));
-  Security_print_key(h->info.mactag, sizeof(h->info.mactag));
 
   if(memcmp(mactag, h->info.mactag, XCBC_MAC_SIZE)) {
     return SDDS_RT_FAIL;

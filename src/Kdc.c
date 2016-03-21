@@ -119,16 +119,40 @@ Security_kdc() {
 rc_t
 Security_send_crypto_tokens(HandshakeHandle *h) {
 
-  ParticipantCryptoToken tok;
+  DDS_ReturnCode_t r;
+  DDS_ParticipantVolatileMessage msg = { 0 };
   Ac_topic *rule = ac_list->first_fn(ac_list);
   List_t *apps;
   char *app;
+  uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
 
   while(rule) {
     app = rule->applist->first_fn(rule->applist);
     while(app) {
       if(strcmp(app, h->info.uid) == 0) {
-        printf("send key for topic %d to %s\n",rule->tid , h->info.uid);
+      
+        printf("send key for topic %d to %s\n", rule->tid, h->info.uid);      
+        memcpy(key_material, rule->key_material, sizeof(rule->key_material));
+        aes_128_set_padded_key(h->info.key_material, AES_128_KEY_LENGTH);        
+        aes_128_padded_encrypt(key_material, sizeof(key_material));
+      
+        strcpy(msg.message_class_id, GMCLASSID_SECURITY_PARTICIPANT_CRYPTO_TOKENS);
+        msg.key = rule->tid;
+        strcpy(msg.message_data.props[0].key, SDDS_SECURITY_PROP_ID);
+        strcpy(msg.message_data.props[0].value, h->info.uid); 
+        strcpy(msg.message_data.props[1].key, SDDS_SECURITY_PROP_KEY_MATERIAL);
+        memcpy(msg.message_data.props[1].value, key_material, sizeof(key_material)); 
+
+        r = DDS_ParticipantVolatileMessageDataWriter_write(g_ParticipantVolatileMessage_writer,
+                                                            &msg,
+                                                            NULL);  
+
+        if(r == DDS_RETCODE_OK) {
+          printf("sent crypto token\n");
+        } else {
+          printf("failed to send crypto token\n");
+        }
+        
       }
       app = rule->applist->next_fn(rule->applist);
     }

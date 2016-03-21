@@ -16,6 +16,8 @@
 #define SDDS_MAX_AUTH_ITERATIONS 100
 
 #define GMCLASSID_SECURITY_AUTH_HANDSHAKE "dds.sec.auth"
+#define GMCLASSID_SECURITY_PARTICIPANT_CRYPTO_TOKENS "dds.sec.ct"
+
 #define SDDS_SECURITY_CLASS_AUTH_REQ "DDS:Auth:Req"
 #define SDDS_SECURITY_CLASS_AUTH_REP "DDS:Auth:Rep"
 #define SDDS_SECURITY_PROP_ID "dds.sec.id"
@@ -25,6 +27,7 @@
 #define SDDS_SECURITY_PROP_SIG_S "dds.sec.s"
 #define SDDS_SECURITY_PROP_NONCE "dds.sec.nonce"
 #define SDDS_SECURITY_PROP_MACTAG "dds.sec.mactag"
+#define SDDS_SECURITY_PROP_KEY_MATERIAL "dds.sec.k"
 
 #define SDDS_SECURITY_KDF_KEY_BYTES 32
 
@@ -58,7 +61,6 @@ typedef struct {
 } Ac_topic;
 
 typedef DataHolder Token;
-typedef Token ParticipantCryptoToken;
 typedef Token HandshakeMessageToken;
 typedef SSW_NodeID_t IdentityHandle;
 typedef uint16_t MessageIdentity;
