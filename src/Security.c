@@ -1,42 +1,26 @@
 #include "sDDS.h"
-#include "os-ssal/aes-128.h"
+
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
 
 static MessageIdentity msgid;
-
-#ifdef SDDS_SECURITY_KDC
-static HandshakeHandle g_handles[SDDS_SECURITY_HANDSHAKE_MAX];
-#else  
 static HandshakeHandle g_handle;
-#endif    
 
 rc_t 
 Security_init() {
-
-  DDS_ReturnCode_t r;  
-
-#ifdef SDDS_SECURITY_KDC
-
-  r = Security_kdc();    
-
-#else  
-
-  r = Security_auth();
-
-  if(r = SDDS_RT_FAIL) {
-    return r;
+  
+  #ifndef SDDS_SECURITY_KDC
+  if(Security_auth() == SDDS_RT_FAIL) {
+    return SDDS_RT_FAIL;
   }
 
-  SharedSecretHandle ss_handle = DDS_Security_Authentication_get_shared_secret(
-                                              &g_handle, NULL); 
+  /* TODO */
 
-#endif    
+  #endif
 
-  return r;
+  return SDDS_RT_OK;
 
 }
 
-#ifndef SDDS_SECURITY_KDC 
 rc_t 
 Security_auth() {
 
@@ -141,165 +125,6 @@ Security_auth() {
 
 }
 
-#else 
-
-rc_t 
-Security_kdc() {
-
-  DDS_S_Result_t res = VALIDATION_FAILED;
-  DDS_ReturnCode_t r;
-  SecurityException ex;
-  HandshakeHandle *handle;  
-  HandshakeMessageToken msg_tok_out;
-  HandshakeMessageToken msg_tok_in;
-  DDS_ParticipantStatelessMessage msg;
-  DDS_ParticipantStatelessMessage *msg_ptr = &msg;
-  DDS_SampleInfo info;
-
-  while(1) {
- 
-    Thread_sleep(NULL, SDDS_SECURITY_RECEIVE_SLEEP_SEC);
-    r = DDS_ParticipantStatelessMessageDataReader_take_next_sample(
-                                 g_ParticipantStatelessMessage_reader,
-                                 &msg_ptr,
-                                 &info);
-
-    if(r != DDS_RETCODE_OK) {
-      continue;
-    }    
-
-    msg_tok_in = msg.message_data;
-        
-    if(strcmp(msg.message_data.class_id, SDDS_SECURITY_CLASS_AUTH_REQ) == 0) {
-      printf("request from node\n");
-
-      res = DDS_Security_Authentication_begin_handshake_reply(
-        handle,
-        &msg_tok_out, 
-        &msg_tok_in, 
-        &msg.key, 
-        NULL, 
-        &ex 
-      );
-
-      switch(res) {
-
-        case VALIDATION_OK:
-          printf("VALIDATION_OK\n");
-          SharedSecretHandle ss_handle = DDS_Security_Authentication_get_shared_secret(
-                                                      handle, &ex); 
-
-        break;
-
-        case VALIDATION_FAILED:
-          printf("VALIDATION_FAILED\n");
-          Security_cleanup_handshake_handle(handle);
-        break;
-
-        case VALIDATION_PENDING_HANDSHAKE_MESSAGE: 
-          // send reply token
-          msg.msgid = msgid++;
-          strcpy((char *) msg.message_class_id, GMCLASSID_SECURITY_AUTH_HANDSHAKE);  
-          msg.message_data = msg_tok_out;
-          r = DDS_ParticipantStatelessMessageDataWriter_write(g_ParticipantStatelessMessage_writer,
-                                                              &msg,
-                                                              NULL);  
-          if(r == DDS_RETCODE_OK) {
-            printf("sent reply token\n");
-          } else {
-            printf("failed to send reply\n");
-            Security_cleanup_handshake_handle(handle);
-          }
-        break;  
-
-        case VALIDATION_OK_FINAL_MESSAGE:
-          // send final token
-          msg.msgid = msgid++;
-          strcpy((char *) msg.message_class_id, GMCLASSID_SECURITY_AUTH_HANDSHAKE);            
-          msg.message_data = msg_tok_out;
-          r = DDS_ParticipantStatelessMessageDataWriter_write(g_ParticipantStatelessMessage_writer,
-                                                              &msg,
-                                                              NULL);  
-          if(r == DDS_RETCODE_OK) {
-            printf("sent final token\n");
-          } else {
-            printf("failed to send final token\n");
-            Security_cleanup_handshake_handle(handle);
-          }
-        break;
-      }
-
-    } else if(strcmp(msg.message_data.class_id, SDDS_SECURITY_CLASS_AUTH_REP) == 0) {
-      printf("reply from node\n");
-      
-      if((handle = Security_get_handshake_handle(&msg.key)) == NULL) {
-        printf("can't get handle\n");
-        continue;
-      }
-      
-      res = DDS_Security_Authentication_process_handshake(
-        &msg_tok_out,
-        &msg_tok_in,
-        handle,
-        &ex
-      );
-
-      switch(res) {
-
-        case VALIDATION_OK:
-          printf("VALIDATION_OK\n");
-        break;
-
-        case VALIDATION_FAILED:
-          printf("VALIDATION_FAILED\n");
-          Security_cleanup_handshake_handle(handle);
-        break;
-
-        case VALIDATION_PENDING_HANDSHAKE_MESSAGE: 
-          // send reply token
-          msg.msgid = msgid++;
-          strcpy((char *) msg.message_class_id, GMCLASSID_SECURITY_AUTH_HANDSHAKE);  
-          msg.message_data = msg_tok_out;
-          r = DDS_ParticipantStatelessMessageDataWriter_write(g_ParticipantStatelessMessage_writer,
-                                                              &msg,
-                                                              NULL);  
-          if(r == DDS_RETCODE_OK) {
-            printf("sent reply token\n");
-          } else {
-            printf("failed to send reply\n");
-            Security_cleanup_handshake_handle(handle);
-          }
-        break;  
-
-        case VALIDATION_OK_FINAL_MESSAGE:
-          // send final token
-          msg.msgid = msgid++;
-          strcpy((char *) msg.message_class_id, GMCLASSID_SECURITY_AUTH_HANDSHAKE);            
-          msg.message_data = msg_tok_out;
-          r = DDS_ParticipantStatelessMessageDataWriter_write(g_ParticipantStatelessMessage_writer,
-                                                              &msg,
-                                                              NULL);  
-          if(r == DDS_RETCODE_OK) {
-            printf("sent final token\n");
-          } else {
-            printf("failed to send final token\n");
-            Security_cleanup_handshake_handle(handle);
-          }
-        break;
-      }
-
-    } else {
-      continue;
-    }
-
-  }
-
-
-  return SDDS_RT_OK;
-
-}
-#endif
-
 DDS_S_Result_t 
 DDS_Security_Authentication_begin_handshake_request(
 	HandshakeHandle *handshake_handle, /* inout (fixed length) */
@@ -323,7 +148,6 @@ DDS_Security_Authentication_begin_handshake_request(
 
 }
 
-#ifdef SDDS_SECURITY_KDC
 DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
 	HandshakeHandle *handshake_handle, /* inout (fixed length) */
 	HandshakeMessageToken *handshake_message_out, /* inout (variable length) */
@@ -343,8 +167,8 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
 
   // fetch remote id and public key from handshake_message_in
   strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, CLASS_ID_STRLEN);
-  Security_get_bytes(handshake_handle->info.public_key.x, handshake_message_in->props[1].value);
-  Security_get_bytes(handshake_handle->info.public_key.y, handshake_message_in->props[2].value);
+  Security_get_bytes(handshake_handle->info.public_key.x, handshake_message_in->props[1].value, sizeof(handshake_handle->info.public_key.x));
+  Security_get_bytes(handshake_handle->info.public_key.y, handshake_message_in->props[2].value, sizeof(handshake_handle->info.public_key.y));
 
   // reply with id and public key in handshake_message_out
   strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
@@ -355,7 +179,6 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
   return VALIDATION_PENDING_HANDSHAKE_MESSAGE;
 
 }
-#endif
 
 DDS_S_Result_t 
 DDS_Security_Authentication_process_handshake(
@@ -366,16 +189,17 @@ DDS_Security_Authentication_process_handshake(
 ) {
   
   DDS_S_Result_t res = VALIDATION_FAILED;
+  uint8_t mactag_data[NUM_ECC_DIGITS]; 
+  uint8_t *mactag_data_offset;
 
   switch (handshake_handle->state) {
 
     case SDDS_SECURITY_HANDSHAKE_STATE_0:
-      res = VALIDATION_PENDING_HANDSHAKE_MESSAGE;
 
       // fetch remote id and public key from handshake_message_in
       strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, CLASS_ID_STRLEN);
-      Security_get_bytes(handshake_handle->info.public_key.x, handshake_message_in->props[1].value);
-      Security_get_bytes(handshake_handle->info.public_key.y, handshake_message_in->props[2].value);
+      Security_get_bytes(handshake_handle->info.public_key.x, handshake_message_in->props[1].value, sizeof(handshake_handle->info.public_key.x));
+      Security_get_bytes(handshake_handle->info.public_key.y, handshake_message_in->props[2].value, sizeof(handshake_handle->info.public_key.y));
 
       // reply with signature and nonce in handshake_message_out
       getRandomBytes(handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
@@ -383,17 +207,18 @@ DDS_Security_Authentication_process_handshake(
       handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_SIG_R, SDDS_SECURITY_USER_CERT_SIG_R}; 
       handshake_message_out->props[1] = (Property) {SDDS_SECURITY_PROP_SIG_S, SDDS_SECURITY_USER_CERT_SIG_S}; 
       strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_NONCE); 
-      strncpy(handshake_message_out->props[2].value, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
+      memcpy(handshake_message_out->props[2].value, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
 
       handshake_handle->state = SDDS_SECURITY_HANDSHAKE_STATE_1;
+      res = VALIDATION_PENDING_HANDSHAKE_MESSAGE;
     break;
 
     case SDDS_SECURITY_HANDSHAKE_STATE_1:
 
       // fetch remote signature and nonce from handshake_message_in
-      Security_get_bytes(handshake_handle->info.signature_r, handshake_message_in->props[0].value);
-      Security_get_bytes(handshake_handle->info.signature_s, handshake_message_in->props[1].value);
-      Security_get_bytes(handshake_handle->info.remote_nonce, handshake_message_in->props[2].value);
+      Security_get_bytes(handshake_handle->info.signature_r, handshake_message_in->props[0].value, sizeof(handshake_handle->info.signature_r));
+      Security_get_bytes(handshake_handle->info.signature_s, handshake_message_in->props[1].value, sizeof(handshake_handle->info.signature_s));
+      memcpy(handshake_handle->info.remote_nonce, handshake_message_in->props[2].value, sizeof(handshake_handle->info.remote_nonce));
 
       // verify user certificate
       if(Security_verify_certificate(handshake_handle) == SDDS_RT_FAIL) {
@@ -422,11 +247,21 @@ DDS_Security_Authentication_process_handshake(
       handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_SIG_R, SDDS_SECURITY_USER_CERT_SIG_R}; 
       handshake_message_out->props[1] = (Property) {SDDS_SECURITY_PROP_SIG_S, SDDS_SECURITY_USER_CERT_SIG_S}; 
       strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_NONCE); 
-      strncpy(handshake_message_out->props[2].value, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
+      memcpy(handshake_message_out->props[2].value, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
 #else
       // reply with mactag in handshake_message_out
       strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
-      handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_MACTAG, "bla"};
+      mactag_data_offset = mactag_data;
+      memcpy(mactag_data_offset, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
+      mactag_data_offset += sizeof(handshake_handle->info.nonce);
+      memcpy(mactag_data_offset, handshake_handle->info.remote_nonce, sizeof(handshake_handle->info.remote_nonce));
+      // calculate xcbc mac
+      Security_aes_xcbc_mac(handshake_handle->info.key_material + AES_128_KEY_LENGTH, 
+                            mactag_data, sizeof(mactag_data), 
+                            handshake_handle->info.mactag);
+
+      strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_MACTAG); 
+      memcpy(handshake_message_out->props[0].value, handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
 #endif
       handshake_handle->state = SDDS_SECURITY_HANDSHAKE_STATE_2;
       res = VALIDATION_PENDING_HANDSHAKE_MESSAGE;
@@ -434,7 +269,7 @@ DDS_Security_Authentication_process_handshake(
 
     case SDDS_SECURITY_HANDSHAKE_STATE_2:
       // fetch remote mactag from handshake_message_in
-      Security_get_bytes(handshake_handle->info.mactag, handshake_message_in->props[0].value);
+      memcpy(handshake_handle->info.mactag, handshake_message_in->props[0].value, sizeof(handshake_handle->info.mactag));
 
       // verify mactag
       if(Security_verify_mactag(handshake_handle) == SDDS_RT_FAIL) {
@@ -445,7 +280,16 @@ DDS_Security_Authentication_process_handshake(
 #ifdef SDDS_SECURITY_KDC
         // reply with final mactag in handshake_message_out
         strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
-        handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_MACTAG, "bla"};
+        mactag_data_offset = mactag_data;
+        memcpy(mactag_data_offset, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
+        mactag_data_offset += sizeof(handshake_handle->info.nonce);
+        memcpy(mactag_data_offset, handshake_handle->info.remote_nonce, sizeof(handshake_handle->info.remote_nonce));
+        // calculate xcbc mac
+        Security_aes_xcbc_mac(handshake_handle->info.key_material + AES_128_KEY_LENGTH, 
+                              mactag_data, sizeof(mactag_data), 
+                              handshake_handle->info.mactag);
+      strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_MACTAG); 
+      memcpy(handshake_message_out->props[0].value, handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
         res = VALIDATION_OK_FINAL_MESSAGE;
 #else 
         res = VALIDATION_OK;
@@ -454,7 +298,7 @@ DDS_Security_Authentication_process_handshake(
     break;
 
   }
-  printf("%d\n", res);
+
   return res;
 
 }
@@ -470,7 +314,7 @@ Security_set_key_material(HandshakeHandle *h, uint8_t nonce[NUM_ECC_DIGITS]) {
   uint8_t private_key[NUM_ECC_DIGITS];
   uint8_t random[NUM_ECC_DIGITS];
 
-  Security_get_bytes(private_key, SDDS_SECURITY_USER_PRIVATE_KEY);
+  Security_get_bytes(private_key, SDDS_SECURITY_USER_PRIVATE_KEY, NUM_ECC_DIGITS);
   getRandomBytes(random, sizeof(random));
 
   // calculate shared secret 
@@ -478,49 +322,12 @@ Security_set_key_material(HandshakeHandle *h, uint8_t nonce[NUM_ECC_DIGITS]) {
     return SDDS_RT_FAIL;
   }
 
-  // calculate key material MAC- and AES-Key  
+  // calculate key material (MAC- and AES-Key)
   Security_kdf(h->info.key_material, h->info.shared_secret, nonce);
 
   return SDDS_RT_OK;
 
 }
-
-
-#ifdef SDDS_SECURITY_KDC
-HandshakeHandle*
-Security_get_handshake_handle(IdentityHandle *node) {
-
-  int i;
-  for(i = 0; i < SDDS_SECURITY_HANDSHAKE_MAX; i++) {
-    if(g_handles[i].node == *node) {
-      return &g_handles[i];
-    }
-  }
-
-  return NULL;
-
-}
-
-HandshakeHandle*
-Security_new_handshake_handle(IdentityHandle *node) {
-
-  int i;
-  for(i = 0; i < SDDS_SECURITY_HANDSHAKE_MAX; i++) {
-    if(g_handles[i].node == 0) {
-      g_handles[i].node = *node;
-      return &g_handles[i];
-    }
-  }
-
-  return NULL;
-
-}
-
-void
-Security_cleanup_handshake_handle(HandshakeHandle *h) {
-  memset(h, 0, sizeof(HandshakeHandle));
-}
-#endif
 
 rc_t
 Security_verify_certificate(HandshakeHandle *h) {
@@ -546,8 +353,8 @@ Security_verify_certificate(HandshakeHandle *h) {
 	memset(hash, 0, NUM_ECC_DIGITS);
 	sha1(hash, cert, 8 * (SDDS_SECURITY_CERT_STRLEN - 1));
 
-  Security_get_bytes(ca_publicKey.x, SDDS_SECURITY_CA_PUBLIC_KEY_X);
-  Security_get_bytes(ca_publicKey.y, SDDS_SECURITY_CA_PUBLIC_KEY_Y);
+  Security_get_bytes(ca_publicKey.x, SDDS_SECURITY_CA_PUBLIC_KEY_X, NUM_ECC_DIGITS);
+  Security_get_bytes(ca_publicKey.y, SDDS_SECURITY_CA_PUBLIC_KEY_Y, NUM_ECC_DIGITS);
 
   if(ecdsa_verify(&ca_publicKey, hash, h->info.signature_r, h->info.signature_s)) {
     return SDDS_RT_OK;
@@ -559,17 +366,36 @@ Security_verify_certificate(HandshakeHandle *h) {
 
 rc_t
 Security_verify_mactag(HandshakeHandle *h) {
+
+  uint8_t mactag_data[NUM_ECC_DIGITS]; 
+  uint8_t *mactag_data_offset;
+  uint8_t mactag[XCBC_MAC_SIZE]; 
+
+  mactag_data_offset = mactag_data;
+  memcpy(mactag_data_offset, h->info.remote_nonce, sizeof(h->info.remote_nonce));
+  mactag_data_offset += sizeof(h->info.remote_nonce);
+  memcpy(mactag_data_offset, h->info.nonce, sizeof(h->info.nonce));
+  // calculate xcbc mac
+  Security_aes_xcbc_mac(h->info.key_material + AES_128_KEY_LENGTH, 
+                        mactag_data, sizeof(mactag_data), 
+                        mactag);
+
+  if(memcmp(mactag, h->info.mactag, XCBC_MAC_SIZE)) {
+    return SDDS_RT_FAIL;
+  }
+
   return SDDS_RT_OK;
+
 }
 
 void 
-Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str) {
+Security_get_bytes(uint8_t *res, char* str, int nbytes) {
 
 	int i;
   char buf[3];  
   unsigned chr;
 
-	for(i = 0; i < NUM_ECC_DIGITS; i++) {
+	for(i = 0; i < nbytes; i++) {
     strncpy(buf, &str[2*i], 2);
     buf[2] = '\0';
     chr = (unsigned char) strtol(buf, (char **) NULL, 16);
@@ -680,26 +506,5 @@ Security_aes_xcbc_mac(uint8_t aes_key[AES_128_KEY_LENGTH], uint8_t *data, uint8_
   memcpy(e, result, AES_128_KEY_LENGTH);
 
 }
-
-
-/* 
-  Security_kdf(key_material, shared_secret, &inf);
-
-  printf("kdf derived key material: ");
-  printf("size %d\n", sizeof(key_material));
-  for(int i = 0; i < sizeof(key_material); i+=2) {
-    printf("%x%x", key_material[i], key_material[i+1]);
-  }
-  printf("\n");
-
-  Security_kdf(key_material, shared_secret, &inf);
-
-  printf("kdf derived key material: ");
-  printf("size %d\n", sizeof(key_material));
-  for(int i = 0; i < sizeof(key_material); i+=2) {
-    printf("%x%x", key_material[i], key_material[i+1]);
-  }
-  printf("\n");
-*/
 
 #endif

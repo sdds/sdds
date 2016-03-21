@@ -3,6 +3,8 @@
 
 #include "Sha1.h"
 #include "Ecc.h"
+#include "os-ssal/aes-128.h"
+
 
 #define DDS_S_Result_t int
 #define VALIDATION_OK	0
@@ -49,7 +51,14 @@ typedef struct {
 	long minor_code;
 } SecurityException;
 
+typedef struct {
+	uint16_t tid;
+  List_t *applist;
+  uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
+} Ac_topic;
+
 typedef DataHolder Token;
+typedef Token ParticipantCryptoToken;
 typedef Token HandshakeMessageToken;
 typedef SSW_NodeID_t IdentityHandle;
 typedef uint16_t MessageIdentity;
@@ -60,9 +69,9 @@ typedef struct Remote_info {
   EccPoint public_key;
   uint8_t signature_r[NUM_ECC_DIGITS];
   uint8_t signature_s[NUM_ECC_DIGITS];
-  uint8_t mactag[NUM_ECC_DIGITS];
-  uint8_t nonce[NUM_ECC_DIGITS];
-  uint8_t remote_nonce[NUM_ECC_DIGITS];
+  uint8_t mactag[XCBC_MAC_SIZE];
+  uint8_t nonce[NUM_ECC_DIGITS / 2];
+  uint8_t remote_nonce[NUM_ECC_DIGITS / 2];
   uint8_t shared_secret[NUM_ECC_DIGITS];
   uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
 } Remote_info;
@@ -85,8 +94,17 @@ Security_init();
 rc_t 
 Security_auth();
 
+rc_t
+Security_kdc_add_rule(uint16_t tid, char *aid);
+
+rc_t 
+Security_kdc_init();
+
 rc_t 
 Security_kdc();
+
+rc_t
+Security_send_crypto_tokens(HandshakeHandle *h);
 
 rc_t
 Security_verify_certificate(HandshakeHandle *h);
@@ -101,13 +119,16 @@ void
 Security_cleanup_handshake_handle(HandshakeHandle *h);
 
 void 
-Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str);
+Security_get_bytes(uint8_t res[NUM_ECC_DIGITS], char* str, int nbytes);
 
 void 
 Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS]);
 
 void 
 Security_kdf(uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES], uint8_t shared_secret[NUM_ECC_DIGITS], uint8_t nonce[NUM_ECC_DIGITS]);
+
+void 
+Security_aes_xcbc_mac(uint8_t aes_key[AES_128_KEY_LENGTH], uint8_t *data, uint8_t size, uint8_t mac[XCBC_MAC_SIZE]);
 
 DDS_S_Result_t 
 DDS_Security_Authentication_begin_handshake_request(
@@ -142,6 +163,5 @@ DDS_Security_Authentication_get_shared_secret(
 	HandshakeHandle *handshake_handle,
 	SecurityException *ex
 );
-
 
 #endif  /* __SECURITY_H__ */
