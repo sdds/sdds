@@ -157,7 +157,9 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
 	SecurityException *ex /* inout (variable length) */
 ) {
 
+#ifdef SDDS_SECURITY_KDC
   handshake_handle = Security_new_handshake_handle(initiator_identity_handle);
+#endif
 
   if(handshake_handle == NULL) {
     return VALIDATION_FAILED;
