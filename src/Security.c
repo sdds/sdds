@@ -320,6 +320,8 @@ Security_set_key_material(HandshakeHandle *h) {
     return SDDS_RT_FAIL;
   }
 
+  Security_print_key(h->info.shared_secret, sizeof(h->info.shared_secret));
+
   // calculate key material (MAC- and AES-Key)
   Security_kdf(h);
 
