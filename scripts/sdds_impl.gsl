@@ -172,7 +172,7 @@ sDDS_init (void)
 #ifdef SDDS_SECURITY_KDC
 
   Security_kdc_init();
-
+.if count(project.access_control) > 0
 .for project->access_control.ac_topic as t
 .  for t.ac_application as a
 
@@ -180,7 +180,7 @@ sDDS_init (void)
 
 .  endfor
 .endfor
-
+.endif
 #endif
 #endif
 
