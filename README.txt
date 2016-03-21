@@ -160,12 +160,12 @@ This is done by 'sdds_examples.gsl'.
 The entry point is 'sdds.gsl':
 
 [diagram]
-    +---------------------------+           +---------------------+
-    | scripts/sdds.gsl          |   Input   | sdds.xml            |
-    +---------------------------+<----------+---------------------+
-    | Script to generate sdds   |           | Describes you app's |
-    | constants, topics,    cFDA|           | configuration and   |
-    | skeletion and glue code.  |           | features.       cFDA|
+    +---------------------------+           +---------------------+            +------------------+
+    | scripts/sdds.gsl          |   Input   | sdds.xml            |  Includes  | topic.xml        |
+    +---------------------------+<----------+---------------------+<-----------+------------------+
+    | Script to generate sdds   |           | Describes you app's |            | Describes one or |
+    | constants, topics,    cFDA|           | configuration and   |            | more topics. cFDA|
+    | skeletion and glue code.  |           | features.       cFDA|            +------------------+
     +-------------+-------------+           +---------------------+
                   |
                   |                         +----------------------------+
