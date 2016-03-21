@@ -530,6 +530,7 @@ Security_aes_xcbc_mac(uint8_t aes_key[AES_128_KEY_LENGTH], uint8_t *data, uint8_
 
   aes_128_padded_encrypt(result, AES_128_KEY_LENGTH);
   memcpy(e, result, AES_128_KEY_LENGTH);
+  memcpy(mac, e, XCBC_MAC_SIZE);
 
 }
 
