@@ -68,7 +68,7 @@ Security_auth() {
                                                             &msg,
                                                             NULL);  
         if(r == DDS_RETCODE_OK) {
-          printf("sent token\n");
+          // OK
         } else {
           printf("failed to send token\n");
           res = VALIDATION_FAILED;
@@ -110,7 +110,6 @@ Security_auth() {
                                                             &msg,
                                                             NULL);  
         if(r == DDS_RETCODE_OK) {
-          printf("sent final token\n");
           res = VALIDATION_OK;
         } else {
           printf("failed to send final token\n");
@@ -230,7 +229,7 @@ DDS_Security_Authentication_process_handshake(
         printf("certificate ok\n");
       }
 
-      // calculate shared secret
+      // calculate shared secret and set key material
 #ifdef SDDS_SECURITY_KDC
       if(Security_set_key_material(handshake_handle, handshake_handle->info.remote_nonce) == SDDS_RT_FAIL) {
 #else
@@ -275,6 +274,7 @@ DDS_Security_Authentication_process_handshake(
 
       // verify mactag
       if(Security_verify_mactag(handshake_handle) == SDDS_RT_FAIL) {
+        printf("wrong mactag\n");
         res = VALIDATION_FAILED;
         break;
       } else {
@@ -326,6 +326,8 @@ Security_set_key_material(HandshakeHandle *h, uint8_t nonce[NUM_ECC_DIGITS]) {
 
   // calculate key material (MAC- and AES-Key)
   Security_kdf(h->info.key_material, h->info.shared_secret, nonce);
+
+  Security_print_key(h->info.key_material, SDDS_SECURITY_KDF_KEY_BYTES);
 
   return SDDS_RT_OK;
 
@@ -414,6 +416,18 @@ Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS]) {
 	for(i = 0; i < NUM_ECC_DIGITS; i++) {
     sprintf(&str[i*2], "%02x", num[i]);
 	}
+
+}
+
+void 
+Security_print_key(uint8_t *key, int n) {
+
+  int i;
+
+	for(i = 0; i < n; i++) {
+    printf("%02x", key[i]);
+	}
+  printf("\n");
 
 }
 
