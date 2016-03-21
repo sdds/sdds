@@ -463,7 +463,8 @@ Security_kdf(HandshakeHandle *h) {
 #endif
 
     sha1(hash, data, size*8);
-    
+    Security_print_key(hash, sizeof(hash));
+      
     if(i == reps - 1 && r) {
       memcpy(h->info.key_material + (i*SHA1_HASH_BYTES), hash, r);    
     } else {      
