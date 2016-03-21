@@ -384,6 +384,7 @@ Security_verify_mactag(HandshakeHandle *h) {
                         mactag_data, sizeof(mactag_data), 
                         mactag);
 
+  Security_print_key(mactag_data, sizeof(mactag_data));
   Security_print_key(mactag, sizeof(mactag));
   Security_print_key(h->info.mactag, sizeof(h->info.mactag));
 
