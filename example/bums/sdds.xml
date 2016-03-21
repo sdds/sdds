@@ -4,8 +4,8 @@
     endian = "little"
     os = "linux"
     protocol = "AF_INET6"
-    iface = "wlp2s0"
-    ip = "fe80::223:14ff:fe40:ab84"
+    iface = "tap0"
+    ip = "fe80::c0ef:62ff:fed4:d26a"
     >
     <!--
     Set Set interface and port for this project. Interface is required if your
@@ -24,7 +24,7 @@
         <attribute name = "value" type = "DDS_char">Any char value</attribute>
         <config type = "qos_reliability" reliabilitySeqnrSize = "basic"
                 kind = "reliable" confirmationtype = "ack"
-                max_blocking_time = "1000000000"/>
+                max_blocking_time = "15500"/>
     </topic>
 
     <!--

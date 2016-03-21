@@ -19,13 +19,15 @@ int main()
     sleep (1);
     printf("\n");
     printf ("##########################################################################################\n");
-    printf ("#                                  HISTORY DEMO                                           \n");
+    printf ("#                              HISTORY RELIABILITY DEMO                                  #\n");
     printf ("##########################################################################################\n");
 
     printf ("Waiting for discovery to complete ...\n");
     sleep (7);
+    printf ("Ready!\n");
     sdds_History_print (DataReader_history (g_Alpha_reader));
     for (;;) {
+        getchar();
         printf ("=> ENQUEUE\n");
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
 
@@ -66,6 +68,22 @@ int main()
 
         printf ("=> ENQUEUE\n");
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
+
+        usleep(250);
+        sdds_History_print (DataReader_history (g_Alpha_reader));
+        getchar();
+        sdds_History_print (DataReader_history (g_Alpha_reader));
+        getchar();
+
+        printf ("=> ENQUEUE\n");
+        ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
+
+        usleep(250);
+        sdds_History_print (DataReader_history (g_Alpha_reader));
+        getchar();
+
+        printf ("=> DEQUEUE\n");
+        ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader, &alpha_sub_p, NULL);
 
         usleep(250);
         sdds_History_print (DataReader_history (g_Alpha_reader));
