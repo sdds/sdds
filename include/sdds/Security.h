@@ -113,7 +113,7 @@ rc_t
 Security_verify_mactag(HandshakeHandle *h);
 
 rc_t
-Security_set_key_material(HandshakeHandle *h, uint8_t nonce[NUM_ECC_DIGITS]);
+Security_set_key_material(HandshakeHandle *h);
 
 void
 Security_cleanup_handshake_handle(HandshakeHandle *h);
@@ -128,7 +128,7 @@ void
 Security_print_key(uint8_t *key, int n);
 
 void 
-Security_kdf(uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES], uint8_t shared_secret[NUM_ECC_DIGITS], uint8_t nonce[NUM_ECC_DIGITS]);
+Security_kdf(HandshakeHandle *h);
 
 void 
 Security_aes_xcbc_mac(uint8_t aes_key[AES_128_KEY_LENGTH], uint8_t *data, uint8_t size, uint8_t mac[XCBC_MAC_SIZE]);

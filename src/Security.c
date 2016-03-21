@@ -230,11 +230,7 @@ DDS_Security_Authentication_process_handshake(
       }
 
       // calculate shared secret and set key material
-#ifdef SDDS_SECURITY_KDC
-      if(Security_set_key_material(handshake_handle, handshake_handle->info.remote_nonce) == SDDS_RT_FAIL) {
-#else
-      if(Security_set_key_material(handshake_handle, handshake_handle->info.nonce) == SDDS_RT_FAIL) {
-#endif
+      if(Security_set_key_material(handshake_handle) == SDDS_RT_FAIL) {
         res = VALIDATION_FAILED;
         break;
       } else {
@@ -311,7 +307,7 @@ DDS_Security_Authentication_get_shared_secret(HandshakeHandle *h, SecurityExcept
 }
 
 rc_t
-Security_set_key_material(HandshakeHandle *h, uint8_t nonce[NUM_ECC_DIGITS]) {
+Security_set_key_material(HandshakeHandle *h) {
 
   uint8_t private_key[NUM_ECC_DIGITS];
   uint8_t random[NUM_ECC_DIGITS];
@@ -325,7 +321,7 @@ Security_set_key_material(HandshakeHandle *h, uint8_t nonce[NUM_ECC_DIGITS]) {
   }
 
   // calculate key material (MAC- and AES-Key)
-  Security_kdf(h->info.key_material, h->info.shared_secret, nonce);
+  Security_kdf(h);
 
   Security_print_key(h->info.key_material, SDDS_SECURITY_KDF_KEY_BYTES);
 
@@ -432,10 +428,7 @@ Security_print_key(uint8_t *key, int n) {
 }
 
 void 
-Security_kdf(uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES], 
-             uint8_t shared_secret[NUM_ECC_DIGITS], 
-             uint8_t nonce[NUM_ECC_DIGITS]) 
-{
+Security_kdf(HandshakeHandle *h) {
 
   int reps = (SDDS_SECURITY_KDF_KEY_BYTES / SHA1_HASH_BYTES);
   int r = SDDS_SECURITY_KDF_KEY_BYTES % SHA1_HASH_BYTES;                           
@@ -454,15 +447,19 @@ Security_kdf(uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES],
     (*ptr)++;
     
     memcpy(data, counter, sizeof(counter));
-    memcpy(data + sizeof(counter), shared_secret, NUM_ECC_DIGITS);
-    memcpy(data + sizeof(counter) + NUM_ECC_DIGITS, nonce, NUM_ECC_DIGITS);
+    memcpy(data + sizeof(counter), h->info.shared_secret, sizeof(h->info.shared_secret));
+#ifdef SDDS_SECURITY_KDC
+    memcpy(data + sizeof(counter) + sizeof(h->info.shared_secret), h->info.remote_nonce, NUM_ECC_DIGITS);
+#else
+    memcpy(data + sizeof(counter) + sizeof(h->info.shared_secret), h->info.nonce, NUM_ECC_DIGITS);
+#endif
 
     sha1(hash, data, size*8);
     
     if(i == reps - 1 && r) {
-      memcpy(key_material + (i*SHA1_HASH_BYTES), hash, r);    
+      memcpy(h->info.key_material + (i*SHA1_HASH_BYTES), hash, r);    
     } else {      
-      memcpy(key_material + (i*SHA1_HASH_BYTES), hash, SHA1_HASH_BYTES);    
+      memcpy(h->info.key_material + (i*SHA1_HASH_BYTES), hash, SHA1_HASH_BYTES);    
     }
 
   }
