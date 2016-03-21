@@ -56,6 +56,9 @@ extern DDS_Topic g_DCPSSubscription_topic;
 //extern DCPSSubscription_data_t
 // g_DCPSSubscription_pool[SDDS_TOPIC_APP_MSG_COUNT];
 
+#define g_ParticipantVolatileMessage_reader g_ParticipantStatelessMessage_reader
+#define g_ParticipantVolatileMessage_writer g_ParticipantStatelessMessage_writer
+
 extern DDS_DataReader g_ParticipantStatelessMessage_reader;
 extern DDS_DataWriter g_ParticipantStatelessMessage_writer;
 extern DDS_Topic g_ParticipantStatelessMessage_topic;
