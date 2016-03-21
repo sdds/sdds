@@ -324,10 +324,6 @@ Security_set_key_material(HandshakeHandle *h) {
     return SDDS_RT_FAIL;
   }
 
-  Security_print_key(h->info.nonce, sizeof(h->info.nonce));
-  Security_print_key(h->info.remote_nonce, sizeof(h->info.remote_nonce));
-  Security_print_key(h->info.shared_secret, sizeof(h->info.shared_secret));
-
   // calculate key material (MAC- and AES-Key)
   Security_kdf(h);
 
@@ -387,6 +383,9 @@ Security_verify_mactag(HandshakeHandle *h) {
   Security_aes_xcbc_mac(h->info.key_material + AES_128_KEY_LENGTH, 
                         mactag_data, sizeof(mactag_data), 
                         mactag);
+
+  Security_print_key(mactag, sizeof(mactag));
+  Security_print_key(h->info.mactag, sizeof(h->info.mactag));
 
   if(memcmp(mactag, h->info.mactag, XCBC_MAC_SIZE)) {
     return SDDS_RT_FAIL;
@@ -457,8 +456,6 @@ Security_kdf(HandshakeHandle *h) {
 #else
     memcpy(data + sizeof(i) + sizeof(h->info.shared_secret), h->info.nonce, sizeof(h->info.nonce));
 #endif
-
-    Security_print_key(data, size);
 
     sha1(hash, data, size*8);
     printf("nein\n");
