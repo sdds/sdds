@@ -17,13 +17,6 @@
 
 #include "sDDS.h"
 
-static Mutex_t* mutex;
-#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
- || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-static Mutex_t* blocktex;
-static Task blockTask;
-#endif
-
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static rc_t
 s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr);
@@ -40,26 +33,6 @@ s_History_block (void *data);
 
 rc_t
 sdds_History_init() {
-    mutex = Mutex_create();
-    if (mutex == NULL) {
-        return SDDS_RT_FAIL;
-    }
-    if (Mutex_init(mutex) == SDDS_SSW_RT_FAIL) {
-        return SDDS_RT_FAIL;
-    }
-#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
- || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-    blocktex = Mutex_create();
-    if (blocktex == NULL) {
-        return SDDS_RT_FAIL;
-    }
-    if (Mutex_init(blocktex) == SDDS_SSW_RT_FAIL) {
-        return SDDS_RT_FAIL;
-    }
-    Mutex_lock(blocktex);
-    blockTask = Task_create();
-    Task_init(blockTask, s_History_block, NULL);
-#endif
     return SDDS_RT_OK;
 }
 
@@ -74,10 +47,30 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth) {
     self->depth = depth;
     self->in_needle = 0;
     self->out_needle = depth;
+    self->mutex = Mutex_create();
+    if (self->mutex == NULL) {
+        return SDDS_RT_FAIL;
+    }
+    if (Mutex_init(self->mutex) == SDDS_SSW_RT_FAIL) {
+        return SDDS_RT_FAIL;
+    }
 #ifdef SDDS_HAS_QOS_RELIABILITY
     for (int index = 0; index < depth; index++){
         self->samples[index].seqNr = 0;
     }
+#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+    || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+    self->blocktex = Mutex_create();
+    if (self->blocktex == NULL) {
+        return SDDS_RT_FAIL;
+    }
+    if (Mutex_init(self->blocktex) == SDDS_SSW_RT_FAIL) {
+        return SDDS_RT_FAIL;
+    }
+    Mutex_lock(self->blocktex);
+    self->blockTask = Task_create();
+    Task_init(self->blockTask, s_History_block, NULL);
+#   endif
 #endif
     return SDDS_RT_OK;
 }
@@ -115,7 +108,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 #endif
     assert(self);
     assert(buff);
-	Mutex_lock(mutex);
+	Mutex_lock(self->mutex);
 
 #ifdef FEATURE_SDDS_TRACING_ENABLED
 #   if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
@@ -135,21 +128,24 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
         if (s_History_checkSeqNr(self, topic, loc, seqNr) == SDDS_RT_FAIL){
             SNPS_discardSubMsg(buff);
             Locator_downRef(loc);
-            Mutex_unlock(mutex);
+            Mutex_unlock(self->mutex);
             return SDDS_RT_OK;
         }
     }
 #endif //  End of SDDS_HAS_QOS_RELIABILITY
 
     if (s_History_full (self)) {
-        Mutex_unlock(mutex);
+        Mutex_unlock(self->mutex);
 #if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
  || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
         //  Start timer which unblocks us after max_blocking_time
-        Task_setData(blockTask, blocktex);
-        Task_start(blockTask, (topic->max_blocking_time / 1000) % 60,
+        Task_setData(self->blockTask, self->blocktex);
+        Task_start(self->blockTask, (topic->max_blocking_time / 1000) % 60,
                                topic->max_blocking_time % 1000, SDDS_SSW_TaskMode_single);
-        Mutex_lock(blocktex);
+        printf ("BLOCK History for %ds, %dms\n",
+                    (topic->max_blocking_time / 1000) % 60, topic->max_blocking_time % 1000);
+        Mutex_lock(self->blocktex);
+        printf ("UNBLOCK History\n");
         //  Check if timer has been canceled by dequeue
         if (s_History_full (self)) {
             //  Dequeue the oldest item in the History and proceed.
@@ -159,7 +155,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
         //  Dequeue the oldest item in the History and proceed.
         (void *) sdds_History_dequeue(self);
 #endif
-        Mutex_lock(mutex);
+        Mutex_lock(self->mutex);
     }
 
     //  Insert sample into queue
@@ -171,7 +167,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 
     rc_t ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
     if (ret == SDDS_RT_FAIL) {
-        Mutex_unlock(mutex);
+        Mutex_unlock(self->mutex);
         return ret;
     }
     self->samples[self->in_needle].instance = loc;
@@ -191,7 +187,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
     if (self->out_needle >= self->depth) {
         self->out_needle = in_needle_prev;
     }
-    Mutex_unlock(mutex);
+    Mutex_unlock(self->mutex);
     return SDDS_RT_OK;
 }
 
@@ -203,10 +199,10 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 Sample_t*
 sdds_History_dequeue(History_t* self) {
     assert(self);
-	Mutex_lock(mutex);
+	Mutex_lock(self->mutex);
 
     if (self->out_needle >= self->depth) {
-        Mutex_unlock(mutex);
+        Mutex_unlock(self->mutex);
         return NULL;
     }
     //  Remove sample from queue
@@ -229,12 +225,12 @@ sdds_History_dequeue(History_t* self) {
         self->in_needle = out_needle_prev;
     }
 
-    Mutex_unlock(mutex);
+    Mutex_unlock(self->mutex);
 #if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
  || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-    if (Task_isRunning (blockTask)) {
-        Task_stop (blockTask);
-        Mutex_unlock (blocktex);
+    if (self->blockTask && Task_isRunning (self->blockTask)) {
+        Task_stop (self->blockTask);
+        Mutex_unlock (self->blocktex);
     }
 #endif
     return sample;
@@ -402,8 +398,12 @@ sdds_History_print(History_t* self) {
     printf ("+\n");
 #ifdef SDDS_HAS_QOS_RELIABILITY
     printf("    samples:\n");
-    for (int i=0; i<self->in_needle; i++){
-        printf("        instance: %d, seqNr: %d,\n", self->samples[i].instance, self->samples[i].seqNr);
+    for (int i = 0; i < self->depth; i++) {
+       if (s_History_full (self) || self->out_needle < self->depth && (
+          (self->in_needle > self->out_needle && i >= self->out_needle && i < self->in_needle) ||
+          (self->in_needle < self->out_needle && (i >= self->out_needle || i < self->in_needle)))) {
+            printf("        instance: %d, seqNr: %d,\n", self->samples[i].instance, self->samples[i].seqNr);
+        }
     }
 #endif
     printf("}\n");
