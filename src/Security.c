@@ -229,6 +229,11 @@ DDS_Security_Authentication_process_handshake(
         printf("certificate ok\n");
       }
 
+#ifdef SDDS_SECURITY_KDC
+      // get nonce for kdc
+      getRandomBytes(handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
+#endif
+
       // calculate shared secret and set key material
       if(Security_set_key_material(handshake_handle) == SDDS_RT_FAIL) {
         res = VALIDATION_FAILED;
@@ -239,7 +244,6 @@ DDS_Security_Authentication_process_handshake(
 
 #ifdef SDDS_SECURITY_KDC
       // reply with signature and nonce in handshake_message_out
-      getRandomBytes(handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
       strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
       handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_SIG_R, SDDS_SECURITY_USER_CERT_SIG_R}; 
       handshake_message_out->props[1] = (Property) {SDDS_SECURITY_PROP_SIG_S, SDDS_SECURITY_USER_CERT_SIG_S}; 
@@ -286,8 +290,8 @@ DDS_Security_Authentication_process_handshake(
         Security_aes_xcbc_mac(handshake_handle->info.key_material + AES_128_KEY_LENGTH, 
                               mactag_data, sizeof(mactag_data), 
                               handshake_handle->info.mactag);
-      strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_MACTAG); 
-      memcpy(handshake_message_out->props[0].value, handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
+        strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_MACTAG); 
+        memcpy(handshake_message_out->props[0].value, handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
         res = VALIDATION_OK_FINAL_MESSAGE;
 #else 
         res = VALIDATION_OK;
