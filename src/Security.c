@@ -440,10 +440,8 @@ Security_kdf(HandshakeHandle *h) {
 
   int reps = (SDDS_SECURITY_KDF_KEY_BYTES / SHA1_HASH_BYTES);
   int r = SDDS_SECURITY_KDF_KEY_BYTES % SHA1_HASH_BYTES;                           
-  char counter[4];  
-  uint32_t *ptr = (uint32_t *) counter;
   uint8_t hash[SHA1_HASH_BYTES];
-  int size = sizeof(counter) + sizeof(h->info.shared_secret) + sizeof(h->info.nonce);
+  int size = sizeof(uint32_t) + sizeof(h->info.shared_secret) + sizeof(h->info.nonce);
   uint8_t data[size];
 
   if(r) {
@@ -451,15 +449,13 @@ Security_kdf(HandshakeHandle *h) {
   }
 
   for(uint32_t i = 0; i < reps; i++) {
-    
-    (*ptr)++;
-    
-    memcpy(data, counter, sizeof(counter));
-    memcpy(data + sizeof(counter), h->info.shared_secret, sizeof(h->info.shared_secret));
+   
+    memcpy(data, &i, sizeof(i));
+    memcpy(data + sizeof(i), h->info.shared_secret, sizeof(h->info.shared_secret));
 #ifdef SDDS_SECURITY_KDC
-    memcpy(data + sizeof(counter) + sizeof(h->info.shared_secret), h->info.remote_nonce, sizeof(h->info.remote_nonce));
+    memcpy(data + sizeof(i) + sizeof(h->info.shared_secret), h->info.remote_nonce, sizeof(h->info.remote_nonce));
 #else
-    memcpy(data + sizeof(counter) + sizeof(h->info.shared_secret), h->info.nonce, sizeof(h->info.nonce));
+    memcpy(data + sizeof(i) + sizeof(h->info.shared_secret), h->info.nonce, sizeof(h->info.nonce));
 #endif
 
     Security_print_key(data, size);
