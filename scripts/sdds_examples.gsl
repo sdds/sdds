@@ -85,5 +85,10 @@ endfunction
 </project>
 .       close
 .   endif
+.   if !file.exists ("$(example.name:c)/.gitignore)")
+.       output "$(example.name:c)/.gitignore"
+$(example.name:c)
+.       close
+.   endif
 .endfor
 .
