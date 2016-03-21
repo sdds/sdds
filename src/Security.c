@@ -261,6 +261,9 @@ DDS_Security_Authentication_process_handshake(
                             mactag_data, sizeof(mactag_data), 
                             handshake_handle->info.mactag);
 
+      printf("mactag sensor ");
+      Security_print_key(handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
+
       strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_MACTAG); 
       memcpy(handshake_message_out->props[0].value, handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
 #endif
@@ -290,6 +293,11 @@ DDS_Security_Authentication_process_handshake(
         Security_aes_xcbc_mac(handshake_handle->info.key_material + AES_128_KEY_LENGTH, 
                               mactag_data, sizeof(mactag_data), 
                               handshake_handle->info.mactag);
+
+        printf("mactag kdc ");
+        Security_print_key(handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
+
+
         strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_MACTAG); 
         memcpy(handshake_message_out->props[0].value, handshake_handle->info.mactag, sizeof(handshake_handle->info.mactag));
         res = VALIDATION_OK_FINAL_MESSAGE;
