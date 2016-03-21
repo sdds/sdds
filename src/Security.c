@@ -449,9 +449,9 @@ Security_kdf(HandshakeHandle *h) {
     memcpy(data, counter, sizeof(counter));
     memcpy(data + sizeof(counter), h->info.shared_secret, sizeof(h->info.shared_secret));
 #ifdef SDDS_SECURITY_KDC
-    memcpy(data + sizeof(counter) + sizeof(h->info.shared_secret), h->info.remote_nonce, NUM_ECC_DIGITS);
+    memcpy(data + sizeof(counter) + sizeof(h->info.remote_nonce), h->info.remote_nonce, NUM_ECC_DIGITS);
 #else
-    memcpy(data + sizeof(counter) + sizeof(h->info.shared_secret), h->info.nonce, NUM_ECC_DIGITS);
+    memcpy(data + sizeof(counter) + sizeof(h->info.nonce), h->info.nonce, NUM_ECC_DIGITS);
 #endif
 
     sha1(hash, data, size*8);
