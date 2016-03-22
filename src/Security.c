@@ -7,17 +7,53 @@ static HandshakeHandle g_handle;
 
 rc_t 
 Security_init() {
-  
-  #ifndef SDDS_SECURITY_KDC
+
+#ifndef SDDS_SECURITY_KDC
+
   if(Security_auth() == SDDS_RT_FAIL) {
     return SDDS_RT_FAIL;
   }
 
-  /* TODO */
-
-  #endif
+  Security_receive_key();
+  
+#endif
 
   return SDDS_RT_OK;
+
+}
+
+rc_t 
+Security_receive_key() {
+
+  DDS_ReturnCode_t r;  
+  DDS_ParticipantVolatileMessage msg;  
+  DDS_ParticipantVolatileMessage *msg_ptr = &msg;
+  DDS_SampleInfo info;
+  uint16_t tid;  
+  uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
+  uint8_t iv[SDDS_SECURITY_IV_SIZE];
+
+  r = DDS_ParticipantVolatileMessageDataReader_take_next_sample(
+                               g_ParticipantVolatileMessage_reader,
+                               &msg_ptr,
+                               &info);
+
+  if(r != DDS_RETCODE_OK 
+      || msg.key != BuiltinTopic_participantID 
+      || strcmp(msg.message_class_id, GMCLASSID_SECURITY_PARTICIPANT_CRYPTO_TOKENS) != 0) {
+    printf("failed to receive crypto token\n");
+    return SDDS_RT_FAIL;
+  }  
+
+  memcpy(&tid, msg.message_data.props[0].value, sizeof(tid));
+  memcpy(key_material, msg.message_data.props[1].value, sizeof(key_material));
+  memcpy(iv, msg.message_data.props[2].value, sizeof(iv));
+
+  Security_aes_ctr(iv, g_handle.info.key_material, key_material, sizeof(key_material));
+
+  printf("key for topic %d: ", tid);
+  
+  Security_print_key(key_material, SDDS_SECURITY_KDF_KEY_BYTES);
 
 }
 
@@ -459,7 +495,6 @@ Security_kdf(HandshakeHandle *h) {
 #endif
 
     sha1(hash, data, size*8);
-    printf("nein\n");
       
     if(i == reps - 1 && r) {
       memcpy(h->info.key_material + (i*SHA1_HASH_BYTES), hash, r);    
@@ -500,7 +535,7 @@ Security_aes_xcbc_mac(uint8_t aes_key[AES_128_KEY_LENGTH], uint8_t *data, uint8_
 
   aes_128_set_padded_key(key1, AES_128_KEY_LENGTH);
 
-  for(i = 0; i < n-1; i++) {
+  for(i = 0; i < n; i++) {
     for(j = 0; j < AES_128_KEY_LENGTH; j++) {
       result[j] = data[(i*AES_128_KEY_LENGTH) + j] ^ e[j];      
     }    
@@ -523,6 +558,38 @@ Security_aes_xcbc_mac(uint8_t aes_key[AES_128_KEY_LENGTH], uint8_t *data, uint8_
   aes_128_padded_encrypt(result, AES_128_KEY_LENGTH);
   memcpy(e, result, AES_128_KEY_LENGTH);
   memcpy(mac, e, XCBC_MAC_SIZE);
+
+}
+
+void 
+Security_aes_ctr(uint8_t iv[SDDS_SECURITY_IV_SIZE], uint8_t aes_key[AES_128_KEY_LENGTH], uint8_t *data, uint8_t size) {
+
+  int n, last, i, j;
+  uint8_t block[AES_128_KEY_LENGTH];
+  uint32_t ctr = 0;
+  
+  n = size / AES_128_KEY_LENGTH;
+  last = size % AES_128_KEY_LENGTH;
+
+  aes_128_set_padded_key(aes_key, AES_128_KEY_LENGTH);
+  memcpy(block, iv, SDDS_SECURITY_IV_SIZE);
+
+  for(i = 0; i < n; i++) {
+    memcpy(block + SDDS_SECURITY_IV_SIZE, &ctr, sizeof(uint32_t));    
+    aes_128_padded_encrypt(block, AES_128_KEY_LENGTH);
+    for(j = 0; j < AES_128_KEY_LENGTH; j++) {
+      data[(i*AES_128_KEY_LENGTH) + j] = data[(i*AES_128_KEY_LENGTH) + j] ^ block[j];
+    }        
+    ctr++;
+  }
+
+  if(last) {   
+    memcpy(block + SDDS_SECURITY_IV_SIZE, &ctr, sizeof(uint32_t));
+    aes_128_padded_encrypt(block, AES_128_KEY_LENGTH);
+    for(j = 0; j < last; j++) {    
+      data[(n*AES_128_KEY_LENGTH) + j] = data[(n*AES_128_KEY_LENGTH) + j] ^ block[j];
+    }
+  }
 
 }
 

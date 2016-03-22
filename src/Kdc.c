@@ -120,40 +120,45 @@ rc_t
 Security_send_crypto_tokens(HandshakeHandle *h) {
 
   DDS_ReturnCode_t r;
-  DDS_ParticipantVolatileMessage msg = { 0 };
+  DDS_ParticipantVolatileMessage msg;
   Ac_topic *rule = ac_list->first_fn(ac_list);
   List_t *apps;
   char *app;
   uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
+  uint8_t iv[SDDS_SECURITY_IV_SIZE];
+
+  getRandomBytes(iv, SDDS_SECURITY_IV_SIZE);
 
   while(rule) {
     app = rule->applist->first_fn(rule->applist);
     while(app) {
-      if(strcmp(app, h->info.uid) == 0) {
-      
-        printf("send key for topic %d to %s\n", rule->tid, h->info.uid);      
+
+      if(strcmp(app, h->info.uid) == 0) {      
+        printf("send key for topic %d to %s: ", rule->tid, h->info.uid);      
+        Security_print_key(rule->key_material, SDDS_SECURITY_KDF_KEY_BYTES);
+
         memcpy(key_material, rule->key_material, sizeof(rule->key_material));
-        aes_128_set_padded_key(h->info.key_material, AES_128_KEY_LENGTH);        
-        aes_128_padded_encrypt(key_material, sizeof(key_material));
-      
+        Security_aes_ctr(iv, h->info.key_material, key_material, sizeof(key_material));
+
         strcpy(msg.message_class_id, GMCLASSID_SECURITY_PARTICIPANT_CRYPTO_TOKENS);
-        msg.key = rule->tid;
-        strcpy(msg.message_data.props[0].key, SDDS_SECURITY_PROP_ID);
-        strcpy(msg.message_data.props[0].value, h->info.uid); 
+        msg.key = h->node;
+        strcpy(msg.message_data.props[0].key, SDDS_SECURITY_PROP_TID);
+        memcpy(msg.message_data.props[0].value, &rule->tid, sizeof(rule->tid)); 
         strcpy(msg.message_data.props[1].key, SDDS_SECURITY_PROP_KEY_MATERIAL);
         memcpy(msg.message_data.props[1].value, key_material, sizeof(key_material)); 
+        strcpy(msg.message_data.props[2].key, SDDS_SECURITY_PROP_IV);
+        memcpy(msg.message_data.props[2].value, iv, sizeof(iv)); 
 
         r = DDS_ParticipantVolatileMessageDataWriter_write(g_ParticipantVolatileMessage_writer,
                                                             &msg,
                                                             NULL);  
-
         if(r == DDS_RETCODE_OK) {
           printf("sent crypto token\n");
         } else {
           printf("failed to send crypto token\n");
-        }
-        
+        }       
       }
+
       app = rule->applist->next_fn(rule->applist);
     }
     rule = ac_list->next_fn(ac_list);
