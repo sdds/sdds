@@ -33,6 +33,7 @@ Security_receive_key() {
   uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
   uint8_t iv[SDDS_SECURITY_IV_SIZE];
   uint8_t mac[XCBC_MAC_SIZE];
+  uint8_t *ptr = (uint8_t *) &msg;
 
   memset(&msg, 0, sizeof(msg));
 
@@ -47,6 +48,8 @@ Security_receive_key() {
     printf("failed to receive crypto token\n");
     return SDDS_RT_FAIL;
   }  
+
+  ptr[1] = (uint8_t) 0;
 
   // calculate xcbc mac
   Security_aes_xcbc_mac(g_handle.info.key_material + AES_128_KEY_LENGTH, 
