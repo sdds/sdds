@@ -50,7 +50,7 @@ Security_receive_key() {
     return SDDS_RT_FAIL;
   }  
 
-  ptr[1] = (uint8_t) 0;
+  //ptr[1] = (uint8_t) 0;
 
   memcpy(remote_mac, msg.message_data.props[2].value + sizeof(iv), sizeof(remote_mac));
   memset(msg.message_data.props[2].value + sizeof(iv), 0, sizeof(remote_mac));
