@@ -62,10 +62,8 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff);
 Sample_t*
 sdds_History_dequeue(History_t* self);
 
-#ifdef UTILS_DEBUG
 void
 sdds_History_print(History_t* self);
-#endif
 
 #ifdef __cplusplus
 }

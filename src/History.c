@@ -93,6 +93,18 @@ s_History_block (void *data) {
 	Mutex_unlock(blocktex);
 }
 
+static inline bool_t
+s_History_slot_empty (History_t* self, uint16_t slot)
+{
+    assert (self);
+    return s_History_full (self) ||
+           self->out_needle < self->depth &&
+           (
+               (self->in_needle > self->out_needle && (slot >= self->out_needle && slot < self->in_needle)) ||
+               (self->in_needle < self->out_needle && (slot >= self->out_needle || slot < self->in_needle))
+           );
+}
+
 
 //  ---------------------------------------------------------------------------
 //  Try to enqueue a sample as buffer into the history. If the history is full
@@ -142,10 +154,8 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
         Task_setData(self->blockTask, self->blocktex);
         Task_start(self->blockTask, (topic->max_blocking_time / 1000) % 60,
                                topic->max_blocking_time % 1000, SDDS_SSW_TaskMode_single);
-        printf ("BLOCK History for %ds, %dms\n",
                     (topic->max_blocking_time / 1000) % 60, topic->max_blocking_time % 1000);
         Mutex_lock(self->blocktex);
-        printf ("UNBLOCK History\n");
         //  Check if timer has been canceled by dequeue
         if (s_History_full (self)) {
             //  Dequeue the oldest item in the History and proceed.
@@ -377,6 +387,7 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
 }
 #endif // end of QoS_Reliability
 
+#ifdef UTILS_DEBUG
 void
 sdds_History_print(History_t* self) {
     printf("History [id: %p] {\n", self);
@@ -385,26 +396,35 @@ sdds_History_print(History_t* self) {
     printf("    out needle: %d,\n", self->out_needle);
     printf("    isEmpty: %d,\n", self->out_needle == self->depth);
     printf("    isFull: %d,\n", self->in_needle == self->depth);
-    for (int i = 0; i < self->depth; i++)
+    printf("    queue:,\n", self->in_needle == self->depth);
+    //  Print visual representation of the queue
+    int index;
+    for (index = 0; index < self->depth; index++)
+        printf(" %s", index == self->in_needle? " IN": index == self->out_needle? "OUT": "   ");
+    printf ("\n");
+    for (index = 0; index < self->depth; index++)
+        printf("  %c ", index == self->in_needle? '|': index == self->out_needle? '^': ' ');
+    printf ("\n");
+    for (index = 0; index < self->depth; index++)
+        printf("  %c ", index == self->in_needle? 'v': index == self->out_needle? '|': ' ');
+    printf ("\n");
+    for (index = 0; index < self->depth; index++)
         printf("+---");
     printf ("+\n");
-    for (int i = 0; i < self->depth; i++)
-        printf("| %c ", s_History_full (self) || self->out_needle < self->depth && (
-                        (self->in_needle > self->out_needle && i >= self->out_needle && i < self->in_needle) ||
-                        (self->in_needle < self->out_needle && (i >= self->out_needle || i < self->in_needle)))   ? 'X': ' ');
+    for (index = 0; index < self->depth; index++)
+        printf("| %c ", s_History_slot_empty (self, index)? 'X': ' ');
     printf ("|\n");
-    for (int i = 0; i < self->depth; i++)
+    for (index = 0; index < self->depth; index++)
         printf("+---");
     printf ("+\n");
-#ifdef SDDS_HAS_QOS_RELIABILITY
+#   ifdef SDDS_HAS_QOS_RELIABILITY
     printf("    samples:\n");
-    for (int i = 0; i < self->depth; i++) {
-       if (s_History_full (self) || self->out_needle < self->depth && (
-          (self->in_needle > self->out_needle && i >= self->out_needle && i < self->in_needle) ||
-          (self->in_needle < self->out_needle && (i >= self->out_needle || i < self->in_needle)))) {
-            printf("        instance: %d, seqNr: %d,\n", self->samples[i].instance, self->samples[i].seqNr);
+    for (index = 0; index < self->depth; index++) {
+       if (s_History_slot_empty (self, index)) {
+            printf("        locator: %d, seqNr: %d,\n", self->samples[index].instance, self->samples[index].seqNr);
         }
     }
-#endif
+#   endif
     printf("}\n");
 }
+#endif
