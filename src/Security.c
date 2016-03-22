@@ -51,6 +51,10 @@ Security_receive_key() {
                         (uint8_t *) &msg, sizeof(msg), 
                         mac);
 
+  printf("mac: ");
+  Security_print_key(mac, sizeof(mac));
+
+
   if(memcmp(msg.message_data.props[2].value + sizeof(iv), mac, sizeof(mac)) == 0) {
     printf("mac is ok\n");
   } else {
