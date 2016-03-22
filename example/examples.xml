@@ -5,8 +5,8 @@
     <example name = "linux mcast2"  os = "linux" >Linux multicast example - Subscriber</example>
     <example name = "linux publisher"  os = "linux">Linux publisher example</example>
     <example name = "linux subscriber"  os = "linux" >Linux subscriber example</example>
-    <example name = "dings" os = "linux" />
-    <example name = "bums" os = "linux" />
+    <example name = "history demo" os = "linux" />
+    <example name = "history demo reliability" os = "linux" />
 
     <example name = "messung1_contiki"  os = "contiki" />
     <example name = "messung1_esp"      os = "freertos" />

@@ -1,5 +1,5 @@
 #include <unistd.h>
-#include "dings_sdds_impl.h"
+#include "history_demo_sdds_impl.h"
 
 int main()
 {
@@ -26,64 +26,81 @@ int main()
     sleep (10);
     sdds_History_print (DataReader_history (g_Alpha_reader));
     for (;;) {
-        printf ("=> ENQUEUE\n");
+        getchar();
+        printf ("##############\n");
+        printf ("# 1. ENQUEUE #\n");
+        printf ("##############\n");
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
 
-        sleep(1);
+        usleep(250);
         sdds_History_print (DataReader_history (g_Alpha_reader));
         getchar();
 
-        printf ("=> DEQUEUE\n");
+        printf ("##############\n");
+        printf ("# 2. DEQUEUE #\n");
+        printf ("##############\n");
         ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader, &alpha_sub_p, NULL);
 
-        sleep(1);
+        usleep(250);
         sdds_History_print (DataReader_history (g_Alpha_reader));
         getchar();
 
-        printf ("=> ENQUEUE x 4\n");
+        printf ("##################\n");
+        printf ("# 3. ENQUEUE x 4 #\n");
+        printf ("##################\n");
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL); usleep (250);
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL); usleep (250);
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL); usleep (250);
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL); usleep (250);
 
-        sleep(2);
+        usleep(250);
         sdds_History_print (DataReader_history (g_Alpha_reader));
         getchar();
 
-        printf ("=> ENQUEUE\n");
+        printf ("##############\n");
+        printf ("# 4. ENQUEUE #\n");
+        printf ("##############\n");
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
 
-        sleep(1);
+        usleep(250);
         sdds_History_print (DataReader_history (g_Alpha_reader));
         getchar();
 
-        printf ("=> ENQUEUE\n");
+        printf ("##############\n");
+        printf ("# 5. ENQUEUE #\n");
+        printf ("##############\n");
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
 
-        sleep(1);
+        usleep(250);
         sdds_History_print (DataReader_history (g_Alpha_reader));
         getchar();
 
-        printf ("=> ENQUEUE\n");
+        printf ("##############\n");
+        printf ("# 6. ENQUEUE #\n");
+        printf ("##############\n");
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
 
-        sleep(1);
+        usleep(250);
         sdds_History_print (DataReader_history (g_Alpha_reader));
         getchar();
 
-        printf ("=> DEQUEUE x 3\n");
+        printf ("#################\n");
+        printf ("# 7. DEQUEUE x3 #\n");
+        printf ("#################\n");
         ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader, &alpha_sub_p, NULL);
         ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader, &alpha_sub_p, NULL);
         ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader, &alpha_sub_p, NULL);
 
-        sleep(1);
+        usleep(250);
         sdds_History_print (DataReader_history (g_Alpha_reader));
         getchar();
 
-        printf ("=> DEQUEUE\n");
+        printf ("##############\n");
+        printf ("# 8. DEQUEUE #\n");
+        printf ("##############\n");
         ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader, &alpha_sub_p, NULL);
 
-        sleep(1);
+        usleep(250);
         sdds_History_print (DataReader_history (g_Alpha_reader));
         getchar();
     }

@@ -1,5 +1,5 @@
 <project
-    name = "dings"
+    name = "history_demo_reliability"
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
@@ -14,13 +14,18 @@
         port = "23456"
     >
     -->
-    ""
 
     <!--
         Include your topic files here. You can include topics from multiple files.
         Only those topics will be generated that have at least one matching role.
     -->
-    <include filename = "../topics/alpha.xml" />
+    <topic name = "alpha" domain = "1" id = "A">
+        Alpha testing topic.
+        <attribute name = "value" type = "DDS_char">Any char value</attribute>
+        <config type = "qos_reliability" reliabilitySeqnrSize = "basic"
+                kind = "reliable" confirmationtype = "ack"
+                max_blocking_time = "15500"/>
+    </topic>
 
     <!--
         Roles are bound to one topic and are either a publisher or subscriber.
@@ -51,6 +56,12 @@
         Configure default history depth
     -->
     <define name = "SDDS_QOS_HISTORY_DEPTH" value = "6"/>
+    <!--
+         Configure reliability
+    -->
+    <define name = "SDDS_HAS_QOS_RELIABILITY" />
+    <define name = "SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS" value = "1"/>
+    <define name = "SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE" value = "6"/>
     <!--
         Enable all debug messages
     -->

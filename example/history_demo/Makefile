@@ -1,4 +1,4 @@
-APPLICATION_NAME = bums
+APPLICATION_NAME = history_demo
 
 export APPLICATION_NAME
 

@@ -1,4 +1,4 @@
-APPLICATION_NAME = dings
+APPLICATION_NAME = history_demo_reliability
 
 export APPLICATION_NAME
 
