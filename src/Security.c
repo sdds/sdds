@@ -33,6 +33,7 @@ Security_receive_key() {
   uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
   uint8_t iv[SDDS_SECURITY_IV_SIZE];
   uint8_t mac[XCBC_MAC_SIZE];
+  uint8_t remote_mac[XCBC_MAC_SIZE];
   uint8_t *ptr = (uint8_t *) &msg;
 
   memset(&msg, 0, sizeof(msg));
@@ -51,19 +52,17 @@ Security_receive_key() {
 
   ptr[1] = (uint8_t) 0;
 
-  printf("mac key: ");
-  Security_print_key(g_handle.info.key_material + AES_128_KEY_LENGTH, AES_128_KEY_LENGTH);
+  memcpy(remote_mac, msg.message_data.props[2].value + sizeof(iv), sizeof(remote_mac));
+  memset(msg.message_data.props[2].value + sizeof(iv), 0, sizeof(remote_mac));
 
   // calculate xcbc mac
   Security_aes_xcbc_mac(g_handle.info.key_material + AES_128_KEY_LENGTH, 
                         (uint8_t *) &msg, sizeof(msg), 
                         mac);
 
-  printf("message: ");
   Security_print_key((uint8_t *) &msg, sizeof(msg));
 
-
-  if(memcmp(msg.message_data.props[2].value + sizeof(iv), mac, sizeof(mac)) == 0) {
+  if(memcmp(remote_mac, mac, sizeof(mac)) == 0) {
     printf("mac is ok\n");
   } else {
     return SDDS_RT_FAIL;
