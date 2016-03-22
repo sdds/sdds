@@ -157,6 +157,8 @@ Security_send_crypto_tokens(HandshakeHandle *h) {
   printf("mac: ");
   Security_print_key(mac, sizeof(mac));
 
+  Security_print_key((uint8_t *) &msg, sizeof(msg));
+
         memcpy(msg.message_data.props[2].value + sizeof(iv), mac, sizeof(mac)); 
 
         r = DDS_ParticipantVolatileMessageDataWriter_write(g_ParticipantVolatileMessage_writer,
