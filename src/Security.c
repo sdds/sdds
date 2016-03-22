@@ -50,10 +50,10 @@ Security_receive_key() {
   memcpy(iv, msg.message_data.props[2].value, sizeof(iv));
 
   Security_aes_ctr(iv, g_handle.info.key_material, key_material, sizeof(key_material));
-
   printf("key for topic %d: ", tid);
-  
   Security_print_key(key_material, SDDS_SECURITY_KDF_KEY_BYTES);
+
+  return SDDS_RT_OK;
 
 }
 

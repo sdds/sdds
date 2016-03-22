@@ -96,6 +96,9 @@ rc_t
 Security_init();
 
 rc_t 
+Security_receive_key();
+
+rc_t 
 Security_auth();
 
 rc_t
