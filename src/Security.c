@@ -34,6 +34,8 @@ Security_receive_key() {
   uint8_t iv[SDDS_SECURITY_IV_SIZE];
   uint8_t mac[XCBC_MAC_SIZE];
 
+  memset(&msg, 0, sizeof(msg));
+
   r = DDS_ParticipantVolatileMessageDataReader_take_next_sample(
                                g_ParticipantVolatileMessage_reader,
                                &msg_ptr,

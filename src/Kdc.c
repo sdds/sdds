@@ -128,6 +128,8 @@ Security_send_crypto_tokens(HandshakeHandle *h) {
   uint8_t iv[SDDS_SECURITY_IV_SIZE];
   uint8_t mac[XCBC_MAC_SIZE];
 
+  memset(&msg, 0, sizeof(msg));
+
   getRandomBytes(iv, SDDS_SECURITY_IV_SIZE);
 
   while(rule) {
