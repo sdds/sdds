@@ -28,8 +28,8 @@
 #define SDDS_SECURITY_PROP_NONCE "dds.sec.nonce"
 #define SDDS_SECURITY_PROP_MACTAG "dds.sec.mactag"
 #define SDDS_SECURITY_PROP_KEY_MATERIAL "dds.sec.k"
-
-#define SDDS_SECURITY_KDF_KEY_BYTES 32
+#define SDDS_SECURITY_PROP_TID "dds.sec.tid"
+#define SDDS_SECURITY_PROP_IV "dds.sec.iv"
 
 #define SDDS_SECURITY_RECEIVE_SLEEP_SEC 1
 
@@ -43,6 +43,8 @@
 
 #define SDDS_SECURITY_HANDSHAKE_MAX 5
 
+#define SDDS_SECURITY_KDF_KEY_BYTES 32
+#define SDDS_SECURITY_IV_SIZE 12
 #define XCBC_MAC_SIZE 12
 #define XCBC_K1 0x01
 #define XCBC_K2 0x02
@@ -134,6 +136,9 @@ Security_kdf(HandshakeHandle *h);
 
 void 
 Security_aes_xcbc_mac(uint8_t aes_key[AES_128_KEY_LENGTH], uint8_t *data, uint8_t size, uint8_t mac[XCBC_MAC_SIZE]);
+
+void 
+Security_aes_ctr(uint8_t iv[SDDS_SECURITY_IV_SIZE], uint8_t aes_key[AES_128_KEY_LENGTH], uint8_t *data, uint8_t size);
 
 DDS_S_Result_t 
 DDS_Security_Authentication_begin_handshake_request(
