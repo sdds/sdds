@@ -32,6 +32,7 @@ Security_receive_key() {
   uint16_t tid;  
   uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
   uint8_t iv[SDDS_SECURITY_IV_SIZE];
+  uint8_t mac[XCBC_MAC_SIZE];
 
   r = DDS_ParticipantVolatileMessageDataReader_take_next_sample(
                                g_ParticipantVolatileMessage_reader,
@@ -44,6 +45,17 @@ Security_receive_key() {
     printf("failed to receive crypto token\n");
     return SDDS_RT_FAIL;
   }  
+
+  // calculate xcbc mac
+  Security_aes_xcbc_mac(g_handle.info.key_material + AES_128_KEY_LENGTH, 
+                        (uint8_t *) &msg, sizeof(msg), 
+                        mac);
+
+  if(memcmp(msg.message_data.props[2].value + sizeof(iv), mac, sizeof(mac)) == 0) {
+    printf("mac is ok\n");
+  } else {
+    return SDDS_RT_FAIL;
+  }
 
   memcpy(&tid, msg.message_data.props[0].value, sizeof(tid));
   memcpy(key_material, msg.message_data.props[1].value, sizeof(key_material));

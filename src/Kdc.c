@@ -126,6 +126,7 @@ Security_send_crypto_tokens(HandshakeHandle *h) {
   char *app;
   uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
   uint8_t iv[SDDS_SECURITY_IV_SIZE];
+  uint8_t mac[XCBC_MAC_SIZE];
 
   getRandomBytes(iv, SDDS_SECURITY_IV_SIZE);
 
@@ -148,6 +149,13 @@ Security_send_crypto_tokens(HandshakeHandle *h) {
         memcpy(msg.message_data.props[1].value, key_material, sizeof(key_material)); 
         strcpy(msg.message_data.props[2].key, SDDS_SECURITY_PROP_IV);
         memcpy(msg.message_data.props[2].value, iv, sizeof(iv)); 
+
+        // calculate xcbc mac
+        Security_aes_xcbc_mac(h->info.key_material + AES_128_KEY_LENGTH, 
+                              (uint8_t *) &msg, sizeof(msg), 
+                              mac);
+
+        memcpy(msg.message_data.props[2].value + sizeof(iv), mac, sizeof(mac)); 
 
         r = DDS_ParticipantVolatileMessageDataWriter_write(g_ParticipantVolatileMessage_writer,
                                                             &msg,
