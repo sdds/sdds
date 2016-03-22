@@ -884,7 +884,7 @@ TopicMarshalling_ParticipantStatelessMessage_cpy(Data dest, Data source) {
 rc_t
 TopicMarshalling_ParticipantStatelessMessage_encode(NetBuffRef_t* buffer, Data data, size_t* size) {
     *size = 0;
-    byte_t* start = buffer->buff_start + buffer->curPos;
+    byte_t* start = buffer->buff_start + buffer->curPos + 1;
     DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
 
     Marshalling_enc_uint16(start + *size, &real_data->msgid);
