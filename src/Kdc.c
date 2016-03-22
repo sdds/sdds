@@ -154,6 +154,8 @@ Security_send_crypto_tokens(HandshakeHandle *h) {
         Security_aes_xcbc_mac(h->info.key_material + AES_128_KEY_LENGTH, 
                               (uint8_t *) &msg, sizeof(msg), 
                               mac);
+  printf("mac: ");
+  Security_print_key(mac, sizeof(mac));
 
         memcpy(msg.message_data.props[2].value + sizeof(iv), mac, sizeof(mac)); 
 
