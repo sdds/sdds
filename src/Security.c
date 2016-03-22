@@ -51,14 +51,15 @@ Security_receive_key() {
 
   ptr[1] = (uint8_t) 0;
 
+  printf("mac key: ");
+  Security_print_key(g_handle.info.key_material + AES_128_KEY_LENGTH, AES_128_KEY_LENGTH);
+
   // calculate xcbc mac
   Security_aes_xcbc_mac(g_handle.info.key_material + AES_128_KEY_LENGTH, 
                         (uint8_t *) &msg, sizeof(msg), 
                         mac);
 
-  printf("mac: ");
-  Security_print_key(mac, sizeof(mac));
-
+  printf("message: ");
   Security_print_key((uint8_t *) &msg, sizeof(msg));
 
 

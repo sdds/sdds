@@ -152,6 +152,9 @@ Security_send_crypto_tokens(HandshakeHandle *h) {
         strcpy(msg.message_data.props[2].key, SDDS_SECURITY_PROP_IV);
         memcpy(msg.message_data.props[2].value, iv, sizeof(iv)); 
 
+        printf("mac key: ");
+        Security_print_key(h->info.key_material + AES_128_KEY_LENGTH, AES_128_KEY_LENGTH);
+
         // calculate xcbc mac
         Security_aes_xcbc_mac(h->info.key_material + AES_128_KEY_LENGTH, 
                               (uint8_t *) &msg, sizeof(msg), 
