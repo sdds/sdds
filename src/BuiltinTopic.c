@@ -22,6 +22,7 @@ SSW_NodeID_t BuiltinTopic_participantID;
 static FILE* scalability_msg_count;
 #endif
 
+// foo
 
 DDS_Topic g_DCPSParticipant_topic;
 Sample_t dcps_participant_samples_pool[SDDS_QOS_HISTORY_DEPTH];
