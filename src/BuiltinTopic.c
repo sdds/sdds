@@ -913,7 +913,7 @@ rc_t
 TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data data, size_t* size) {
 
     *size = 0;
-    byte_t* start = buffer->buff_start + buffer->curPos - 1;  
+    byte_t* start = buffer->buff_start + buffer->curPos;  
     DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
 
     Marshalling_dec_uint16(start + *size, &real_data->msgid);
