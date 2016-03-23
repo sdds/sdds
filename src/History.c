@@ -396,7 +396,7 @@ sdds_History_print(History_t* self) {
     printf("    out needle: %d,\n", self->out_needle);
     printf("    isEmpty: %d,\n", self->out_needle == self->depth);
     printf("    isFull: %d,\n", self->in_needle == self->depth);
-    printf("    queue:,\n", self->in_needle == self->depth);
+    printf("    queue:,\n");
     //  Print visual representation of the queue
     int index;
     for (index = 0; index < self->depth; index++)
