@@ -79,7 +79,7 @@ ifneq (,$(filter msb-430,$(BOARD)))
 endif
 ifneq (,$(filter msba2,$(BOARD)))
 	USEMODULE += sht11
-	USEMODULE += ltc4150
+#	USEMODULE += ltc4150
 	USEMODULE += mci
 	USEMODULE += random
 endif
