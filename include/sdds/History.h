@@ -23,13 +23,18 @@ struct _History_t {
     uint16_t in_needle;       //  Needle that points to the next free slot
     uint16_t out_needle;      //  Needle that points to the sample to be
                               //  dequeued next
+    Mutex_t* mutex;
 #ifdef SDDS_HAS_QOS_RELIABILITY
     Locator_t* qos_locator[SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS];
     SDDS_SEQNR_BIGGEST_TYPE highestSeqNrbyLoc[SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS];
-#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+    || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
     SDDS_SEQNR_BIGGEST_TYPE missingSeqNrsByLoc[SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS][SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
     bool_t missingSeqNrSlotIsUsed [SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS][SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
+     Mutex_t* blocktex;
+     Task blockTask;
 #   endif
+
 #endif
 };
 
@@ -57,10 +62,8 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff);
 Sample_t*
 sdds_History_dequeue(History_t* self);
 
-#ifdef UTILS_DEBUG
 void
 sdds_History_print(History_t* self);
-#endif
 
 #ifdef __cplusplus
 }
