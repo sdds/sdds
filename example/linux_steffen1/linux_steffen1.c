@@ -88,7 +88,7 @@ int main()
 		//retHuge = DDS_TestQosReliabilityHugeReliableNackDataReader_take_next_sample (g_TestQosReliabilityHugeReliableNack_reader, &testQosReliabilityHugeReliableNack_sub_p, NULL);
 
 
-        sleep (1);
+        usleep (100000);
     }
 
     return 0;

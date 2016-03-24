@@ -17,6 +17,8 @@
 function resolve_topic_type (topic)
     my.topic.size ?= 0
     my.topic.description ?= "$(string.trim (topic.?""):left)"
+    my.topic.isPub = count (project.role, role.type = "publisher")
+    my.topic.isSub = count (project.role, role.type = "subscriber")
 
     my.topic.c_name = "$(string.substr (my.topic.name, 0, 0):upper)" + "$(string.substr (my.topic.name, 1):Camel)"
 
@@ -250,12 +252,20 @@ extern "C"
 #define SDDS_TOPIC 0x$(topic.id)
 
 .   if project.os <> "autobest" | (defined (project.autobest_role) & project.autobest_role = "server")
-.       if defined (topic.history_depth)
+.       if topic.isSub
+.           if defined (topic.history_depth)
 Sample_t $(topic.c_name)_samples_pool[$(topic.history_depth)];
 static $(topic.c_name:) $(topic.c_name)_sample_data[$(topic.history_depth)];
-.       else
+.           else
 Sample_t $(topic.c_name)_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_QOS_HISTORY_DEPTH];
+.           endif
+.       endif
+.       if topic.isPub
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+ReliableSample_t $(topic.c_name)_reliableSamples_pool[SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
+static $(topic.c_name:) $(topic.c_name)_reliableSamples_data[SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
+#endif
 .       endif
 .   endif
 
@@ -267,13 +277,22 @@ DDS_ReturnCode_t
 $(topic.c_name:)_init ()
 {
    int index;
-.   if defined (topic.history_depth)
+.   if topic.isSub
+.       if defined (topic.history_depth)
    for (index = 0; index < $(topic.history_depth); index++) {
-.   else
+.       else
    for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
-.   endif
+.       endif
       $(topic.c_name)_samples_pool[index].data = &$(topic.c_name)_sample_data[index];
    }
+.   endif
+.   if topic.isPub
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+for (index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
+   $(topic.c_name)_reliableSamples_pool[index].data = &$(topic.c_name)_reliableSamples_data[index];
+}
+#endif
+.   endif
 }
 
 #if defined (SDDS_TOPIC_HAS_PUB)
