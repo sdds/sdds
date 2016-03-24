@@ -23,7 +23,7 @@
     <topic name = "testQosReliabilityBasicReliableAck" domain = "1" id = "B">
         Test topic which sends some data for testing QoS RELIABILITY
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
-        <config type="qos_reliability" reliabilitySeqnrSize="basic" kind="reliable" confirmationtype="ack" max_blocking_time="100"/>
+        <config type="qos_reliability" reliabilitySeqnrSize="basic" kind="reliable" confirmationtype="ack" max_blocking_time="8000"/>
     </topic>
     <topic name = "testQosReliabilitySmallReliableAck" domain = "1" id = "A">
         Test topic which sends some data for testing QoS RELIABILITY

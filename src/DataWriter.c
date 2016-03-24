@@ -141,30 +141,10 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
             bool_t isAlreadyInQueue = 0;
 
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
-                if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
-                    if ((dw_reliable_p->samplesToKeep[index].isUsed != 0)
-                    && ((dw_reliable_p->samplesToKeep[index].seqNr)&0x0F == (dw_reliable_p->seqNr)&0x0F) ) {
-                        isAlreadyInQueue = 1;
-                        break;
-                    }
-                } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL) {
-                    if ((dw_reliable_p->samplesToKeep[index].isUsed != 0)
-                    && ((dw_reliable_p->samplesToKeep[index].seqNr)&0xFF == (dw_reliable_p->seqNr)&0xFF) ) {
-                        isAlreadyInQueue = 1;
-                        break;
-                    }
-                } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG) {
-                    if ((dw_reliable_p->samplesToKeep[index].isUsed != 0)
-                    && ((dw_reliable_p->samplesToKeep[index].seqNr)&0xFFFF == (dw_reliable_p->seqNr)&0xFFFF) ) {
-                        isAlreadyInQueue = 1;
-                        break;
-                    }
-                } else {
-                    if ((dw_reliable_p->samplesToKeep[index].isUsed != 0)
-                    &&  (dw_reliable_p->samplesToKeep[index].seqNr == dw_reliable_p->seqNr) ) {
-                        isAlreadyInQueue = 1;
-                        break;
-                    }
+                if ((dw_reliable_p->samplesToKeep[index].isUsed == 1)
+                &&  (dw_reliable_p->samplesToKeep[index].seqNr == dw_reliable_p->seqNr) ) {
+                    isAlreadyInQueue = 1;
+                    break;
                 }
             }
 
@@ -180,15 +160,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
                     || (dw_reliable_p->samplesToKeep[index].timeStamp + self->topic->max_blocking_time) < currentTime ) {
                         dw_reliable_p->samplesToKeep[index].isUsed = 1;
                         dw_reliable_p->samplesToKeep[index].data = data;
-                        if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
-                            dw_reliable_p->samplesToKeep[index].seqNr = (dw_reliable_p->seqNr)&0x0F;
-                        } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL) {
-                            dw_reliable_p->samplesToKeep[index].seqNr = (dw_reliable_p->seqNr)&0xFF;
-                        } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG) {
-                            dw_reliable_p->samplesToKeep[index].seqNr = (dw_reliable_p->seqNr)&0xFFFF;
-                        } else {
-                            dw_reliable_p->samplesToKeep[index].seqNr = dw_reliable_p->seqNr;
-                        }
+                        dw_reliable_p->samplesToKeep[index].seqNr = dw_reliable_p->seqNr;
                         dw_reliable_p->samplesToKeep[index].timeStamp = currentTime;
                         newSampleHasSlot = 1;
                         break;
@@ -205,7 +177,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
                         if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
                             SNPS_writeSeqNr(out_buffer, dw_reliable_p->samplesToKeep[index].seqNr);
-                            //printf("DW send seqNr %d\n", dw_reliable_p->samplesToKeep[index].seqNr &0x0f);
+
 #           if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
                         } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL) {
                             SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->samplesToKeep[index].seqNr);
@@ -250,14 +222,14 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         {
 
             if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-                SNPS_writeSeqNr(out_buffer, (dw_reliable_p->seqNr&0x0F) );
+                SNPS_writeSeqNr(out_buffer, dw_reliable_p->seqNr);
 #       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
             } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
-                SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->seqNr&0xFF);
+                SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->seqNr);
 #       endif
 #       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
             } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
-                SNPS_writeSeqNrBig(out_buffer, dw_reliable_p->seqNr&0xFFFF);
+                SNPS_writeSeqNrBig(out_buffer, dw_reliable_p->seqNr);
 #       endif
 #       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
             } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
@@ -271,7 +243,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_RELIABLE ) {
             if (newSampleHasSlot) {
                 if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
-                    dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xF;
+                    dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0x0F;
                 } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
                     dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xFF;
                 } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
@@ -282,7 +254,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
             }
         } else {
             if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-                dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xF;
+                dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0x0F;
             } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
                 dw_reliable_p->seqNr = (dw_reliable_p->seqNr + 1) & 0xFF;
             } else if (self->topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
@@ -292,7 +264,6 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
             }
         }
 
-        //printf("DW-write, seqNr: %d \n", ((Reliable_DataWriter_t*)self)->seqNr);
     } // end of topic is relevant for reliability
 
 #endif // end if SDDS_HAS_QOS_RELIABILITY
@@ -305,20 +276,18 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #   endif
         {
 #endif
-            if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
+            ret = SNPS_writeData(out_buffer, topic->Data_encode, data);
+            if (ret != SDDS_RT_OK) {
                 Log_error("(%d) SNPS_writeData failed\n", __LINE__);
 #ifdef SDDS_QOS_LATENCYBUDGET
-                out_buffer->bufferOverflow = true;
+                    if (ret == SDDS_RT_FAIL) {
+                        out_buffer->bufferOverflow = true;
+                    }
 #endif
             }
 #ifdef SDDS_HAS_QOS_RELIABILITY
         }
 #endif
-
-//NetBuffRef_print_subMsgType(out_buffer, SDDS_SNPS_SUBMSG_SEQNR);
-//printf("\n--------SENDING-------\n");
-//printf("writing to domain %d and topic %d \n", topic->domain, topic->id);
-//NetBuffRef_print_subMsgs(out_buffer);
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
@@ -506,10 +475,6 @@ checkSending(NetBuffRef_t* buf) {
     SNPS_updateHeader(buf);
     rc_t ret = SDDS_RT_OK;
     if (buf->locators->size_fn(buf->locators) > 0) {
-
-
-//printf("\n--------SENDING-------\n");
-//NetBuffRef_print_subMsgs(buf);
 
 
         ret = Network_send(buf);

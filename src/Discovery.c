@@ -46,6 +46,8 @@ Discovery_addParticipant(SDDS_DCPSParticipant* p);
 static rc_t
 Discovery_handleParticipant(SDDS_DCPSParticipant* p);
 
+static Mutex_t* mutex;
+
 /***********************************************************************************
                                                                         Implementierung
   ***********************************************************************************/
@@ -269,6 +271,10 @@ Discovery_receive_SubscriptionTopics() {
 
 void
 Discovery_receive(void* data) {
+    // if the receive timer is very low, it can happen that a second task is started 
+    // before the first task has finished
+    Mutex_lock(mutex);
+
     Discovery_receiveParticipantTopics();
 
     Discovery_receivePublicationTopics();
@@ -276,6 +282,8 @@ Discovery_receive(void* data) {
     Discovery_receiveTopicTopics();
 
     Discovery_receive_SubscriptionTopics();
+
+    Mutex_unlock(mutex);
 }
 
 rc_t
@@ -283,6 +291,18 @@ Discovery_init() {
     for (int i = 0; i < SDDS_DISCOVERY_MAX_PARTICIPANTS; i++) {
         participants[i].data.key = 0;
     }
+
+    mutex = Mutex_create();
+    if (mutex == NULL) {
+        Log_error("Mutex_create failed\n");
+        return SDDS_RT_FAIL;
+    }
+    ssw_rc_t ret = Mutex_init(mutex);
+    if (ret == SDDS_SSW_RT_FAIL) {
+        Log_error("Mutex_init failed\n");
+        return SDDS_RT_FAIL;
+    }
+
 #if (SDDS_DISCOVERY_RECEIVE_TIMER != 0)
     recvTask = Task_create();
     Task_init(recvTask, Discovery_receive, NULL);

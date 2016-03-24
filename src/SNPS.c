@@ -42,6 +42,9 @@ _writeExtTopic(NetBuffRef_t* ref, topicid_t topic);
 
 rc_t
 SNPS_evalSubMsg(NetBuffRef_t* ref, subMsg_t* type) {
+    if (ref == NULL || type == NULL) {
+        return SDDS_RT_FAIL;
+    }
 
     uint8_t read;
     Marshalling_dec_uint8(START, &read);
@@ -116,6 +119,9 @@ SNPS_evalSubMsg(NetBuffRef_t* ref, subMsg_t* type) {
 
 rc_t
 SNPS_discardSubMsg(NetBuffRef_t* ref) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     if (ref->subMsgCount <= 0) {
         return SDDS_RT_FAIL;
     }
@@ -205,6 +211,9 @@ SNPS_discardSubMsg(NetBuffRef_t* ref) {
 
 rc_t
 SNPS_gotoNextSubMsg(NetBuffRef_t* buff, subMsg_t type) {
+    if (buff == NULL) {
+        return SDDS_RT_FAIL;
+    }
     subMsg_t readType;
     while (buff->subMsgCount > 0 && buff->curPos <= SDDS_NET_MAX_BUF_SIZE) {
         SNPS_evalSubMsg(buff, &readType);
@@ -225,6 +234,9 @@ SNPS_gotoNextSubMsg(NetBuffRef_t* buff, subMsg_t type) {
 
 rc_t
 SNPS_initFrame(NetBuffRef_t* ref) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     // write header
     version_t v = SDDS_NET_VERSION;
     Marshalling_enc_uint8(ref->buff_start, &v);
@@ -243,6 +255,9 @@ SNPS_initFrame(NetBuffRef_t* ref) {
 
 rc_t
 SNPS_readHeader(NetBuffRef_t* ref) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     version_t v;
     Marshalling_dec_uint8(ref->buff_start, &v);
     ref->curPos += sizeof(version_t);
@@ -261,6 +276,9 @@ SNPS_readHeader(NetBuffRef_t* ref) {
 
 rc_t
 SNPS_updateHeader(NetBuffRef_t* ref) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     Marshalling_enc_uint8( (ref->buff_start + sizeof(version_t)), &(ref->subMsgCount));
 
     return SDDS_RT_OK;
@@ -272,6 +290,9 @@ SNPS_updateHeader(NetBuffRef_t* ref) {
 
 rc_t
 SNPS_writeDomain(NetBuffRef_t* ref, domainid_t domain) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_DOMAIN, (uint8_t)domain);
     ref->curPos += 1;
     ref->subMsgCount +=1;
@@ -286,6 +307,9 @@ SNPS_writeDomain(NetBuffRef_t* ref, domainid_t domain) {
 
 rc_t
 SNPS_readDomain(NetBuffRef_t* ref, domainid_t* domain) {
+    if (ref == NULL || domain == NULL) {
+        return SDDS_RT_FAIL;
+    }
     Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_DOMAIN, (uint8_t*)domain);
     ref->curPos += 1;
     ref->subMsgCount -=1;
@@ -300,6 +324,9 @@ SNPS_readDomain(NetBuffRef_t* ref, domainid_t* domain) {
 
 rc_t
 SNPS_writeTopic(NetBuffRef_t* ref, topicid_t topic) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
 #ifdef SDDS_EXTENDED_TOPIC_SUPPORT
     if (topic > 15) {
         return _writeExtTopic(ref, topic);
@@ -315,6 +342,9 @@ SNPS_writeTopic(NetBuffRef_t* ref, topicid_t topic) {
 
 rc_t
 _writeBasicTopic(NetBuffRef_t* ref, topicid_t topic) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_TOPIC, (uint8_t)topic);
     ref->curPos +=1;
     ref->subMsgCount +=1;
@@ -329,6 +359,9 @@ _writeBasicTopic(NetBuffRef_t* ref, topicid_t topic) {
 #ifdef SDDS_EXTENDED_TOPIC_SUPPORT
 rc_t
 _writeExtTopic(NetBuffRef_t* ref, topicid_t topic) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     // write the header of an extended submessage of the type topic
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_EXTENDED, SDDS_SNPS_EXTSUBMSG_TOPIC);
     ref->curPos +=1;
@@ -349,6 +382,9 @@ _writeExtTopic(NetBuffRef_t* ref, topicid_t topic) {
 
 rc_t
 SNPS_readTopic(NetBuffRef_t* ref, topicid_t* topic) {
+    if (ref == NULL || topic == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret;
     ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_TOPIC, (uint8_t*)topic);
 
@@ -385,6 +421,9 @@ SNPS_readTopic(NetBuffRef_t* ref, topicid_t* topic) {
 
 rc_t
 SNPS_writeData(NetBuffRef_t* ref, TopicMarshalling_encode_fn encode_fn, Data d) {
+    if (ref == NULL || d == NULL) {
+        return SDDS_RT_BAD_PARAMETER;
+    }
     size_t writtenBytes = 0;
 
     // start 1 byte later, the header have to be written if the size is known
@@ -410,6 +449,9 @@ SNPS_writeData(NetBuffRef_t* ref, TopicMarshalling_encode_fn encode_fn, Data d) 
 
 rc_t
 SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data) {
+    if (ref == NULL || data == NULL) {
+        return SDDS_RT_FAIL;
+    }
     size_t size = 0;
     Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t*) &size);
     ref->curPos += 1;
@@ -428,6 +470,9 @@ SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data
 
 rc_t
 SNPS_writeSeqNr(NetBuffRef_t* ref, uint8_t seqNr) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, seqNr);
@@ -443,6 +488,9 @@ SNPS_writeSeqNr(NetBuffRef_t* ref, uint8_t seqNr) {
 
 rc_t
 SNPS_writeSeqNrSmall(NetBuffRef_t* ref, uint8_t seqNr) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRSMALL, (byte_t*)&seqNr, 0);
@@ -460,6 +508,9 @@ SNPS_writeSeqNrSmall(NetBuffRef_t* ref, uint8_t seqNr) {
 
 rc_t
 SNPS_writeSeqNrBig(NetBuffRef_t* ref, uint16_t seqNr) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRBIG, (byte_t*)&seqNr, 0);
@@ -476,6 +527,9 @@ SNPS_writeSeqNrBig(NetBuffRef_t* ref, uint16_t seqNr) {
 #   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
 rc_t
 SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, uint32_t seqNr) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRHUGE, (byte_t*)&seqNr, 0);
@@ -493,6 +547,9 @@ SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, uint32_t seqNr) {
 
 rc_t
 SNPS_writeAckSeq(NetBuffRef_t* ref, uint8_t seqNr) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_ACKSEQ, seqNr);
@@ -509,6 +566,9 @@ SNPS_writeAckSeq(NetBuffRef_t* ref, uint8_t seqNr) {
 
 rc_t
 SNPS_writeAck(NetBuffRef_t* ref) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_ACK, 0, 1);
@@ -527,6 +587,9 @@ SNPS_writeAck(NetBuffRef_t* ref) {
 
 rc_t
 SNPS_writeNackSeq(NetBuffRef_t* ref, uint8_t seqNr) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_NACKSEQ, seqNr);
@@ -543,6 +606,9 @@ SNPS_writeNackSeq(NetBuffRef_t* ref, uint8_t seqNr) {
 
 rc_t
 SNPS_writeNack(NetBuffRef_t* ref) {
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_NACK, 0, 1);
@@ -560,6 +626,9 @@ SNPS_writeNack(NetBuffRef_t* ref) {
 
 rc_t
 SNPS_readSeqNr(NetBuffRef_t* ref, uint8_t* seqNr) {
+    if (ref == NULL || seqNr == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_SEQNR, (uint8_t*) seqNr);
@@ -577,6 +646,9 @@ SNPS_readSeqNr(NetBuffRef_t* ref, uint8_t* seqNr) {
 #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_readSeqNrSmall(NetBuffRef_t* ref, uint8_t* seqNr) {
+    if (ref == NULL || seqNr == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRSMALL, seqNr, 0);
@@ -595,6 +667,9 @@ SNPS_readSeqNrSmall(NetBuffRef_t* ref, uint8_t* seqNr) {
 
 rc_t
 SNPS_readSeqNrBig(NetBuffRef_t* ref, uint16_t* seqNr) {
+    if (ref == NULL || seqNr == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
     ret = Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRBIG, (byte_t*) seqNr, 0);
 
@@ -612,6 +687,9 @@ SNPS_readSeqNrBig(NetBuffRef_t* ref, uint16_t* seqNr) {
 
 rc_t
 SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr) {
+    if (ref == NULL || seqNr == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
     ret = Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SEQNRHUGE, (byte_t*) seqNr, 0);
 
@@ -625,6 +703,9 @@ SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr) {
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
 rc_t
 SNPS_readAckSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
+    if (ref == NULL || seqNr == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_ACKSEQ, (uint8_t*) seqNr);
@@ -638,6 +719,9 @@ SNPS_readAckSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
 #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_readAck(NetBuffRef_t* ref){
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     ref->curPos += 1;
     ref->subMsgCount -= 1;
 
@@ -650,6 +734,9 @@ SNPS_readAck(NetBuffRef_t* ref){
 #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC
 rc_t
 SNPS_readNackSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
+    if (ref == NULL || seqNr == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = SDDS_RT_FAIL;
 
     ret = Marshalling_dec_SubMsg(START, SDDS_SNPS_SUBMSG_NACKSEQ, (uint8_t*) seqNr);
@@ -664,6 +751,9 @@ SNPS_readNackSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
 #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_readNack(NetBuffRef_t* ref){
+    if (ref == NULL) {
+        return SDDS_RT_FAIL;
+    }
     ref->curPos += 1;
     ref->subMsgCount -= 1;
 
@@ -679,6 +769,9 @@ SNPS_readNack(NetBuffRef_t* ref){
 
 rc_t
 SNPS_char2Hex(char c, uint8_t* h) {
+    if (h == NULL) {
+        return SDDS_RT_FAIL;
+    }
     switch (c) {
     case '0':
         h[0] = 0x0;
@@ -760,6 +853,9 @@ SNPS_char2Hex(char c, uint8_t* h) {
 
 rc_t
 SNPS_IPv6_str2Addr(char* charAddr, uint8_t* byteAddr, uint8_t* addrLen) {
+    if (charAddr == NULL || byteAddr == NULL || addrLen == NULL) {
+        return SDDS_RT_FAIL;
+    }
     uint8_t tmpAddrLen = (SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE  * 2);
     uint8_t tmpAddr[tmpAddrLen];
     uint8_t tmpAddrPos = tmpAddrLen-1;
@@ -847,6 +943,9 @@ SNPS_IPv6_str2Addr(char* charAddr, uint8_t* byteAddr, uint8_t* addrLen) {
 
 rc_t
 SNPS_IPv6_addr2Str(uint8_t* byteAddr, char* charAddr) {
+    if (charAddr == NULL || byteAddr == NULL) {
+        return SDDS_RT_FAIL;
+    }
     /*
      * replace from z_zoor for autobest port
      * offset:       0         1
@@ -887,6 +986,9 @@ SNPS_IPv6_addr2Str(uint8_t* byteAddr, char* charAddr) {
 
 rc_t
 SNPS_writeAddress(NetBuffRef_t* ref, castType_t castType, addrType_t addrType, uint8_t* addr, uint8_t addrLen) {
+    if (ref == NULL || addr == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret = 0;
 
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMGS_ADDR, addrLen);
@@ -910,6 +1012,9 @@ SNPS_writeAddress(NetBuffRef_t* ref, castType_t castType, addrType_t addrType, u
 
 rc_t
 SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, Locator_t** addr) {
+    if (ref == NULL || addrCast == NULL || addrType == NULL || addr == NULL) {
+        return SDDS_RT_FAIL;
+    }
     rc_t ret;
     uint8_t addrLen;
     ret = Marshalling_dec_uint8(START, &addrLen);

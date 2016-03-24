@@ -1,38 +1,11 @@
-.#  ===========================================================================
-.#  Generate examples
-.#
-.#  This is a code generator built using the iMatix GSL code generation
-.#  language. See https://github.com/imatix/gsl for details.
-.#
-.#  This script will generate the following files:
-.#  ===========================================================================
-.template 0
-
-function ln_s (filename, linkname)
-    my.shell = proc.new ("ln -s $(my.filename:) $(my.linkname:)")
-    my.shell.run ()
-endfunction
-
-.endtemplate
-.#
-.#  Create examples or update existing
-.#
-.for example
-.   if !file.exists ("$(example.name:c)")
-.       directory.create ("$(example.name:c)")
-.   endif
-.   if !file.exists ("$(example.name:c)/generate.sh")
-.       ln_s ("../../scripts/generate.sh", "$(example.name:c)/generate.sh")
-.   endif
-.   if !file.exists ("$(example.name:c)/sdds.xml")
-.       output "$(example.name:c)/sdds.xml"
 <project
-    name = "$(example.name:c)"
+    name = "history_demo_reliability"
     script = "sdds.gsl"
     endian = "little"
-    os = "$(example.os)"
+    os = "linux"
     protocol = "AF_INET6"
-    ip = "<your-IP>"
+    iface = "tap0"
+    ip = "fe80::c0ef:62ff:fed4:d26a"
     >
     <!--
     Set Set interface and port for this project. Interface is required if your
@@ -41,13 +14,18 @@ endfunction
         port = "23456"
     >
     -->
-    "$(string.trim (example.?""):left)"
 
     <!--
         Include your topic files here. You can include topics from multiple files.
         Only those topics will be generated that have at least one matching role.
     -->
-    <include filename = "../topics/alpha.xml" />
+    <topic name = "alpha" domain = "1" id = "A">
+        Alpha testing topic.
+        <attribute name = "value" type = "DDS_char">Any char value</attribute>
+        <config type = "qos_reliability" reliabilitySeqnrSize = "basic"
+                kind = "reliable" confirmationtype = "ack"
+                max_blocking_time = "15500"/>
+    </topic>
 
     <!--
         Roles are bound to one topic and are either a publisher or subscriber.
@@ -77,18 +55,15 @@ endfunction
     <!--
         Configure default history depth
     -->
-    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "1"/>
+    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "6"/>
+    <!--
+         Configure reliability
+    -->
+    <define name = "SDDS_HAS_QOS_RELIABILITY" />
+    <define name = "SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS" value = "1"/>
+    <define name = "SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE" value = "6"/>
     <!--
         Enable all debug messages
-    <define name = "UTILS_DEBUG"/>
     -->
+    <define name = "UTILS_DEBUG"/>
 </project>
-.       close
-.   endif
-.   if !file.exists ("$(example.name:c)/.gitignore)")
-.       output "$(example.name:c)/.gitignore"
-$(example.name:c)
-.       close
-.   endif
-.endfor
-.

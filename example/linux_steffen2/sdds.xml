@@ -3,9 +3,9 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "eth0"
-    ip = "fe80::921b:eff:fe11:30e8"
-    port = "23234"
+    device = "eth0"
+    ip = "fd29:144d:4196:94::46"
+    port = "23236"
 	protocol = "AF_INET6"
     >
 
@@ -53,10 +53,10 @@
         <subscriber ip="fe80::219:99ff:fede:9a7a"/>
     </role>
 -->
-
-
-    <role topic = "testQosReliabilityBasicReliableNack" type = "subscriber"/>
+    <role topic = "testQosReliabilityBasicReliableAck" type = "subscriber"/>
 <!--
+    <role topic = "testQosReliabilityBasicBesteffort" type = "subscriber"/>
+
     <role topic = "testQosReliabilitySmallReliableAck" type = "subscriber"/>
 
     <role topic = "testQosReliabilityBigReliableAck" type = "subscriber"/>
