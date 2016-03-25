@@ -54,7 +54,7 @@ TaskMngLoop(void* foo) {
  */
 ssw_rc_t
 TaskMng_init(void) {
-    int taskMng_stack_size = THREAD_STACKSIZE_DEFAULT * sizeof(char);
+    int taskMng_stack_size = THREAD_STACKSIZE_DEFAULT * sizeof(char) ;
     char* stack_thread = (char*) Memory_alloc(taskMng_stack_size);
 	if (stack_thread == NULL) {
 		assert(false);
@@ -62,7 +62,7 @@ TaskMng_init(void) {
         return SDDS_SSW_RT_FAIL;
 	}
     TaskMngPid = thread_create(stack_thread, taskMng_stack_size,
-                               THREAD_PRIORITY_MAIN, 0,
+                               THREAD_PRIORITY_MAIN, THREAD_CREATE_STACKTEST,
                                TaskMngLoop, NULL, "TaskMng sDDS");
     if(TaskMngPid < 0) {
 		Log_error("Can't start task management thread. retcode %d", TaskMngPid);

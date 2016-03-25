@@ -34,6 +34,8 @@
 #include <net/gnrc/netif.h>
 #include <net/conn/udp.h>
 #include <msg.h>
+#include <ps.h>
+#include <sema.h>
 
 //////////////////////// DEFINES //////////////////////
 #define MAIN_QUEUE_SIZE     (8)
@@ -67,12 +69,17 @@ _receiverThreadFunction(void* arg);
 
 struct Network_t {
 	// network interface of the LUA address
+    // important it have to be the first element, otherwise it breaks NodeCongig
 	gnrc_ipv6_netif_t* netif;
+
+
 	ipv6_addr_t lua;
 	ipv6_addr_t ula;
 
 	conn_udp_t uni_con;
     kernel_pid_t uniReceiveThreadPid;
+
+    sema_t initThreadSema;
 
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
 	conn_udp_t multi_con;
@@ -103,7 +110,7 @@ static char stackReceiveThreadMulticast[THREAD_STACKSIZE_DEFAULT];
 #endif
 
 // static datastructures
-static struct Network_t net = {.lua = IPV6_ADDR_UNSPECIFIED, .ula = IPV6_ADDR_UNSPECIFIED };
+struct Network_t net = {.lua = IPV6_ADDR_UNSPECIFIED, .ula = IPV6_ADDR_UNSPECIFIED };
 static NetBuffRef_t uniInBuff;
 static NetBuffRef_t multiInBuff;
 
@@ -130,6 +137,10 @@ _receiverThreadFunction(void* arg) {
         Log_error("Can't create udp connection error code %d\n", ret);
         return NULL;
     }
+
+
+// wake caller thread
+    sema_post(&net.initThreadSema);
 
     // endless loop
     while (true) {
@@ -234,6 +245,7 @@ _initUnicast(void) {
 
     NetBuffRef_init(&uniInBuff);
 
+
 	// parameter for receive thread
     static struct NetworkThreadParameter para = {.buff = &uniInBuff,
         .conn = &net.uni_con, .typ = "Uni", .mq = _unicast_msg_queue,
@@ -243,7 +255,7 @@ _initUnicast(void) {
     net.uniReceiveThreadPid = thread_create(stackReceiveThreadUnicast,
                                             sizeof(stackReceiveThreadUnicast),
                                             THREAD_PRIORITY_MAIN,
-                                            0, //  flags
+                                            THREAD_CREATE_STACKTEST, //  flags
                                             _receiverThreadFunction,
                                             (void*) &para,
                                             "Unicast receiver thread"
@@ -261,6 +273,8 @@ _initUnicast(void) {
     } else {
         Log_error("Can't start unicast receiver thread. Error code %d\n", net.uniReceiveThreadPid);
     }
+
+
 
     return SDDS_RT_FAIL;
 
@@ -315,7 +329,7 @@ _initMulticast(void)  {
     net.multiReceiveThreadPid = thread_create(stackReceiveThreadMulticast,
                                             sizeof(stackReceiveThreadMulticast),
                                             THREAD_PRIORITY_MAIN,
-                                            0, //  flags
+                                            THREAD_CREATE_STACKTEST, //  flags
                                             _receiverThreadFunction,
                                             (void*) &para,
                                             "Multicast receiver thread"
@@ -411,23 +425,38 @@ Network_init(void) {
     ipv6_addr_to_str(ipv6_addr, &net.lua, IPV6_ADDR_MAX_STR_LEN);
     printf("My LUA address is %s\n", ipv6_addr);
 
+    // set up mutex so threads create connection first
+    sema_create(&net.initThreadSema, 0);
+
 	rc = _initUnicast();
 	if (rc != SDDS_RT_OK) {
 		return rc;
 	}
+    // second lock, wait till thread is ready
+    sema_wait(&net.initThreadSema);
 
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
+
 	rc = _initMulticast();
 	if (rc != SDDS_RT_OK) {
 		return rc;
 	}
+    sema_wait(&net.initThreadSema);
 #endif
 
-//	RiotNetHelper_printAllAddresses();
+    Log_debug("foo\n");
+    ps();
 
+    Log_debug("bar\n");
+
+//	RiotNetHelper_printAllAddresses();
+/*
     for (size_t i = 0; i < numof && i < GNRC_NETIF_NUMOF; i++) {
         RiotNetHelper_netif_list(ifs[i]);
     }
+*/
+
+    sema_destroy(&net.initThreadSema);
 
 	return SDDS_RT_OK;
 }

@@ -49,11 +49,14 @@ QUIET ?= 0
 USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
+USEMODULE += sema
 USEMODULE += vtimer
 USEMODULE += config
-USEMODULE += gnrc_netif_default
+#USEMODULE += gnrc_netif_default
+USEMODULE += gnrc_netdev_default
 USEMODULE += auto_init_gnrc_netif
 # Specify the mandatory networking modules for IPv6 and UDP
+#USEMODULE += gnrc_ipv6_default
 USEMODULE += gnrc_ipv6
 USEMODULE += gnrc_ipv6_router_default
 USEMODULE += gnrc_udp

@@ -51,7 +51,7 @@ USEMODULE += shell_commands
 USEMODULE += ps
 USEMODULE += vtimer
 USEMODULE += config
-USEMODULE += gnrc_netif_default
+USEMODULE += gnrc_netdev_default
 USEMODULE += auto_init_gnrc_netif
 # Specify the mandatory networking modules for IPv6 and UDP
 USEMODULE += gnrc_ipv6
@@ -61,6 +61,7 @@ USEMODULE += gnrc_udp
 USEMODULE += gnrc_rpl
 USEMODULE += gnrc_conn_udp
 USEMODULE += gnrc_icmpv6_echo
+USEMODULE += sema
 
 USEMODULE += gnrc_ndp
 # Additional networking modules that can be dropped if not needed
