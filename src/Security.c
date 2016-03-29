@@ -4,6 +4,7 @@
 
 static MessageIdentity msgid;
 static HandshakeHandle g_handle;
+List_t* key_list;
 
 rc_t 
 Security_init() {
@@ -14,11 +15,27 @@ Security_init() {
     return SDDS_RT_FAIL;
   }
 
+  key_list = List_initLinkedList();  
   Security_receive_key();
   
 #endif
 
   return SDDS_RT_OK;
+
+}
+
+Ac_topic*
+Security_lookup_key(uint16_t tid) {
+
+  Ac_topic *key = key_list->first_fn(key_list);
+  while(key) {
+    if(key->tid == tid) {
+      return key;
+    }
+    key = key_list->next_fn(key_list);
+  }
+  
+  return NULL;
 
 }
 
@@ -50,8 +67,6 @@ Security_receive_key() {
     return SDDS_RT_FAIL;
   }  
 
-  //ptr[1] = (uint8_t) 0;
-
   memcpy(remote_mac, msg.message_data.props[2].value + sizeof(iv), sizeof(remote_mac));
   memset(msg.message_data.props[2].value + sizeof(iv), 0, sizeof(remote_mac));
 
@@ -59,9 +74,7 @@ Security_receive_key() {
   Security_aes_xcbc_mac(g_handle.info.key_material + AES_128_KEY_LENGTH, 
                         (uint8_t *) &msg, sizeof(msg), 
                         mac);
-
-  Security_print_key((uint8_t *) &msg, sizeof(msg));
-
+ 
   if(memcmp(remote_mac, mac, sizeof(mac)) == 0) {
     printf("mac is ok\n");
   } else {
@@ -73,8 +86,14 @@ Security_receive_key() {
   memcpy(iv, msg.message_data.props[2].value, sizeof(iv));
 
   Security_aes_ctr(iv, g_handle.info.key_material, key_material, sizeof(key_material));
+
   printf("key for topic %d: ", tid);
   Security_print_key(key_material, SDDS_SECURITY_KDF_KEY_BYTES);
+
+  Ac_topic *key = Memory_alloc(sizeof(Ac_topic));
+  key->tid = tid;
+  memcpy(key->key_material, key_material, sizeof(key_material));
+  key_list->add_fn(key_list, key);
 
   return SDDS_RT_OK;
 
@@ -199,9 +218,10 @@ DDS_Security_Authentication_begin_handshake_request(
   // start id and public key in handshake_message_out
   strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REQ);
   handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_ID, SDDS_SECURITY_USER_ID}; 
-  handshake_message_out->props[1] = (Property) {SDDS_SECURITY_PROP_PUB_KEY_X, SDDS_SECURITY_USER_PUBLIC_KEY_X}; 
-  handshake_message_out->props[2] = (Property) {SDDS_SECURITY_PROP_PUB_KEY_Y, SDDS_SECURITY_USER_PUBLIC_KEY_Y}; 
-
+  strcpy(handshake_message_out->props[1].key, SDDS_SECURITY_PROP_PUB_KEY_X); 
+  Security_get_bytes(handshake_message_out->props[1].value, SDDS_SECURITY_USER_PUBLIC_KEY_X, NUM_ECC_DIGITS);
+  strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_PUB_KEY_Y); 
+  Security_get_bytes(handshake_message_out->props[2].value, SDDS_SECURITY_USER_PUBLIC_KEY_Y, NUM_ECC_DIGITS);
   return VALIDATION_PENDING_HANDSHAKE_MESSAGE;
 
 }
@@ -233,9 +253,10 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
   // reply with id and public key in handshake_message_out
   strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
   handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_ID, SDDS_SECURITY_USER_ID}; 
-  handshake_message_out->props[1] = (Property) {SDDS_SECURITY_PROP_PUB_KEY_X, SDDS_SECURITY_USER_PUBLIC_KEY_X}; 
-  handshake_message_out->props[2] = (Property) {SDDS_SECURITY_PROP_PUB_KEY_Y, SDDS_SECURITY_USER_PUBLIC_KEY_Y}; 
-
+  strcpy(handshake_message_out->props[1].key, SDDS_SECURITY_PROP_PUB_KEY_X); 
+  Security_get_bytes(handshake_message_out->props[1].value, SDDS_SECURITY_USER_PUBLIC_KEY_X, NUM_ECC_DIGITS);
+  strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_PUB_KEY_Y); 
+  Security_get_bytes(handshake_message_out->props[2].value, SDDS_SECURITY_USER_PUBLIC_KEY_Y, NUM_ECC_DIGITS);
   return VALIDATION_PENDING_HANDSHAKE_MESSAGE;
 
 }
@@ -613,6 +634,76 @@ Security_aes_ctr(uint8_t iv[SDDS_SECURITY_IV_SIZE], uint8_t aes_key[AES_128_KEY_
       data[(n*AES_128_KEY_LENGTH) + j] = data[(n*AES_128_KEY_LENGTH) + j] ^ block[j];
     }
   }
+
+}
+
+bool 
+DDS_Security_CryptoTransform_encode_serialized_data(
+	OctetSeq *encoded_buffer, /* inout (variable length) */
+	OctetSeq *plain_buffer, /* in (variable length) */
+	DatawriterCryptoHandle *sending_datawriter_crypto, /* in (fixed length) */
+	SecurityException *ex /* inout (variable length) */
+) {
+
+  uint8_t iv[SDDS_SECURITY_IV_SIZE];
+  uint8_t mac[XCBC_MAC_SIZE];
+
+  if(encoded_buffer->len < (SDDS_SECURITY_IV_SIZE + plain_buffer->len + XCBC_MAC_SIZE)) {
+    return false;
+  }  
+
+  getRandomBytes(iv, SDDS_SECURITY_IV_SIZE);
+
+  Security_aes_ctr(iv, sending_datawriter_crypto->key_material, plain_buffer->data, plain_buffer->len);
+
+  memcpy(encoded_buffer->data, iv, SDDS_SECURITY_IV_SIZE);
+  memcpy(encoded_buffer->data + SDDS_SECURITY_IV_SIZE, plain_buffer, plain_buffer->len);
+  
+  Security_aes_xcbc_mac(sending_datawriter_crypto->key_material + AES_128_KEY_LENGTH, 
+                        encoded_buffer->data, 
+                        SDDS_SECURITY_IV_SIZE + plain_buffer->len, 
+                        mac);
+
+  memcpy(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + plain_buffer->len, mac, XCBC_MAC_SIZE);
+
+  return true;
+
+}
+
+bool 
+DDS_Security_CryptoTransform_decode_serialized_data(
+	OctetSeq *plain_buffer, /* inout (variable length) */
+	OctetSeq *encoded_buffer, /* in (variable length) */
+	DatareaderCryptoHandle *receiving_datareader_crypto, /* in (fixed length) */
+	DatawriterCryptoHandle *sending_datawriter_crypto, /* in (fixed length) */
+	SecurityException * ex
+) {
+
+  uint8_t mac[XCBC_MAC_SIZE];
+  uint8_t data_len = encoded_buffer->len - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE;
+
+  if(plain_buffer->len < data_len) {
+    return false;
+  }  
+
+  Security_aes_xcbc_mac(receiving_datareader_crypto->key_material + AES_128_KEY_LENGTH, 
+                        encoded_buffer->data, 
+                        SDDS_SECURITY_IV_SIZE + data_len, 
+                        mac);
+
+  if(memcmp(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + data_len, mac, XCBC_MAC_SIZE) != 0) {
+    printf("MAC incorrect\n");
+    return false;
+  }
+
+  Security_aes_ctr(encoded_buffer->data, 
+                   receiving_datareader_crypto->key_material, 
+                   encoded_buffer->data + SDDS_SECURITY_IV_SIZE, 
+                   data_len);
+
+  memcpy(plain_buffer->data, encoded_buffer->data + SDDS_SECURITY_IV_SIZE, data_len);
+
+  return true;
 
 }
 

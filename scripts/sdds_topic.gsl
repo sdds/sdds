@@ -128,6 +128,8 @@ function resolve_topic_config (topic)
         elsif config.type = "qos_history"
             config.depth ?= "1"
             my.topic.history_depth = config.depth
+        elsif config.type = "security"
+            
         else
             echo "E: Invalid config '$(config.type)' in topic $(topic.name:)"
         endif
@@ -413,6 +415,19 @@ topic->max_blocking_time = $(topic.qos_reliability_max_blocking_time:);
 .           endif
 #endif
 .       endif
+.   endfor
+
+
+.   for topic.config
+.      if config.type = "security"
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
+.        if config.data_protection_kind = "ENCRYPT"
+topic->protection = 1;
+.       else 
+topic->protection = 0;
+.        endif
+#endif
+.      endif
 .   endfor
 
 	return topic;
