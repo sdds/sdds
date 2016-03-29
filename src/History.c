@@ -153,8 +153,7 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
         //  Start timer which unblocks us after max_blocking_time
         Task_setData(self->blockTask, self->blocktex);
         Task_start(self->blockTask, (topic->max_blocking_time / 1000) % 60,
-                               topic->max_blocking_time % 1000, SDDS_SSW_TaskMode_single);
-                    (topic->max_blocking_time / 1000) % 60, topic->max_blocking_time % 1000);
+                                     topic->max_blocking_time % 1000, SDDS_SSW_TaskMode_single);
         Mutex_lock(self->blocktex);
         //  Check if timer has been canceled by dequeue
         if (s_History_full (self)) {
