@@ -47,7 +47,7 @@ s_print() {
     printf("\n\nLOCATOR DB \n");
     for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
         char srcAddr[NI_MAXHOST];
-        if (Locator_getAddress(db.pool[i], srcAddr) != SDDS_RT_OK) {
+        if (Locator_getAddress(db.pool[i], srcAddr, NI_MAXHOST) != SDDS_RT_OK) {
             srcAddr[0] = '0';
             srcAddr[1] = '\0';
         }

@@ -1060,7 +1060,7 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
 
 #ifdef UTILS_DEBUG
         char a[1024];
-        ret = Locator_getAddress(*addr, a);
+        ret = Locator_getAddress(*addr, a, 1024);
         Log_debug("Connection from Mcast %s\n", a);
 #endif
     }

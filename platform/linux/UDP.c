@@ -777,7 +777,7 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 }
 
 rc_t
-Locator_getAddress(Locator_t* self, char* srcAddr) {
+Locator_getAddress(Locator_t* self, char* srcAddr, size_t max_addr_len) {
     assert(self);
     assert(srcAddr);
     struct sockaddr_storage* addr = &((struct UDPLocator_t*) self)->addr_storage;
