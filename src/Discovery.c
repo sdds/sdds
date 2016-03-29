@@ -16,8 +16,6 @@ extern "C"
 #define SDDS_DISCOVERY_MAX_PARTICIPANTS 10
 #endif
 
-#define SDDS_DISCOVERY_SLEEP_TIME               1
-
 static SDDS_DCPSParticipant participants[SDDS_DISCOVERY_MAX_PARTICIPANTS];
 static Task recvTask;
 static Task sendPartTask;
@@ -189,7 +187,7 @@ Discovery_receiveParticipantTopics() {
             Log_info("Received (participant):[%x]\n", p_data_used.data.key);
             Discovery_handleParticipant(&p_data_used);
         }
-    } while (ret != DDS_RETCODE_NO_DATA);
+    } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 }
 
 static void
@@ -228,7 +226,7 @@ Discovery_receivePublicationTopics() {
                 Discovery_sendSubscriptionTopics(pt_data_used.topic_id);
             }
         }
-    } while (ret != DDS_RETCODE_NO_DATA);
+    } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 #endif
 }
 
@@ -265,7 +263,7 @@ Discovery_receive_SubscriptionTopics() {
                 }
             }
         }
-    } while (ret != DDS_RETCODE_NO_DATA);
+    } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 #endif
 }
 

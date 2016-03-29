@@ -130,7 +130,6 @@ DataSink_processFrame(NetBuffRef_t* buff) {
     SDDS_SEQNR_BIGGEST_TYPE seqNr = 0;
 #endif
 
-
     while (buff->subMsgCount > 0) {
 
 

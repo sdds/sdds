@@ -74,7 +74,6 @@ TaskMngLoop(void* foo) {
  */
 ssw_rc_t
 TaskMng_init(void) {
-
     TaskMngPid = thread_create(msg_taskMng_stack, SDDS_TASKMNG_STACK_SIZE,
                                THREAD_PRIORITY_MAIN, THREAD_CREATE_STACKTEST,
                                TaskMngLoop, NULL, "TaskMng sDDS");
