@@ -196,11 +196,14 @@ _receiverThreadFunction(void* arg) {
 
         rc_t rc = buff->locators->add_fn(buff->locators, loc);
         if (rc != SDDS_RT_OK) {
+            Locator_downRef(loc);
             NetBuffRef_renew(buff);
             continue;
         }
 
         DataSink_processFrame(buff);
+        // and finally decrement the locator again
+        Locator_downRef(loc);
         NetBuffRef_renew(buff);
     }
 }
@@ -416,6 +419,9 @@ Network_init(void) {
 	RiotNetHelper_set_channel(net.netif, SDDS_6LOWPAN_CHANNEL);
 	Log_debug("6LowPAN channel: %" PRIu16 " \n", RiotNetHelper_get_channel(net.netif));
 
+    // set pan id
+    RiotNetHelper_set_nid(net.netif, SDDS_6LOWPAN_PANID);
+
 	uint16_t panId;
 	RiotNetHelper_get_nid(net.netif, &panId);
 	Log_debug("6LowPAN pan id: 0x%x\n", panId);
@@ -450,11 +456,11 @@ Network_init(void) {
     Log_debug("bar\n");
 
 //	RiotNetHelper_printAllAddresses();
-/*
+
     for (size_t i = 0; i < numof && i < GNRC_NETIF_NUMOF; i++) {
         RiotNetHelper_netif_list(ifs[i]);
     }
-*/
+
 
     sema_destroy(&net.initThreadSema);
 
@@ -480,13 +486,15 @@ Network_send(NetBuffRef_t* buff) {
 		RiotLocator_t* dest = (RiotLocator_t*) loc;
 
 		// find the right interface for the address
-		ipv6_addr_t src_addr;
+
 		uint16_t sport;
 		int src_addr_len;
+        ipv6_addr_t src_addr_conn;
 
-		if (loc->type == SDDS_LOCATOR_TYPE_MULTI) {
+
+        if (loc->type == SDDS_LOCATOR_TYPE_MULTI) {
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
-			src_addr_len = conn_udp_getlocaladdr(&net.multi_con, &src_addr, &sport);
+			src_addr_len = conn_udp_getlocaladdr(&net.multi_con, &src_addr_conn, &sport);
 			if (src_addr_len < 0) {
 				// Error
 				Log_error("Cant get local source address from UPD connection\n");
@@ -499,7 +507,7 @@ Network_send(NetBuffRef_t* buff) {
 #endif
 
 		} else if (loc->type == SDDS_LOCATOR_TYPE_UNI) {
-			src_addr_len = conn_udp_getlocaladdr(&net.uni_con, &src_addr, &sport);
+			src_addr_len = conn_udp_getlocaladdr(&net.uni_con, &src_addr_conn, &sport);
 			if (src_addr_len < 0) {
 				// Error
 				Log_error("Cant get local source address from UPD connection\n");
@@ -511,14 +519,33 @@ Network_send(NetBuffRef_t* buff) {
 			continue;
 		}
 
+
+        char ipv6_addr_dest_str[IPV6_ADDR_MAX_STR_LEN];
+        ipv6_addr_to_str(ipv6_addr_dest_str, &dest->addr, IPV6_ADDR_MAX_STR_LEN);
+
+        ipv6_addr_t* src_addr = gnrc_ipv6_netif_find_best_src_addr(net.netif->pid, &dest->addr, false);
+
+        if (src_addr == NULL) {
+            Log_error("No possible source address found for destination %s \n", ipv6_addr_dest_str);
+            loc = buff->locators->next_fn(buff->locators);
+			continue;
+        }
+
+
 		// send message
 		int ret = conn_udp_sendto(buff->buff_start,
-				buff->curPos, &src_addr, src_addr_len, &dest->addr,
+				buff->curPos, src_addr, src_addr_len, &dest->addr,
 				sizeof(ipv6_addr_t), AF_INET6, sport, dest->port);
 
         if (ret < 0) {
-            Log_error("Can't send message");
+            Log_error("Can't send message\n");
         }
+
+        char ipv6_addr[IPV6_ADDR_MAX_STR_LEN];
+        ipv6_addr_to_str(ipv6_addr, src_addr, IPV6_ADDR_MAX_STR_LEN);
+
+        Log_debug("Send message: to ip %s port %d from ip %s port %d size %d\n",
+                ipv6_addr_dest_str, dest->port, ipv6_addr, sport, ret);
 
 		loc = buff->locators->next_fn(buff->locators);
 	}

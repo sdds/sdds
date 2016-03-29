@@ -3,7 +3,7 @@
     script = "sdds.gsl"
     endian = "big"
     os = "riot"
-    ip = "fd29:144d:4196:94::123"
+	ip = "fe80::123"
     port = "23234"
 	protocol = "AF_INET6"
     >
@@ -20,6 +20,7 @@
         part of the XML tree
     -->
 	<define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
+	<define name = "SDDS_6LOWPAN_PANID" value = "0xbabe"/>
 	<define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
 	<define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "50"/>
 	<define name = "FEATURE_SDDS_MULTICAST_ENABLED" value = "1"/>
@@ -29,6 +30,8 @@
 	<role topic = "ipc" type = "publisher">
 		<!--		<subscriber ip = "fd29:144d:4196:94:6ce9:9fff:fe1b:cf4d" 
 					/>-->
-		<subscriber ip = "fd29:144d:4196:94::124" />
+	<!--	<subscriber ip = "fd29:144d:4196:94::124" />-->
+		<subscriber ip = "fe80::124" />
+		
 	</role>	
 </project>

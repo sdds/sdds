@@ -49,8 +49,7 @@ QUIET ?= 0
 USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
-USEMODULE += sema
-USEMODULE += vtimer
+USEMODULE += xtimer
 USEMODULE += config
 #USEMODULE += gnrc_netif_default
 USEMODULE += gnrc_netdev_default
@@ -64,6 +63,7 @@ USEMODULE += gnrc_udp
 USEMODULE += gnrc_rpl
 USEMODULE += gnrc_conn_udp
 USEMODULE += gnrc_icmpv6_echo
+USEMODULE += sema
 
 USEMODULE += gnrc_ndp
 # Additional networking modules that can be dropped if not needed
@@ -82,7 +82,7 @@ ifneq (,$(filter msb-430,$(BOARD)))
 endif
 ifneq (,$(filter msba2,$(BOARD)))
 	USEMODULE += sht11
-	USEMODULE += ltc4150
+#	USEMODULE += ltc4150
 	USEMODULE += mci
 	USEMODULE += random
 endif

@@ -3,7 +3,7 @@
     script = "sdds.gsl"
     endian = "big"
     os = "riot"
-    ip = "fd29:144d:4196:94::124"
+    ip = "fe80::124"
     port = "23234"
 	protocol = "AF_INET6"
     >
@@ -19,7 +19,9 @@
         Includes are processed first, so XML in included files will be
         part of the XML tree
     -->
+<!--	<define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>-->
 	<define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
+	<define name = "SDDS_6LOWPAN_PANID" value = "0xbabe"/>
 	<define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
 	<define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "50"/>
 	<define name = "FEATURE_SDDS_MULTICAST_ENABLED" value = "1"/>

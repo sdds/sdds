@@ -3,7 +3,7 @@
     script = "sdds.gsl"
     endian = "big"
     os = "riot"
-    ip = "fe80::5844:3f63:fe73:715a"
+	ip = "fe80::123"
     port = "23234"
 	protocol = "AF_INET6"
     >
@@ -13,9 +13,10 @@
     <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED"/>
     <define name = "FEATURE_SDDS_DISCOVERY_ENABLED"/>
 
-	<define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
-    <define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
-    <define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "50"/>
+	<define name = "SDDS_6LOWPAN_CHANNEL" value = "0"/>
+	<define name = "SDDS_6LOWPAN_PANID" value = "0xbabe"/>
+	<define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
+	<define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "50"/>
 
     <define name = "SDDS_NET_MAX_BUF_SIZE" value = "128"/>
     <define name = "SDDS_QOS_HISTORY_DEPTH" value = "3"/>
