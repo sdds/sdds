@@ -49,6 +49,10 @@ struct _Topic_t {
     uint8_t reliabilityKind:2;
 #endif
 
+#if defined FEATURE_SDDS_SECURITY_ENABLED
+    uint8_t protection:1;
+#endif
+
 };                              /* ----------  end of struct Topic  ----------
                                    */
 //typedef struct _Topic_t Topic_t;

@@ -113,6 +113,8 @@ function resolve_topic_config (topic)
             endif
         elsif config.type = "qos_history"
             my.topic.history_depth = config.depth
+        elsif config.type = "security"
+            
         else
             echo "E: Invalid config '$(config.type)' in topic $(topic.name:)"
         endif
@@ -331,6 +333,19 @@ topic->seqNrBitSize = $(seqNrBitSize:);
 topic->reliabilityKind = $(reliabilityKind:);
 #endif
 .       endif
+.   endfor
+
+
+.   for topic.config
+.      if config.type = "security"
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
+.        if config.data_protection_kind = "ENCRYPT"
+topic->protection = 1;
+.       else 
+topic->protection = 0;
+.        endif
+#endif
+.      endif
 .   endfor
 
 	return topic;

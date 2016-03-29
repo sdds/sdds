@@ -155,6 +155,20 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     ((Reliable_DataWriter_t*)self)->seqNr++;
 #endif
 
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
+    if(topic->protection) {
+      if (SNPS_writeSecureData(out_buffer, topic, data) != SDDS_RT_OK) {
+      	Log_error("(%d) SNPS_writeSecureData failed\n", __LINE__);
+      }      
+    } else {
+      if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
+      	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
+#ifdef SDDS_QOS_LATENCYBUDGET
+      	out_buffer->bufferOverflow = true;
+#endif
+      }
+    }
+#else 
     if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
         // something went wrong oO
     	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
@@ -162,6 +176,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     	out_buffer->bufferOverflow = true;
 #endif
     }
+#endif
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 

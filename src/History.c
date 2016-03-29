@@ -134,7 +134,17 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
 #endif
     }
 #endif
-    rc_t ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+
+    rc_t ret;
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
+    if(topic->protection) {
+      ret = SNPS_readSecureData(buff, topic, (Data) self->samples[self->in_needle].data);
+    } else {
+      ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+    }
+#else 
+    ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+#endif
     if (ret == SDDS_RT_FAIL) {
         return ret;
     }

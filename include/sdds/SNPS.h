@@ -58,6 +58,7 @@ typedef uint8_t castType_t;
 #define SDDS_SNPS_T_SEQNRHUGE              37
 #define SDDS_SNPS_T_FRAG                   38
 #define SDDS_SNPS_T_FRAGNACK               39
+#define SDDS_SNPS_T_SECURE                 40
 #define SDDS_SNPS_T_UNKNOWN                0xff
 
 // 4-bit id for distinguishing subMsg-type
@@ -86,6 +87,7 @@ typedef uint8_t castType_t;
 #define SDDS_SNPS_EXTSUBMSG_TOPIC          0x0B
 #define SDDS_SNPS_EXTSUBMSG_FRAG           0x0C
 #define SDDS_SNPS_EXTSUBMSG_FRAGNACK       0x0D
+#define SDDS_SNPS_EXTSUBMSG_SECURE         0x0e
 #define SDDS_SNPS_EXTSUBMSG_EXTENDED       0x0f
 
 #define SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_CHAR   20              // ffFS::00GG:GGGG:GGGG
@@ -124,7 +126,13 @@ rc_t
 SNPS_writeTopic(NetBuffRef_t* ref, topicid_t topic);
 
 rc_t
+SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d);
+
+rc_t
 SNPS_writeData(NetBuffRef_t *ref, TopicMarshalling_encode_fn encode_fn, Data);
+
+rc_t
+SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d);
 
 rc_t
 SNPS_writeTSsimple(NetBuffRef_t* ref, TimeStampSimple_t* ts);
@@ -245,6 +253,9 @@ SNPS_readNack(NetBuffRef_t* ref);
 
 rc_t
 SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data);
+
+rc_t
+SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data);
 
 rc_t
 SNPS_IPv6_str2Addr(char* charAddr, uint8_t* byteAddr, uint8_t* addrLen);

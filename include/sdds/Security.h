@@ -50,6 +50,12 @@
 #define XCBC_K2 0x02
 #define XCBC_K3 0x03
 
+typedef DataHolder Token;
+typedef Token HandshakeMessageToken;
+typedef SSW_NodeID_t IdentityHandle;
+typedef uint16_t MessageIdentity;
+typedef uint8_t* SharedSecretHandle;
+
 typedef struct {
 	char* message;
 	long code;
@@ -62,11 +68,13 @@ typedef struct {
   uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
 } Ac_topic;
 
-typedef DataHolder Token;
-typedef Token HandshakeMessageToken;
-typedef SSW_NodeID_t IdentityHandle;
-typedef uint16_t MessageIdentity;
-typedef uint8_t* SharedSecretHandle;
+typedef Ac_topic DatawriterCryptoHandle;
+typedef Ac_topic DatareaderCryptoHandle;
+
+typedef struct {
+  uint8_t *data;
+  uint8_t len;
+} OctetSeq;
 
 typedef struct Remote_info {
   char uid[CLASS_ID_STRLEN];
@@ -94,6 +102,9 @@ Security_new_handshake_handle(IdentityHandle *node);
 
 rc_t 
 Security_init();
+
+Ac_topic*
+Security_lookup_key(uint16_t tid);
 
 rc_t 
 Security_receive_key();
@@ -174,6 +185,23 @@ DDS_Security_Authentication_process_handshake(
 SharedSecretHandle 
 DDS_Security_Authentication_get_shared_secret(
 	HandshakeHandle *handshake_handle,
+	SecurityException *ex
+);
+
+bool 
+DDS_Security_CryptoTransform_encode_serialized_data(
+	OctetSeq *encoded_buffer, /* inout (variable length) */
+	OctetSeq *plain_buffer, /* in (variable length) */
+	DatawriterCryptoHandle *sending_datawriter_crypto, /* in (fixed length) */
+	SecurityException *ex /* inout (variable length) */
+);
+
+bool 
+DDS_Security_CryptoTransform_decode_serialized_data(
+	OctetSeq *plain_buffer, /* inout (variable length) */
+	OctetSeq *encoded_buffer, /* in (variable length) */
+	DatareaderCryptoHandle *receiving_datareader_crypto, /* in (fixed length) */
+	DatawriterCryptoHandle *sending_datawriter_crypto, /* in (fixed length) */
 	SecurityException *ex
 );
 

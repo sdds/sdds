@@ -138,6 +138,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             checkTopic(buff, topic_id);
             break;
         case (SDDS_SNPS_T_DATA):
+        case (SDDS_SNPS_T_SECURE):
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
             {
                 DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
