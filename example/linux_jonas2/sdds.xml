@@ -19,15 +19,18 @@
     <define name = "SDDS_QOS_HISTORY_DEPTH" value = "3"/>
     <define name = "SDDS_NET_MAX_BUF_SIZE" value = "1024"/>
 
-    <define name = "SDDS_SECURITY_CA_PUBLIC_KEY_X" value = "&quot;c6cfbfd87dce42797cac0bffc3aca82b6b1eb1298b785483&quot;"/>
-    <define name = "SDDS_SECURITY_CA_PUBLIC_KEY_Y" value = "&quot;f84194bb276e10ac2448275add24317ca16d59fa5e099936&quot;"/>
+    <define name = "SDDS_SECURITY_CA_PUBLIC_KEY_X" value = "&quot;a8e0531c98672b624d583a596592b4d627ca62b936a01ff7&quot;"/>
+    <define name = "SDDS_SECURITY_CA_PUBLIC_KEY_Y" value = "&quot;2bb348361e561863ea8abd8d3b0ea03a4a39a70835f08fde&quot;"/>
 
-    <define name = "SDDS_SECURITY_USER_ID" value = "&quot;user0000&quot;"/>
-    <define name = "SDDS_SECURITY_USER_PUBLIC_KEY_X" value = "&quot;0dbe31b92cb7783fa41fb0315a023e73ac7adbea8c725e4d&quot;"/>
-    <define name = "SDDS_SECURITY_USER_PUBLIC_KEY_Y" value = "&quot;0dd77840010124864cbf54a9849e1f0b11784db1dbdecda4&quot;"/>
-    <define name = "SDDS_SECURITY_USER_CERT_SIG_R" value = "&quot;ddd72b720bc355ae3e6d24ed6c7ade6cd910f390e827d461&quot;"/>
-    <define name = "SDDS_SECURITY_USER_CERT_SIG_S" value = "&quot;675f4969ec0697ca937f086724bf3ff37a24c8d599e5011f&quot;"/>
-    <define name = "SDDS_SECURITY_USER_PRIVATE_KEY" value = "&quot;ddbfff697e6d93e363cd177fb5a34b32df5365c1fb5cd5ba&quot;"/>
+    <define name = "SDDS_SECURITY_USER_ID" value = "&quot;user0002&quot;"/>
+    <define name = "SDDS_SECURITY_VERSION" value = "1"/>
+    <define name = "SDDS_SECURITY_TIMESTAMP" value = "0x58dcead5"/>
+    <define name = "SDDS_SECURITY_CIPHER_SUITE" value = "0"/>
+    <define name = "SDDS_SECURITY_USER_PUBLIC_KEY_X" value = "&quot;a5d3d5b6ffdf292c03f572e89ec6cc0002686e6a5b27f132&quot;"/>
+    <define name = "SDDS_SECURITY_USER_PUBLIC_KEY_Y" value = "&quot;6973ccc69853310a6720f9d8454f4f71bbaf343f1cea723b&quot;"/>
+    <define name = "SDDS_SECURITY_USER_CERT_SIG_R" value = "&quot;d05425faca9a1b706c9fc1b6c2471a8416b9bff785e00077&quot;"/>
+    <define name = "SDDS_SECURITY_USER_CERT_SIG_S" value = "&quot;0c88ac500fb55ff23dd830e136d3998a6388fbdaec0757f0&quot;"/>
+    <define name = "SDDS_SECURITY_USER_PRIVATE_KEY" value = "&quot;206d2e0e748dd2f0b712069b2b432eb0077af55cd5459809&quot;"/>
 
     <include filename = "../topics/beta.xml" />
 

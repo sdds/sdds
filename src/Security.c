@@ -217,11 +217,20 @@ DDS_Security_Authentication_begin_handshake_request(
 
   // start id and public key in handshake_message_out
   strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REQ);
-  handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_ID, SDDS_SECURITY_USER_ID}; 
+
+  strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_ID);
+
+  // USER,VERSION,TIMESTAMP,CIPHER_SUITE
+  sprintf(handshake_message_out->props[0].value, "%s,%02x,%08x,%04x", 
+          SDDS_SECURITY_USER_ID, SDDS_SECURITY_VERSION, 
+          SDDS_SECURITY_TIMESTAMP, SDDS_SECURITY_CIPHER_SUITE); 
+
   strcpy(handshake_message_out->props[1].key, SDDS_SECURITY_PROP_PUB_KEY_X); 
   Security_get_bytes(handshake_message_out->props[1].value, SDDS_SECURITY_USER_PUBLIC_KEY_X, NUM_ECC_DIGITS);
+
   strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_PUB_KEY_Y); 
   Security_get_bytes(handshake_message_out->props[2].value, SDDS_SECURITY_USER_PUBLIC_KEY_Y, NUM_ECC_DIGITS);
+
   return VALIDATION_PENDING_HANDSHAKE_MESSAGE;
 
 }
@@ -246,13 +255,18 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
   handshake_handle->state = SDDS_SECURITY_HANDSHAKE_STATE_1;
 
   // fetch remote id and public key from handshake_message_in
-  strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, CLASS_ID_STRLEN);
+  strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, sizeof(handshake_handle->info.uid));
   memcpy(handshake_handle->info.public_key.x, handshake_message_in->props[1].value, sizeof(handshake_handle->info.public_key.x));
   memcpy(handshake_handle->info.public_key.y, handshake_message_in->props[2].value, sizeof(handshake_handle->info.public_key.y));
 
   // reply with id and public key in handshake_message_out
-  strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
-  handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_ID, SDDS_SECURITY_USER_ID}; 
+  strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_ID);
+
+  // USER,VERSION,TIMESTAMP,CIPHER_SUITE
+  sprintf(handshake_message_out->props[0].value, "%s,%02x,%08x,%04x", 
+          SDDS_SECURITY_USER_ID, SDDS_SECURITY_VERSION, 
+          SDDS_SECURITY_TIMESTAMP, SDDS_SECURITY_CIPHER_SUITE); 
+
   strcpy(handshake_message_out->props[1].key, SDDS_SECURITY_PROP_PUB_KEY_X); 
   Security_get_bytes(handshake_message_out->props[1].value, SDDS_SECURITY_USER_PUBLIC_KEY_X, NUM_ECC_DIGITS);
   strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_PUB_KEY_Y); 
@@ -278,7 +292,7 @@ DDS_Security_Authentication_process_handshake(
     case SDDS_SECURITY_HANDSHAKE_STATE_0:
 
       // fetch remote id and public key from handshake_message_in
-      strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, CLASS_ID_STRLEN);
+      strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, sizeof(handshake_handle->info.uid));
       memcpy(handshake_handle->info.public_key.x, handshake_message_in->props[1].value, sizeof(handshake_handle->info.public_key.x));
       memcpy(handshake_handle->info.public_key.y, handshake_message_in->props[2].value, sizeof(handshake_handle->info.public_key.y));
 
@@ -420,15 +434,15 @@ rc_t
 Security_verify_certificate(HandshakeHandle *h) {
 
   EccPoint ca_publicKey;
-  uint8_t hash[NUM_ECC_DIGITS];
+  uint8_t hash[SHA224_HASH_BYTES];
   char str[NUM_ECC_DIGITS * 2 + 1];
 	char cert[SDDS_SECURITY_CERT_STRLEN];
   char *p = cert;
   int res;
 
-	snprintf(p, SDDS_SECURITY_USER_ID_STRLEN + 2, 
+	snprintf(p, SDDS_SECURITY_CERT_INFO_STRLEN + 2, 
                 "%s,", h->info.uid);
-  p += SDDS_SECURITY_USER_ID_STRLEN + 1;
+  p += SDDS_SECURITY_CERT_INFO_STRLEN + 1;
 
   Security_get_string(str, h->info.public_key.x);
 	snprintf(p, NUM_ECC_DIGITS * 2 + 2, "%s,", str);
@@ -437,8 +451,8 @@ Security_verify_certificate(HandshakeHandle *h) {
   Security_get_string(str, h->info.public_key.y);
 	snprintf(p, NUM_ECC_DIGITS * 2 + 1, "%s", str);
 
-	memset(hash, 0, NUM_ECC_DIGITS);
-	sha1(hash, cert, 8 * (SDDS_SECURITY_CERT_STRLEN - 1));
+	memset(hash, 0, sizeof(hash));
+	sha224(hash, cert, 8 * (SDDS_SECURITY_CERT_STRLEN - 1));
 
   Security_get_bytes(ca_publicKey.x, SDDS_SECURITY_CA_PUBLIC_KEY_X, NUM_ECC_DIGITS);
   Security_get_bytes(ca_publicKey.y, SDDS_SECURITY_CA_PUBLIC_KEY_Y, NUM_ECC_DIGITS);
@@ -518,9 +532,9 @@ Security_print_key(uint8_t *key, int n) {
 void 
 Security_kdf(HandshakeHandle *h) {
 
-  int reps = (SDDS_SECURITY_KDF_KEY_BYTES / SHA1_HASH_BYTES);
-  int r = SDDS_SECURITY_KDF_KEY_BYTES % SHA1_HASH_BYTES;                           
-  uint8_t hash[SHA1_HASH_BYTES];
+  int reps = (SDDS_SECURITY_KDF_KEY_BYTES / SHA224_HASH_BYTES);
+  int r = SDDS_SECURITY_KDF_KEY_BYTES % SHA224_HASH_BYTES;                           
+  uint8_t hash[SHA224_HASH_BYTES];
   int size = sizeof(uint32_t) + sizeof(h->info.shared_secret) + sizeof(h->info.nonce);
   uint8_t data[size];
 
@@ -538,12 +552,12 @@ Security_kdf(HandshakeHandle *h) {
     memcpy(data + sizeof(i) + sizeof(h->info.shared_secret), h->info.nonce, sizeof(h->info.nonce));
 #endif
 
-    sha1(hash, data, size*8);
+    sha224(hash, data, size*8);
       
     if(i == reps - 1 && r) {
-      memcpy(h->info.key_material + (i*SHA1_HASH_BYTES), hash, r);    
+      memcpy(h->info.key_material + (i*SHA224_HASH_BYTES), hash, r);    
     } else {      
-      memcpy(h->info.key_material + (i*SHA1_HASH_BYTES), hash, SHA1_HASH_BYTES);    
+      memcpy(h->info.key_material + (i*SHA224_HASH_BYTES), hash, SHA224_HASH_BYTES);    
     }
 
   }
