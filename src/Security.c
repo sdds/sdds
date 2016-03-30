@@ -60,6 +60,10 @@ Security_receive_key() {
                                &msg_ptr,
                                &info);
 
+  if(r == DDS_RETCODE_OK) {
+    printf("received something\n");
+  }
+
   if(r != DDS_RETCODE_OK 
       || msg.key != BuiltinTopic_participantID 
       || strcmp(msg.message_class_id, GMCLASSID_SECURITY_PARTICIPANT_CRYPTO_TOKENS) != 0) {
