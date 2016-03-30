@@ -221,7 +221,7 @@ DDS_Security_Authentication_begin_handshake_request(
   strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_ID);
 
   // USER,VERSION,TIMESTAMP,CIPHER_SUITE
-  sprintf(handshake_message_out->props[0].value, "%s,%02x,%08x,%04x", 
+  sprintf(handshake_message_out->props[0].value, "%s,%02x,%08x,%04x,", 
           SDDS_SECURITY_USER_ID, SDDS_SECURITY_VERSION, 
           SDDS_SECURITY_TIMESTAMP, SDDS_SECURITY_CIPHER_SUITE); 
 
@@ -263,7 +263,7 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
   strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_ID);
 
   // USER,VERSION,TIMESTAMP,CIPHER_SUITE
-  sprintf(handshake_message_out->props[0].value, "%s,%02x,%08x,%04x", 
+  sprintf(handshake_message_out->props[0].value, "%s,%02x,%08x,%04x,", 
           SDDS_SECURITY_USER_ID, SDDS_SECURITY_VERSION, 
           SDDS_SECURITY_TIMESTAMP, SDDS_SECURITY_CIPHER_SUITE); 
 
@@ -440,9 +440,9 @@ Security_verify_certificate(HandshakeHandle *h) {
   char *p = cert;
   int res;
 
-	snprintf(p, SDDS_SECURITY_CERT_INFO_STRLEN + 2, 
-                "%s,", h->info.uid);
-  p += SDDS_SECURITY_CERT_INFO_STRLEN + 1;
+	res = snprintf(p, SDDS_SECURITY_CERT_INFO_STRLEN + 1, 
+                "%s", h->info.uid);
+  p += SDDS_SECURITY_CERT_INFO_STRLEN;
 
   Security_get_string(str, h->info.public_key.x);
 	snprintf(p, NUM_ECC_DIGITS * 2 + 2, "%s,", str);
@@ -450,6 +450,8 @@ Security_verify_certificate(HandshakeHandle *h) {
 
   Security_get_string(str, h->info.public_key.y);
 	snprintf(p, NUM_ECC_DIGITS * 2 + 1, "%s", str);
+
+  printf("cert: %s\n", cert);
 
 	memset(hash, 0, sizeof(hash));
 	sha224(hash, cert, 8 * (SDDS_SECURITY_CERT_STRLEN - 1));
@@ -490,44 +492,7 @@ Security_verify_mactag(HandshakeHandle *h) {
 
 }
 
-void 
-Security_get_bytes(uint8_t *res, char* str, int nbytes) {
 
-	int i;
-  char buf[3];  
-  unsigned chr;
-
-	for(i = 0; i < nbytes; i++) {
-    strncpy(buf, &str[2*i], 2);
-    buf[2] = '\0';
-    chr = (unsigned char) strtol(buf, (char **) NULL, 16);
-		res[i] = chr;
-	}
-	
-}
-
-void 
-Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS]) {
-
-  int i;
-
-	for(i = 0; i < NUM_ECC_DIGITS; i++) {
-    sprintf(&str[i*2], "%02x", num[i]);
-	}
-
-}
-
-void 
-Security_print_key(uint8_t *key, int n) {
-
-  int i;
-
-	for(i = 0; i < n; i++) {
-    printf("%02x", key[i]);
-	}
-  printf("\n");
-
-}
 
 void 
 Security_kdf(HandshakeHandle *h) {
@@ -718,6 +683,46 @@ DDS_Security_CryptoTransform_decode_serialized_data(
   memcpy(plain_buffer->data, encoded_buffer->data + SDDS_SECURITY_IV_SIZE, data_len);
 
   return true;
+
+}
+
+
+void 
+Security_get_bytes(uint8_t *res, char* str, int nbytes) {
+
+	int i;
+  char buf[3];  
+  unsigned chr;
+
+	for(i = 0; i < nbytes; i++) {
+    strncpy(buf, &str[2*i], 2);
+    buf[2] = '\0';
+    chr = (unsigned char) strtol(buf, (char **) NULL, 16);
+		res[i] = chr;
+	}
+	
+}
+
+void 
+Security_get_string(char *str, uint8_t num[NUM_ECC_DIGITS]) {
+
+  int i;
+
+	for(i = 0; i < NUM_ECC_DIGITS; i++) {
+    sprintf(&str[i*2], "%02x", num[i]);
+	}
+
+}
+
+void 
+Security_print_key(uint8_t *key, int n) {
+
+  int i;
+
+	for(i = 0; i < n; i++) {
+    printf("%02x", key[i]);
+	}
+  printf("\n");
 
 }
 
