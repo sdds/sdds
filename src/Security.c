@@ -299,8 +299,13 @@ DDS_Security_Authentication_process_handshake(
       // reply with signature and nonce in handshake_message_out
       getRandomBytes(handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
       strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
-      handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_SIG_R, SDDS_SECURITY_USER_CERT_SIG_R}; 
-      handshake_message_out->props[1] = (Property) {SDDS_SECURITY_PROP_SIG_S, SDDS_SECURITY_USER_CERT_SIG_S}; 
+
+      strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_SIG_R); 
+      Security_get_bytes(handshake_message_out->props[0].value, SDDS_SECURITY_USER_CERT_SIG_R, NUM_ECC_DIGITS);
+
+      strcpy(handshake_message_out->props[1].key, SDDS_SECURITY_PROP_SIG_S); 
+      Security_get_bytes(handshake_message_out->props[1].value, SDDS_SECURITY_USER_CERT_SIG_S, NUM_ECC_DIGITS);
+
       strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_NONCE); 
       memcpy(handshake_message_out->props[2].value, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
 
@@ -339,8 +344,13 @@ DDS_Security_Authentication_process_handshake(
 #ifdef SDDS_SECURITY_KDC
       // reply with signature and nonce in handshake_message_out
       strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
-      handshake_message_out->props[0] = (Property) {SDDS_SECURITY_PROP_SIG_R, SDDS_SECURITY_USER_CERT_SIG_R}; 
-      handshake_message_out->props[1] = (Property) {SDDS_SECURITY_PROP_SIG_S, SDDS_SECURITY_USER_CERT_SIG_S}; 
+
+      strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_SIG_R); 
+      Security_get_bytes(handshake_message_out->props[0].value, SDDS_SECURITY_USER_CERT_SIG_R, NUM_ECC_DIGITS);
+
+      strcpy(handshake_message_out->props[1].key, SDDS_SECURITY_PROP_SIG_S); 
+      Security_get_bytes(handshake_message_out->props[1].value, SDDS_SECURITY_USER_CERT_SIG_S, NUM_ECC_DIGITS);
+
       strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_NONCE); 
       memcpy(handshake_message_out->props[2].value, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
 #else
@@ -440,7 +450,7 @@ Security_verify_certificate(HandshakeHandle *h) {
   char *p = cert;
   int res;
 
-	res = snprintf(p, SDDS_SECURITY_CERT_INFO_STRLEN + 1, 
+	snprintf(p, SDDS_SECURITY_CERT_INFO_STRLEN + 1, 
                 "%s", h->info.uid);
   p += SDDS_SECURITY_CERT_INFO_STRLEN;
 
@@ -455,6 +465,14 @@ Security_verify_certificate(HandshakeHandle *h) {
 
 	memset(hash, 0, sizeof(hash));
 	sha224(hash, cert, 8 * (SDDS_SECURITY_CERT_STRLEN - 1));
+
+  printf("hash: ");
+  Security_print_key(hash, NUM_ECC_DIGITS);
+
+  printf("r: ");
+  Security_print_key(h->info.signature_r, NUM_ECC_DIGITS);
+  printf("s: ");
+  Security_print_key(h->info.signature_s, NUM_ECC_DIGITS);
 
   Security_get_bytes(ca_publicKey.x, SDDS_SECURITY_CA_PUBLIC_KEY_X, NUM_ECC_DIGITS);
   Security_get_bytes(ca_publicKey.y, SDDS_SECURITY_CA_PUBLIC_KEY_Y, NUM_ECC_DIGITS);
