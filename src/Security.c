@@ -247,8 +247,8 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
 
   // fetch remote id and public key from handshake_message_in
   strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, CLASS_ID_STRLEN);
-  Security_get_bytes(handshake_handle->info.public_key.x, handshake_message_in->props[1].value, sizeof(handshake_handle->info.public_key.x));
-  Security_get_bytes(handshake_handle->info.public_key.y, handshake_message_in->props[2].value, sizeof(handshake_handle->info.public_key.y));
+  memcpy(handshake_handle->info.public_key.x, handshake_message_in->props[1].value, sizeof(handshake_handle->info.public_key.x));
+  memcpy(handshake_handle->info.public_key.y, handshake_message_in->props[2].value, sizeof(handshake_handle->info.public_key.y));
 
   // reply with id and public key in handshake_message_out
   strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
@@ -279,8 +279,8 @@ DDS_Security_Authentication_process_handshake(
 
       // fetch remote id and public key from handshake_message_in
       strncpy(handshake_handle->info.uid, handshake_message_in->props[0].value, CLASS_ID_STRLEN);
-      Security_get_bytes(handshake_handle->info.public_key.x, handshake_message_in->props[1].value, sizeof(handshake_handle->info.public_key.x));
-      Security_get_bytes(handshake_handle->info.public_key.y, handshake_message_in->props[2].value, sizeof(handshake_handle->info.public_key.y));
+      memcpy(handshake_handle->info.public_key.x, handshake_message_in->props[1].value, sizeof(handshake_handle->info.public_key.x));
+      memcpy(handshake_handle->info.public_key.y, handshake_message_in->props[2].value, sizeof(handshake_handle->info.public_key.y));
 
       // reply with signature and nonce in handshake_message_out
       getRandomBytes(handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
@@ -297,8 +297,8 @@ DDS_Security_Authentication_process_handshake(
     case SDDS_SECURITY_HANDSHAKE_STATE_1:
 
       // fetch remote signature and nonce from handshake_message_in
-      Security_get_bytes(handshake_handle->info.signature_r, handshake_message_in->props[0].value, sizeof(handshake_handle->info.signature_r));
-      Security_get_bytes(handshake_handle->info.signature_s, handshake_message_in->props[1].value, sizeof(handshake_handle->info.signature_s));
+      memcpy(handshake_handle->info.signature_r, handshake_message_in->props[0].value, sizeof(handshake_handle->info.signature_r));
+      memcpy(handshake_handle->info.signature_s, handshake_message_in->props[1].value, sizeof(handshake_handle->info.signature_s));
       memcpy(handshake_handle->info.remote_nonce, handshake_message_in->props[2].value, sizeof(handshake_handle->info.remote_nonce));
 
       // verify user certificate
