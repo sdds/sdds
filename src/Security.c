@@ -76,7 +76,7 @@ Security_receive_key() {
                         mac);
  
   if(memcmp(remote_mac, mac, sizeof(mac)) == 0) {
-    printf("mac is ok\n");
+    printf("received key, mac is ok\n");
   } else {
     return SDDS_RT_FAIL;
   }
@@ -448,7 +448,6 @@ Security_verify_certificate(HandshakeHandle *h) {
   char str[NUM_ECC_DIGITS * 2 + 1];
 	char cert[SDDS_SECURITY_CERT_STRLEN];
   char *p = cert;
-  int res;
 
 	snprintf(p, SDDS_SECURITY_CERT_INFO_STRLEN + 1, 
                 "%s", h->info.uid);
@@ -461,18 +460,10 @@ Security_verify_certificate(HandshakeHandle *h) {
   Security_get_string(str, h->info.public_key.y);
 	snprintf(p, NUM_ECC_DIGITS * 2 + 1, "%s", str);
 
-  printf("cert: %s\n", cert);
+  printf("check cert: %s\n", cert);
 
 	memset(hash, 0, sizeof(hash));
 	sha224(hash, cert, 8 * (SDDS_SECURITY_CERT_STRLEN - 1));
-
-  printf("hash: ");
-  Security_print_key(hash, NUM_ECC_DIGITS);
-
-  printf("r: ");
-  Security_print_key(h->info.signature_r, NUM_ECC_DIGITS);
-  printf("s: ");
-  Security_print_key(h->info.signature_s, NUM_ECC_DIGITS);
 
   Security_get_bytes(ca_publicKey.x, SDDS_SECURITY_CA_PUBLIC_KEY_X, NUM_ECC_DIGITS);
   Security_get_bytes(ca_publicKey.y, SDDS_SECURITY_CA_PUBLIC_KEY_Y, NUM_ECC_DIGITS);
