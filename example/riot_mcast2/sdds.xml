@@ -3,7 +3,7 @@
     script = "sdds.gsl"
     endian = "big"
     os = "riot"
-    ip = "fe80::584a:1253:6b5:8d62"
+    ip = "fd29:144d:4196:94::124"
     port = "23234"
 	protocol = "AF_INET6"
     >
@@ -15,6 +15,7 @@
 
 	<define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
 	<define name = "SDDS_6LOWPAN_PANID" value = "0xbabe"/>
+	<define name = "SDDS_6LOWPAN_RPL_ENABLED" value = "1"/>
 	<define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
 	<define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "50"/>
 

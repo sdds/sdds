@@ -33,14 +33,28 @@
 #include "net/gnrc/ipv6.h"
 #include <net/gnrc/netif.h>
 #include <net/conn/udp.h>
+#include "net/gnrc/rpl.h"
+#include "net/gnrc/rpl/structs.h"
+#include "net/gnrc/rpl/dodag.h"
 #include <msg.h>
 #include <ps.h>
 #include <sema.h>
 
 //////////////////////// DEFINES //////////////////////
 #define MAIN_QUEUE_SIZE     (8)
+#define IPV6_RPL_ROOT_INSTANCE_ID (1)
 
 
+/*
+ * Turn A into a string literal without expanding macro definitions
+ * (however, if invoked from a macro, macro arguments are expanded).
+ */
+#define STRINGIZE_NX(A) #A
+
+/*
+ * Turn A into a string literal after macro-expanding it.
+ */
+#define STRINGIZE(A) STRINGIZE_NX(A)
 
 ///////////////////// local methodes ///////////////////
 
@@ -56,10 +70,16 @@ _initUnicast(void);
 rc_t
 _joinMulticastGroup(char* group);
 
+rc_t
+_addIPv6Address(char* addr_str, ipv6_addr_t* addr_out, bool isMulticast, bool isGlobal, bool isUniqueLocal);
+
 void*
 _receiverThreadFunction(void* arg);
 
-
+#ifdef SDDS_6LOWPAN_RPL_ENABLED
+rc_t
+_initRouting(void);
+#endif
 
 
 
@@ -85,6 +105,10 @@ struct Network_t {
 	conn_udp_t multi_con;
     kernel_pid_t multiReceiveThreadPid;
 
+#endif
+
+#ifdef SDDS_6LOWPAN_RPL_ENABLED
+    kernel_pid_t rplThreadPid;
 #endif
 
 };
@@ -209,42 +233,23 @@ _receiverThreadFunction(void* arg) {
 }
 
 
+
 rc_t
 _initUnicast(void) {
 	rc_t rc;
-	// register ULA address
-    // TODO
 
     char ULA_addr[IPV6_ADDR_MAX_STR_LEN];
     strcpy(ULA_addr, SDDS_APP_ULA);
 
-    uint8_t prefix_len = ipv6_addr_split_prefix(ULA_addr);
+    // have to be a unique local address
+    rc = _addIPv6Address(ULA_addr, &net.ula, false, false, true);
 
-	if (ipv6_addr_from_str(&net.ula, ULA_addr) != NULL) {
-		// ok register ULA
-		uint8_t flags =  GNRC_IPV6_NETIF_ADDR_FLAGS_UNICAST | GNRC_IPV6_NETIF_ADDR_FLAGS_NDP_AUTO;
+    if (rc != SDDS_RT_OK) {
+        Log_info("%s is not a Unqiue local address, skipping ...", ULA_addr);
+    }
 
-        char foo[IPV6_ADDR_MAX_STR_LEN];
-        Log_debug("ULA, Str %s, len %d, converted %s\n ", ULA_addr, prefix_len, ipv6_addr_to_str(foo, &net.ula, IPV6_ADDR_MAX_STR_LEN ));
-		ipv6_addr_t* res = gnrc_ipv6_netif_add_addr(net.netif->pid, &net.ula, prefix_len, flags);
-		if (res == NULL) {
-			Log_error("Could not add ULA Address %s to interface\n", SDDS_APP_ULA);
-		} else {
-            Log_debug("success: added %s/%d to interface %" PRIkernel_pid "\n", ULA_addr,
-               prefix_len, net.netif->pid);
-        }
-
-
-	}
 	// create unicast server socket
-	Log_debug("Create UDP connection for port %d \n", TRANSPORT_IPV6_SDDS_PORT);
-
-//    uint8_t laddr[16] = { 0 };
-	//rc = _createSocket(&net.uni_con, TRANSPORT_IPV6_SDDS_PORT, &net.lua);
-    /*rc = _createSocket(&net.uni_con, TRANSPORT_IPV6_SDDS_PORT, laddr);
-	if (rc != SDDS_RT_OK) {
-		return rc;
-	}*/
+	Log_debug("Create UDP unicast connection for port %d \n", TRANSPORT_IPV6_SDDS_PORT);
 
     NetBuffRef_init(&uniInBuff);
 
@@ -289,30 +294,34 @@ _initMulticast(void)  {
 	rc_t rc;
 	// create multicast server socket
 
+    //tmp addr
+    ipv6_addr_t addr;
+
 
 	// register mulicast addresses
-	rc = _joinMulticastGroup(SDDS_BUILTIN_MULTICAST_ADDRESS);
+
+	rc = _addIPv6Address(SDDS_BUILTIN_MULTICAST_ADDRESS, &addr, true, false, false);
     if (rc != SDDS_RT_OK) {
         Log_error("Can't register SDDS_BUILTIN_MULTICAST_ADDRESS %s\n", SDDS_BUILTIN_MULTICAST_ADDRESS);
         return rc;
     }
     Log_debug("Registerd multcast address %s\n", SDDS_BUILTIN_MULTICAST_ADDRESS);
 
-	rc = _joinMulticastGroup(SDDS_BUILTIN_PARTICIPANT_ADDRESS);
+	rc = _addIPv6Address(SDDS_BUILTIN_PARTICIPANT_ADDRESS, &addr, true, false, false);
     if (rc != SDDS_RT_OK) {
         Log_error("Can't register SDDS_BUILTIN_PARTICIPANT_ADDRESS %s\n", SDDS_BUILTIN_PARTICIPANT_ADDRESS);
         return rc;
     }
     Log_debug("Registerd multcast address %s\n", SDDS_BUILTIN_PARTICIPANT_ADDRESS);
 
-	rc = _joinMulticastGroup(SDDS_BUILTIN_TOPIC_ADDRESS);
+	rc = _addIPv6Address(SDDS_BUILTIN_TOPIC_ADDRESS, &addr, true, false, false);
     if (rc != SDDS_RT_OK) {
         Log_error("Can't register SDDS_BUILTIN_TOPIC_ADDRESS %s\n", SDDS_BUILTIN_TOPIC_ADDRESS);
         return rc;
     }
     Log_debug("Registerd multcast address %s\n", SDDS_BUILTIN_TOPIC_ADDRESS);
 
-	rc = _joinMulticastGroup(SDDS_BUILTIN_SUB_PUB_ADDRESS);
+	rc = _addIPv6Address(SDDS_BUILTIN_SUB_PUB_ADDRESS, &addr, true, false, false);
     if (rc != SDDS_RT_OK) {
         Log_error("Can't register SDDS_BUILTIN_SUB_PUB_ADDRESS %s\n", SDDS_BUILTIN_SUB_PUB_ADDRESS);
         return rc;
@@ -354,30 +363,118 @@ _initMulticast(void)  {
     return SDDS_RT_FAIL;
 }
 
-rc_t
-_joinMulticastGroup(char* group) {
-
-	ipv6_addr_t addr;
-	if (ipv6_addr_from_str(&addr, group) == NULL) {
-		Log_error("IPv6 multicast address %s is not a valid IPv6 address\n", group);
-		return SDDS_RT_BAD_PARAMETER;
-	}
-	if (ipv6_addr_is_multicast(&addr) == false) {
-		Log_error("IPv6 address %s is not a multicast address\n", group);
-		return SDDS_RT_BAD_PARAMETER;
-	}
-
-	uint8_t prefixLen = RiotNetHelper_get_prefix_len(group);
-
-	if (gnrc_ipv6_netif_add_addr(net.netif->pid, &addr, prefixLen, GNRC_IPV6_NETIF_ADDR_FLAGS_NDP_AUTO) == NULL) {
-		Log_error("Can't register multicast address %s\n", group);
-		return SDDS_RT_FAIL;
-	}
-
-	return SDDS_RT_OK;
-}
 #endif // FEATURE_SDDS_MULTICAST_ENABLED
 
+rc_t
+_addIPv6Address(char* addr_in, ipv6_addr_t* addr_out, bool isMulticast, bool isGlobal, bool isUniqueLocal) {
+
+    if (addr_in == NULL || addr_out == NULL) {
+        return SDDS_RT_BAD_PARAMETER;
+    }
+
+    // it is possible, that addr_str is in const memory, ipv6_addr_split_prefix
+    // does modify the string, therefore it can cause a hardfault ...
+    char addr_str[(IPV6_ADDR_MAX_STR_LEN  + 4 + 1)];
+    strcpy(addr_str, addr_in);
+
+    uint8_t flags;
+    uint8_t prefix_len = ipv6_addr_split_prefix(addr_str);
+
+    // parse IPv6 address
+    if (ipv6_addr_from_str(addr_out, addr_str) == NULL) {
+        Log_error("IPv6 address %s can not be parsed\n", addr_str);
+        return SDDS_RT_BAD_PARAMETER;
+    }
+
+    char foo[IPV6_ADDR_MAX_STR_LEN];
+    Log_debug("IPv6 address: Str %s, len %d, converted %s\n ", addr_str, prefix_len,
+            ipv6_addr_to_str(foo, addr_out, IPV6_ADDR_MAX_STR_LEN ));
+
+    // checks for ip address type
+    if (isMulticast == true && ipv6_addr_is_multicast(addr_out) == false) {
+		Log_error("IPv6 address %s is not a multicast address\n", addr_str);
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+    if (isGlobal == true && ipv6_addr_is_global(addr_out) == false) {
+		Log_error("IPv6 address %s is not a global IPv6 address\n", addr_str);
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+    if (isUniqueLocal == true && ipv6_addr_is_unique_local_unicast(addr_out) == false) {
+		Log_error("IPv6 address %s is not a unique local IPv6 address\n", addr_str);
+		return SDDS_RT_BAD_PARAMETER;
+	}
+
+    if (isMulticast == true) {
+        flags |= GNRC_IPV6_NETIF_ADDR_FLAGS_NDP_AUTO;
+    }
+    if (isGlobal == true || isUniqueLocal == true) {
+        flags |= GNRC_IPV6_NETIF_ADDR_FLAGS_UNICAST;
+    }
+
+    ipv6_addr_t* res = gnrc_ipv6_netif_add_addr(net.netif->pid, addr_out, prefix_len, flags);
+    if (res == NULL) {
+        Log_error("Could not add IPv6 address %s to interface %" PRIkernel_pid "\n",
+                addr_str, net.netif->pid);
+        return SDDS_RT_FAIL;
+    }
+
+    Log_debug("success: added %s/%d to interface %" PRIkernel_pid "\n", foo,
+            prefix_len, net.netif->pid);
+
+    return SDDS_RT_OK;
+
+}
+
+
+#ifdef SDDS_6LOWPAN_RPL_ENABLED
+rc_t
+_initRouting(void) {
+
+    rc_t rc;
+
+#   ifdef SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR
+// register global address if it is the root node
+
+    Log_info("This node is the RPL root node with address %s\n", STRINGIZE(SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR));
+
+    ipv6_addr_t addr;
+
+    rc = _addIPv6Address(STRINGIZE(SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR), &addr, false, true, false);
+
+    if (rc != SDDS_RT_OK) {
+        return rc;
+    }
+#   endif // SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR
+
+    // init RPL on this node
+    Log_info("Start RPL daemon\n");
+
+    net.rplThreadPid = gnrc_rpl_init(net.netif->pid);
+
+    if (net.rplThreadPid < 0) {
+        Log_error("Can't init RPL - code %d\n", net.rplThreadPid);
+        return SDDS_RT_FAIL;
+    }
+
+#   ifdef SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR
+    // register this node as root node
+    gnrc_rpl_instance_t *inst = NULL;
+    inst = gnrc_rpl_root_init(IPV6_RPL_ROOT_INSTANCE_ID, &addr, false, false);
+    if (inst == NULL) {
+        char addr_str[IPV6_ADDR_MAX_STR_LEN];
+        Log_error("RPL root node - could not add DODAG (%s) to instance (%d)\n",
+                ipv6_addr_to_str(addr_str, &addr, sizeof(addr_str)), IPV6_RPL_ROOT_INSTANCE_ID);
+        return SDDS_RT_FAIL;
+    }
+#   endif // SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR
+
+
+    return SDDS_RT_OK;
+}
+
+#endif  // SDDS_6LOWPAN_RPL_ENABLED
 
 rc_t
 Network_init(void) {
@@ -430,6 +527,15 @@ Network_init(void) {
     char ipv6_addr[IPV6_ADDR_MAX_STR_LEN];
     ipv6_addr_to_str(ipv6_addr, &net.lua, IPV6_ADDR_MAX_STR_LEN);
     printf("My LUA address is %s\n", ipv6_addr);
+
+    // init rpl if configured
+    #ifdef SDDS_6LOWPAN_RPL_ENABLED
+    rc  = _initRouting();
+    if (rc != SDDS_RT_OK) {
+        Log_error("Can't start RPL routing\n");
+        return rc;
+    }
+    #endif
 
     // set up mutex so threads create connection first
     sema_create(&net.initThreadSema, 0);
