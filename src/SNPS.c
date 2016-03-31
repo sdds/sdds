@@ -1047,7 +1047,7 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
         else {
             // not found we need a new one
             if (LocatorDB_newMultiLocator(addr) != SDDS_RT_OK) {
-                Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
+                Log_error("\n\n\n(%d) Cannot obtain free locator.\n\n\n", __LINE__);
                 ref->subMsgCount -=1;
                 return SDDS_RT_FAIL;
             }
@@ -1058,11 +1058,6 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
             }
         }
 
-#ifdef UTILS_DEBUG
-        char a[1024];
-        ret = Locator_getAddress(*addr, a, 1024);
-        Log_debug("Connection from Mcast %s\n", a);
-#endif
     }
 
     ref->subMsgCount -=1;

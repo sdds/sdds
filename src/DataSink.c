@@ -130,7 +130,6 @@ DataSink_processFrame(NetBuffRef_t* buff) {
     SDDS_SEQNR_BIGGEST_TYPE seqNr = 0;
 #endif
 
-
     while (buff->subMsgCount > 0) {
 
 
@@ -313,7 +312,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 && reliable_dw->samplesToKeep[index].isUsed != 0) {
                     reliable_dw->samplesToKeep[index].isUsed = 0;
                     reliable_dw->samplesToKeep[index].timeStamp = 0;
-                    reliable_dw->samplesToKeep[index].data = NULL;
+                    //reliable_dw->samplesToKeep[index].data = NULL;
                     reliable_dw->samplesToKeep[index].seqNr = 0;
                     break;
                 }
@@ -346,7 +345,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 && reliable_dw->samplesToKeep[index].isUsed != 0) {
                     reliable_dw->samplesToKeep[index].isUsed = 0;
                     reliable_dw->samplesToKeep[index].timeStamp = 0;
-                    reliable_dw->samplesToKeep[index].data = NULL;
+                    //reliable_dw->samplesToKeep[index].data = NULL;
                     reliable_dw->samplesToKeep[index].seqNr = 0;
                     break;
                 }

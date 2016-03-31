@@ -44,6 +44,13 @@
 #define MAIN_QUEUE_SIZE     (8)
 #define IPV6_RPL_ROOT_INSTANCE_ID (1)
 
+#ifndef TRANSPORT_IPV6_SDDS_PORT
+#define TRANSPORT_IPV6_SDDS_PORT 23234
+#endif
+
+#ifndef TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF
+#define TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF 20
+#endif
 
 /*
  * Turn A into a string literal without expanding macro definitions
@@ -56,6 +63,9 @@
  */
 #define STRINGIZE(A) STRINGIZE_NX(A)
 
+
+
+
 ///////////////////// local methodes ///////////////////
 
 /**
@@ -66,9 +76,6 @@ _initMulticast(void);
 
 rc_t
 _initUnicast(void);
-
-rc_t
-_joinMulticastGroup(char* group);
 
 rc_t
 _addIPv6Address(char* addr_str, ipv6_addr_t* addr_out, bool isMulticast, bool isGlobal, bool isUniqueLocal);
@@ -205,12 +212,12 @@ _receiverThreadFunction(void* arg) {
         if (LocatorDB_findLocator((Locator_t*)&sourceLoc, &loc) != SDDS_RT_OK) {
             // not found we need a new one
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
+            	Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
                 continue;
             }
             RiotLocator_setIPv6Address((RiotLocator_t*) loc, &sourceAddr);
             ((RiotLocator_t*) loc)-> port = sourcePort;
         }
-
         // up ref counter
         Locator_upRef(loc);
 
@@ -221,6 +228,7 @@ _receiverThreadFunction(void* arg) {
         rc_t rc = buff->locators->add_fn(buff->locators, loc);
         if (rc != SDDS_RT_OK) {
             Locator_downRef(loc);
+        	Log_error("Cannot add Locator to list.\n");
             NetBuffRef_renew(buff);
             continue;
         }
@@ -556,10 +564,7 @@ Network_init(void) {
     sema_wait(&net.initThreadSema);
 #endif
 
-    Log_debug("foo\n");
     ps();
-
-    Log_debug("bar\n");
 
 //	RiotNetHelper_printAllAddresses();
 
