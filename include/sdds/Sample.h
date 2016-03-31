@@ -27,6 +27,15 @@ struct _Sample_t {
 #endif
 };
 
+#if defined SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || defined SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+struct _ReliableSample_t {
+    void* data;       //  Sample data
+    SDDS_SEQNR_BIGGEST_TYPE seqNr;
+    time32_t timeStamp;
+    bool_t isUsed;
+};
+#endif
+
 #ifdef __cplusplus
 }
 #endif

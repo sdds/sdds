@@ -62,6 +62,23 @@ DataWriter_init () {
     return SDDS_RT_OK;
 }
 
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+rc_t
+DataWriter_setup(Reliable_DataWriter_t* self, ReliableSample_t* samples, unsigned int depth)
+{
+    assert(self);
+    assert(samples);
+    self->samplesToKeep = samples;
+    self->depthToKeep = depth;
+
+    for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
+        ((Reliable_DataWriter_t*) self)->samplesToKeep[index].seqNr = 0;
+        ((Reliable_DataWriter_t*) self)->samplesToKeep[index].timeStamp = 0;
+        ((Reliable_DataWriter_t*) self)->samplesToKeep[index].isUsed = 0;
+    }
+}
+#endif
+
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
  || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
  || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
@@ -158,8 +175,12 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
                 for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
                     if(dw_reliable_p->samplesToKeep[index].isUsed == 0
                     || (dw_reliable_p->samplesToKeep[index].timeStamp + self->topic->max_blocking_time) < currentTime ) {
+
                         dw_reliable_p->samplesToKeep[index].isUsed = 1;
-                        dw_reliable_p->samplesToKeep[index].data = data;
+
+                        topic->Data_cpy(dw_reliable_p->samplesToKeep[index].data, data);
+                        //*((Sample_t*)dw_reliable_p->samplesToKeep[index].data) = *((Sample_t*)data);
+
                         dw_reliable_p->samplesToKeep[index].seqNr = dw_reliable_p->seqNr;
                         dw_reliable_p->samplesToKeep[index].timeStamp = currentTime;
                         newSampleHasSlot = 1;

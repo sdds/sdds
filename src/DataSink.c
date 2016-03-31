@@ -312,7 +312,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 && reliable_dw->samplesToKeep[index].isUsed != 0) {
                     reliable_dw->samplesToKeep[index].isUsed = 0;
                     reliable_dw->samplesToKeep[index].timeStamp = 0;
-                    reliable_dw->samplesToKeep[index].data = NULL;
+                    //reliable_dw->samplesToKeep[index].data = NULL;
                     reliable_dw->samplesToKeep[index].seqNr = 0;
                     break;
                 }
@@ -345,7 +345,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 && reliable_dw->samplesToKeep[index].isUsed != 0) {
                     reliable_dw->samplesToKeep[index].isUsed = 0;
                     reliable_dw->samplesToKeep[index].timeStamp = 0;
-                    reliable_dw->samplesToKeep[index].data = NULL;
+                    //reliable_dw->samplesToKeep[index].data = NULL;
                     reliable_dw->samplesToKeep[index].seqNr = 0;
                     break;
                 }
