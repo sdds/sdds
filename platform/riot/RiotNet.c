@@ -40,7 +40,13 @@
 //////////////////////// DEFINES //////////////////////
 #define MAIN_QUEUE_SIZE     (8)
 
+#ifndef TRANSPORT_IPV6_SDDS_PORT
+#define TRANSPORT_IPV6_SDDS_PORT 23234
+#endif
 
+#ifndef TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF
+#define TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF 20
+#endif
 
 ///////////////////// local methodes ///////////////////
 
@@ -181,12 +187,12 @@ _receiverThreadFunction(void* arg) {
         if (LocatorDB_findLocator((Locator_t*)&sourceLoc, &loc) != SDDS_RT_OK) {
             // not found we need a new one
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
+            	Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
                 continue;
             }
             RiotLocator_setIPv6Address((RiotLocator_t*) loc, &sourceAddr);
             ((RiotLocator_t*) loc)-> port = sourcePort;
         }
-
         // up ref counter
         Locator_upRef(loc);
 
@@ -197,6 +203,7 @@ _receiverThreadFunction(void* arg) {
         rc_t rc = buff->locators->add_fn(buff->locators, loc);
         if (rc != SDDS_RT_OK) {
             Locator_downRef(loc);
+        	Log_error("Cannot add Locator to list.\n");
             NetBuffRef_renew(buff);
             continue;
         }

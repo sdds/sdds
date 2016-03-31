@@ -8,7 +8,7 @@ int main()
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
 	}
-	Log_setLvl(0);
+	Log_setLvl(1);
 
     Beta beta_sub;
     Beta *beta_sub_p = &beta_sub;

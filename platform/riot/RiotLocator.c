@@ -23,12 +23,15 @@
 #include "os-ssal/Memory.h"
 #include "sdds/Log.h"
 #include "RiotLocator.h"
-
 #include <net/ipv6/addr.h>
 
-#define PLATFORM_RIOT_SDDS_BUILTIN_MULTICAST_PORT_OFF                        20
+#ifndef TRANSPORT_IPV6_SDDS_PORT
+#define TRANSPORT_IPV6_SDDS_PORT 23234
+#endif
 
-
+#ifndef TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF
+#define TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF 20
+#endif
 
 rc_t
 Locator_getAddress(Locator_t* l, char* srcAddr, size_t max_addr_len) {
@@ -138,9 +141,9 @@ Network_setAddressToLocator(Locator_t* loc, char* addr) {
 	}
 
 	if (ipv6_addr_is_multicast(&rl->addr) == false) {
-		rl->port = (PLATFORM_RIOT_SDDS_PORT);
+		rl->port = (TRANSPORT_IPV6_SDDS_PORT);
 	} else {
-		rl->port =  (PLATFORM_RIOT_SDDS_PORT + PLATFORM_RIOT_SDDS_BUILTIN_MULTICAST_PORT_OFF);
+		rl->port =  (TRANSPORT_IPV6_SDDS_PORT + TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF);
 	}
 
 	return SDDS_RT_OK;
