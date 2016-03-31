@@ -5,15 +5,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "xtimer.h"
-#include "timex.h"
-#include "thread.h"
-#include "msg.h"
+#include <xtimer.h>
+#include <timex.h>
+#include <thread.h>
+#include <msg.h>
+#include <ps.h>
 
 
 #define MSG_QUEUE_SIZE  (8)
 
 #define SDDS_TASKMNG_STACK_SIZE (THREAD_STACKSIZE_DEFAULT + THREAD_EXTRA_STACKSIZE_PRINTF)
+
+#define SDDS_TASKMNG_WORKER_TIMEOUT (60000000U)
 static char msg_taskMng_stack[SDDS_TASKMNG_STACK_SIZE];
 static msg_t msg_taskMng_queue[MSG_QUEUE_SIZE];
 
@@ -50,10 +53,13 @@ TaskMngLoop(void* foo) {
 
     for(;; )
     {
-        int ret = xtimer_msg_receive_timeout(&m, 10000000);
+        int ret = xtimer_msg_receive_timeout(&m, SDDS_TASKMNG_WORKER_TIMEOUT);
         if (ret < 0 ) {
             // no data
-            Log_debug("No Task sceduled the last 10 seconds interval\n ");
+            Log_debug("No Task sceduled the last %d seconds interval\n",
+                    SDDS_TASKMNG_WORKER_TIMEOUT/1000000);
+
+            ps();
             continue;
         }
 
