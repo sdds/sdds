@@ -146,10 +146,10 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 #if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
  || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
         //  Start timer which unblocks us after max_blocking_time
-        Task_setData(self->blockTask, self->blocktex);
-        Task_start(self->blockTask, (topic->max_blocking_time / 1000) % 60,
+        Task_setData(blockTask, blocktex);
+        Task_start(blockTask, (topic->max_blocking_time / 1000) % 60,
                                      topic->max_blocking_time % 1000, SDDS_SSW_TaskMode_single);
-        Mutex_lock(self->blocktex);
+        Mutex_lock(blocktex);
         //  Check if timer has been canceled by dequeue
         if (s_History_full (self)) {
             //  Dequeue the oldest item in the History and proceed.
