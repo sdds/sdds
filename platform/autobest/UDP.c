@@ -557,7 +557,7 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 
 
 rc_t
-Locator_getAddress(Locator_t* l, char* srcAddr) {
+Locator_getAddress(Locator_t* l, char* srcAddr, size_t max_addr_len) {
 #ifdef __IS_SDDS_SERVER__
     AutobestLocator_t* aloc = (AutobestLocator_t*) l;
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET
@@ -567,7 +567,11 @@ Locator_getAddress(Locator_t* l, char* srcAddr) {
 #else
 #error "Only AF_INET and AF_INET6 are understood protocols."
 #endif
-    memcpy(srcAddr, ret, strlen(ret)+1);
+    size_t len =  strlen(ret)+1;
+    if(len > max_addr_len){
+        return SDDS_RT_FAIL;
+    }
+    memcpy(srcAddr, ret, len);
     //Log_debug("%s | %s\n", ret, srcAddr);
     if(ret == NULL) {
         return SDDS_RT_FAIL;
