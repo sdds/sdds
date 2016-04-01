@@ -23,16 +23,6 @@ extern "C" {
 #   endif
 #endif
 
-#if defined SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || defined SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-struct _ReliableSample_t {
-    Data data;
-    SDDS_SEQNR_BIGGEST_TYPE seqNr;
-    time32_t timeStamp;
-    bool_t isUsed;
-};
-typedef struct _ReliableSample_t ReliableSample_t;
-#endif
-
 //  Structure of this class
 
 struct _DataWriter_t {
@@ -43,19 +33,25 @@ struct _DataWriter_t {
 typedef struct _DataWriter_t DataWriter_t;
 
 #if defined SDDS_HAS_QOS_RELIABILITY
-struct Reliable_DataWriter {
+struct _Reliable_DataWriter_t {
    DataWriter_t dw;
    SDDS_SEQNR_BIGGEST_TYPE seqNr;
 
 #   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-    ReliableSample_t samplesToKeep[SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
+    ReliableSample_t* samplesToKeep;
+    uint8_t depthToKeep;
 #   endif
 };
-typedef struct Reliable_DataWriter Reliable_DataWriter_t;
+typedef struct _Reliable_DataWriter_t Reliable_DataWriter_t;
 #endif
 
 rc_t
 DataWriter_init();
+
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+rc_t
+DataWriter_setup(Reliable_DataWriter_t* self, ReliableSample_t* samples, unsigned int depth);
+#endif
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
  || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \

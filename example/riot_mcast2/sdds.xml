@@ -3,13 +3,13 @@
     script = "sdds.gsl"
     endian = "big"
     os = "riot"
-    ip = "fe80::5844:3f63:fe73:715a"
+    ip = "fd29:144d:4196:94::124"
     port = "23234"
 	protocol = "AF_INET6"
     >
     Linux multicast discovery example with beta topic.
 
-<!--    
+<!--
 	<define name = "UTILS_DEBUG"/>
 -->
 
@@ -19,6 +19,7 @@
 
 	<define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
 	<define name = "SDDS_6LOWPAN_PANID" value = "0xbabe"/>
+	<define name = "SDDS_6LOWPAN_RPL_ENABLED" value = "1"/>
 	<define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
     <define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "20"/>
 
@@ -30,7 +31,7 @@
     <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10"/>
     <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "10"/>
     <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0"/>
-	<!--    
+	<!--
     <define name = "SDDS_QOS_LATENCYBUDGET"/>
     <define name = "SDDS_QOS_DW_LATBUD" value = "10000"/>
     <define name = "SDDS_QOS_DW_COMM" value = "1000"/>
