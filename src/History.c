@@ -268,7 +268,7 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
         }
     }
 
-#       if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
     if (topic->reliabilityKind == 2) { // qos_reliability is kind ACK/NACK
 
         if (seqNr > (self->highestSeqNrbyLoc[indexOfLoc]) ){
@@ -332,7 +332,7 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
         }
 
     } // end of qos_reliability is kind ACK/NACK
-#       endif
+#   endif
 
 
     // check the validity of the new seqNr
@@ -359,7 +359,7 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
         case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
             if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
             ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
-            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 65536)) {
+            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 65535)) {
                 self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
                 return SDDS_RT_OK;
             }
@@ -369,7 +369,7 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
         case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
             if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
             ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
-            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 4294967296)) {
+            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 4294967295)) {
                 self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
                 return SDDS_RT_OK;
             }
