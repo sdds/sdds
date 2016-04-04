@@ -157,6 +157,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
             // check, if sample is already in acknowledgement-list
             bool_t isAlreadyInQueue = 0;
 
+
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
                 if ((dw_reliable_p->samplesToKeep[index].isUsed == 1)
                 &&  (dw_reliable_p->samplesToKeep[index].seqNr == dw_reliable_p->seqNr) ) {
@@ -218,15 +219,9 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
                         }
 
                     }
-                }
+                } // end of for all samples in samplesToKeep
             } // end of confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK
 #       endif // end of ACK
-
-#       ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-            if (self->topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK) {
-
-            }
-#       endif
 
         } // end of relevant topic has qos reliability_reliable
 #   endif // end of if SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || NACK
