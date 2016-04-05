@@ -40,6 +40,29 @@ RiotNetHelper_get_prefix_len(char *addr) {
     return prefix_len;
 }
 
+rc_t
+RiotNetHelper_set_tx_power(gnrc_ipv6_netif_t* netif, int16_t tx) {
+
+    int ret = gnrc_netapi_set(netif->pid, NETOPT_TX_POWER, 0, &tx, sizeof(uint16_t));
+    if (ret < 0) {
+        Log_error("Can't set tx power to vaule %" PRIi16 " dBm - error code: 0x%x\n", tx, ret);
+        return SDDS_RT_FAIL;
+    }
+    return SDDS_RT_OK;
+
+}
+
+rc_t
+RiotNetHelper_get_tx_power(gnrc_ipv6_netif_t* netif, int16_t* tx) {
+    int ret = gnrc_netapi_get(netif->pid, NETOPT_TX_POWER, 0, tx, sizeof(uint16_t));
+    if (ret != 0) {
+        return SDDS_RT_FAIL;
+    } else {
+        return SDDS_RT_OK;
+    }
+}
+
+
 uint16_t
 RiotNetHelper_get_channel(gnrc_ipv6_netif_t* netif) {
     uint16_t channel;

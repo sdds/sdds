@@ -40,6 +40,12 @@ RiotNetHelper_set_nid(gnrc_ipv6_netif_t* netif, uint16_t nid);
 rc_t
 RiotNetHelper_set_channel(gnrc_ipv6_netif_t* netif, uint16_t channel) ;
 
+rc_t
+RiotNetHelper_set_tx_power(gnrc_ipv6_netif_t* netif, int16_t tx);
+
+rc_t
+RiotNetHelper_get_tx_power(gnrc_ipv6_netif_t* netif, int16_t* tx);
+
 void
 RiotNetHelper_printAllAddresses(void);
 

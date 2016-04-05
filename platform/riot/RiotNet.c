@@ -74,19 +74,40 @@
 rc_t
 _initMulticast(void);
 
+/**
+ * Initialises the unicast connection
+ */
 rc_t
 _initUnicast(void);
 
+/**
+ * adds a IPv6 address to the network interface.
+ * The address can be global, multicast or unique local
+ *
+ */
 rc_t
 _addIPv6Address(char* addr_str, ipv6_addr_t* addr_out, bool isMulticast, bool isGlobal, bool isUniqueLocal);
 
-void*
-_receiverThreadFunction(void* arg);
+/**
+ * sets the Tx Power of the transceiver in dBm
+ *
+ */
+rc_t
+_setTxPower(uint16_t);
+
 
 #ifdef SDDS_6LOWPAN_RPL_ENABLED
 rc_t
 _initRouting(void);
 #endif
+
+
+void*
+_receiverThreadFunction(void* arg);
+
+
+
+
 
 
 
@@ -496,11 +517,11 @@ Network_init(void) {
 	msg_init_queue(_main_msg_queue, MAIN_QUEUE_SIZE);
 
 	kernel_pid_t ifs[GNRC_NETIF_NUMOF];
-        size_t numof = gnrc_netif_get(ifs);
+    size_t numof = gnrc_netif_get(ifs);
 
-        for (size_t i = 0; i < numof && i < GNRC_NETIF_NUMOF; i++) {
-            RiotNetHelper_netif_list(ifs[i]);
-        }
+    for (size_t i = 0; i < numof && i < GNRC_NETIF_NUMOF; i++) {
+        RiotNetHelper_netif_list(ifs[i]);
+    }
 
 	// get link local unicast address
 //	kernel_pid_t ifs[GNRC_NETIF_NUMOF];
@@ -527,10 +548,22 @@ Network_init(void) {
     // set pan id
     RiotNetHelper_set_nid(net.netif, SDDS_6LOWPAN_PANID);
 
+    // get pan id
 	uint16_t panId;
 	RiotNetHelper_get_nid(net.netif, &panId);
 	Log_debug("6LowPAN pan id: 0x%x\n", panId);
 
+    // get tx power
+    int16_t tx_power;
+    RiotNetHelper_get_tx_power(net.netif, &tx_power);
+    Log_debug("6LowPAN Tx power: %" PRIi16 " dBm\n", tx_power);
+
+#ifdef TRANSPORT_6LOWPAN_SDDS_TXPOWER
+    tx_power = TRANSPORT_6LOWPAN_SDDS_TXPOWER;
+    RiotNetHelper_set_tx_power(net.netif, tx_power);
+    RiotNetHelper_get_tx_power(net.netif, &tx_power);
+    Log_debug("6LowPAN set to Tx power: %" PRIi16 " dBm\n", tx_power);
+#endif
 
     char ipv6_addr[IPV6_ADDR_MAX_STR_LEN];
     ipv6_addr_to_str(ipv6_addr, &net.lua, IPV6_ADDR_MAX_STR_LEN);
@@ -564,13 +597,12 @@ Network_init(void) {
     sema_wait(&net.initThreadSema);
 #endif
 
+// list processes
     ps();
+    
+// list all addresses on the interface
+    RiotNetHelper_netif_list(net.netif->pid);
 
-//	RiotNetHelper_printAllAddresses();
-
-    for (size_t i = 0; i < numof && i < GNRC_NETIF_NUMOF; i++) {
-        RiotNetHelper_netif_list(ifs[i]);
-    }
 
 
     sema_destroy(&net.initThreadSema);
