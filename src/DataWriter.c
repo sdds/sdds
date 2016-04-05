@@ -177,10 +177,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
                     || (dw_reliable_p->samplesToKeep[index].timeStamp + self->topic->max_blocking_time) < currentTime ) {
 
                         dw_reliable_p->samplesToKeep[index].isUsed = 1;
-
                         topic->Data_cpy(dw_reliable_p->samplesToKeep[index].data, data);
-                        //*((Sample_t*)dw_reliable_p->samplesToKeep[index].data) = *((Sample_t*)data);
-
                         dw_reliable_p->samplesToKeep[index].seqNr = dw_reliable_p->seqNr;
                         dw_reliable_p->samplesToKeep[index].timeStamp = currentTime;
                         newSampleHasSlot = 1;

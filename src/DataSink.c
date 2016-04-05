@@ -181,22 +181,44 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
 #       if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
                 Topic_t* topic = TopicDB_getTopic(topic_id);
+                Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
 
-#           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+#           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+                bool_t seqNrsAreMissing = 0;
+                uint8_t indexOfLoc = 0;
+
+                if(topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK){
+                    // check, if sending of NACK msgs are necessary
+
+                    for (int index=0; index<SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS; index++){
+                        if (history->qos_locator[index] == loc){
+                            indexOfLoc = index;
+                            break;
+                        }
+                    }
+
+                    for (int index=0; index<SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
+                        if (history->missingSeqNrSlotIsUsed[indexOfLoc][index] == 1) {
+                            seqNrsAreMissing = 1;
+                            break;
+                        }
+                    }
+                }
+
+
+                if(topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK || seqNrsAreMissing){
+#           else
                 if(topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK){
+#           endif
 
                     DataWriter_mutex_lock();
-
-                    Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
                     Topic_addRemoteDataSink(topic, loc);
                     Locator_upRef(loc);
 
                     List_t* subscribers = topic->dsinks.list;
                     NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
 
-
-
-
+#           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
                     domainid_t domain = topic->domain;
                     if (out_buffer->curDomain != domain) {
                         SNPS_writeDomain(out_buffer, domain);
@@ -208,49 +230,85 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                         out_buffer->curTopic = topic;
                     }
 
-                    if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
-                        SNPS_writeAckSeq(out_buffer, seqNr);
+                    if(topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK){
+                        if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
+                            SNPS_writeAckSeq(out_buffer, seqNr);
 #               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
-                    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
-                        SNPS_writeAck(out_buffer);
-                        SNPS_writeSeqNrSmall(out_buffer, seqNr);
+                        } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
+                            SNPS_writeAck(out_buffer);
+                            SNPS_writeSeqNrSmall(out_buffer, seqNr);
 #               endif
 #               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
-                    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
-                        SNPS_writeAck(out_buffer);
-                        SNPS_writeSeqNrBig(out_buffer, seqNr);
+                        } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
+                            SNPS_writeAck(out_buffer);
+                            SNPS_writeSeqNrBig(out_buffer, seqNr);
 #               endif
 #               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
-                    } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
-                        SNPS_writeAck(out_buffer);
-                        SNPS_writeSeqNrHUGE(out_buffer, seqNr);
+                        } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
+                            SNPS_writeAck(out_buffer);
+                            SNPS_writeSeqNrHUGE(out_buffer, seqNr);
 #               endif
-                    }
-
+                        }
+                    } // end of confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK
 
 #               ifdef SDDS_QOS_LATENCYBUDGET
 #                   if SDDS_QOS_DW_LATBUD < 65536
-                        ret = Time_getTime16(&out_buffer->sendDeadline);
+                    ret = Time_getTime16(&out_buffer->sendDeadline);
 #                   else
-                        ret = Time_getTime32(&out_buffer->sendDeadline);
+                    ret = Time_getTime32(&out_buffer->sendDeadline);
 #                   endif
-                        out_buffer->latBudDuration = self->qos.latBudDuration;
-                        Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
+                    out_buffer->latBudDuration = self->qos.latBudDuration;
+                    Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
 #               endif
-
-
                     checkSending(out_buffer);
-                    DataWriter_mutex_unlock();
 
-                }  // end of (topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK)
-#           endif // end of ACK
+#           endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
 
 
 #           ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-                if (topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK){
-                    // for all missing samples, send nack
-                } // end of topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK
-#           endif
+                    if(topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK){
+                        for (int index=0; index<SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
+                            if (history->missingSeqNrSlotIsUsed[indexOfLoc][index] == 0) {
+                                break;
+                            }
+
+                            if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
+                                SNPS_writeNackSeq(out_buffer, history->missingSeqNrsByLoc[indexOfLoc][index]);
+#               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+                            } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
+                                SNPS_writeNack(out_buffer);
+                                SNPS_writeSeqNrSmall(out_buffer, history->missingSeqNrsByLoc[indexOfLoc][index]);
+#               endif
+#               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+                            } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG){
+                                SNPS_writeNack(out_buffer);
+                                SNPS_writeSeqNrBig(out_buffer,history->missingSeqNrsByLoc[indexOfLoc][index]);
+#               endif
+#               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+                            } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE){
+                                SNPS_writeNack(out_buffer);
+                                SNPS_writeSeqNrHUGE(out_buffer, history->missingSeqNrsByLoc[indexOfLoc][index]);
+#               endif
+                            }
+
+#               ifdef SDDS_QOS_LATENCYBUDGET
+#                   if SDDS_QOS_DW_LATBUD < 65536
+                            ret = Time_getTime16(&out_buffer->sendDeadline);
+#                   else
+                            ret = Time_getTime32(&out_buffer->sendDeadline);
+#                   endif
+                            out_buffer->latBudDuration = self->qos.latBudDuration;
+                            Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
+#               endif
+                            checkSending(out_buffer);
+
+                        } // end of for all missingSamples
+                    } // end of confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK
+#           endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+
+
+                    DataWriter_mutex_unlock();
+                }  // end of (topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK) || missingSamples
 #       endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK/NACK
 #    else // else of: if SDDS_HAS_QOS_RELIABILITY
 
@@ -260,7 +318,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                     SNPS_discardSubMsg(buff);
                     return SDDS_RT_FAIL;
                 }
-#    endif // end of SDDS_HAS_QOS_RELIABILITY
+#    endif // end of: if SDDS_HAS_QOS_RELIABILITY
 #endif // end of defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
             } // end of case SDDS_SNPS_T_DATA
             break;
