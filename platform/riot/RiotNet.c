@@ -246,6 +246,7 @@ rc_t
 _initUnicast(void) {
 	rc_t rc;
 
+#ifdef PLATFORM_RIOT_SDDS_IP_ADDRESS
     char ULA_addr[IPV6_ADDR_MAX_STR_LEN];
     strcpy(ULA_addr, SDDS_APP_ULA);
 
@@ -255,6 +256,7 @@ _initUnicast(void) {
     if (rc != SDDS_RT_OK) {
         Log_info("%s is not a Unqiue local address, skipping ...", ULA_addr);
     }
+#endif
 
 	// create unicast server socket
 	Log_debug("Create UDP unicast connection for port %d \n", TRANSPORT_IPV6_SDDS_PORT);

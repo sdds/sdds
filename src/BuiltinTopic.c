@@ -13,7 +13,7 @@ extern "C"
 
 SSW_NodeID_t BuiltinTopic_participantID;
 
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
 #include <stdio.h>
 static FILE* scalability_msg_count;
 #endif
@@ -330,10 +330,14 @@ DDS_DCPSParticipantDataWriter_write(
     rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
     	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
     	fwrite("I", 1, 1, scalability_msg_count);
 		fclose(scalability_msg_count);
+#endif
+
+#ifdef TEST_SCALABILITY_RIOT
+        printf("{SCL:I}");
 #endif
         return DDS_RETCODE_OK;
     }
@@ -459,10 +463,14 @@ DDS_DCPSTopicDataWriter_write(
     rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
     	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
     	fwrite("T", 1, 1, scalability_msg_count);
 		fclose(scalability_msg_count);
+#endif
+
+#ifdef TEST_SCALABILITY_RIOT
+        printf("{SCL:T}");
 #endif
         return DDS_RETCODE_OK;
     }
@@ -588,10 +596,14 @@ DDS_DCPSPublicationDataWriter_write(
     rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
     	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
     	fwrite("P", 1, 1, scalability_msg_count);
 		fclose(scalability_msg_count);
+#endif
+
+#ifdef TEST_SCALABILITY_RIOT
+        printf("{SCL:P}");
 #endif
         return DDS_RETCODE_OK;
     }
@@ -746,10 +758,14 @@ DDS_DCPSSubscriptionDataWriter_write(
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
     	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
     	fwrite("S", 1, 1, scalability_msg_count);
 		fclose(scalability_msg_count);
+#endif
+
+#ifdef TEST_SCALABILITY_RIOT
+        printf("{SCL:S}");
 #endif
         return DDS_RETCODE_OK;
     }

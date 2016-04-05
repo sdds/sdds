@@ -34,7 +34,5 @@
 		<!--		<subscriber ip = "fd29:144d:4196:94:6ce9:9fff:fe1b:cf4d"
 					/>-->
 		<subscriber ip = "2001:db8::5844:3f63:fe73:715a" />
-		
-
 	</role>
 </project>

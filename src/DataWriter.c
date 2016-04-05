@@ -12,7 +12,7 @@
 #include "sDDS.h"
 #include "Log.h"
 
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
 #include <stdio.h>
 static FILE* scalability_msg_count;
 #endif
@@ -54,7 +54,7 @@ DataWriter_init () {
         return SDDS_RT_FAIL;
     }
 
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
     scalability_msg_count = fopen(SCALABILITY_LOG, "w");
     fclose(scalability_msg_count);
 #endif
@@ -314,11 +314,17 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
     ret = checkSending(out_buffer);
 
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
     if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
         scalability_msg_count = fopen(SCALABILITY_LOG, "a");
         fwrite("D", 1, 1, scalability_msg_count);
         fclose(scalability_msg_count);
+    }
+#endif
+
+#ifdef TEST_SCALABILITY_RIOT
+    if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
+        printf("{SCL:D}");
     }
 #endif
 
@@ -505,7 +511,7 @@ checkSending(NetBuffRef_t* buf) {
             return SDDS_RT_FAIL;
         }
     }
-#ifdef TEST_SCALABILITY
+#if defined(TEST_SCALABILITY_LINUX) || defined(TEST_SCALABILITY_RIOT)
     else {
         ret = SDDS_RT_NO_SUB;
     }
