@@ -163,10 +163,8 @@ SNPS_writeAck(NetBuffRef_t* ref);
 #   endif // QoS Reliability - KIND Reliable_ACK
 
 #   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC
 rc_t
 SNPS_writeNackSeq(NetBuffRef_t* ref, uint8_t seqNr);
-#       endif
 
 #       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t

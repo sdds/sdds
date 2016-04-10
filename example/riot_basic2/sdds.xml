@@ -21,6 +21,8 @@
     -->
 	<define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
 	<define name = "SDDS_6LOWPAN_PANID" value = "0xbabe"/>
+	<!-- optinal setting -->
+	<define name = "TRANSPORT_6LOWPAN_SDDS_TXPOWER" value = "-17"/>
 	<define name = "SDDS_6LOWPAN_RPL_ENABLED" value = "1"/>
 	<define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
 	<define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "50"/>

@@ -22,6 +22,8 @@
     <define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
     <define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "20"/>
     <define name = "SDDS_6LOWPAN_RPL_ENABLED" />
+    <!-- optinal setting -->
+    <define name = "TRANSPORT_6LOWPAN_SDDS_TXPOWER" value = "-17"/>
     <!-- SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR only one node in network-->
     <define name = "SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR" value = "2001:db8::1/64"/>
 
