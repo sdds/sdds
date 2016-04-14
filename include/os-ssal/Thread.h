@@ -16,8 +16,8 @@
  * =====================================================================================
  */
 
-#ifndef  THREAD_H_INC
-#define  THREAD_H_INC
+#ifndef  _SDDS_THREAD_H_INC
+#define  _SDDS_THREAD_H_INC
 #include "SSW.h"
 #include "sdds_types.h"
 
@@ -44,4 +44,10 @@ Thread_usleep(Thread _this, uint16_t usecSleep);
 ssw_rc_t
 Thread_sleep(Thread _this, uint16_t secSleep);
 
-#endif   /* ----- #ifndef THREAD_H_INC  ----- */
+/**
+ * yields the thread calling this methode
+ */
+ssw_rc_t
+Thread_yield(void);
+
+#endif   /* ----- #ifndef _SDDS_THREAD_H_INC  ----- */
