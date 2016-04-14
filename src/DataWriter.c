@@ -316,7 +316,16 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
 #ifdef TEST_SCALABILITY_RIOT
     if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
-        printf("{SCL:D}");
+        fprintf(stderr,"{SCL:D}\n");
+    }
+    else if (ret == SDDS_RT_NO_SUB) {
+        Log_debug("No Subscroption\n");
+    }
+    else if (ret == SDDS_RT_FAIL) {
+        Log_debug("Send failed\n");
+    }
+    else {
+        Log_debug("ret: %d\n", ret);
     }
 #endif
 

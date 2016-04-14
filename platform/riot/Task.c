@@ -59,7 +59,7 @@ TaskMngLoop(void* foo) {
             Log_debug("No Task sceduled the last %d seconds interval\n",
                     SDDS_TASKMNG_WORKER_TIMEOUT/1000000);
 
-            ps();
+            //ps();
             continue;
         }
 

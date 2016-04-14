@@ -337,7 +337,7 @@ DDS_DCPSParticipantDataWriter_write(
 #endif
 
 #ifdef TEST_SCALABILITY_RIOT
-        printf("{SCL:I}");
+        fprintf(stderr,"{SCL:I}\n");
 #endif
         return DDS_RETCODE_OK;
     }
@@ -470,7 +470,7 @@ DDS_DCPSTopicDataWriter_write(
 #endif
 
 #ifdef TEST_SCALABILITY_RIOT
-        printf("{SCL:T}");
+        fprintf(stderr,"{SCL:T}\n");
 #endif
         return DDS_RETCODE_OK;
     }
@@ -603,7 +603,7 @@ DDS_DCPSPublicationDataWriter_write(
 #endif
 
 #ifdef TEST_SCALABILITY_RIOT
-        printf("{SCL:P}");
+        fprintf(stderr, "{SCL:P}\n");
 #endif
         return DDS_RETCODE_OK;
     }
@@ -765,7 +765,7 @@ DDS_DCPSSubscriptionDataWriter_write(
 #endif
 
 #ifdef TEST_SCALABILITY_RIOT
-        printf("{SCL:S}");
+        fprintf(stderr,"{SCL:S}\n");
 #endif
         return DDS_RETCODE_OK;
     }

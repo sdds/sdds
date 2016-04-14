@@ -62,7 +62,7 @@ DataSource_init(void) {
 
     //  Init instant sender
     //  The init method alloc a frame buffer and adds it to the structure
-    NetBuffRef_init(&(self->sender.highPrio));
+//    NetBuffRef_init(&(self->sender.highPrio));
 
     for (uint8_t i=0; i<SDDS_NET_MAX_OUT_QUEUE; i++) {
         NetBuffRef_init(&(self->sender.out[i]));

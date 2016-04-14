@@ -293,7 +293,7 @@ _initUnicast(void) {
     // create receive thread
     net.uniReceiveThreadPid = thread_create(stackReceiveThreadUnicast,
                                             sizeof(stackReceiveThreadUnicast),
-                                            THREAD_PRIORITY_MAIN,
+                                            THREAD_PRIORITY_MAIN -1,
                                             THREAD_CREATE_STACKTEST, //  flags
                                             _receiverThreadFunction,
                                             (void*) &para,
@@ -371,7 +371,7 @@ _initMulticast(void)  {
     // create receive thread
     net.multiReceiveThreadPid = thread_create(stackReceiveThreadMulticast,
                                             sizeof(stackReceiveThreadMulticast),
-                                            THREAD_PRIORITY_MAIN,
+                                            THREAD_PRIORITY_MAIN - 1,
                                             THREAD_CREATE_STACKTEST, //  flags
                                             _receiverThreadFunction,
                                             (void*) &para,
@@ -408,7 +408,7 @@ _addIPv6Address(char* addr_in, ipv6_addr_t* addr_out, bool isMulticast, bool isG
     char addr_str[(IPV6_ADDR_MAX_STR_LEN  + 4 + 1)];
     strcpy(addr_str, addr_in);
 
-    uint8_t flags;
+    uint8_t flags = 0;
     uint8_t prefix_len = ipv6_addr_split_prefix(addr_str);
 
     // parse IPv6 address
@@ -521,9 +521,9 @@ Network_init(void) {
 	kernel_pid_t ifs[GNRC_NETIF_NUMOF];
     size_t numof = gnrc_netif_get(ifs);
 
-    for (size_t i = 0; i < numof && i < GNRC_NETIF_NUMOF; i++) {
-        RiotNetHelper_netif_list(ifs[i]);
-    }
+        //for (size_t i = 0; i < numof && i < GNRC_NETIF_NUMOF; i++) {
+        //    RiotNetHelper_netif_list(ifs[i]);
+        //}
 
 	// get link local unicast address
 //	kernel_pid_t ifs[GNRC_NETIF_NUMOF];
@@ -569,7 +569,7 @@ Network_init(void) {
 
     char ipv6_addr[IPV6_ADDR_MAX_STR_LEN];
     ipv6_addr_to_str(ipv6_addr, &net.lua, IPV6_ADDR_MAX_STR_LEN);
-    printf("My LUA address is %s\n", ipv6_addr);
+    Log_debug("My LUA address is %s\n", ipv6_addr);
 
     // init rpl if configured
     #ifdef SDDS_6LOWPAN_RPL_ENABLED
@@ -600,12 +600,10 @@ Network_init(void) {
 #endif
 
 // list processes
-    ps();
+    //ps();
     
 // list all addresses on the interface
-    RiotNetHelper_netif_list(net.netif->pid);
-
-
+//    RiotNetHelper_netif_list(net.netif->pid);
 
     sema_destroy(&net.initThreadSema);
 

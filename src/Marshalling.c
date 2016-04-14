@@ -73,7 +73,7 @@ Marshalling_dec_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size
     uint8_t subMsgFirstByte;
 
     decode(buff, &subMsgFirstByte, sizeof(uint8_t));
-    if (( subMsgFirstByte & 0xf0 == (type<<4) )) {
+    if (((subMsgFirstByte & 0xf0) == (type<<4) )) {
         return SDDS_RT_FAIL;
     }
     buff++;
