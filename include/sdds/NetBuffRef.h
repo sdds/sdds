@@ -21,6 +21,7 @@
 #define  NETBUFFREF_H_INC
 
 #include "List.h"
+#include "gen_constants.h"
 
 struct Locator_t;
 
@@ -29,10 +30,10 @@ struct _NetBuffRef_t {
 
     NetFrameBuff frame_start;
     byte_t* buff_start;
-    uint8_t curPos;
+    uint16_t curPos;
 
     // QOS part
-#if SDDS_QOS_DW_LARBUD < 65536
+#if SDDS_QOS_DW_LATBUD < 65536
     time16_t sendDeadline;
     time16_t latBudDuration;
 #else
@@ -53,8 +54,14 @@ NetBuffRef_init(NetBuffRef_t* _this);
 rc_t
 NetBuffRef_renew(NetBuffRef_t* _this);
 
-#ifdef UTILS_DEBUG
+//#ifdef UTILS_DEBUG
 void
 NetBuffRef_print(NetBuffRef_t* _this);
-#endif
+
+void
+NetBuffRef_print_subMsgs (NetBuffRef_t* _this);
+
+void
+NetBuffRef_print_subMsgType(NetBuffRef_t* _this, subMsg_t type);
+//#endif
 #endif   /* ----- #ifndef NETBUFFREF_H_INC  ----- */

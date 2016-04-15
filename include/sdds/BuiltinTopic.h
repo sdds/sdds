@@ -63,7 +63,7 @@ extern DDS_DataReader g_ParticipantStatelessMessage_reader;
 extern DDS_DataWriter g_ParticipantStatelessMessage_writer;
 extern DDS_Topic g_ParticipantStatelessMessage_topic;
 
-SSW_NodeID_t BuiltinTopic_participantID;
+extern SSW_NodeID_t BuiltinTopic_participantID;
 
 typedef uint16_t BuiltinTopicKey_t;
 

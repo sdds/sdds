@@ -141,45 +141,44 @@ rc_t
 SNPS_writeStatus(NetBuffRef_t* ref);
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 rc_t
 SNPS_writeSeqNr(NetBuffRef_t* ref, uint8_t seqNr);
-#endif
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_writeSeqNrSmall(NetBuffRef_t* ref, uint8_t seqNr);
-#endif
+#   endif
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
 rc_t
 SNPS_writeSeqNrBig(NetBuffRef_t* ref, uint16_t seqNr);
-#endif
+#   endif
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
 rc_t
 SNPS_writeSeqNrHUGE(NetBuffRef_t* ref, uint32_t seqNr);
-#endif
+#   endif
 
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+
 rc_t
 SNPS_writeAckSeq(NetBuffRef_t* ref, uint8_t seqNr);
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
-SNPS_writeNack(NetBuffRef_t* ref);
-#endif // QoS Reliability - KIND Reliable_ACK, ext. SubMsg
-#endif // QoS Reliability - KIND Reliable_ACK
+SNPS_writeAck(NetBuffRef_t* ref);
+#       endif // QoS Reliability - KIND Reliable_ACK, ext. SubMsg
+#   endif // QoS Reliability - KIND Reliable_ACK
 
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 rc_t
 SNPS_writeNackSeq(NetBuffRef_t* ref, uint8_t seqNr);
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_writeNack(NetBuffRef_t* ref);
-#endif // QoS Reliability - KIND Reliable_NACK, ext. SubMsg
-#endif // QoS Reliability - KIND Reliable_NACK
+#       endif // QoS Reliability - KIND Reliable_NACK, ext. SubMsg
+#   endif // QoS Reliability - KIND Reliable_NACK
 #endif // QoS Reliability
 
 rc_t
@@ -210,45 +209,43 @@ rc_t
 SNPS_readTopic(NetBuffRef_t* ref, topicid_t* topic);
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
 rc_t
 SNPS_readSeqNr(NetBuffRef_t* ref, uint8_t* seqNr);
-#endif
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_readSeqNrSmall(NetBuffRef_t* ref, uint8_t* seqNr);
-#endif
+#   endif
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
 rc_t
 SNPS_readSeqNrBig(NetBuffRef_t* ref, uint16_t* seqNr);
-#endif
+#   endif
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+#   if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
 rc_t
 SNPS_readSeqNrHUGE(NetBuffRef_t* ref, uint32_t* seqNr);
-#endif
+#   endif
 
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
-#rc_t
+#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+rc_t
 SNPS_readAckSeq(NetBuffRef_t* ref, uint8_t* seqNr);
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_readAck(NetBuffRef_t* ref);
-#endif // QoS Reliability - KIND Reliable_ACK, ext. SubMsg
-#endif // QoS Reliability - KIND Reliable_ACK
+#       endif // QoS Reliability - KIND Reliable_ACK, ext. SubMsg
+#   endif // QoS Reliability - KIND Reliable_ACK
 
-#ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
 rc_t
 SNPS_readNackSeq(NetBuffRef_t* ref, uint8_t* seqNr);
 
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
 SNPS_readNack(NetBuffRef_t* ref);
-#endif // QoS Reliability - KIND Reliable_NACK, ext. SubMsg
-#endif // QoS Reliability - KIND Reliable_NACK
+#       endif // QoS Reliability - KIND Reliable_NACK, ext. SubMsg
+#   endif // QoS Reliability - KIND Reliable_NACK
 #endif // QoS Reliability
 
 rc_t

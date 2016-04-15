@@ -47,14 +47,6 @@ Marshalling_enc_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size
     case SDDS_SNPS_EXTSUBMSG_SEQNRHUGE:
         encode(buff, value, sizeof(uint32_t));
         break;
-#ifdef SDDS_HAS_QOS_RELIABILITY
-    case SDDS_SNPS_EXTSUBMSG_ACK:
-        encode(buff, value, sizeof(SDDS_SEQNR_BIGGEST_TYPE));
-        break;
-    case SDDS_SNPS_EXTSUBMSG_NACK:
-        encode(buff, value, sizeof(SDDS_SEQNR_BIGGEST_TYPE));
-        break;
-#endif
     case SDDS_SNPS_EXTSUBMSG_SECURE:
         encode(buff, (uint8_t *) &size, sizeof(uint8_t));
         buff++;
@@ -86,7 +78,7 @@ Marshalling_dec_ExtSubMsg(byte_t* buff, uint8_t type, byte_t* value, size_t size
     uint8_t subMsgFirstByte;
 
     decode(buff, &subMsgFirstByte, sizeof(uint8_t));
-    if (( subMsgFirstByte & 0xf0 == (type<<4) )) {
+    if (((subMsgFirstByte & 0xf0) == (type<<4) )) {
         return SDDS_RT_FAIL;
     }
     buff++;
@@ -175,20 +167,17 @@ Marshalling_enc_uint32(byte_t* buff, uint32_t* d) {
     encode(buff, (byte_t*)d, sizeof(uint32_t));
     return SDDS_RT_OK;
 }
-/*
-   rc_t Marshalling_enc_int64(byte_t* buff, int64_t* d)
-   {
-
-    encode(buff, (byte_t*)d, sizeof(int64_t));
+rc_t
+Marshalling_enc_int64(byte_t* buff, int64_t* d) {
+	encode(buff, (byte_t*)d, sizeof(int64_t));
     return SDDS_RT_OK;
-   }
-   rc_t Marshalling_enc_uint64(byte_t* buff, uint64_t* d)
-   {
+}
 
+rc_t
+Marshalling_enc_uint64(byte_t* buff, uint64_t* d) {
     encode(buff, (byte_t*)d, sizeof(uint64_t));
     return SDDS_RT_OK;
-   }
- */
+}
 
 rc_t
 Marshalling_dec_bool(byte_t* buff, bool_t* d) {
@@ -241,18 +230,18 @@ Marshalling_dec_uint32(byte_t* buff, uint32_t* d) {
     decode(buff, (byte_t*) d, sizeof(uint32_t));
     return SDDS_RT_OK;
 }
-/*
-   rc_t Marshalling_dec_int64(byte_t* buff, int64_t* d)
-   {
+
+rc_t
+Marshalling_dec_int64(byte_t* buff, int64_t* d) {
     decode(buff, (byte_t*) d, sizeof(int64_t));
     return SDDS_RT_OK;
-   }
-   rc_t Marshalling_dec_uint64(byte_t* buff, uint64_t* d)
-   {
+}
+
+rc_t
+Marshalling_dec_uint64(byte_t* buff, uint64_t* d) {
     decode(buff, (byte_t*) d, sizeof(uint64_t));
     return SDDS_RT_OK;
-   }
- */
+}
 
 void
 decode(byte_t* buff, byte_t* d, size_t size) {

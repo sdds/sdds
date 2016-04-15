@@ -17,6 +17,8 @@
 function resolve_topic_type (topic)
     my.topic.size ?= 0
     my.topic.description ?= "$(string.trim (topic.?""):left)"
+    my.topic.isPub = count (project.role, role.type = "publisher")
+    my.topic.isSub = count (project.role, role.type = "subscriber")
 
     my.topic.c_name = "$(string.substr (my.topic.name, 0, 0):upper)" + "$(string.substr (my.topic.name, 1):Camel)"
 
@@ -74,44 +76,56 @@ function resolve_topic_type (topic)
 endfunction
 
 .#
-.#  Resolves a topics configuration pararmeters.
+.#  Resolves a topics configuration parameters.
 .#
 function resolve_topic_config (topic)
     for my.topic.config
         if config.type = "qos_reliability"
-            config.seqNrBitSize ?= ""
             config.reliabilityKind ?= ""
+
             if reliabilitySeqnrSize = "basic"
-                config.seqNrBitSize = "4"
-                if config.seqNrBitSize > project.biggestSeqNrBitSize
-                    project.biggestSeqNrBitSize = config.seqNrBitSize
+                my.topic.qos_seqNrBitSize = 4
+                config.qos_seqNrBitSize = 4
+                if project.qos_reliability_biggest_seqNr_bitsize < 4
+                    project.qos_reliability_biggest_seqNr_bitsize = 4
                 endif
             elsif reliabilitySeqnrSize = "small"
-                config.seqNrBitSize = "8"
-                if config.seqNrBitSize > project.biggestSeqNrBitSize
-                    project.biggestSeqNrBitSize = config.seqNrBitSize
+                my.topic.qos_seqNrBitSize = "8"
+                config.qos_seqNrBitSize = "8"
+                if project.qos_reliability_biggest_seqNr_bitsize < 8
+                    project.qos_reliability_biggest_seqNr_bitsize = 8
                 endif
             elsif reliabilitySeqnrSize = "big"
-                config.seqNrBitSize = "16"
-                if config.seqNrBitSize > project.biggestSeqNrBitSize
-                    project.biggestSeqNrBitSize = config.seqNrBitSize
+                my.topic.qos_seqNrBitSize = "16"
+                config.qos_seqNrBitSize = "16"
+                if project.qos_reliability_biggest_seqNr_bitsize < 16
+                    project.qos_reliability_biggest_seqNr_bitsize = 16
                 endif
             elsif reliabilitySeqnrSize = "huge"
-                config.seqNrBitSize = "32"
-                project.biggestSeqNrBitSize = "32"
+                my.topic.qos_seqNrBitSize = 32
+                config.qos_seqNrBitSize = 32
+                project.qos_reliability_biggest_seqNr_bitsize = 32
             endif
 
             if kind = "besteffort"
-                config.reliabilityKind = "0"
-                project.hasReliableKindBesteffort = "1"
-            elsif kind = "ack"
-                config.reliabilityKind = "1"
-                project.hasReliableKindAck = "1"
-            elsif kind = "nack"
-                config.reliabilityKind = "2"
-                project.hasReliableKindNack = "1"
+                project.qos_reliability_has_kind_besteffort = 1
+                my.topic.qos_reliability_kind = 1
+            elsif kind = "reliable"
+                my.topic.qos_reliability_kind = 2
+                my.topic.qos_reliability_max_blocking_time = max_blocking_time
+                if max_blocking_time > project.qos_reliability_biggest_max_blocking_time
+                    project.qos_reliability_biggest_max_blocking_time = max_blocking_time
+                endif
+                if confirmationtype = "ack"
+                    project.qos_reliability_has_kind_reliableAck = 1
+                    my.topic.qos_reliability_confirmationtype = 1
+                elsif confirmationtype = "nack"
+                    project.qos_reliability_has_kind_reliableNack = 1
+                    my.topic.qos_reliability_confirmationtype = 2
+                endif
             endif
         elsif config.type = "qos_history"
+            config.depth ?= "1"
             my.topic.history_depth = config.depth
         elsif config.type = "security"
             
@@ -121,10 +135,14 @@ function resolve_topic_config (topic)
     endfor
 endfunction
 
-project.biggestSeqNrBitSize ?= "0"
-project.hasReliableKindBesteffort ?= "0"
-project.hasReliableKindAck ?= "0"
-project.hasReliableKindNack ?= "0"
+
+project.qos_reliability_has_kind_besteffort ?= 0
+project.qos_reliability_has_kind_reliableAck ?= 0
+project.qos_reliability_has_kind_reliableNack ?= 0
+project.qos_reliability_biggest_seqNr_bitsize ?= 0
+project.qos_reliability_biggest_max_blocking_time ?= 0
+
+
 for project.topic
     resolve_topic_type (topic)
     resolve_topic_config (topic)
@@ -166,15 +184,6 @@ struct $(topic.c_name:)
 };
 typedef struct $(topic.c_name:) $(topic.c_name:);
 
-.   if project.os <> "autobest" | (defined (project.autobest_role) & project.autobest_role = "server")
-.       if defined (topic.history_depth)
-Sample_t $(topic.c_name)_samples_pool[$(topic.history_depth)];
-static $(topic.c_name:) $(topic.c_name)_sample_data[$(topic.history_depth)];
-.       else
-Sample_t $(topic.c_name)_samples_pool[SDDS_QOS_HISTORY_DEPTH];
-static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_QOS_HISTORY_DEPTH];
-.       endif
-.   endif
 
 DDS_ReturnCode_t
 $(topic.c_name:)_init ();
@@ -244,6 +253,25 @@ extern "C"
 #define SDDS_DOMAIN 0x$(topic.domain)
 #define SDDS_TOPIC 0x$(topic.id)
 
+.   if project.os <> "autobest" | (defined (project.autobest_role) & project.autobest_role = "server")
+.       if topic.isSub
+.           if defined (topic.history_depth)
+Sample_t $(topic.c_name)_samples_pool[$(topic.history_depth)];
+static $(topic.c_name:) $(topic.c_name)_sample_data[$(topic.history_depth)];
+.           else
+Sample_t $(topic.c_name)_samples_pool[SDDS_QOS_HISTORY_DEPTH];
+static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_QOS_HISTORY_DEPTH];
+.           endif
+.       endif
+.       if topic.isPub
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+ReliableSample_t $(topic.c_name)_reliableSamples_pool[SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
+static $(topic.c_name:) $(topic.c_name)_reliableSamples_data[SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
+#endif
+.       endif
+.   endif
+
+
 .if project.os <> "autobest" | (defined (project.autobest_role) & project.autobest_role = "server")
 rc_t TopicMarshalling_$(topic.c_name:)_cpy(Data dest, Data source);
 
@@ -251,16 +279,25 @@ DDS_ReturnCode_t
 $(topic.c_name:)_init ()
 {
    int index;
-.   if defined (topic.history_depth)
+.   if topic.isSub
+.       if defined (topic.history_depth)
    for (index = 0; index < $(topic.history_depth); index++) {
-.   else
+.       else
    for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
-.   endif
+.       endif
       $(topic.c_name)_samples_pool[index].data = &$(topic.c_name)_sample_data[index];
    }
+.   endif
+.   if topic.isPub
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+for (index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
+   $(topic.c_name)_reliableSamples_pool[index].data = &$(topic.c_name)_reliableSamples_data[index];
+}
+#endif
+.   endif
 }
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#if defined (SDDS_TOPIC_HAS_PUB)
 
 rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, size_t* size);
 
@@ -283,7 +320,7 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
 
 #endif
 
-#ifdef SDDS_TOPIC_HAS_SUB
+#if defined (SDDS_TOPIC_HAS_SUB) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
 
 rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, size_t* size);
 
@@ -305,8 +342,8 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
 Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 {
 	Topic_t *topic = TopicDB_createTopic();
-
-#ifdef SDDS_TOPIC_HAS_SUB
+    assert (topic!=NULL);
+#if defined (SDDS_TOPIC_HAS_SUB) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK)
 	topic->Data_encode = TopicMarshalling_$(topic.c_name:)_encode;
 	topic->dsinks.list = List_initConcurrentLinkedList();
     if(topic->dsinks.list == NULL){
@@ -329,8 +366,12 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 .   for topic.config
 .       if config.type = "qos_reliability"
 #ifdef SDDS_HAS_QOS_RELIABILITY
-topic->seqNrBitSize = $(seqNrBitSize:);
-topic->reliabilityKind = $(reliabilityKind:);
+topic->seqNrBitSize = $(topic.qos_seqNrBitSize:);
+topic->reliabilityKind = $(topic.qos_reliability_kind:);
+.           if topic.qos_reliability_kind = "2"
+topic->confirmationtype = $(topic.qos_reliability_confirmationtype:);
+topic->max_blocking_time = $(topic.qos_reliability_max_blocking_time:);
+.           endif
 #endif
 .       endif
 .   endfor

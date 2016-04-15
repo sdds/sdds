@@ -29,7 +29,9 @@ struct datasinks {
 };
 struct _Topic_t {
 
-#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
     struct datasinks dsinks;
     rc_t (* Data_encode)(NetBuffRef_t* buff, Data data, size_t* size);
 #endif
@@ -47,6 +49,11 @@ struct _Topic_t {
 #if defined SDDS_HAS_QOS_RELIABILITY
     uint8_t seqNrBitSize:6;
     uint8_t reliabilityKind:2;
+#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+    || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+    SDDS_MAX_BLOCKING_TIME_BIGGEST_TYPE max_blocking_time;
+    uint8_t confirmationtype:2;
+#   endif
 #endif
 
 #if defined FEATURE_SDDS_SECURITY_ENABLED
@@ -57,7 +64,9 @@ struct _Topic_t {
                                    */
 //typedef struct _Topic_t Topic_t;
 
-#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
 /**
  * Add the address/locator object of a remote node as a Data sink,
  * aka receiver of data samples of this, to the topic.

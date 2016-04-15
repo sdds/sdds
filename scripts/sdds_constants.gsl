@@ -40,12 +40,19 @@ $(project.GENERATED_WARNING_HEADER:)
 
 #define SDDS_LOCAL_BYTEORDER_$(PROJECT.ENDIAN)_ENDIAN
 #define SDDS_NET_VERSION 0x01
+
+.SDDS_BUILTIN_TOPICS_COUNT=5
+
+#ifndef SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS
+#define SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS 0
+#endif
+
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-#define SDDS_MAX_DATA_WRITERS $(count (project.role, role.type = "publisher") + 5)
+#define SDDS_MAX_DATA_WRITERS ($(count (project.role, role.type = "publisher") + SDDS_BUILTIN_TOPICS_COUNT) + SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS)
 #undef SDDS_DATA_READER_MAX_OBJS
-#define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber") + 5)
+#define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber") + SDDS_BUILTIN_TOPICS_COUNT)
 #else
-#define SDDS_MAX_DATA_WRITERS $(count (project.role, role.type = "publisher"))
+#define SDDS_MAX_DATA_WRITERS ($(count (project.role, role.type = "publisher")) + SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS)
 #undef SDDS_DATA_READER_MAX_OBJS
 #define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber"))
 #endif
@@ -82,24 +89,31 @@ $(project.GENERATED_WARNING_HEADER:)
 .endif
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-.if project.biggestSeqNrBitSize = 4
-#define SDDS_SEQNR_BIGGEST_TYPE uint8_t
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 4
-.elsif project.biggestSeqNrBitSize = 8
-#define SDDS_SEQNR_BIGGEST_TYPE uint16_t
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 16
+.if project.qos_reliability_has_kind_besteffort = 1
+#   define SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
+.endif
+.if project.qos_reliability_has_kind_reliableAck = 1
+#   define SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
+.endif
+.if project.qos_reliability_has_kind_reliableNack = 1
+#   define SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+.endif
+.if project.qos_reliability_biggest_seqNr_bitsize = 4
+#   define SDDS_SEQNR_BIGGEST_TYPE uint8_t
+#   define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 4
+.   elsif project.qos_reliability_biggest_seqNr_bitsize = 8
+#   define SDDS_SEQNR_BIGGEST_TYPE uint16_t
+#   define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 16
+.   else
+#   define SDDS_SEQNR_BIGGEST_TYPE uint32_t
+#   define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 32
+.endif
+.if project.qos_reliability_biggest_max_blocking_time < 255
+#   define SDDS_MAX_BLOCKING_TIME_BIGGEST_TYPE uint8_t
+.elsif project.qos_reliability_biggest_max_blocking_time < 65535
+#   define SDDS_MAX_BLOCKING_TIME_BIGGEST_TYPE uint16_t
 .else
-#define SDDS_SEQNR_BIGGEST_TYPE uint32_t
-#define SDDS_SEQNR_BIGGEST_TYPE_BITSIZE 32
-.endif
-.if project.hasReliableKindBesteffort = 1
-#define SDDS_HAS_QOS_RELIABILITY_KIND_BESTEFFORT
-.endif
-.if project.hasReliableKindAck = 1
-#define SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK
-.endif
-.if project.hasReliableKindNack = 1
-#define SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+#   define SDDS_MAX_BLOCKING_TIME_BIGGEST_TYPE uint32_t
 .endif
 #endif
 
@@ -108,7 +122,7 @@ $(project.GENERATED_WARNING_HEADER:)
 #endif /* SDDS_TOPIC_APP_MSG_COUNT */
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-#define SDDS_TOPIC_MAX_COUNT $(count (project.topic) + 5)
+#define SDDS_TOPIC_MAX_COUNT $(count (project.topic) + SDDS_BUILTIN_TOPICS_COUNT)
 #else
 #define SDDS_TOPIC_MAX_COUNT $(count (project.topic))
 #endif
@@ -226,6 +240,14 @@ $(project.GENERATED_WARNING_HEADER:)
 #define PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS		PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS"%"PLATFORM_$(PROJECT.OS)_SDDS_IFACE
 .else
 #define PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS		PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS
+.endif
+#endif
+
+#ifndef PLATFORM_$(PROJECT.OS)_SDDS_DEVICE
+.if defined (project.device)
+#define PLATFORM_$(PROJECT.OS)_SDDS_DEVICE		"$(project.device)"
+.else
+#define PLATFORM_$(PROJECT.OS)_SDDS_DEVICE		PLATFORM_$(PROJECT.OS)_SDDS_IFACE
 .endif
 #endif
 

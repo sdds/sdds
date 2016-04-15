@@ -3,8 +3,8 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "wlan0"
-    ip = "fe80::dafc:93ff:feb9:e678"
+    iface = "tap0"
+    ip = "fe80::c0ef:62ff:fed4:d26a"
     port = "23234"
 	protocol = "AF_INET6"
     >
@@ -20,15 +20,14 @@
 
     <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1"/>
     <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10"/>
-    <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "10"/>
+    <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "60"/>
     <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0"/>
-    
+<!--    
     <define name = "SDDS_QOS_LATENCYBUDGET"/>
     <define name = "SDDS_QOS_DW_LATBUD" value = "10000"/>
     <define name = "SDDS_QOS_DW_COMM" value = "1000"/>
     <define name = "SDDS_QOS_DW_READ" value = "100"/>
-
+-->
     <include filename = "../topics/beta.xml" />
-
     <role topic = "beta" type = "publisher" />
 </project>

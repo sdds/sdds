@@ -29,12 +29,18 @@ $(project.GENERATED_WARNING_HEADER:)
 .for project.topic
 #include "$(topic.c_name)-ds.h"
 .endfor
-
+.echo "topic.qos_reliability_kind: "
 .for project.topic
 extern DDS_DataReader g_$(topic.c_name:)_reader;
 extern DDS_DataWriter g_$(topic.c_name:)_writer;
 extern DDS_Topic g_$(topic.c_name:)_topic;
 
+extern Sample_t $(topic.c_name)_samples_pool[];
+.  if defined (topic.qos_reliability_kind)
+.    if topic.qos_reliability_kind = 2
+extern ReliableSample_t $(topic.c_name)_reliableSamples_pool[];
+.    endif
+.  endif
 .endfor
 #endif
 /*
@@ -93,7 +99,7 @@ DDS_DataWriter g_$(topic.c_name:)_writer;
 rc_t
 sDDS_init (void)
 {
-    rc_t ret;
+    rc_t ret = SDDS_RT_OK;
     //  Initializes all sDDS classes is defined in sDDS.c
     //  Must be first as all other classes depend on it
 .# Additional inits for the autobest sdds server
@@ -118,7 +124,7 @@ sDDS_init (void)
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 	assert(Discovery_init() == SDDS_RT_OK);
 #endif
-#ifdef FEATURE_SDDS_TRACEING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_ENABLED
     assert(Trace_init() == SDDS_RT_OK);
 #endif
 
@@ -139,6 +145,9 @@ sDDS_init (void)
 .   endif
 .   if count (project.role, role.topic = topic.name & role.type = "publisher")
     g_$(topic.c_name:)_writer = DataSource_create_datawriter(g_$(topic.c_name:)_topic, NULL, NULL, NULL);
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+	DataWriter_setup ((Reliable_DataWriter_t*) g_$(topic.c_name:)_writer, $(topic.c_name)_reliableSamples_pool, SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE);
+#endif
 .   endif
 
 .   for project.role where topic.name = role.topic

@@ -43,6 +43,8 @@ ConcurrentLinkedList_add(List_t* this, void* data);
 size_t
 ConcurrentLinkedList_size(List_t* this);
 rc_t
+ConcurrentLinkedList_delete(List_t* this);
+rc_t
 ConcurrentLinkedList_delete_all(List_t* this);
 
 //  initialize node pool
@@ -89,6 +91,7 @@ List_initConcurrentLinkedList(void) {
     this->list.next_fn = ConcurrentLinkedList_next;
     this->list.add_fn = ConcurrentLinkedList_add;
     this->list.size_fn = ConcurrentLinkedList_size;
+    this->list.delete_fn = ConcurrentLinkedList_delete;
     this->list.delete_all_fn = ConcurrentLinkedList_delete_all;
 
     this->head = NULL;
@@ -209,6 +212,12 @@ ConcurrentLinkedList_size(List_t* this) {
     size_t size = linkedList->size;
     Mutex_unlock(linkedList->mutex);
     return size;
+}
+
+rc_t
+ConcurrentLinkedList_delete(List_t* this) {
+    assert(this);
+    return SDDS_RT_FAIL;
 }
 
 rc_t

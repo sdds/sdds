@@ -16,6 +16,13 @@
 extern "C" {
 #endif
 
+
+#ifdef TEST_SCALABILITY
+#   ifndef SCALABILITY_LOG
+#define SCALABILITY_LOG "../scalability_msg_count.log"
+#   endif
+#endif
+
 //  Structure of this class
 
 struct _DataWriter_t {
@@ -26,22 +33,44 @@ struct _DataWriter_t {
 typedef struct _DataWriter_t DataWriter_t;
 
 #if defined SDDS_HAS_QOS_RELIABILITY
-struct Reliable_DataWriter {
+struct _Reliable_DataWriter_t {
    DataWriter_t dw;
-   History_t history;
    SDDS_SEQNR_BIGGEST_TYPE seqNr;
-};
-typedef struct Reliable_DataWriter Reliable_DataWriter_t;
-#endif
 
+#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+    ReliableSample_t* samplesToKeep;
+    uint8_t depthToKeep;
+#   endif
+};
+typedef struct _Reliable_DataWriter_t Reliable_DataWriter_t;
+#endif
 
 rc_t
 DataWriter_init();
 
-#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+rc_t
+DataWriter_setup(Reliable_DataWriter_t* self, ReliableSample_t* samples, unsigned int depth);
+#endif
+
+#if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
 rc_t
 DataWriter_write(DataWriter_t* self, Data data, void* handle);
 #endif// SDDS_TOPIC_HAS_SUB
+
+NetBuffRef_t*
+find_free_buffer(List_t* subscribers);
+
+rc_t
+checkSending(NetBuffRef_t* buf);
+
+rc_t
+DataWriter_mutex_lock();
+
+rc_t
+DataWriter_mutex_unlock();
 
 rc_t
 DataWriter_writeAddress(DataWriter_t* self,

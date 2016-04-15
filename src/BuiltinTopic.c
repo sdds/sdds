@@ -11,6 +11,14 @@ extern "C"
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 
+SSW_NodeID_t BuiltinTopic_participantID;
+
+#ifdef TEST_SCALABILITY_LINUX
+#include <stdio.h>
+static FILE* scalability_msg_count;
+#endif
+
+
 DDS_Topic g_DCPSParticipant_topic;
 Sample_t dcps_participant_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSParticipant dcps_participant_sample_data[SDDS_QOS_HISTORY_DEPTH];
@@ -313,9 +321,24 @@ DDS_DCPSParticipantDataWriter_write(
     addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
 #endif
 
+#ifdef DISCOVERY_UNICAST_SUBSCRIPTION
+    castType = SDDS_SNPS_CAST_UNICAST;
+    addr = "";
+    addrLen = 0;
+#endif
+
     rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY_LINUX
+    	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
+    	fwrite("I", 1, 1, scalability_msg_count);
+		fclose(scalability_msg_count);
+#endif
+
+#ifdef TEST_SCALABILITY_RIOT
+        fprintf(stderr,"{SCL:I}\n");
+#endif
         return DDS_RETCODE_OK;
     }
     return DDS_RETCODE_ERROR;
@@ -440,6 +463,15 @@ DDS_DCPSTopicDataWriter_write(
     rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY_LINUX
+    	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
+    	fwrite("T", 1, 1, scalability_msg_count);
+		fclose(scalability_msg_count);
+#endif
+
+#ifdef TEST_SCALABILITY_RIOT
+        fprintf(stderr,"{SCL:T}\n");
+#endif
         return DDS_RETCODE_OK;
     }
 
@@ -564,6 +596,15 @@ DDS_DCPSPublicationDataWriter_write(
     rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY_LINUX
+    	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
+    	fwrite("P", 1, 1, scalability_msg_count);
+		fclose(scalability_msg_count);
+#endif
+
+#ifdef TEST_SCALABILITY_RIOT
+        fprintf(stderr, "{SCL:P}\n");
+#endif
         return DDS_RETCODE_OK;
     }
 
@@ -707,10 +748,25 @@ DDS_DCPSSubscriptionDataWriter_write(
     addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
 #endif
 
+#ifdef DISCOVERY_UNICAST_SUBSCRIPTION
+    castType = SDDS_SNPS_CAST_UNICAST;
+    addr = "";
+    addrLen = 0;
+#endif
+
     rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY_LINUX
+    	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
+    	fwrite("S", 1, 1, scalability_msg_count);
+		fclose(scalability_msg_count);
+#endif
+
+#ifdef TEST_SCALABILITY_RIOT
+        fprintf(stderr,"{SCL:S}\n");
+#endif
         return DDS_RETCODE_OK;
     }
 
@@ -898,12 +954,12 @@ TopicMarshalling_ParticipantStatelessMessage_encode(NetBuffRef_t* buffer, Data d
 
     Marshalling_enc_string(start + *size, real_data->message_data.class_id, CLASS_ID_STRLEN);
     *size += CLASS_ID_STRLEN;
-    
+
     for(int i = 0; i < PROPERTIES_NUM; i++) {
         Marshalling_enc_string(start + *size, real_data->message_data.props[i].key, PROPERTY_KEY_STRLEN);
-        *size += PROPERTY_KEY_STRLEN;    
+        *size += PROPERTY_KEY_STRLEN;
         Marshalling_enc_string(start + *size, real_data->message_data.props[i].value, PROPERTY_VAL_STRLEN);
-        *size += PROPERTY_VAL_STRLEN;    
+        *size += PROPERTY_VAL_STRLEN;
     }
 
     return SDDS_RT_OK;
@@ -913,7 +969,7 @@ rc_t
 TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data data, size_t* size) {
 
     *size = 0;
-    byte_t* start = buffer->buff_start + buffer->curPos;  
+    byte_t* start = buffer->buff_start + buffer->curPos;
     DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
 
     Marshalling_dec_uint16(start + *size, &real_data->msgid);
@@ -927,12 +983,12 @@ TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data d
 
     Marshalling_dec_string(start + *size, real_data->message_data.class_id, CLASS_ID_STRLEN);
     *size += CLASS_ID_STRLEN;
-    
+
     for(int i = 0; i < PROPERTIES_NUM; i++) {
         Marshalling_dec_string(start + *size, real_data->message_data.props[i].key, PROPERTY_KEY_STRLEN);
-        *size += PROPERTY_KEY_STRLEN;    
+        *size += PROPERTY_KEY_STRLEN;
         Marshalling_dec_string(start + *size, real_data->message_data.props[i].value, PROPERTY_VAL_STRLEN);
-        *size += PROPERTY_VAL_STRLEN;    
+        *size += PROPERTY_VAL_STRLEN;
     }
 
     return SDDS_RT_OK;

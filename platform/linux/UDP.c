@@ -48,8 +48,13 @@
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS           SDDS_BUILTIN_SUB_PUB_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PAR_STATE_MSG_ADDRESS     SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS
 
+#ifndef PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF 20
+#endif
+
+#ifndef PLATFORM_LINUX_MULTICAST_SO_RCVBUF
 #define PLATFORM_LINUX_MULTICAST_SO_RCVBUF SDDS_NET_MAX_BUF_SIZE
+#endif
 
 #ifndef PLATFORM_LINUX_SDDS_ADDRESS
 #define PLATFORM_LINUX_SDDS_ADDRESS "::"
@@ -412,6 +417,7 @@ create_socket(struct addrinfo* address) {
 
 void*
 recvLoop(void* netBuff) {
+
     NetBuffRef_t* buff = (NetBuffRef_t*) netBuff;
     int sock;     // receive socket
     unsigned int sock_type;     // broad or multicast
@@ -442,11 +448,18 @@ recvLoop(void* netBuff) {
                                      buff->frame_start->size, 0,
                                      (struct sockaddr*)&addr, &addr_len);
 
+
         if (recv_size == -1) {
             Log_error("%d Error while receiving a udp frame: %s\n", __LINE__, strerror(errno));
             continue;
         }
-
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#	ifdef FEATURE_SDDS_TRACING_RECV_NORMAL
+#		ifdef FEATURE_SDDS_TRACING_RECV_PAKET
+        Trace_point(SDDS_TRACE_EVENT_RECV_PAKET);
+#		endif
+#	endif
+#endif
         Log_debug("[%u]%i bytes received.\n", sock_type, (int) recv_size);
 
         struct UDPLocator_t sloc;
@@ -482,6 +495,7 @@ recvLoop(void* netBuff) {
             continue;
         }
 
+
         if (DataSink_processFrame(buff) != SDDS_RT_OK) {
             Log_debug("Failed to process frame\n");
         }
@@ -494,6 +508,11 @@ recvLoop(void* netBuff) {
 
 rc_t
 Network_send(NetBuffRef_t* buff) {
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_SEND_PAKET
+    Trace_point(SDDS_TRACE_EVENT_SEND_PAKET);
+#endif
+#endif
     int sock;
     unsigned int sock_type;
     // Check the locator for uni or multicast socket
@@ -609,7 +628,7 @@ Network_set_locator_endpoint(Locator_t* loc, char* endpoint, int port) {
     int gai_ret = getaddrinfo(endpoint, port_buffer, &hints, &address);
 
     if (gai_ret != 0) {
-        Log_error("can't obtain suitable addresses %s for setting UDP locator\n", endpoint);
+        Log_error("can't obtain suitable addresses %s for setting UDP locator: %s\n", endpoint, gai_strerror(errno));
         return SDDS_RT_FAIL;
     }
 
@@ -786,7 +805,7 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 }
 
 rc_t
-Locator_getAddress(Locator_t* self, char* srcAddr) {
+Locator_getAddress(Locator_t* self, char* srcAddr, size_t max_addr_len) {
     assert(self);
     assert(srcAddr);
     struct sockaddr_storage* addr = &((struct UDPLocator_t*) self)->addr_storage;

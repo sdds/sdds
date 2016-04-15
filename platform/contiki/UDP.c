@@ -143,6 +143,17 @@ receive(struct simple_udp_connection* connection,
         return;
     }
 
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
+#ifdef FEATURE_SDDS_TRACING_RECV_PAKET
+        Trace_point(SDDS_TRACE_EVENT_DUMMY_1);
+        Trace_point(SDDS_TRACE_EVENT_DUMMY_2);
+        Trace_point(SDDS_TRACE_EVENT_DUMMY_3);
+        Trace_point(SDDS_TRACE_EVENT_RECV_PAKET);
+#endif
+#endif
+#endif
+
     memcpy(g_incoming_buffer.buff_start, data, data_len);
     //uip_ipaddr_copy(&this_locator.address, &UIP_IP_BUF->srcipaddr);
     uip_ipaddr_copy(&this_locator.address, src_addr);
@@ -187,6 +198,11 @@ receive(struct simple_udp_connection* connection,
 
 rc_t
 Network_send(NetBuffRef_t* buffer) {
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+#ifdef FEATURE_SDDS_TRACING_SEND_PAKET
+    Trace_point(SDDS_TRACE_EVENT_SEND_PAKET);
+#endif
+#endif
     struct uip_udp_conn* con;
     int port;
 

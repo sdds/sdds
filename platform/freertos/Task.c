@@ -29,6 +29,13 @@ Task_init(Task _this, void (* callback)(void* obj), void* data) {
     return SDDS_SSW_RT_OK;
 }
 
+bool
+Task_isRunning(Task _this)
+{
+    assert (_this);
+    return false;
+}
+
 ssw_rc_t
 Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode) {
     return SDDS_SSW_RT_OK;

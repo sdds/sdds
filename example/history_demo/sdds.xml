@@ -1,0 +1,58 @@
+<project
+    name = "history_demo"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    protocol = "AF_INET6"
+    iface = "tap0"
+    ip = "fe80::c0ef:62ff:fed4:d26a"
+    >
+    <!--
+    Set Set interface and port for this project. Interface is required if your
+    platform supports multiple e.g. Linux. The port is optional.
+        iface = "ethX"
+        port = "23456"
+    >
+    -->
+    ""
+
+    <!--
+        Include your topic files here. You can include topics from multiple files.
+        Only those topics will be generated that have at least one matching role.
+    -->
+    <include filename = "../topics/alpha.xml" />
+
+    <!--
+        Roles are bound to one topic and are either a publisher or subscriber.
+        Publisher can have a list of subscriber to whom the should send data.
+        If multicast discovery is enables no subscribers have to be entered.
+    <role topic = "mytopic" type = "publisher">
+        <subscriber ip = "fe80::12:13ff:fe14:1516" />
+    </role>
+    <role topic = "mytopic" type = "subscriber" />
+    -->
+    <role topic = "alpha" type = "publisher" />
+    <role topic = "alpha" type = "subscriber" />
+
+    <!--
+        This enables multicast discovery.
+    -->
+    <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
+    <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
+    <define name = "FEATURE_SDDS_DISCOVERY_ENABLED" />
+    <!--
+        Configure discovery intervals
+    -->
+    <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1"/>
+    <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "1"/>
+    <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "5"/>
+    <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0"/>
+    <!--
+        Configure default history depth
+    -->
+    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "6"/>
+    <!--
+        Enable all debug messages
+    -->
+    <define name = "UTILS_DEBUG"/>
+</project>

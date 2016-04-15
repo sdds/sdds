@@ -1,0 +1,35 @@
+<project
+    name = "riot"
+    script = "sdds.gsl"
+    endian = "big"
+    os = "riot"
+    ip = "fd29:144d:4196:94::124"
+    port = "23234"
+	protocol = "AF_INET6"
+    >
+    RIOT example, quick test IPC topic.
+
+	<!--
+		fe80::dafc:93ff:feb9:e678	wlan0
+		fe80::12:13ff:fe14:1516		usb0
+		fe80::12:13ff:fe14:2323		usb1
+	-->
+
+    <!--
+        Includes are processed first, so XML in included files will be
+        part of the XML tree
+    -->
+	<define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
+	<define name = "SDDS_6LOWPAN_PANID" value = "0xbabe"/>
+	<!-- optinal setting -->
+	<define name = "TRANSPORT_6LOWPAN_SDDS_TXPOWER" value = "-17"/>
+	<define name = "SDDS_6LOWPAN_RPL_ENABLED" value = "1"/>
+	<define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
+	<define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "50"/>
+	<define name = "FEATURE_SDDS_MULTICAST_ENABLED" value = "1"/>
+
+    <include filename = "../topics/ipc.xml" />
+
+	<role topic = "ipc" type = "subscriber">
+	</role>	
+</project>

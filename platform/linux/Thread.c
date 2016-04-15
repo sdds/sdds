@@ -62,3 +62,10 @@ Thread_sleep(Thread _this, uint16_t secSleep) {
     sleep(secSleep);
     return SDDS_RT_OK;
 }
+
+ssw_rc_t
+Thread_yield(void) {
+    // TODO
+    return SDDS_RT_OK;
+}
+

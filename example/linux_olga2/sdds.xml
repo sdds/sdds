@@ -3,8 +3,8 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "usb0"
-    ip = "fe80::12:13ff:fe14:2323"
+    iface = "eth0"
+    ip = "fe80::219:99ff:fede:9af6"
     port = "23234"
 	protocol = "AF_INET6"
     >
@@ -22,12 +22,12 @@
     <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "10"/>
     <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "10"/>
     <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0"/>
-    
+<!-- 
     <define name = "SDDS_QOS_LATENCYBUDGET"/>
     <define name = "SDDS_QOS_DW_LATBUD" value = "10000"/>
     <define name = "SDDS_QOS_DW_COMM" value = "1000"/>
     <define name = "SDDS_QOS_DW_READ" value = "100"/>
-
+-->
     <include filename = "../topics/beta.xml" />
     <role topic = "beta" type = "subscriber" />
 </project>

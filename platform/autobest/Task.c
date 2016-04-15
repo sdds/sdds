@@ -13,7 +13,7 @@
 #define TASK_MNG_PRI 101
 
 struct Task_struct {
-    void (* cb)(void* obj);
+    void (* callback)(void* obj);
     void* data;
     timeout_t timeout;
     time_t fireTime;
@@ -98,15 +98,24 @@ Task_create(void) {
  */
 ssw_rc_t
 Task_init(Task _this, void (* callback)(void* obj), void* data) {
-    _this->cb = callback;
+    _this->callback = callback;
     _this->data = data;
 
     return SDDS_RT_OK;
 }
 
+bool
+Task_isRunning(Task _this)
+{
+    if (!_this) {
+        return false;
+    }
+    return _this->isActive;
+}
+
 ssw_rc_t
 Task_start(Task _this, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode){
-    if(_this->cb == NULL || _this == NULL){
+    if(_this->callback == NULL || _this == NULL){
         return SDDS_RT_FAIL;
     }
     time_t systemTime = sys_gettime();
@@ -125,7 +134,6 @@ Task_stop(Task _this) {
     }
     if(_this->isActive) {
         stopTask(_this);
-        _this->isActive = false;
     }
     return SDDS_RT_OK;
 }
@@ -136,6 +144,7 @@ Task_delete(Task _this) {
         return SDDS_SSW_RT_FAIL;
     }
     deleteTask(_this);
+    Memory_free(_this);
     return SDDS_RT_OK;
 }
 
@@ -161,12 +170,13 @@ stopTask(struct Task_struct* t) {
     if(t->prev == taskList && t->next == NULL) {
         isTaskListEmpty = true;
     }
+    t->isActive = false;
 }
 
 static inline void
 deleteTask(struct Task_struct* t) {
     stopTask(t);
-    Memory_free(t);
+    //Memory_free(t);
 }
 
 static inline void
@@ -178,23 +188,23 @@ doMng() {
 
 static void
 checkFireTimes() {
-    struct Task_struct* itterator;
-    itterator = taskList->next;
+    struct Task_struct* iterator;
+    iterator = taskList->next;
     time_t systemTime = sys_gettime();
-    while(itterator != NULL) {
-        if(itterator->fireTime < systemTime) {
-            if(itterator->mode == SDDS_SSW_TaskMode_repeat) {
-                itterator->fireTime = systemTime + itterator->timeout;
+    while(iterator != NULL) {
+        if(iterator->fireTime < systemTime) {
+            if(iterator->mode == SDDS_SSW_TaskMode_repeat) {
+                iterator->fireTime = systemTime + iterator->timeout;
             }
-            itterator->cb(itterator->data);
-            bool lastElement = itterator->next == NULL;
-            if(itterator->mode == SDDS_SSW_TaskMode_single) {
-                deleteTask(itterator);
+            iterator->callback(iterator->data);
+            bool lastElement = iterator->next == NULL;
+            if(iterator->mode == SDDS_SSW_TaskMode_single) {
+                deleteTask(iterator);
             }
             if(lastElement) {
                 break;
             }
         }
-        itterator=itterator->next;
+        iterator=iterator->next;
     }
 }

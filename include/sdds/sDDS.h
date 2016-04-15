@@ -37,6 +37,7 @@ typedef struct NetFrameBuff_t* NetFrameBuff;
 typedef struct _Locator_t Locator_t;
 typedef struct SourceQos_t SourceQos_t;
 typedef struct _Sample_t Sample_t;
+typedef struct _ReliableSample_t ReliableSample_t;
 typedef struct _Topic_t Topic_t;
 typedef struct TimeStampSimple_struct TimeStampSimple_t;
 

@@ -15,6 +15,7 @@ typedef void* (List_first_fn)(List_t* self);
 typedef void* (List_next_fn)(List_t* self);
 typedef rc_t (List_add_fn)(List_t* self, void* data);
 typedef size_t (List_size_fn)(List_t* self);
+typedef rc_t (List_delete_fn)(List_t* self);
 typedef rc_t (List_delete_all_fn)(List_t* self);
 
 /**
@@ -25,6 +26,7 @@ struct List {
     List_next_fn *next_fn; ///< Provides the data of the next element, or NULL.
     List_add_fn *add_fn; ///< Adds data to the list, return SDDS_SSW_RT_OK or SDDS_SSW_RT_FAIL.
     List_size_fn *size_fn;  ///< Return the size of the list.
+    List_delete_fn *delete_fn; ///< Deletes the element under the cursor from the list.
     List_delete_all_fn *delete_all_fn; ///< Deletes all elements from the list.
 };
 

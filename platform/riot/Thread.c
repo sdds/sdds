@@ -9,11 +9,10 @@
 #include "os-ssal/SSW.h"
 #include "os-ssal/Memory.h"
 #include "Log.h"
-#include "thread.h"
-#include "kernel.h"
-#include "vtimer.h"
+#include "xtimer.h"
+#include <thread.h>
 
-const int thread_stack_size =  KERNEL_CONF_STACKSIZE_PRINTF_FLOAT * sizeof(char);
+const int thread_stack_size =  THREAD_STACKSIZE_DEFAULT * sizeof(char);
 Thread
 Thread_create() {
     int* pid = Memory_alloc(sizeof(int));
@@ -54,6 +53,12 @@ Thread_stop(Thread _this);
 ssw_rc_t
 Thread_sleep(Thread _this, uint16_t usecSleep) {
     (void)_this;
-    vtimer_usleep(usecSleep);
+    xtimer_usleep(usecSleep);
+    return SDDS_RT_OK;
+}
+
+ssw_rc_t
+Thread_yield(void) {
+    thread_yield();
     return SDDS_RT_OK;
 }

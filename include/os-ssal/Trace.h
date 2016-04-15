@@ -11,11 +11,36 @@
 /*
  *  Define sDDS posible trace events for sDDS.
  *  The Events are only in use when the traceing feature is defined and
- *  the feature for the ebents are defined.
+ *  the feature for the events are defined.
+ *
+ * There are two types of events for recving and sending,
+ * the isolated and normal events.
+ * isolated events are for trace of a sdds version which is
+ * splittet into sdds middleware and sdds applications.
+ * For this version we need more events.
+ * At this time we only have a isolated version for the
+ * AUTOBEST kernel, so the trace events are accommodated to this
+ * version.
+ *
+ * The events are defined as gray code. So if you want
+ * to measure a write or a read you need to set the
+ * events in the order as they define here (from Top to Down)
+ * The values of appearnes IRQ, IP-stack and the Ethernet driver are
+ * in commented at there right position for the diverend types
+ * of the event.
  */
 #define SDDS_TRACE_EVENT_STOP				0u
 
 #ifdef FEATURE_SDDS_TRACING_RECV_NORMAL
+
+
+#define SDDS_TRACE_EVENT_DUMMY_1            1u
+#define SDDS_TRACE_EVENT_DUMMY_2            3u
+#define SDDS_TRACE_EVENT_DUMMY_3           	2u
+
+// irq im KLernel 1u
+// ISR ETH 3u
+// lwIP 2u
 
 #ifdef FEATURE_SDDS_TRACING_RECV_PAKET
 #define SDDS_TRACE_EVENT_RECV_PAKET			6u
@@ -37,6 +62,10 @@
 
 
 #ifdef FEATURE_SDDS_TRACING_RECV_ISOLATED
+
+// irq in the kernel 1u
+// ISR ETH 3u
+// lwIP 2u
 
 #ifdef FEATURE_SDDS_TRACING_RECV_PAKET
 #define SDDS_TRACE_EVENT_RECV_PAKET			6u
@@ -101,6 +130,9 @@
  // lwip: 6u
  // ETH: 7u
 
+#define SDDS_TRACE_EVENT_DUMMY_3            6u
+#define SDDS_TRACE_EVENT_DUMMY_4            7u
+
 #define SDDS_TRACE_EVENT_DUMMY_1            5u
 #define SDDS_TRACE_EVENT_DUMMY_2            4u
 
@@ -149,12 +181,28 @@
 typedef uint8_t Trace_event_t;
 typedef uint8_t Trace_signal_t;
 
+// Init function for the trace module
 ssw_rc_t
 Trace_init(void);
 
+/*
+ * function set a trace point in the code.
+ * Trace point are places in the code to
+ * show the external world what is happening in the system.
+ * So to can interpret them as start point of phaseses in your
+ * software.
+ */
 ssw_rc_t
 Trace_point(Trace_event_t trace_event);
 
+/*
+ * functions set and reset trace signals.
+ * Unlike trace events, trace signals are
+ * signals to the external world of your system.
+ * So you can give additinal infomations to phases
+ * of your software e. g. when did start rescheduling
+ * of a process or so on,
+ */
 ssw_rc_t
 Trace_setSignal(Trace_signal_t trace_signal);
 

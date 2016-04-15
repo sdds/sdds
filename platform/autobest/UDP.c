@@ -104,11 +104,13 @@ Network_init(void) {
     // set up a thread to read from the udp socket
     net.recvThread = Thread_create();
     if(net.recvThread == NULL) {
+        Log_error("can not create thread for recving unicast\n");
         sys_task_terminate();
         sys_abort();
     }
     ret = Thread_init(net.recvThread, recvLoop, (void*)&inBuff);
     if(ret != SDDS_RT_OK) {
+        Log_error("can not create thread for recving multicast\n");
         sys_task_terminate();
         sys_abort();
     }
@@ -116,6 +118,7 @@ Network_init(void) {
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
     ret = Network_Multicast_init();
     if(ret != SDDS_RT_OK) {
+        Log_error("Can't init multicast\n");
         sys_task_terminate();
         sys_abort();
     }
@@ -136,18 +139,22 @@ Network_Multicast_init() {
     }
     ret = Network_Multicast_joinMulticastGroup(PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_ADDRESS);
     if (ret != SDDS_RT_OK) {
+        Log_error("Can not join multicast group:%s\n",PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_ADDRESS);
         return SDDS_RT_FAIL;
     }
     ret = Network_Multicast_joinMulticastGroup(PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
     if (ret != SDDS_RT_OK) {
+        Log_error("Can not join multicast group:%s\n",PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
         return SDDS_RT_FAIL;
     }
     ret = Network_Multicast_joinMulticastGroup(PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS);
     if (ret != SDDS_RT_OK) {
+        Log_error("Can not join multicast group:%s\n",PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS);
         return SDDS_RT_FAIL;
     }
     ret = Network_Multicast_joinMulticastGroup(PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
     if (ret != SDDS_RT_OK) {
+        Log_error("Can not join multicast group:%s\n",PLATFORM_AUTOBEST_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
         return SDDS_RT_FAIL;
     }
 
@@ -214,7 +221,6 @@ create_connection(int port) {
 #elif PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET6
     int ret = inet6_aton(PLATFORM_AUTOBEST_SDDS_ADDRESS, &addr);
     if(ret != 1) {
-        netconn_delete(conn);
         Log_error("No vaild IPv6: %s\n", PLATFORM_AUTOBEST_SDDS_ADDRESS);
         return NULL;
     }
@@ -233,7 +239,6 @@ create_connection(int port) {
         Log_error("Unable to bind connection: %s\n", lwip_strerr(err));
         return NULL;
     }
-
     return conn;
 }
 
@@ -318,8 +323,6 @@ recvLoop(void* netBuff) {
         }
 
         netbuf_delete(lwip_netbuf);
-        // up ref counter
-        Locator_upRef(loc);
 
         loc->isEmpty = false;
         loc->isSender = true;
@@ -554,7 +557,7 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 
 
 rc_t
-Locator_getAddress(Locator_t* l, char* srcAddr) {
+Locator_getAddress(Locator_t* l, char* srcAddr, size_t max_addr_len) {
 #ifdef __IS_SDDS_SERVER__
     AutobestLocator_t* aloc = (AutobestLocator_t*) l;
 #if PLATFORM_AUTOBEST_SDDS_PROTOCOL == AF_INET
@@ -564,7 +567,11 @@ Locator_getAddress(Locator_t* l, char* srcAddr) {
 #else
 #error "Only AF_INET and AF_INET6 are understood protocols."
 #endif
-    memcpy(srcAddr, ret, strlen(ret)+1);
+    size_t len =  strlen(ret)+1;
+    if(len > max_addr_len){
+        return SDDS_RT_FAIL;
+    }
+    memcpy(srcAddr, ret, len);
     //Log_debug("%s | %s\n", ret, srcAddr);
     if(ret == NULL) {
         return SDDS_RT_FAIL;

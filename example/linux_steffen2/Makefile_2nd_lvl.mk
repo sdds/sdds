@@ -1,4 +1,4 @@
-SDDS_TOPDIR := ../..
+SDDS_TOPDIR := $(shell dirname $(shell dirname $(shell readlink generate.sh)))
 
 SDDS_OBJDIR := objs-linux
 TARGET := linux
@@ -15,10 +15,7 @@ SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 include $(SDDS_TOPDIR)/sdds.mk
 
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilityhuge-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitybig-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitysmall-ds.o
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitybasic-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitybasicreliableack-ds.o
 ALL_OBJS += $(DATA_DEPEND_OBJS)
 
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
@@ -32,6 +29,7 @@ CLEAN += $(IMPL_DEPEND_SRCS)
 CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
+CLEAN += local_constants.h
 
 all:
 

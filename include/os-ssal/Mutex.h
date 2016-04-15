@@ -5,8 +5,8 @@
  *      Author: k_beckma
  */
 
-#ifndef MUTEX_H_
-#define MUTEX_H_
+#ifndef _SDDS_MUTEX_H_
+#define _SDDS_MUTEX_H_
 
 #include "os-ssal/SSW.h"
 
@@ -52,4 +52,4 @@ Mutex_lock(Mutex_t* mutex);
 ssw_rc_t
 Mutex_unlock(Mutex_t* mutex);
 
-#endif /* MUTEX_H_ */
+#endif /* _SDDS_MUTEX_H_ */

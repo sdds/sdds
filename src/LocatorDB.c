@@ -47,7 +47,7 @@ s_print() {
     printf("\n\nLOCATOR DB \n");
     for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
         char srcAddr[NI_MAXHOST];
-        if (Locator_getAddress(db.pool[i], srcAddr) != SDDS_RT_OK) {
+        if (Locator_getAddress(db.pool[i], srcAddr, NI_MAXHOST) != SDDS_RT_OK) {
             srcAddr[0] = '0';
             srcAddr[1] = '\0';
         }
@@ -55,8 +55,6 @@ s_print() {
         if (db.pool[i]->type == SDDS_LOCATOR_TYPE_MULTI) {
             type = "MUL";
         }
-
-        assert(!((i == 3) && (strcmp(srcAddr, "ff02::30") == 0)));
 
         printf("[(%p) %d,%d, %s, %s] ", db.pool[i], i, db.pool[i]->refCount, srcAddr, type);
     }
@@ -263,30 +261,32 @@ LocatorDB_findLocatorByMcastAddr(char *addr, Locator_t** result) {
     return SDDS_RT_FAIL;
 }
 
+#ifdef UTILS_TRACE
 void
 print_trace (int fun)
 {
-//  void *array[10];
-//  size_t size;
-//  size_t i;
-//
-//  size = backtrace (array, 10);
-//
-//  switch (fun) {
-//  case 0:
-//      system("echo UP REF >> log.txt");
-//      break;
-//  case 1:
-//      system("echo DOWN REF >> log.txt");
-//      break;
-//  }
-//
-//  for (i = 0; i < size; i++) {
-//      char command[150];
-//      sprintf(command, "addr2line -e linux_mcast1 %p >> log.txt", array[i]);
-//      system(command);
-//  }
+  void *array[10];
+  size_t size;
+  size_t i;
+
+  size = backtrace (array, 10);
+
+  switch (fun) {
+  case 0:
+      system("echo UP REF >> log.txt");
+      break;
+  case 1:
+      system("echo DOWN REF >> log.txt");
+      break;
+  }
+
+  for (i = 0; i < size; i++) {
+      char command[150];
+      sprintf(command, "addr2line -e linux_mcast1 %p >> log.txt", array[i]);
+      system(command);
+  }
 }
+#endif
 
 
 void
@@ -306,8 +306,17 @@ Locator_upRef(Locator_t* _this) {
         s_print();
     }
 #endif
+#ifdef UTILS_TRACE
     print_trace(0);
-    assert(_this->refCount > 0);
+#endif
+    /*
+     *	A locator with refCount 0 is free. New locators are obtained with refCount 1.
+     *	upRef on a free Locator (refCount == 0) is illegal.
+     *	If this happens with a non-free locator, probably you used the downRef operation wrong.
+	 */
+    if (_this->refCount == 0) {
+    	Log_info("refCount is 0, this is a known bug. Please read the code commentary for detailed information.\n");
+    }
     if (_this->refCount < 254) {
         _this->refCount++;
     }
@@ -320,7 +329,9 @@ Locator_downRef(Locator_t* _this) {
     }
 
     Mutex_lock(mutex);
+#ifdef UTILS_TRACE
     print_trace(1);
+#endif
     if (_this->refCount == 0) {
         Mutex_unlock(mutex);
         return;
@@ -345,10 +356,7 @@ s_init(Locator_t* _this) {
     _this->isDest = false;
     _this->isSender = false;
 
-    _this->type = SDDS_LOCATOR_TYPE_UNI;
-    rc_t ret = Network_setPlatformAddressToLocator(_this);
-
-    return ret;
+    return SDDS_RT_OK;
 }
 
 uint8_t

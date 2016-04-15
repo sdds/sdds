@@ -1,20 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  sdds_sdds_types.h
- *
- *    Description:
- *
- *        Version:  1.0
- *        Created:  19.02.2010 12:55:38
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Kai Beckmann (kai), kai-oliver.beckmann@hs-rm.de
- *        Company:  Hochschule RheinMain - DOPSY Labor für verteilte Systeme
- *
- * =====================================================================================
- */
 #ifndef  SDDS_TYPES_H_INC
 #define  SDDS_TYPES_H_INC
 
@@ -87,13 +70,6 @@ typedef double float64_t;
 #include <time.h>
 
 #define SDDS_SNPS_ADDR_STR_LENGTH NI_MAXHOST
-/*#ifndef __int8_t_defined
-  #define __int8_t_defined
-  typedef char                  int8_t;
-  typedef short int     int16_t;
-  typedef int                   int32_t;
-  typedef long int              int64_t;
-  #endif*/
 #ifndef  IPV6_JOIN_GROUP      /* APIv0 compatibility */
 #define  IPV6_JOIN_GROUP      IPV6_ADD_MEMBERSHIP
 #endif
@@ -105,10 +81,6 @@ typedef float float32_t;
 typedef double float64_t;
 typedef long double float128_t;
 
-/*#ifndef __size_t
-  #define __size_t__
-  typedef unsigned int  size_t;
-  #endif*/
 #endif   /* TYPE_DEFINES_x86 */
 
 #ifndef NULL
@@ -120,23 +92,28 @@ typedef long double float128_t;
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
+#ifdef SDDS_PLATFORM_autobest
+typedef uint8_t bool;
+#define true 1
+#define false 0
+#define AF_INET 1
+#define AF_INET6 2
+#else
+#include <stdbool.h>
+#endif
 #ifndef __int8_t_defined
 #define __int8_t_defined
 typedef short int int16_t;
 typedef int int32_t;
 #endif
-#define AF_INET 1
-#define AF_INET6 2
 
-typedef unsigned char bool_t;           /*  */
+typedef unsigned char bool_t;
 typedef char char_t;
 typedef unsigned char byte_t;
 typedef float float32_t;
 typedef double float64_t;
 typedef long double float128_t;
-typedef bool_t bool;
-#define true 1
-#define false 0
+
 #ifndef __size_t
 #define __size_t__
 typedef unsigned int size_t;
@@ -171,6 +148,7 @@ typedef uint8_t rc_t;
 #define SDDS_RT_BAD_PARAMETER 4
 #define SDDS_RT_KNOWN 5
 #define SDDS_RT_DEFERRED 6
+#define SDDS_RT_NO_SUB 7
 
 //  Abstract definition for Data
 struct Data_t;

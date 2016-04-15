@@ -1,5 +1,5 @@
 /*  =========================================================================
-    History - Queue for DDS samples
+    History - Subscriber sample queue.
 
     Copyright (c) the Contributors as noted in the AUTHORS file.
 
@@ -10,21 +10,29 @@
 
 /*
    @header
-    History - This class queues samples of one instance for either a DataReader
-              or a DataWriter.
+    History - This class queues samples of one instance for a DataReader.
    @discuss
    @end
  */
 
 #include "sDDS.h"
 
-//  Local helper functions
-rc_t
-s_History_enqueue(History_t* self);
+static Mutex_t* mutex;
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+static Mutex_t* blocktex;
+static Task blockTask;
+#endif
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static rc_t
 s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr);
+#endif
+
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+static void
+s_History_block (void *data);
 #endif
 
 //  ---------------------------------------------------------------------------
@@ -32,6 +40,26 @@ s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR
 
 rc_t
 sdds_History_init() {
+    mutex = Mutex_create();
+    if (mutex == NULL) {
+        return SDDS_RT_FAIL;
+    }
+    if (Mutex_init(mutex) == SDDS_SSW_RT_FAIL) {
+        return SDDS_RT_FAIL;
+    }
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+    blocktex = Mutex_create();
+    if (blocktex == NULL) {
+        return SDDS_RT_FAIL;
+    }
+    if (Mutex_init(blocktex) == SDDS_SSW_RT_FAIL) {
+        return SDDS_RT_FAIL;
+    }
+    Mutex_lock(blocktex);
+    blockTask = Task_create();
+    Task_init(blockTask, s_History_block, NULL);
+#endif
     return SDDS_RT_OK;
 }
 
@@ -47,8 +75,8 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth) {
     self->in_needle = 0;
     self->out_needle = depth;
 #ifdef SDDS_HAS_QOS_RELIABILITY
-    for (int i=0; i<depth; i++){
-        self->samples[i].seqNr = 0;
+    for (int index = 0; index < depth; index++){
+        self->samples[index].seqNr = 0;
     }
 #endif
     return SDDS_RT_OK;
@@ -65,22 +93,11 @@ s_History_full (History_t* self)
 }
 
 
-//  ---------------------------------------------------------------------------
-//  Try to enqueue a sample into the history. If the history is full this call
-//  will discard the oldest sample in case of RELIABILITY best effort and block
-//  in case of RELIABILITY reliable until samples are taken out.
-
-rc_t
-sdds_History_enqueue_data(History_t* self, Data data) {
-    assert(self);
-    assert(data);
-
-    if (s_History_full (self)) {
-        return SDDS_RT_FAIL;
-    }
-    //  Insert sample into queue
-    self->samples[self->in_needle].data = data;
-    return s_History_enqueue(self);
+static void
+s_History_block (void *data) {
+    assert (data);
+    Mutex_t* blocktex = (Mutex_t*) data;
+	Mutex_unlock(blocktex);
 }
 
 
@@ -89,51 +106,68 @@ sdds_History_enqueue_data(History_t* self, Data data) {
 //  this call will discard the oldest sample in case of RELIABILITY best effort
 //  and block in case of RELIABILITY reliable until samples are taken out. If
 //  the buffer is going to be enqueued it will be decoded.
-
 #ifdef SDDS_HAS_QOS_RELIABILITY
 rc_t
-sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+sdds_History_enqueue(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
 #else
 rc_t
-sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
+sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 #endif
     assert(self);
     assert(buff);
+	Mutex_lock(mutex);
+
 #ifdef FEATURE_SDDS_TRACING_ENABLED
-#if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
-#ifdef FEATURE_SDDS_TRACING_HISTORY_ENQUEUE
+#   if defined (FEATURE_SDDS_TRACING_RECV_NORMAL) || defined (FEATURE_SDDS_TRACING_RECV_ISOLATED)
+#       ifdef FEATURE_SDDS_TRACING_HISTORY_ENQUEUE
     Trace_point(SDDS_TRACE_EVENT_HISTORY_ENQUEUE);
-#endif
-#endif
+#       endif
+#   endif
 #endif
 
-    if (s_History_full (self)) {
-        return SDDS_RT_FAIL;
-    }
-
-    //  Insert sample into queue
     Topic_t* topic = buff->curTopic;
     Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
     Locator_upRef(loc);
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
-    //  Check validity of sequence number
-    if (topic->seqNrBitSize > 0){ // topic has seqNr
-        if (s_History_checkSeqNr(self, topic, loc, seqNr) == SDDS_RT_OK){
-            self->samples[self->in_needle].seqNr = seqNr;
-        } else {
+    if (topic->seqNrBitSize > 0){ // topic has qos_reliability
+        //  Check validity of sequence number
+        if (s_History_checkSeqNr(self, topic, loc, seqNr) == SDDS_RT_FAIL){
             SNPS_discardSubMsg(buff);
             Locator_downRef(loc);
-            return SDDS_RT_FAIL;
+            Mutex_unlock(mutex);
+            return SDDS_RT_OK;
         }
-
-#ifdef UTILS_DEBUG
-        if (topic->seqNrBitSize > 0){
-            sdds_History_print(self);
-        }
-#endif
     }
+#endif //  End of SDDS_HAS_QOS_RELIABILITY
+
+    if (s_History_full (self)) {
+        Mutex_unlock(mutex);
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+        //  Start timer which unblocks us after max_blocking_time
+        Task_setData(blockTask, blocktex);
+        Task_start(blockTask, (topic->max_blocking_time / 1000) % 60,
+                                     topic->max_blocking_time % 1000, SDDS_SSW_TaskMode_single);
+        Mutex_lock(blocktex);
+        //  Check if timer has been canceled by dequeue
+        if (s_History_full (self)) {
+            //  Dequeue the oldest item in the History and proceed.
+            (void *) sdds_History_dequeue(self);
+        }
+#else
+        //  Dequeue the oldest item in the History and proceed.
+        (void *) sdds_History_dequeue(self);
 #endif
+        Mutex_lock(mutex);
+    }
+
+    //  Insert sample into queue
+#ifdef SDDS_HAS_QOS_RELIABILITY
+    if (topic->seqNrBitSize > 0){ // topic has qos_reliability
+        self->samples[self->in_needle].seqNr = seqNr;
+    }
+#endif //  End of SDDS_HAS_QOS_RELIABILITY
 
     rc_t ret;
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
@@ -145,21 +179,18 @@ sdds_History_enqueue_buffer(History_t* self, NetBuffRef_t* buff) {
 #else 
     ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
 #endif
+
     if (ret == SDDS_RT_FAIL) {
+        Mutex_unlock(mutex);
         return ret;
     }
     self->samples[self->in_needle].instance = loc;
-    return s_History_enqueue (self);
-}
 
-
-rc_t
-s_History_enqueue(History_t* self) {
     //  Move the input needle to the next free slot. If the input needle is at
     //  the end of the array move it to the beginning.
     unsigned int in_needle_prev = self->in_needle;
     self->in_needle++;
-    if (self->in_needle == self->depth) {
+    if (self->in_needle >= self->depth) {
         self->in_needle = 0;
     }
     //  Move the input needle to depth to indicate that the queue is full.
@@ -167,9 +198,10 @@ s_History_enqueue(History_t* self) {
         self->in_needle = self->depth;
     }
     //  If the queue was previously empty set the output needle.
-    if (self->out_needle == self->depth) {
+    if (self->out_needle >= self->depth) {
         self->out_needle = in_needle_prev;
     }
+    Mutex_unlock(mutex);
     return SDDS_RT_OK;
 }
 
@@ -181,7 +213,10 @@ s_History_enqueue(History_t* self) {
 Sample_t*
 sdds_History_dequeue(History_t* self) {
     assert(self);
-    if (self->out_needle == self->depth) {
+	Mutex_lock(mutex);
+
+    if (self->out_needle >= self->depth) {
+        Mutex_unlock(mutex);
         return NULL;
     }
     //  Remove sample from queue
@@ -191,69 +226,171 @@ sdds_History_dequeue(History_t* self) {
     //  at the end of the array move it to the beginning.
     unsigned int out_needle_prev = self->out_needle;
     self->out_needle++;
-    if (self->out_needle == self->depth) {
+    if (self->out_needle >= self->depth) {
         self->out_needle = 0;
     }
+    //  TODO: change the if statements to modulo calculations to reduce code.
     //  Move the output needle to depth to indicate that the queue is empty.
-    if (self->out_needle == self->in_needle) {
+    if (self->out_needle >= self->in_needle) {
         self->out_needle = self->depth;
     }
     //  If the queue was previously full set the input needle.
-    if (self->in_needle == self->depth) {
+    if (self->in_needle >= self->depth) {
         self->in_needle = out_needle_prev;
     }
+
+    Mutex_unlock(mutex);
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+ || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+    if (Task_isRunning (blockTask)) {
+        Task_stop (blockTask);
+        Mutex_unlock (blocktex);
+    }
+#endif
     return sample;
 }
+
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
 static inline rc_t
 s_History_checkSeqNr(History_t* self, Topic_t* topic, Locator_t* loc, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
-    rc_t ret = SDDS_RT_FAIL;
 
-    SDDS_SEQNR_BIGGEST_TYPE highestSeqNrOfLoc = 0;
-    for (int i=0; i<self->depth; i++){
-        if (self->samples[i].instance == loc
-        && self->samples[i].seqNr > highestSeqNrOfLoc){
-            highestSeqNrOfLoc = self->samples[i].seqNr;
+    uint8_t indexOfLoc = 0;
+    bool_t isInHashmap = false;
+
+    // check if locator is in list
+    for (int index=0; index<SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS; index++){
+        if (self->qos_locator[index] == loc){
+            indexOfLoc = index;
+            isInHashmap = true;
+            break;
         }
     }
 
-    switch(topic->seqNrBitSize){
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
-            if ((highestSeqNrOfLoc == 0)
-            ||  (seqNr > highestSeqNrOfLoc)
-            ||  (highestSeqNrOfLoc == 15)) {
-                ret = SDDS_RT_OK;
+    // if not already in list, there has to be at least one free slot left
+    if (!isInHashmap){
+        for (int index=0; index<SDDS_QOS_RELIABILITY_MAX_TOPIC_PARTICIPANTS; index++){
+            if (self->qos_locator[index] == 0){
+                self->highestSeqNrbyLoc[index] = seqNr;
+                self->qos_locator[index] = loc;
+                return SDDS_RT_OK;
             }
-           break;
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
-            if ((highestSeqNrOfLoc == 0)
-            ||  (seqNr > highestSeqNrOfLoc)
-            ||  (highestSeqNrOfLoc == 255)) {
-                ret = SDDS_RT_OK;
-            }
-           break;
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
-            if ((highestSeqNrOfLoc == 0)
-            ||  (seqNr > highestSeqNrOfLoc)
-            ||  (highestSeqNrOfLoc == 65536)) {
-                ret = SDDS_RT_OK;
-            }
-           break;
-        case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
-            if ((highestSeqNrOfLoc == 0)
-            ||  (seqNr > highestSeqNrOfLoc)
-            ||  (highestSeqNrOfLoc == 4294967296)) {
-                ret = SDDS_RT_OK;
-            }
-           break;
+        }
     }
 
-    return ret;
-}
-#endif
+#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+    if (topic->reliabilityKind == 2) { // qos_reliability is kind ACK/NACK
 
-#ifdef UTILS_DEBUG
+        if (seqNr > (self->highestSeqNrbyLoc[indexOfLoc]) ){
+            uint8_t diff = (seqNr - self->highestSeqNrbyLoc[indexOfLoc]);
+
+            // everything's alright
+            if (diff == 1){
+                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
+                return SDDS_RT_OK;
+            }
+
+            // some seqNrs are missing, trying to insert in missing list
+            SDDS_SEQNR_BIGGEST_TYPE candidate = seqNr - 1;
+            bool_t candidateAlreadyInList;
+
+            for (int slot=0; slot<SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; slot++) {
+                // is candidate <= previous received seqNr?
+                if (candidate <= self->highestSeqNrbyLoc[indexOfLoc]) {
+                    break;
+                }
+                candidateAlreadyInList = 0;
+
+                // candidate already in list?
+                for (int index=0; index<SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
+                    if (candidate == self->missingSeqNrsByLoc[indexOfLoc][index]
+                    && self->missingSeqNrSlotIsUsed[indexOfLoc][index]) {
+                        candidateAlreadyInList = 1;
+                    }
+                }
+
+                // trying to find a free slot in list
+                if (!candidateAlreadyInList){
+                    for (int index=0; index<SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
+                        if (self->missingSeqNrSlotIsUsed[indexOfLoc][index] == 0) {
+                            self->missingSeqNrsByLoc[indexOfLoc][index] = candidate;
+                            self->missingSeqNrSlotIsUsed[indexOfLoc][index] = 1;
+                            break;
+                        }
+                    }
+                }
+
+                candidate--;
+            }
+
+            self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
+            return SDDS_RT_OK;
+        }
+
+
+
+        if (seqNr < (self->highestSeqNrbyLoc[indexOfLoc])){
+            // check if received seqNr is one of the missing seqNrs in list
+            for (int index=0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
+                if (self->missingSeqNrsByLoc[indexOfLoc][index] == seqNr
+                && self->missingSeqNrSlotIsUsed[indexOfLoc][index] == 1){
+                    self->missingSeqNrSlotIsUsed[indexOfLoc][index] = 0;
+                    self->missingSeqNrsByLoc[indexOfLoc][index] = 0;
+                    return SDDS_RT_OK;
+                }
+            }
+        }
+
+    } // end of qos_reliability is kind ACK/NACK
+#   endif
+
+
+    // check the validity of the new seqNr
+    switch(topic->seqNrBitSize){
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_BASIC):
+            if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
+            ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
+            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 15)) {
+                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
+                return SDDS_RT_OK;
+            }
+           break;
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_SMALL):
+            if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
+            ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
+            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 255)) {
+                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
+                return SDDS_RT_OK;
+            }
+           break;
+#       endif
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_BIG):
+            if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
+            ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
+            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 65535)) {
+                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
+                return SDDS_RT_OK;
+            }
+           break;
+#       endif
+#       if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+        case (SDDS_QOS_RELIABILITY_SEQSIZE_HUGE):
+            if ((self->highestSeqNrbyLoc[indexOfLoc] == 0)
+            ||  (seqNr > self->highestSeqNrbyLoc[indexOfLoc])
+            ||  (self->highestSeqNrbyLoc[indexOfLoc] == 4294967295)) {
+                self->highestSeqNrbyLoc[indexOfLoc] = seqNr;
+                return SDDS_RT_OK;
+            }
+           break;
+#       endif
+    }
+
+    return SDDS_RT_FAIL;
+}
+#endif // end of QoS_Reliability
+
 void
 sdds_History_print(History_t* self) {
     printf("History [id: %p] {\n", self);
@@ -268,4 +405,3 @@ sdds_History_print(History_t* self) {
 #endif
     printf("}\n");
 }
-#endif

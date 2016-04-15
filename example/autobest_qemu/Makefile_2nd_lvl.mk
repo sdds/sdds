@@ -10,6 +10,7 @@ DATASTRUCTURES_FILE := datastructures
 LOCAL_CONSTANTS := local_constants.h
 
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/sdds_sdds_impl.o
+IMPL_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds_server_shm.o
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
 ALL_OBJS += $(SDDS_OBJDIR)/sdds.o
 

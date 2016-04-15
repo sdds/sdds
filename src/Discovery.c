@@ -16,8 +16,6 @@ extern "C"
 #define SDDS_DISCOVERY_MAX_PARTICIPANTS 10
 #endif
 
-#define SDDS_DISCOVERY_SLEEP_TIME               1
-
 static SDDS_DCPSParticipant participants[SDDS_DISCOVERY_MAX_PARTICIPANTS];
 static Task recvTask;
 static Task sendPartTask;
@@ -44,7 +42,9 @@ Discovery_receive_SubscriptionTopics();
 static rc_t
 Discovery_addParticipant(SDDS_DCPSParticipant* p);
 static rc_t
-Discovery_handleParticipant(SDDS_DCPSParticipant p);
+Discovery_handleParticipant(SDDS_DCPSParticipant* p);
+
+static Mutex_t* mutex;
 
 /***********************************************************************************
                                                                         Implementierung
@@ -77,22 +77,22 @@ Discovery_addParticipant(SDDS_DCPSParticipant* p) {
 }
 
 static rc_t
-Discovery_handleParticipant(SDDS_DCPSParticipant p) {
-    rc_t ret = Discovery_addParticipant(&p);
+Discovery_handleParticipant(SDDS_DCPSParticipant* p) {
+    rc_t ret = Discovery_addParticipant(p);
 
     if (ret == SDDS_RT_OK) {
 #if defined(SDDS_TOPIC_HAS_PUB)
-        ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, p.addr);
+        ret = Topic_addRemoteDataSink(g_DCPSSubscription_topic, p->addr);
         if (ret != SDDS_RT_OK) {
-            Locator_downRef(p.addr);
+            Locator_downRef(p->addr);
             return ret;
         }
 #endif
 
 #if defined(SDDS_TOPIC_HAS_SUB)
-        ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, p.addr);
+        ret = Topic_addRemoteDataSink(g_DCPSPublication_topic, p->addr);
         if (ret != SDDS_RT_OK) {
-            Locator_downRef(p.addr);
+            Locator_downRef(p->addr);
             return ret;
         }
         Discovery_sendPublicationTopics();
@@ -101,7 +101,7 @@ Discovery_handleParticipant(SDDS_DCPSParticipant p) {
         Discovery_sendParticipantTopics(NULL);
         return SDDS_RT_OK;
     }
-    Locator_downRef(p.addr);
+    Locator_downRef(p->addr);
     return SDDS_RT_OK;
 }
 
@@ -185,9 +185,9 @@ Discovery_receiveParticipantTopics() {
         }
         else {
             Log_info("Received (participant):[%x]\n", p_data_used.data.key);
-            Discovery_handleParticipant(p_data_used);
+            Discovery_handleParticipant(&p_data_used);
         }
-    } while (ret != DDS_RETCODE_NO_DATA);
+    } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 }
 
 static void
@@ -226,7 +226,7 @@ Discovery_receivePublicationTopics() {
                 Discovery_sendSubscriptionTopics(pt_data_used.topic_id);
             }
         }
-    } while (ret != DDS_RETCODE_NO_DATA);
+    } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 #endif
 }
 
@@ -263,12 +263,16 @@ Discovery_receive_SubscriptionTopics() {
                 }
             }
         }
-    } while (ret != DDS_RETCODE_NO_DATA);
+    } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 #endif
 }
 
 void
 Discovery_receive(void* data) {
+    // if the receive timer is very low, it can happen that a second task is started 
+    // before the first task has finished
+    Mutex_lock(mutex);
+
     Discovery_receiveParticipantTopics();
 
     Discovery_receivePublicationTopics();
@@ -276,6 +280,8 @@ Discovery_receive(void* data) {
     Discovery_receiveTopicTopics();
 
     Discovery_receive_SubscriptionTopics();
+
+    Mutex_unlock(mutex);
 }
 
 rc_t
@@ -283,6 +289,18 @@ Discovery_init() {
     for (int i = 0; i < SDDS_DISCOVERY_MAX_PARTICIPANTS; i++) {
         participants[i].data.key = 0;
     }
+
+    mutex = Mutex_create();
+    if (mutex == NULL) {
+        Log_error("Mutex_create failed\n");
+        return SDDS_RT_FAIL;
+    }
+    ssw_rc_t ret = Mutex_init(mutex);
+    if (ret == SDDS_SSW_RT_FAIL) {
+        Log_error("Mutex_init failed\n");
+        return SDDS_RT_FAIL;
+    }
+
 #if (SDDS_DISCOVERY_RECEIVE_TIMER != 0)
     recvTask = Task_create();
     Task_init(recvTask, Discovery_receive, NULL);
