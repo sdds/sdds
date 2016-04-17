@@ -498,6 +498,8 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
 
   Marshalling_dec_uint8(START + 1, &size);
 
+  printf("size is %d\n", size);
+
   plain_buffer.len = size - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE;
   plain_buffer.data = Memory_alloc(plain_buffer.len);
 
@@ -523,6 +525,7 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
   Memory_free(plain_buffer.data);
 
   ref->curPos += 2;
+
   if (topic->Data_decode(ref, data, (size_t *) &size) != SDDS_RT_OK) {
       return SDDS_RT_FAIL;
   }
