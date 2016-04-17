@@ -7,9 +7,9 @@ SDDS_ARCH := x86
 
 LOCAL_CONSTANTS := local_constants.h
 
-IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_jonas2_sdds_impl.o
+IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_jonas3_sdds_impl.o
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
-ALL_OBJS += $(SDDS_OBJDIR)/linux_jonas2.o
+ALL_OBJS += $(SDDS_OBJDIR)/linux_jonas3.o
 
 SDDS_CONSTANTS_FILE := ./gen_constants.h
 
@@ -54,7 +54,7 @@ $(SDDS_OBJDIR)/%.o: %.c
 
 $(APPLICATION_NAME).c: $(LOCAL_CONSTANTS) $(SDDS_OBJDIR) $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
 
-$(APPLICATION_NAME): $(SDDS_OBJDIR)/linux_jonas2.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
+$(APPLICATION_NAME): $(SDDS_OBJDIR)/linux_jonas3.o $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)
 	$(CC) -o $@ $^ $(LDLIBS)
 
 %-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
