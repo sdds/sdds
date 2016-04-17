@@ -15,6 +15,8 @@ int main() {
 
   sleep(1);
   Security_receive_key();
+  sleep(1);
+  Security_receive_key();
 
   for (;;) {
 
