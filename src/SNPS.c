@@ -447,6 +447,7 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
 	  &ex 
   );
 
+  printf("encoded buf len: %d\n", encoded_buffer.len);
   Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, encoded_buffer.len);
 
   Memory_free(encoded_buffer.data);
