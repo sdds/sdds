@@ -509,6 +509,7 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
 
   if((receiving_datareader_crypto = Security_lookup_key(topic->id)) == NULL) {
     printf("can't find key for topic %d\n", topic->id);
+    return SDDS_RT_FAIL;
   }
 
   DDS_Security_CryptoTransform_decode_serialized_data(
