@@ -135,9 +135,9 @@ Security_send_crypto_tokens(HandshakeHandle *h) {
   while(rule) {
     app = rule->applist->first_fn(rule->applist);
     while(app) {
-
-      if(strcmp(app, h->info.uid) == 0) {      
-        printf("send key for topic %d to %s: ", rule->tid, h->info.uid);      
+      //printf("%s %s\n", app, h->info.uid);
+      if(strncmp(app, h->info.uid, SDDS_SECURITY_USER_ID_STRLEN) == 0) {      
+        printf("send key for topic %d to %.8s: ", rule->tid, h->info.uid);      
         Security_print_key(rule->key_material, SDDS_SECURITY_KDF_KEY_BYTES);
 
         memcpy(key_material, rule->key_material, sizeof(rule->key_material));
