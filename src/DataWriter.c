@@ -322,19 +322,21 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     } else {
       if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
       	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
-#ifdef SDDS_QOS_LATENCYBUDGET
+#   ifdef SDDS_QOS_LATENCYBUDGET
       	out_buffer->bufferOverflow = true;
-#endif
+#   endif
       }
     }
 #else 
     if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
         // something went wrong oO
     	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
+
 #ifdef SDDS_QOS_LATENCYBUDGET
     	out_buffer->bufferOverflow = true;
 #endif
     }
+#endif
 
 #ifdef TEST_SCALABILITY_RIOT
     if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
