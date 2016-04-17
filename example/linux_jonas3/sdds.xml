@@ -4,7 +4,7 @@
     endian = "little"
     os = "linux"
     iface = "eth0"
-    ip = "fe80::a00:27ff:fe90:fc89" 
+    ip = "fe80::a00:27ff:fe23:cf9b" 
     port = "23234"
     protocol = "AF_INET6"
     >
@@ -34,7 +34,8 @@
 
     <include filename = "../topics/beta.xml" />
 
-    <role topic = "beta" type = "subscriber">
+    <role topic = "beta" type = "publisher">
+      <subscriber ip="fe80::a00:27ff:fe90:fc89"/>
     </role>
 
 </project>
