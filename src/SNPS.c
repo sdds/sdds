@@ -527,7 +527,7 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
 
   ref->curPos += 2;
 
-  if (topic->Data_decode(ref, data, &plain_buffer.len) != SDDS_RT_OK) {
+  if (topic->Data_decode(ref, data, (size_t *) &plain_buffer.len) != SDDS_RT_OK) {
       return SDDS_RT_FAIL;
   }
   ref->curPos += size;
