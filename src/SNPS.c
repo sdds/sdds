@@ -490,13 +490,13 @@ SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data
 rc_t
 SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
 
-  uint8_t size = 0;
+  size_t size = 0;
   OctetSeq encoded_buffer;
   OctetSeq plain_buffer;
   DatareaderCryptoHandle *receiving_datareader_crypto;
   SecurityException ex;
 
-  Marshalling_dec_uint8(START + 1, &size);
+  Marshalling_dec_uint8(START + 1, (uint8_t *) &size);
 
   printf("size is %d\n", size);
 
@@ -526,7 +526,7 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
 
   ref->curPos += 2;
 
-  if (topic->Data_decode(ref, data, (size_t *) &size) != SDDS_RT_OK) {
+  if (topic->Data_decode(ref, data, &size) != SDDS_RT_OK) {
       return SDDS_RT_FAIL;
   }
   ref->curPos += size;
