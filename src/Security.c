@@ -615,7 +615,7 @@ Security_aes_ctr(uint8_t iv[SDDS_SECURITY_IV_SIZE], uint8_t aes_key[AES_128_KEY_
     aes_128_padded_encrypt(block, AES_128_KEY_LENGTH);
     for(j = 0; j < AES_128_KEY_LENGTH; j++) {
       data[(i*AES_128_KEY_LENGTH) + j] = data[(i*AES_128_KEY_LENGTH) + j] ^ block[j];
-    }        
+    }
     ctr++;
   }
 
@@ -645,11 +645,11 @@ DDS_Security_CryptoTransform_encode_serialized_data(
   }  
 
   getRandomBytes(iv, SDDS_SECURITY_IV_SIZE);
-
+  
   Security_aes_ctr(iv, sending_datawriter_crypto->key_material, plain_buffer->data, plain_buffer->len);
 
   memcpy(encoded_buffer->data, iv, SDDS_SECURITY_IV_SIZE);
-  memcpy(encoded_buffer->data + SDDS_SECURITY_IV_SIZE, plain_buffer, plain_buffer->len);
+  memcpy(encoded_buffer->data + SDDS_SECURITY_IV_SIZE, plain_buffer->data, plain_buffer->len);
   
   Security_aes_xcbc_mac(sending_datawriter_crypto->key_material + AES_128_KEY_LENGTH, 
                         encoded_buffer->data, 
@@ -658,8 +658,8 @@ DDS_Security_CryptoTransform_encode_serialized_data(
 
   memcpy(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + plain_buffer->len, mac, XCBC_MAC_SIZE);
 
-  printf("encoded: %02x%02x%02x\n", *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE),
-*(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 1), *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 2));
+  printf("mac: ");
+  Security_print_key(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + plain_buffer->len, XCBC_MAC_SIZE);
 
   return true;
 
