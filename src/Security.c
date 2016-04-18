@@ -675,8 +675,8 @@ DDS_Security_CryptoTransform_decode_serialized_data(
 ) {
 
   uint8_t mac[XCBC_MAC_SIZE];
-  uint8_t data_len = encoded_buffer->len - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE;
-
+  uint8_t data_len = encoded_buffer->len - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE - 2;
+printf("decoding ....\n");
   if(plain_buffer->len < data_len) {
     return false;
   }  
