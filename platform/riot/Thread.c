@@ -56,3 +56,9 @@ Thread_sleep(Thread _this, uint16_t usecSleep) {
     xtimer_usleep(usecSleep);
     return SDDS_RT_OK;
 }
+
+ssw_rc_t
+Thread_yield(void) {
+    thread_yield();
+    return SDDS_RT_OK;
+}
