@@ -506,7 +506,7 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
   encoded_buffer.data = START + 2;
 
   printf("encoded buffer: ");
-  Security_print_key(encoded_buffer->data, encoded_buffer->len);  
+  Security_print_key(encoded_buffer.data, encoded_buffer.len);  
   //Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, size);
 
   if((receiving_datareader_crypto = Security_lookup_key(topic->id)) == NULL) {
