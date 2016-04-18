@@ -681,6 +681,9 @@ printf("decoding ....\n");
     return false;
   }  
 
+  printf("encoded: %02x%02x%02x\n", *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE),
+*(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 1), *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 2));
+
   Security_aes_xcbc_mac(receiving_datareader_crypto->key_material + AES_128_KEY_LENGTH, 
                         encoded_buffer->data, 
                         SDDS_SECURITY_IV_SIZE + data_len, 
@@ -690,9 +693,6 @@ printf("decoding ....\n");
     printf("MAC incorrect\n");
     return false;
   }
-
-  printf("encoded: %02x%02x%02x\n", *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE),
-*(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 1), *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 2));
 
   Security_aes_ctr(encoded_buffer->data, 
                    receiving_datareader_crypto->key_material, 
