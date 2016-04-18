@@ -658,9 +658,6 @@ DDS_Security_CryptoTransform_encode_serialized_data(
 
   memcpy(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + plain_buffer->len, mac, XCBC_MAC_SIZE);
 
-  printf("encoded buffer: ");
-  Security_print_key(encoded_buffer->data, encoded_buffer->len);  
-
   return true;
 
 }
