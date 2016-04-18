@@ -1,4 +1,4 @@
-SDDS_TOPDIR := $(shell dirname $(shell dirname $(shell readlink generate.sh)))
+SDDS_TOPDIR := ../..
 
 SDDS_OBJDIR := objs-linux
 TARGET := linux
@@ -29,7 +29,6 @@ CLEAN += $(IMPL_DEPEND_SRCS)
 CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
-CLEAN += local_constants.h
 
 all:
 

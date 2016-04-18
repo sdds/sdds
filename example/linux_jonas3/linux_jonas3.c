@@ -13,10 +13,14 @@ int main() {
 
   sleep(1);
   Security_receive_key();
+  sleep(1);
+  Security_receive_key();
+  sleep(1);
+  Security_receive_key();
 
   beta_pub.value = 'H';  
-  strncpy(beta_pub.value2,   "Es gibt im", 10);
-  strncpy(beta_pub.value3,   "Es gibt i", 9);
+  strncpy(beta_pub.value2, "Es gibt im", 10);
+  strncpy(beta_pub.value3, "Es gibt i", 9);
 
   for (;;) {
     ret = DDS_BetaDataWriter_write(g_Beta_writer, &beta_pub, NULL);
