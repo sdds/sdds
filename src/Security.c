@@ -672,14 +672,11 @@ DDS_Security_CryptoTransform_decode_serialized_data(
 ) {
 
   uint8_t mac[XCBC_MAC_SIZE];
-  uint8_t data_len = encoded_buffer->len - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE - 2;
-printf("decoding ....\n");
+  uint8_t data_len = encoded_buffer->len - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE;
+
   if(plain_buffer->len < data_len) {
     return false;
   }  
-
-  printf("encoded: %02x%02x%02x\n", *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE),
-*(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 1), *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 2));
 
   Security_aes_xcbc_mac(receiving_datareader_crypto->key_material + AES_128_KEY_LENGTH, 
                         encoded_buffer->data, 
