@@ -429,7 +429,7 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
   if (topic->Data_encode(ref, d, &writtenBytes) != SDDS_RT_OK) {
       return SDDS_RT_FAIL;
   }
-
+  
   plain_buffer.len = writtenBytes;
   plain_buffer.data = START + 1;
 
@@ -499,7 +499,7 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
 
   Marshalling_dec_uint8(START + 1, (uint8_t *) &size);
 
-  plain_buffer.len = size - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE - 2;
+  plain_buffer.len = size - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE;
   plain_buffer.data = Memory_alloc(plain_buffer.len);
 
   encoded_buffer.len = size;

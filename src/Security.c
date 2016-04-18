@@ -658,6 +658,9 @@ DDS_Security_CryptoTransform_encode_serialized_data(
 
   memcpy(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + plain_buffer->len, mac, XCBC_MAC_SIZE);
 
+  printf("encoded: %02x%02x%02x\n", *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE),
+*(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 1), *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 2));
+
   printf("mac: ");
   Security_print_key(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + plain_buffer->len, XCBC_MAC_SIZE);
 
@@ -690,9 +693,6 @@ DDS_Security_CryptoTransform_decode_serialized_data(
     printf("MAC incorrect\n");
     return false;
   }
-
-  printf("encoded: %02x%02x%02x\n", *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE),
-*(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 1), *(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + 2));
 
   Security_aes_ctr(encoded_buffer->data, 
                    receiving_datareader_crypto->key_material, 

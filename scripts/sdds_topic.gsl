@@ -66,7 +66,7 @@ function resolve_topic_type (topic)
             attribute.type = "DDS_char"
             attribute.enc_type = "string"
             attribute.print_type = "s"
-            my.topic.size += attribute.size
+            my.topic.size += attribute.size + 1
         else
             echo "E: Invalid type '$(attribute.type)' for attribute '$(attribute.name)' in topic $(topic.name:)"
         endif
