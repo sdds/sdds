@@ -503,9 +503,9 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
   plain_buffer.data = Memory_alloc(plain_buffer.len);
 
   encoded_buffer.len = size;
-  encoded_buffer.data = START;
+  encoded_buffer.data = START + 2;
 
-  Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, size);
+  //Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, size);
 
   if((receiving_datareader_crypto = Security_lookup_key(topic->id)) == NULL) {
     printf("can't find key for topic %d\n", topic->id);
