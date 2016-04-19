@@ -437,7 +437,7 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
   encoded_buffer.data = Memory_alloc(encoded_buffer.len);
 
   if((sending_datawriter_crypto = Security_lookup_key(topic->id)) == NULL) {
-    printf("can't find key for topic %d\n", topic->id);
+    Log_error("can't find key for topic %d\n", topic->id);
   }
 
   DDS_Security_CryptoTransform_encode_serialized_data(
@@ -447,7 +447,7 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
 	  &ex 
   );
 
-  printf("encoded buffer: ");
+  Log_debug("sending encoded buffer: ");
   Security_print_key(encoded_buffer.data, encoded_buffer.len); 
 
   Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, encoded_buffer.len);
@@ -508,11 +508,11 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
   encoded_buffer.data = Memory_alloc(encoded_buffer.len);
 
   Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, size);
-  printf("encoded buffer: ");
+  Log_debug("reading encoded buffer: ");
   Security_print_key(encoded_buffer.data, encoded_buffer.len);  
 
   if((receiving_datareader_crypto = Security_lookup_key(topic->id)) == NULL) {
-    printf("can't find key for topic %d\n", topic->id);
+    Log_error("can't find key for topic %d\n", topic->id);
     return SDDS_RT_FAIL;
   }
 

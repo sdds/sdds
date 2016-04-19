@@ -38,7 +38,7 @@ Security_kdc() {
     msg_tok_in = msg.message_data;
         
     if(strcmp(msg.message_data.class_id, SDDS_SECURITY_CLASS_AUTH_REQ) == 0) {
-      printf("request from node\n");
+      Log_debug("request from node\n");
       res = DDS_Security_Authentication_begin_handshake_reply(
         handle,
         &msg_tok_out, 
@@ -48,9 +48,9 @@ Security_kdc() {
         &ex 
       );
     } else if(strcmp(msg.message_data.class_id, SDDS_SECURITY_CLASS_AUTH_REP) == 0) {
-      printf("reply from node\n");     
+      Log_debug("reply from node\n");     
       if((handle = Security_get_handshake_handle(&msg.key)) == NULL) {
-        printf("can't get handle\n");
+        Log_error("can't get handle\n");
         continue;
       }      
       res = DDS_Security_Authentication_process_handshake(
@@ -66,11 +66,11 @@ Security_kdc() {
     switch(res) {
 
       case VALIDATION_OK:
-        printf("VALIDATION_OK\n");
+        Log_debug("VALIDATION_OK\n");
       break;
 
       case VALIDATION_FAILED:
-        printf("VALIDATION_FAILED\n");
+        Log_error("VALIDATION_FAILED\n");
         Security_cleanup_handshake_handle(handle);
       break;
 
@@ -83,9 +83,9 @@ Security_kdc() {
                                                             &msg,
                                                             NULL);  
         if(r == DDS_RETCODE_OK) {
-          printf("sent reply token\n");
+          Log_debug("sent reply token\n");
         } else {
-          printf("failed to send reply\n");
+          Log_error("failed to send reply\n");
           Security_cleanup_handshake_handle(handle);
         }
       break;  
@@ -99,9 +99,9 @@ Security_kdc() {
                                                             &msg,
                                                             NULL);  
         if(r == DDS_RETCODE_OK) {
-          printf("VALIDATION_OK_FINAL_MESSAGE\n");
+          Log_debug("VALIDATION_OK_FINAL_MESSAGE\n");
         } else {
-          printf("failed to send final token\n");
+          Log_error("failed to send final token\n");
           Security_cleanup_handshake_handle(handle);
         }
 
@@ -137,7 +137,7 @@ Security_send_crypto_tokens(HandshakeHandle *h) {
     while(app) {
       //printf("%s %s\n", app, h->info.uid);
       if(strncmp(app, h->info.uid, SDDS_SECURITY_USER_ID_STRLEN) == 0) {      
-        printf("send key for topic %d to %.8s: ", rule->tid, h->info.uid);      
+        Log_debug("send key for topic %d to %.8s: ", rule->tid, h->info.uid);      
         Security_print_key(rule->key_material, SDDS_SECURITY_KDF_KEY_BYTES);
 
         memcpy(key_material, rule->key_material, sizeof(rule->key_material));
@@ -163,9 +163,9 @@ Security_send_crypto_tokens(HandshakeHandle *h) {
                                                             &msg,
                                                             NULL);  
         if(r == DDS_RETCODE_OK) {
-          printf("sent crypto token\n");
+          Log_debug("sent crypto token\n");
         } else {
-          printf("failed to send crypto token\n");
+          Log_error("failed to send crypto token\n");
         }       
       }
 
