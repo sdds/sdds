@@ -61,13 +61,13 @@ Security_receive_key() {
                                &info);
 
   if(r == DDS_RETCODE_OK) {
-    printf("received something\n");
+    Log_debug("received something\n");
   }
 
   if(r != DDS_RETCODE_OK 
       || msg.key != BuiltinTopic_participantID 
       || strcmp(msg.message_class_id, GMCLASSID_SECURITY_PARTICIPANT_CRYPTO_TOKENS) != 0) {
-    printf("failed to receive crypto token\n");
+    Log_error("failed to receive crypto token\n");
     return SDDS_RT_FAIL;
   }  
 
@@ -80,7 +80,7 @@ Security_receive_key() {
                         mac);
  
   if(memcmp(remote_mac, mac, sizeof(mac)) == 0) {
-    printf("received key, mac is ok\n");
+    Log_debug("received key, mac is ok\n");
   } else {
     return SDDS_RT_FAIL;
   }
@@ -91,7 +91,7 @@ Security_receive_key() {
 
   Security_aes_ctr(iv, g_handle.info.key_material, key_material, sizeof(key_material));
 
-  printf("key for topic %d: ", tid);
+  Log_debug("key for topic %d: ", tid);
   Security_print_key(key_material, SDDS_SECURITY_KDF_KEY_BYTES);
 
   Ac_topic *key = Memory_alloc(sizeof(Ac_topic));
@@ -130,12 +130,12 @@ Security_auth() {
     switch(res) {
 
       case VALIDATION_OK:
-        printf("VALIDATION_OK\n");
+        Log_debug("VALIDATION_OK\n");
         return SDDS_RT_OK;
       break;
 
       case VALIDATION_FAILED:
-        printf("VALIDATION_FAILED\n");        
+        Log_error("VALIDATION_FAILED\n");        
         return SDDS_RT_FAIL;
       break;
 
@@ -152,7 +152,7 @@ Security_auth() {
         if(r == DDS_RETCODE_OK) {
           // OK
         } else {
-          printf("failed to send token\n");
+          Log_error("failed to send token\n");
           res = VALIDATION_FAILED;
           break;
         }
@@ -165,7 +165,7 @@ Security_auth() {
                                                            &msg_ptr,
                                                            &info);
           if(r == DDS_RETCODE_OK && msg.key == BuiltinTopic_participantID) {
-            printf("received reply from kdc\n");
+            Log_debug("reply from kdc\n");
             msg_tok_in = msg.message_data;
             res = DDS_Security_Authentication_process_handshake(
 	            &msg_tok_out,
@@ -194,7 +194,7 @@ Security_auth() {
         if(r == DDS_RETCODE_OK) {
           res = VALIDATION_OK;
         } else {
-          printf("failed to send final token\n");
+          Log_error("failed to send final token\n");
           res = VALIDATION_FAILED;
         }
       break;
@@ -329,7 +329,7 @@ DDS_Security_Authentication_process_handshake(
         res = VALIDATION_FAILED;
         break;
       } else {
-        printf("certificate ok\n");
+        Log_debug("certificate ok\n");
       }
 
 #ifdef SDDS_SECURITY_KDC
@@ -342,7 +342,7 @@ DDS_Security_Authentication_process_handshake(
         res = VALIDATION_FAILED;
         break;
       } else {
-        printf("key material ok\n");
+        Log_debug("key material ok\n");
       }
 
 #ifdef SDDS_SECURITY_KDC
@@ -383,11 +383,11 @@ DDS_Security_Authentication_process_handshake(
 
       // verify mactag
       if(Security_verify_mactag(handshake_handle) == SDDS_RT_FAIL) {
-        printf("wrong mactag\n");
+        Log_error("wrong mactag\n");
         res = VALIDATION_FAILED;
         break;
       } else {
-        printf("mactag ok\n");
+        Log_debug("mactag ok\n");
 #ifdef SDDS_SECURITY_KDC
         // reply with final mactag in handshake_message_out
         strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
@@ -438,7 +438,7 @@ Security_set_key_material(HandshakeHandle *h) {
   // calculate key material (MAC- and AES-Key)
   Security_kdf(h);
 
-  Security_print_key(h->info.key_material, SDDS_SECURITY_KDF_KEY_BYTES);
+  //Security_print_key(h->info.key_material, SDDS_SECURITY_KDF_KEY_BYTES);
 
   return SDDS_RT_OK;
 
@@ -464,7 +464,7 @@ Security_verify_certificate(HandshakeHandle *h) {
   Security_get_string(str, h->info.public_key.y);
 	snprintf(p, NUM_ECC_DIGITS * 2 + 1, "%s", str);
 
-  printf("check cert: %s\n", cert);
+  Log_debug("check cert: %s\n", cert);
 
 	memset(hash, 0, sizeof(hash));
 	sha224(hash, cert, 8 * (SDDS_SECURITY_CERT_STRLEN - 1));
@@ -684,7 +684,7 @@ DDS_Security_CryptoTransform_decode_serialized_data(
                         mac);
 
   if(memcmp(encoded_buffer->data + SDDS_SECURITY_IV_SIZE + data_len, mac, XCBC_MAC_SIZE) != 0) {
-    printf("MAC incorrect\n");
+    Log_error("MAC incorrect\n");
     return false;
   }
 

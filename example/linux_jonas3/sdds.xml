@@ -32,9 +32,9 @@
     <define name = "SDDS_SECURITY_USER_CERT_SIG_S" value = "&quot;78e65c86f5e8823673c9b1db2f34e867b0a8b20449dee8a3&quot;"/>
     <define name = "SDDS_SECURITY_USER_PRIVATE_KEY" value = "&quot;cef9b458fb442f6abdcc73767e754f616c37b52746c7b5b1&quot;"/>
 
-    <include filename = "../topics/beta.xml" />
+    <include filename = "../topics/alarm.xml" />
 
-    <role topic = "beta" type = "publisher">
+    <role topic = "Alarm" type = "publisher">
       <subscriber ip="fe80::a00:27ff:fe90:fc89"/>
     </role>
 
