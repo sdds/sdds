@@ -5,9 +5,6 @@ int main(void) {
 
   DDS_ReturnCode_t ret;  
 
-  Beta beta_sub;
-  Beta *beta_sub_p = &beta_sub;
-
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
 	}
