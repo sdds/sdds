@@ -15,7 +15,7 @@ SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 include $(SDDS_TOPDIR)/sdds.mk
 
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/alarm-ds.o
 ALL_OBJS += $(DATA_DEPEND_OBJS)
 
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
