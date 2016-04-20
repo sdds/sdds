@@ -256,7 +256,7 @@ _receiverThreadFunction(void* arg) {
 
         DataSink_processFrame(buff);
         // and finally decrement the locator again
-        Locator_downRef(loc);
+//        Locator_downRef(loc);
         NetBuffRef_renew(buff);
     }
 }
