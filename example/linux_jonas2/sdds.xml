@@ -13,7 +13,7 @@
 
     <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
     <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
-    <!-- <define name = "FEATURE_SDDS_SECURITY_ENABLED" />-->
+    <define name = "FEATURE_SDDS_SECURITY_ENABLED" />
 
     <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10"/>
     <define name = "SDDS_QOS_HISTORY_DEPTH" value = "3"/>
