@@ -3,7 +3,7 @@
         Alarm testing topic.
         <attribute name = "state" type = "DDS_octet">State of Alarm</attribute>
         <attribute name = "date" type = "DDS_string" size = "20">Date of Alarm</attribute>
-        <config type="security" data_protection_kind="ENCRYPT"/>
+        <!--<config type="security" data_protection_kind="ENCRYPT"/>-->
     </topic>
 </domain>
 
