@@ -5,6 +5,7 @@ int main() {
 	DDS_ReturnCode_t ret;
   Alarm alarm_sub;
   Alarm *alarm_sub_p = &alarm_sub;
+  int i;
 
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
@@ -31,7 +32,7 @@ int main() {
           );
       }
 
-      sleep (1);
+      sleep (5);
 
   }
   
