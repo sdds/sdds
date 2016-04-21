@@ -14,7 +14,7 @@ int main() {
 	Log_setLvl(0);
 
   sleep(1);
-  //Security_receive_key();
+  Security_receive_key();
 
   for (i = 0; i < 10; i++) {
 
