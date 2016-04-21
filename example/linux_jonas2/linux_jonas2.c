@@ -3,8 +3,8 @@
 
 int main() {
 	DDS_ReturnCode_t ret;
-  Beta beta_sub;
-  Beta *beta_sub_p = &beta_sub;
+  Alarm alarm_sub;
+  Alarm *alarm_sub_p = &alarm_sub;
 
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
@@ -14,28 +14,25 @@ int main() {
 
   sleep(1);
   Security_receive_key();
-  sleep(1);
-  Security_receive_key();
-  sleep(1);
-  Security_receive_key();
 
-  for (;;) {
+  for (i = 0; i < 10; i++) {
 
-      ret = DDS_BetaDataReader_take_next_sample(g_Beta_reader, &beta_sub_p, NULL);
+      ret = DDS_AlarmDataReader_take_next_sample(g_Alarm_reader, &alarm_sub_p, NULL);
 
       if (ret == DDS_RETCODE_NO_DATA) {
-          printf("no data for beta\n");
+          printf("no data for alarm\n");
       } else {
-          printf("Received a sample from topic 'beta': {\n"
-                 "   value => %c\n"
-                 "   value2 => %s\n"
-                 "   value3 => %s\n"
+          printf("Received a sample from topic 'Alarm': {\n"
+                 "   state => %d\n"
+                 "   date => %s\n"
                  "}\n"
-                 , beta_sub_p->value
-                 , beta_sub_p->value2
-                 , beta_sub_p->value3);
+                 , alarm_sub_p->state
+                 , alarm_sub_p->date
+          );
       }
+
       sleep (1);
+
   }
   
 
