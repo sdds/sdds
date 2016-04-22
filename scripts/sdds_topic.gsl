@@ -418,7 +418,7 @@ rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, s
 rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, size_t* size)
 {
 	if (*size != $(topic.size))
-		Log_warn ("size mismatch is %zu should be $(size)\\n", *size);
+		Log_debug ("size mismatch is %zu should be $(size)\\n", *size);
 
 	*size = 0;
 
