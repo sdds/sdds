@@ -234,6 +234,7 @@ find_free_buffer(List_t* topic_locators) {
     //  If no buffer could be obtained use the high prio instead
     if (free_buffer == NULL) {
         free_buffer = &(self->sender.highPrio);
+        free_buffer->curPos = 0;
     }
     //  Initialize an empty buffer
     if (free_buffer->curPos == 0) {

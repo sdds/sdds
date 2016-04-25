@@ -437,7 +437,7 @@ SNPS_writeData(NetBuffRef_t* ref, TopicMarshalling_encode_fn encode_fn, Data d) 
     	Log_error("encoding failed\n");
         return SDDS_RT_FAIL;
     }
-
+printf("written bytes %d\n", writtenBytes);
     Marshalling_enc_SubMsg(START, SDDS_SNPS_SUBMSG_DATA, (uint8_t) writtenBytes);
     // data header
     ref->curPos += 1;
