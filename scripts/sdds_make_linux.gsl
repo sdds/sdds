@@ -77,7 +77,7 @@ all:
 CFLAGS += -I.
 # required for timer_t (POSIX.1b (real-time extensions))
 # and getline
-CFLAGS += -g -D_POSIX_C_SOURCE=200809L
+CFLAGS += -g -D_POSIX_C_SOURCE=200809L -fstack-usage
 LDLIBS += -lrt
 
 \$(SDDS_OBJDIR)/%.o: %.c

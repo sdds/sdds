@@ -468,7 +468,7 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
   if (topic->Data_encode(ref, d, &writtenBytes) != SDDS_RT_OK) {
       return SDDS_RT_FAIL;
   }
-
+  
   plain_buffer.len = writtenBytes;
   plain_buffer.data = START + 1;
 
@@ -476,7 +476,7 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
   encoded_buffer.data = Memory_alloc(encoded_buffer.len);
 
   if((sending_datawriter_crypto = Security_lookup_key(topic->id)) == NULL) {
-    printf("can't find key for topic %d\n", topic->id);
+    Log_error("can't find key for topic %d\n", topic->id);
   }
 
   DDS_Security_CryptoTransform_encode_serialized_data(
@@ -485,6 +485,9 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
 	  sending_datawriter_crypto,
 	  &ex 
   );
+
+  Log_debug("sending encoded buffer: ");
+  Security_print_key(encoded_buffer.data, encoded_buffer.len); 
 
   Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, encoded_buffer.len);
 
@@ -531,24 +534,27 @@ SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data
 rc_t
 SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
 
-  uint8_t size = 0;
+  size_t size = 0, data_size = 0;
   OctetSeq encoded_buffer;
   OctetSeq plain_buffer;
   DatareaderCryptoHandle *receiving_datareader_crypto;
   SecurityException ex;
 
-  Marshalling_dec_uint8(START + 1, &size);
+  Marshalling_dec_uint8(START + 1, (uint8_t *) &size);
 
   plain_buffer.len = size - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE;
   plain_buffer.data = Memory_alloc(plain_buffer.len);
 
   encoded_buffer.len = size;
-  encoded_buffer.data = START;
+  encoded_buffer.data = Memory_alloc(encoded_buffer.len);
 
   Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, size);
+  Log_debug("reading encoded buffer: ");
+  Security_print_key(encoded_buffer.data, encoded_buffer.len);  
 
   if((receiving_datareader_crypto = Security_lookup_key(topic->id)) == NULL) {
-    printf("can't find key for topic %d\n", topic->id);
+    Log_error("can't find key for topic %d\n", topic->id);
+    return SDDS_RT_FAIL;
   }
 
   DDS_Security_CryptoTransform_decode_serialized_data(
@@ -559,12 +565,16 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
 	  &ex
   );
 
+  Memory_free(encoded_buffer.data);
+
   memcpy(START + 2, plain_buffer.data, plain_buffer.len);
 
   Memory_free(plain_buffer.data);
 
   ref->curPos += 2;
-  if (topic->Data_decode(ref, data, (size_t *) &size) != SDDS_RT_OK) {
+
+  data_size = plain_buffer.len;
+  if (topic->Data_decode(ref, data, &data_size) != SDDS_RT_OK) {
       return SDDS_RT_FAIL;
   }
   ref->curPos += size;

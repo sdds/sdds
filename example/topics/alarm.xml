@@ -1,0 +1,10 @@
+<domain id = "1">
+    <topic name = "Alarm" domain = "1" id = "8">
+        Alarm testing topic.
+        <attribute name = "state" type = "DDS_octet">State of Alarm</attribute>
+        <attribute name = "date" type = "DDS_string" size = "20">Date of Alarm</attribute>
+        <config type="security" data_protection_kind="ENCRYPT"/>
+    </topic>
+</domain>
+
+
