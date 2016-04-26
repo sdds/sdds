@@ -11,7 +11,7 @@
 ECC_SQUARE_FUNC - If enabled, this will cause a specific function to be used for (scalar) squaring instead of the generic
                   multiplication function. Improves speed by about 8% .
 */
-#define ECC_SQUARE_FUNC 1
+#define ECC_SQUARE_FUNC 0
 
 /* Inline assembly options.
 Currently we do not provide any inline assembly options. In the future we plan to offer
