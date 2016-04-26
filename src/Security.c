@@ -5,9 +5,18 @@
 static MessageIdentity msgid;
 static HandshakeHandle g_handle;
 List_t* key_list;
+Local_info local;
 
 rc_t 
 Security_init() {
+
+  local.ca_public_key_x = SDDS_SECURITY_CA_PUBLIC_KEY_X; 
+  local.ca_public_key_y = SDDS_SECURITY_CA_PUBLIC_KEY_Y;
+  local.public_key_x = SDDS_SECURITY_USER_PUBLIC_KEY_X;
+  local.public_key_y = SDDS_SECURITY_USER_PUBLIC_KEY_Y;
+  local.signature_r = SDDS_SECURITY_USER_CERT_SIG_R;
+  local.signature_s = SDDS_SECURITY_USER_CERT_SIG_S;
+  local.private_key = SDDS_SECURITY_USER_PRIVATE_KEY;
 
 #ifndef SDDS_SECURITY_KDC
 
@@ -230,10 +239,10 @@ DDS_Security_Authentication_begin_handshake_request(
           SDDS_SECURITY_TIMESTAMP, SDDS_SECURITY_CIPHER_SUITE); 
 
   strcpy(handshake_message_out->props[1].key, SDDS_SECURITY_PROP_PUB_KEY_X); 
-  Security_get_bytes(handshake_message_out->props[1].value, SDDS_SECURITY_USER_PUBLIC_KEY_X, NUM_ECC_DIGITS);
+  Security_get_bytes(handshake_message_out->props[1].value, local.public_key_x, NUM_ECC_DIGITS);
 
   strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_PUB_KEY_Y); 
-  Security_get_bytes(handshake_message_out->props[2].value, SDDS_SECURITY_USER_PUBLIC_KEY_Y, NUM_ECC_DIGITS);
+  Security_get_bytes(handshake_message_out->props[2].value, local.public_key_y, NUM_ECC_DIGITS);
 
   return VALIDATION_PENDING_HANDSHAKE_MESSAGE;
 
@@ -272,9 +281,9 @@ DDS_S_Result_t DDS_Security_Authentication_begin_handshake_reply(
           SDDS_SECURITY_TIMESTAMP, SDDS_SECURITY_CIPHER_SUITE); 
 
   strcpy(handshake_message_out->props[1].key, SDDS_SECURITY_PROP_PUB_KEY_X); 
-  Security_get_bytes(handshake_message_out->props[1].value, SDDS_SECURITY_USER_PUBLIC_KEY_X, NUM_ECC_DIGITS);
+  Security_get_bytes(handshake_message_out->props[1].value, local.public_key_x, NUM_ECC_DIGITS);
   strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_PUB_KEY_Y); 
-  Security_get_bytes(handshake_message_out->props[2].value, SDDS_SECURITY_USER_PUBLIC_KEY_Y, NUM_ECC_DIGITS);
+  Security_get_bytes(handshake_message_out->props[2].value, local.public_key_y, NUM_ECC_DIGITS);
   return VALIDATION_PENDING_HANDSHAKE_MESSAGE;
 
 }
@@ -305,10 +314,10 @@ DDS_Security_Authentication_process_handshake(
       strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
 
       strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_SIG_R); 
-      Security_get_bytes(handshake_message_out->props[0].value, SDDS_SECURITY_USER_CERT_SIG_R, NUM_ECC_DIGITS);
+      Security_get_bytes(handshake_message_out->props[0].value, local.signature_r, NUM_ECC_DIGITS);
 
       strcpy(handshake_message_out->props[1].key, SDDS_SECURITY_PROP_SIG_S); 
-      Security_get_bytes(handshake_message_out->props[1].value, SDDS_SECURITY_USER_CERT_SIG_S, NUM_ECC_DIGITS);
+      Security_get_bytes(handshake_message_out->props[1].value, local.signature_s, NUM_ECC_DIGITS);
 
       strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_NONCE); 
       memcpy(handshake_message_out->props[2].value, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
@@ -350,10 +359,10 @@ DDS_Security_Authentication_process_handshake(
       strcpy(handshake_message_out->class_id, SDDS_SECURITY_CLASS_AUTH_REP);
 
       strcpy(handshake_message_out->props[0].key, SDDS_SECURITY_PROP_SIG_R); 
-      Security_get_bytes(handshake_message_out->props[0].value, SDDS_SECURITY_USER_CERT_SIG_R, NUM_ECC_DIGITS);
+      Security_get_bytes(handshake_message_out->props[0].value, local.signature_r, NUM_ECC_DIGITS);
 
       strcpy(handshake_message_out->props[1].key, SDDS_SECURITY_PROP_SIG_S); 
-      Security_get_bytes(handshake_message_out->props[1].value, SDDS_SECURITY_USER_CERT_SIG_S, NUM_ECC_DIGITS);
+      Security_get_bytes(handshake_message_out->props[1].value, local.signature_s, NUM_ECC_DIGITS);
 
       strcpy(handshake_message_out->props[2].key, SDDS_SECURITY_PROP_NONCE); 
       memcpy(handshake_message_out->props[2].value, handshake_handle->info.nonce, sizeof(handshake_handle->info.nonce));
@@ -427,7 +436,7 @@ Security_set_key_material(HandshakeHandle *h) {
   uint8_t private_key[NUM_ECC_DIGITS];
   uint8_t random[NUM_ECC_DIGITS];
 
-  Security_get_bytes(private_key, SDDS_SECURITY_USER_PRIVATE_KEY, NUM_ECC_DIGITS);
+  Security_get_bytes(private_key, local.private_key, NUM_ECC_DIGITS);
   getRandomBytes(random, sizeof(random));
 
   // calculate shared secret 
@@ -469,8 +478,8 @@ Security_verify_certificate(HandshakeHandle *h) {
 	memset(hash, 0, sizeof(hash));
 	sha224(hash, cert, 8 * (SDDS_SECURITY_CERT_STRLEN - 1));
 
-  Security_get_bytes(ca_publicKey.x, SDDS_SECURITY_CA_PUBLIC_KEY_X, NUM_ECC_DIGITS);
-  Security_get_bytes(ca_publicKey.y, SDDS_SECURITY_CA_PUBLIC_KEY_Y, NUM_ECC_DIGITS);
+  Security_get_bytes(ca_publicKey.x, local.ca_public_key_x, NUM_ECC_DIGITS);
+  Security_get_bytes(ca_publicKey.y, local.ca_public_key_y, NUM_ECC_DIGITS);
 
   if(ecdsa_verify(&ca_publicKey, hash, h->info.signature_r, h->info.signature_s)) {
     return SDDS_RT_OK;

@@ -101,6 +101,16 @@ typedef struct Remote_info {
   uint8_t key_material[SDDS_SECURITY_KDF_KEY_BYTES];
 } Remote_info;
 
+typedef struct Local_info {
+  uint8_t *ca_public_key_x;
+  uint8_t *ca_public_key_y;
+  uint8_t *public_key_x;
+  uint8_t *public_key_y;
+  uint8_t *signature_r;
+  uint8_t *signature_s;
+  uint8_t *private_key;
+} Local_info;
+
 typedef struct HandshakeHandle {
   IdentityHandle node;
   char state;
