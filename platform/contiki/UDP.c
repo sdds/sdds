@@ -409,7 +409,7 @@ Network_Multicast_init() {
 }
 
 rc_t
-Locator_getAddress(Locator_t* l, char* srcAddr) {
+Locator_getAddress(Locator_t* l, char* srcAddr, size_t max_addr_len) {
     uip_ipaddr_t* addr = &((Contiki_Locator) l)->address;
     sprintf(srcAddr, "%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
             ((uint8_t*)addr)[0], ((uint8_t*)addr)[1], ((uint8_t*)addr)[2], ((uint8_t*)addr)[3],
