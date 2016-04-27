@@ -1,0 +1,6 @@
+<domain id = "1">
+    <topic name = "hello" domain = "1" id = "A">
+        Hello World topic.
+        <attribute name = "value" type = "DDS_string" size = "11">String value</attribute>
+    </topic>
+</domain>
