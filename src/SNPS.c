@@ -470,7 +470,7 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
   }
   
   plain_buffer.len = writtenBytes;
-  plain_buffer.data = START + 1;
+  plain_buffer.data = START + 2;
 
   encoded_buffer.len = SDDS_SECURITY_IV_SIZE + plain_buffer.len + XCBC_MAC_SIZE;
   encoded_buffer.data = Memory_alloc(encoded_buffer.len);

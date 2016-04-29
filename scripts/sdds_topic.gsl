@@ -405,7 +405,15 @@ rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, s
 
 	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
 
+.   for topic.config
+.      if config.type = "security"
+.        if config.data_protection_kind = "ENCRYPT"
+	byte_t* start = buffer->buff_start + buffer->curPos + 2;
+.        else
 	byte_t* start = buffer->buff_start + buffer->curPos + 1;
+.        endif
+.      endif
+.   endfor
 
 	int maxSize = 0;
 .   for topic.attribute
