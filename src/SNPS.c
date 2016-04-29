@@ -479,16 +479,18 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
     Log_error("can't find key for topic %d\n", topic->id);
   }
 
-  DDS_Security_CryptoTransform_encode_serialized_data(
-	  &encoded_buffer, 
-	  &plain_buffer, 
-	  sending_datawriter_crypto,
-	  &ex 
-  );
+  if(!DDS_Security_CryptoTransform_encode_serialized_data(
+	    &encoded_buffer, 
+	    &plain_buffer, 
+	    sending_datawriter_crypto,
+	    &ex)
+  ) {
+    Log_error("encode failed\n");
+    return SDDS_RT_FAIL;
+  }
 
   Log_debug("sending encoded buffer: ");
   Security_print_key(encoded_buffer.data, encoded_buffer.len); 
-printf("%.22s\n", encoded_buffer.data);
 
   Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, encoded_buffer.len);
 
@@ -542,7 +544,6 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
   SecurityException ex;
 
   Marshalling_dec_uint8(START, (uint8_t *) &size);
-printf("%.22s\n", START);
   plain_buffer.len = size - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE;
   plain_buffer.data = Memory_alloc(plain_buffer.len);
 
@@ -560,14 +561,17 @@ printf("%.22s\n", START);
     return SDDS_RT_FAIL;
   }
 
-  DDS_Security_CryptoTransform_decode_serialized_data(
-	  &plain_buffer, 
-	  &encoded_buffer, 
-	  receiving_datareader_crypto, 
-	  NULL, 
-	  &ex
-  );
-
+  if(!DDS_Security_CryptoTransform_decode_serialized_data(
+	    &plain_buffer, 
+	    &encoded_buffer, 
+	    receiving_datareader_crypto, 
+	    NULL, 
+	    &ex)
+  ) {
+    Log_error("decode failed\n");
+    return SDDS_RT_FAIL;
+  }
+  
   Memory_free(encoded_buffer.data);
 
   memcpy(START + 2, plain_buffer.data, plain_buffer.len);
