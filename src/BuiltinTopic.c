@@ -18,7 +18,7 @@ SSW_NodeID_t BuiltinTopic_participantID;
 static FILE* scalability_msg_count;
 #endif
 
-
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
 DDS_Topic g_DCPSParticipant_topic;
 Sample_t dcps_participant_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSParticipant dcps_participant_sample_data[SDDS_QOS_HISTORY_DEPTH];
@@ -42,6 +42,7 @@ Sample_t dcps_subscription_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSSubscription dcps_subscription_sample_data[SDDS_QOS_HISTORY_DEPTH];
 DDS_DataReader g_DCPSSubscription_reader;
 DDS_DataWriter g_DCPSSubscription_writer;
+#endif
 
 DDS_Topic g_ParticipantStatelessMessage_topic;
 Sample_t dcps_psm_samples_pool[SDDS_QOS_HISTORY_DEPTH];
@@ -76,6 +77,7 @@ BuiltinTopic_init(void) {
     Locator_t* l;
 
     int index;
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
     for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
         dcps_participant_samples_pool[index].data = &dcps_participant_sample_data[index];
         dcps_topic_samples_pool[index].data = &dcps_topic_sample_data[index];
@@ -83,9 +85,14 @@ BuiltinTopic_init(void) {
         dcps_subscription_samples_pool[index].data = &dcps_subscription_sample_data[index];
         dcps_psm_samples_pool[index].data = &dcps_psm_sample_data[index];
     }
-
+#else
+    for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
+        dcps_psm_samples_pool[index].data = &dcps_psm_sample_data[index];
+    }
+#endif
     BuiltinTopic_participantID = NodeConfig_getNodeID();
 
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
     g_DCPSParticipant_topic = sDDS_DCPSParticipantTopic_create();
     if (g_DCPSParticipant_topic == NULL){
         return SDDS_RT_FAIL;
@@ -209,6 +216,7 @@ BuiltinTopic_init(void) {
         Locator_downRef(l);
         return ret;
     }
+#endif
 
     g_ParticipantStatelessMessage_topic = sDDS_ParticipantStatelessMessageTopic_create();
     if (g_ParticipantStatelessMessage_topic == NULL){
@@ -241,6 +249,7 @@ BuiltinTopic_init(void) {
         return ret;
     }
 
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
     uint8_t addrLen;
     ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_MULTICAST_ADDRESS, generalByteAddr, &addrLen);
@@ -264,14 +273,14 @@ BuiltinTopic_init(void) {
 #ifndef FEATURE_SDDS_MULTICAST_ENABLED
     // TO DO
 #endif
-
+#endif
     return SDDS_RT_OK;
 }
 
 /********************
 * DCPS Participant *
 ********************/
-
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
 rc_t
 TopicMarshalling_DCPSParticipant_cpy(Data dest, Data source);
 
@@ -862,6 +871,7 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
     return SDDS_RT_OK;
 }
 
+#endif
 /******************************
 * ParticipantStatelessMessage *
 *******************************/

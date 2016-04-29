@@ -545,6 +545,8 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
   plain_buffer.len = size - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE;
   plain_buffer.data = Memory_alloc(plain_buffer.len);
 
+  Log_debug("size: %d, plain buffer length: %d\n", size, plain_buffer.len);
+
   encoded_buffer.len = size;
   encoded_buffer.data = Memory_alloc(encoded_buffer.len);
 
