@@ -29,7 +29,7 @@ Security_kdc() {
 
   while(1) {
  
-    Thread_usleep(NULL, SDDS_SECURITY_RECEIVE_SLEEP_SEC * 100000);
+    Thread_usleep(NULL, SDDS_SECURITY_RECEIVE_SLEEP_SEC * 10000);
     r = DDS_ParticipantStatelessMessageDataReader_take_next_sample(
                                  g_ParticipantStatelessMessage_reader,
                                  &msg_ptr,
