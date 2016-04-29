@@ -488,6 +488,7 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
 
   Log_debug("sending encoded buffer: ");
   Security_print_key(encoded_buffer.data, encoded_buffer.len); 
+printf("%.22s\n", encoded_buffer.data);
 
   Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, encoded_buffer.len);
 
@@ -540,8 +541,8 @@ SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
   DatareaderCryptoHandle *receiving_datareader_crypto;
   SecurityException ex;
 
-  Marshalling_dec_uint8(START + 1, (uint8_t *) &size);
-
+  Marshalling_dec_uint8(START, (uint8_t *) &size);
+printf("%.22s\n", START);
   plain_buffer.len = size - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE;
   plain_buffer.data = Memory_alloc(plain_buffer.len);
 
