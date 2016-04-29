@@ -468,10 +468,10 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
   if (topic->Data_encode(ref, d, &writtenBytes) != SDDS_RT_OK) {
       return SDDS_RT_FAIL;
   }
-  
+  Log_debug("written bytes: %d\n", writtenBytes);  
   plain_buffer.len = writtenBytes;
   plain_buffer.data = START + 2;
-
+  
   encoded_buffer.len = SDDS_SECURITY_IV_SIZE + plain_buffer.len + XCBC_MAC_SIZE;
   encoded_buffer.data = Memory_alloc(encoded_buffer.len);
 
