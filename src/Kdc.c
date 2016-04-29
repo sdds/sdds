@@ -25,6 +25,8 @@ Security_kdc() {
   DDS_ParticipantStatelessMessage *msg_ptr = &msg;
   DDS_SampleInfo info;
 
+  Log_debug("waiting for requests\n");
+
   while(1) {
  
     Thread_sleep(NULL, SDDS_SECURITY_RECEIVE_SLEEP_SEC);
@@ -33,6 +35,7 @@ Security_kdc() {
                                  &msg_ptr,
                                  &info);
     if(r != DDS_RETCODE_OK) {
+      Log_error("no data\n");
       continue;
     }    
     msg_tok_in = msg.message_data;
