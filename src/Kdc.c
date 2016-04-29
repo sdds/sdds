@@ -29,13 +29,12 @@ Security_kdc() {
 
   while(1) {
  
-    Thread_sleep(NULL, SDDS_SECURITY_RECEIVE_SLEEP_SEC);
+    Thread_usleep(NULL, SDDS_SECURITY_RECEIVE_SLEEP_SEC * 100000);
     r = DDS_ParticipantStatelessMessageDataReader_take_next_sample(
                                  g_ParticipantStatelessMessage_reader,
                                  &msg_ptr,
                                  &info);
     if(r != DDS_RETCODE_OK) {
-      Log_error("no data\n");
       continue;
     }    
     msg_tok_in = msg.message_data;
@@ -103,13 +102,13 @@ Security_kdc() {
                                                             NULL);  
         if(r == DDS_RETCODE_OK) {
           Log_debug("VALIDATION_OK_FINAL_MESSAGE\n");
+          Security_send_crypto_tokens(handle);
         } else {
           Log_error("failed to send final token\n");
-          Security_cleanup_handshake_handle(handle);
         }
-
-        Security_send_crypto_tokens(handle);
-
+  
+        Security_cleanup_handshake_handle(handle);
+  
       break;
     }
 
@@ -138,7 +137,6 @@ Security_send_crypto_tokens(HandshakeHandle *h) {
   while(rule) {
     app = rule->applist->first_fn(rule->applist);
     while(app) {
-      //printf("%s %s\n", app, h->info.uid);
       if(strncmp(app, h->info.uid, SDDS_SECURITY_USER_ID_STRLEN) == 0) {      
         Log_debug("send key for topic %d to %.8s: ", rule->tid, h->info.uid);      
         Security_print_key(rule->key_material, SDDS_SECURITY_KDF_KEY_BYTES);

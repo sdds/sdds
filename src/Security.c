@@ -25,7 +25,7 @@ Security_init() {
   }
 
   key_list = List_initLinkedList();  
-  Security_receive_key();
+  //Security_receive_key();
   
 #endif
 
@@ -167,7 +167,7 @@ Security_auth() {
         }
         
         // wait for a reply from kdc
-        for(j = 0; j < 3; j++) {
+        for(j = 0; j < 10; j++) {
           Thread_sleep(NULL, SDDS_SECURITY_RECEIVE_SLEEP_SEC);
           r = DDS_ParticipantStatelessMessageDataReader_take_next_sample(
                                                            g_ParticipantStatelessMessage_reader,
