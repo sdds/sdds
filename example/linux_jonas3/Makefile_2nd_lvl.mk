@@ -1,4 +1,4 @@
-SDDS_TOPDIR := ../..
+SDDS_TOPDIR := $(shell dirname $(shell dirname $(shell readlink generate.sh)))
 
 SDDS_OBJDIR := objs-linux
 TARGET := linux
@@ -15,11 +15,7 @@ SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 include $(SDDS_TOPDIR)/sdds.mk
 
-<<<<<<< HEAD
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
-=======
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/alarm-ds.o
->>>>>>> testing
 ALL_OBJS += $(DATA_DEPEND_OBJS)
 
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
@@ -33,10 +29,7 @@ CLEAN += $(IMPL_DEPEND_SRCS)
 CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
-<<<<<<< HEAD
 CLEAN += local_constants.h
-=======
->>>>>>> testing
 
 all:
 
@@ -49,7 +42,7 @@ $(LOCAL_CONSTANTS):
 CFLAGS += -I.
 # required for timer_t (POSIX.1b (real-time extensions))
 # and getline
-CFLAGS += -g -D_POSIX_C_SOURCE=200809L
+CFLAGS += -g -D_POSIX_C_SOURCE=200809L -fstack-usage
 LDLIBS += -lrt
 
 $(SDDS_OBJDIR)/%.o: %.c

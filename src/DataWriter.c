@@ -289,15 +289,25 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 #   endif
         {
 #endif
-            ret = SNPS_writeData(out_buffer, topic->Data_encode, data);
-            if (ret != SDDS_RT_OK) {
-                Log_error("(%d) SNPS_writeData failed\n", __LINE__);
-#ifdef SDDS_QOS_LATENCYBUDGET
-                    if (ret == SDDS_RT_FAIL) {
-                        out_buffer->bufferOverflow = true;
-                    }
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
+            if(topic->protection) {
+              if (SNPS_writeSecureData(out_buffer, topic, data) != SDDS_RT_OK) {
+              	Log_error("(%d) SNPS_writeSecureData failed\n", __LINE__);
+              }      
+            } else {
 #endif
+              ret = SNPS_writeData(out_buffer, topic->Data_encode, data);
+              if (ret != SDDS_RT_OK) {
+                  Log_error("(%d) SNPS_writeData failed\n", __LINE__);
+#ifdef SDDS_QOS_LATENCYBUDGET
+                      if (ret == SDDS_RT_FAIL) {
+                          out_buffer->bufferOverflow = true;
+                      }
+#endif
+              }
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
             }
+#endif
 #ifdef SDDS_HAS_QOS_RELIABILITY
         }
 #endif
@@ -311,30 +321,6 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         scalability_msg_count = fopen(SCALABILITY_LOG, "a");
         fwrite("D", 1, 1, scalability_msg_count);
         fclose(scalability_msg_count);
-    }
-#endif
-
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
-    if(topic->protection) {
-      if (SNPS_writeSecureData(out_buffer, topic, data) != SDDS_RT_OK) {
-      	Log_error("(%d) SNPS_writeSecureData failed\n", __LINE__);
-      }      
-    } else {
-      if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
-      	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
-#   ifdef SDDS_QOS_LATENCYBUDGET
-      	out_buffer->bufferOverflow = true;
-#   endif
-      }
-    }
-#else 
-    if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
-        // something went wrong oO
-    	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
-
-#ifdef SDDS_QOS_LATENCYBUDGET
-    	out_buffer->bufferOverflow = true;
-#endif
     }
 #endif
 
