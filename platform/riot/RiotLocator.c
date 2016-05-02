@@ -75,7 +75,7 @@ RiotLocator_setIPv6Address(RiotLocator_t* loc, ipv6_addr_t* addr) {
 	assert(loc != NULL);
 	assert(addr != NULL);
 
-	memcpy(&loc->addr, addr, sizeof(addr));
+	memcpy(&loc->addr, addr, sizeof(ipv6_addr_t));
 
 	if (ipv6_addr_is_multicast(addr) == true) {
 		loc->loc.type = SDDS_LOCATOR_TYPE_MULTI;
