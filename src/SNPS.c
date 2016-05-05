@@ -489,11 +489,11 @@ SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
     return SDDS_RT_FAIL;
   }
 
-  Log_debug("sending encoded buffer: ");
-  Security_print_key(encoded_buffer.data, encoded_buffer.len); 
+//  Log_debug("sending encoded buffer: ");
+//  Security_print_key(encoded_buffer.data, encoded_buffer.len); 
 
   Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, encoded_buffer.len);
-  printf("encoded len: %d\n", encoded_buffer.len);
+ 
   Memory_free(encoded_buffer.data);
 
   // data header
