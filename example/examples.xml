@@ -1,7 +1,6 @@
 <examples
     script = "sdds_examples.gsl"
-    >
-
+     >
 
     <example name = "linux hello pub" os = "linux">Linux hello world - Publisher</example>
     <example name = "linux hello sub" os = "linux">Linux hello world - Subscriber</example>
