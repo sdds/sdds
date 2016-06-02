@@ -228,16 +228,22 @@ _receiverThreadFunction(void* arg) {
         RiotLocator_t sourceLoc;
         memcpy(&(sourceLoc.addr), &sourceAddr, sizeof(sourceAddr));
 
-        // check if the locator is allready known
+		// check if the locator is allready known
         Locator_t* loc;
         if (LocatorDB_findLocator((Locator_t*)&sourceLoc, &loc) != SDDS_RT_OK) {
-            // not found we need a new one
+			// not found we need a new one
             if (LocatorDB_newLocator(&loc) != SDDS_RT_OK) {
             	Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
+#ifdef UTILS_DEBUG
+                LocatorDB_print();
+                Locator_print(loc);
+#endif
                 continue;
             }
             RiotLocator_setIPv6Address((RiotLocator_t*) loc, &sourceAddr);
-            ((RiotLocator_t*) loc)-> port = sourcePort;
+ // 			memcpy(&((RiotLocator_t*) loc)->addr, &sourceAddr, 
+ // 			sizeof(sourceAddr));
+			((RiotLocator_t*) loc)-> port = sourcePort;
         }
         // up ref counter
         Locator_upRef(loc);
@@ -256,7 +262,7 @@ _receiverThreadFunction(void* arg) {
 
         DataSink_processFrame(buff);
         // and finally decrement the locator again
-        Locator_downRef(loc);
+//        Locator_downRef(loc);
         NetBuffRef_renew(buff);
     }
 }
@@ -521,9 +527,11 @@ Network_init(void) {
 	kernel_pid_t ifs[GNRC_NETIF_NUMOF];
     size_t numof = gnrc_netif_get(ifs);
 
-        //for (size_t i = 0; i < numof && i < GNRC_NETIF_NUMOF; i++) {
-        //    RiotNetHelper_netif_list(ifs[i]);
-        //}
+#ifdef UTILS_DEBUG
+    for (size_t i = 0; i < numof && i < GNRC_NETIF_NUMOF; i++) {
+        RiotNetHelper_netif_list(ifs[i]);
+    }
+#endif
 
 	// get link local unicast address
 //	kernel_pid_t ifs[GNRC_NETIF_NUMOF];

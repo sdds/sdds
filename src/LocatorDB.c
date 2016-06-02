@@ -110,6 +110,9 @@ LocatorDB_newLocator(Locator_t** loc) {
     }
     if (*loc == NULL) {
         db.freeLoc = 0;
+#ifdef UTILS_DEBUG
+        s_print();
+#endif
         Mutex_unlock(mutex);
         Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
         return SDDS_RT_FAIL;
@@ -144,6 +147,9 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
     }
     if (*loc == NULL) {
         db.freeLoc = 0;
+#ifdef UTILS_DEBUG
+        s_print();
+#endif
         Mutex_unlock(mutex);
         Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
         return SDDS_RT_FAIL;
@@ -178,6 +184,9 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
     }
     if (*loc == NULL) {
         db.freeLoc = 0;
+#ifdef UTILS_DEBUG
+        s_print();
+#endif
         Mutex_unlock(mutex);
         Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
         return SDDS_RT_FAIL;
