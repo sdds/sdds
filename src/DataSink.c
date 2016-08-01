@@ -674,6 +674,7 @@ checkTopic(NetBuffRef_t* buff, topicid_t topic) {
     return SDDS_RT_OK;
 }
 
+// FIXME not used?
 rc_t
 BuiltinTopic_writeDataReaders2Buf(NetBuffRef_t* buf) {
     SNPS_writeTopic(buf, DDS_DCPS_SUBSCRIPTION_TOPIC);
@@ -693,7 +694,10 @@ BuiltinTopicDataReader_encode(NetBuffRef_t* buff, Data data, size_t* size) {
     *size = 0;
     Marshalling_enc_uint8(start + (*size), &(DataReader_topic(dr)->domain));
     *size += sizeof(domainid_t);
-    Marshalling_enc_uint8(start + (*size), &(DataReader_topic(dr)->id));
+    // tmp variable for the (possible) cast from 8bit to 16bit
+    // necessary, because without extended_topic_support the topic_id is only 8 bit
+    uint16_t tmp_topic_id = (uint16_t) DataReader_topic(dr)->id;
+    Marshalling_enc_uint16(start + (*size), &(tmp_topic_id));
     *size += sizeof(topicid_t);
 #endif
 
