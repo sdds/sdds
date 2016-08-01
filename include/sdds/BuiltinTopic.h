@@ -29,6 +29,10 @@
 #define SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS      "ff02::60"	
 #endif
 
+#ifndef SDDS_BUILTIN_LOCATION_ADDRESS
+#define SDDS_BUILTIN_LOCATION_ADDRESS           "ff02::70"
+#endif
+
 /* The last character is used for the terminating \0 */
 #define DDS_TOPIC_NAME_SIZE 26
 #define DDS_TOPIC_TYPE_SIZE 26
@@ -65,7 +69,10 @@ extern SSW_NodeID_t BuiltinTopic_participantID;
 typedef uint16_t BuiltinTopicKey_t;
 
 struct DDS_DCPSParticipant_t {
-    BuiltinTopicKey_t key;
+    union {
+        BuiltinTopicKey_t key;
+        BuiltinTopicKey_t pkey;
+    };
     // IF BUILTINTOPIC AND QOS AND USERDATA
     // DDS_UserDataQosPolicy user_data;
     // ENDIF
@@ -92,7 +99,10 @@ DDS_DCPSParticipantDataWriter_write(
                                     );
 
 struct DDS_DCPSTopic_t {
-    BuiltinTopicKey_t key;
+    union {
+        BuiltinTopicKey_t key;
+        BuiltinTopicKey_t pkey;
+    };
     DDS_char name[DDS_TOPIC_NAME_SIZE];
 //    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
     // IF QOS AND Foo
@@ -116,7 +126,10 @@ DDS_DCPSTopicDataWriter_write(
 
 
 struct DDS_DCPSPublication_t {
-    BuiltinTopicKey_t key;
+    union {
+        BuiltinTopicKey_t key;
+        BuiltinTopicKey_t pkey;
+    };
     BuiltinTopicKey_t participant_key;
     uint16_t topic_id;
 //    DDS_char topic_name[DDS_TOPIC_NAME_SIZE];
@@ -143,7 +156,10 @@ DDS_DCPSPublicationDataWriter_write(
 
 
 struct DDS_DCPSSubscription_t {
-    BuiltinTopicKey_t key;
+    union {
+        BuiltinTopicKey_t key;
+        BuiltinTopicKey_t pkey;
+    };
     BuiltinTopicKey_t participant_key;
     uint16_t topic_id;
     //    DDS_char topic_name[DDS_TOPIC_NAME_SIZE];
@@ -194,7 +210,10 @@ struct DataHolder_t {
 typedef struct DataHolder_t DataHolder;
 
 struct ParticipantGenericMessage_t {
-    BuiltinTopicKey_t key;
+    union {
+        BuiltinTopicKey_t key;
+        BuiltinTopicKey_t pkey;
+    };
     DDS_char message_class_id[CLASS_ID_STRLEN];
     DataHolder message_data;
 };
@@ -214,6 +233,38 @@ DDS_ParticipantStatelessMessageDataWriter_write(
                                     const DDS_InstanceHandle_t handle
                                     );
 
+struct SDDS_DCPSLocation_t {
+    union {
+        BuiltinTopicKey_t key;
+        BuiltinTopicKey_t pkey;
+    };
+    union {
+        DDS_unsigned_short device;
+        DDS_unsigned_short skey;
+    };
+    DDS_unsigned_short x;
+    DDS_unsigned_short y;
+    DDS_unsigned_short z;
+    DDS_unsigned_short width;
+    DDS_unsigned_short length;
+    DDS_short expiration;
+    DDS_short age;
+};
+typedef struct SDDS_DCPSLocation_t SDDS_DCPSLocation;
+
+DDS_ReturnCode_t
+DDS_DCPSLocationDataReader_take_next_sample(
+                                               DDS_DataReader _this,
+                                               SDDS_DCPSLocation** data_values,
+                                               DDS_SampleInfo* sample_info);
+
+DDS_ReturnCode_t
+DDS_DCPSLocationDataWriter_write(
+                                    DDS_DataWriter _this,
+                                    const SDDS_DCPSLocation* instance_data,
+                                    const DDS_InstanceHandle_t handle
+                                    );
+
 // ENDIF APP + BUILTINTOPIC
 
 #define DDS_DCPS_PARTICIPANT_DOMAIN 0x1
@@ -226,6 +277,8 @@ DDS_ParticipantStatelessMessageDataWriter_write(
 #define DDS_DCPS_SUBSCRIPTION_TOPIC 0x04
 #define DDS_PARTICIPANT_STATELESS_MESSAGE_DOMAIN 0x1
 #define DDS_PARTICIPANT_STATELESS_MESSAGE_TOPIC 0x5
+#define SDDS_DCPS_LOCATION_DOMAIN 0x1
+#define SDDS_DCPS_LOCATION_TOPIC 0x06
 
 rc_t
 BuiltinTopic_init(void);

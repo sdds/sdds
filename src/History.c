@@ -84,7 +84,7 @@ sdds_History_setup(History_t* self, Sample_t* samples, unsigned int depth) {
 
 
 static inline bool_t
-s_History_full (History_t* self)
+s_History_full(History_t* self)
 {
     if (self->in_needle == self->depth) {
         return true;
@@ -94,10 +94,26 @@ s_History_full (History_t* self)
 
 
 static void
-s_History_block (void *data) {
+s_History_block(void *data) {
     assert (data);
     Mutex_t* blocktex = (Mutex_t*) data;
 	Mutex_unlock(blocktex);
+}
+
+static rc_t
+s_History_contains(History_t* self,Topic_t* topic, Sample_t* sample, uint16_t* index) {
+    assert(self);
+    assert(topic);
+    assert(sample);
+    assert(index);
+
+    for (uint16_t i=0; i < self->depth; i++) {
+        if (topic->Data_cmpPrimaryKeys(sample->data, self->samples[i].data) == SDDS_RT_OK) {
+            *index = i;
+            return SDDS_RT_OK;
+        }
+    }
+    return SDDS_RT_FAIL;
 }
 
 
@@ -108,13 +124,14 @@ s_History_block (void *data) {
 //  the buffer is going to be enqueued it will be decoded.
 #ifdef SDDS_HAS_QOS_RELIABILITY
 rc_t
-sdds_History_enqueue(History_t* self, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
 #else
 rc_t
-sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
+sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
 #endif
     assert(self);
-    assert(buff);
+    assert(topic);
+    assert(sample);
 	Mutex_lock(mutex);
 
 #ifdef FEATURE_SDDS_TRACING_ENABLED
@@ -125,41 +142,46 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
 #   endif
 #endif
 
-    Topic_t* topic = buff->curTopic;
-    Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
+    Locator_t* loc = sample->instance;
     Locator_upRef(loc);
 
 #ifdef SDDS_HAS_QOS_RELIABILITY
     if (topic->seqNrBitSize > 0){ // topic has qos_reliability
         //  Check validity of sequence number
         if (s_History_checkSeqNr(self, topic, loc, seqNr) == SDDS_RT_FAIL){
-            SNPS_discardSubMsg(buff);
             Locator_downRef(loc);
             Mutex_unlock(mutex);
-            return SDDS_RT_OK;
+            return SDDS_RT_FAIL;
         }
     }
 #endif //  End of SDDS_HAS_QOS_RELIABILITY
 
-    if (s_History_full (self)) {
-        Mutex_unlock(mutex);
-#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
- || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-        //  Start timer which unblocks us after max_blocking_time
-        Task_setData(blockTask, blocktex);
-        Task_start(blockTask, (topic->max_blocking_time / 1000) % 60,
-                                     topic->max_blocking_time % 1000, SDDS_SSW_TaskMode_single);
-        Mutex_lock(blocktex);
-        //  Check if timer has been canceled by dequeue
+    uint16_t index;
+    rc_t ret = s_History_contains(self, topic, sample, &index);
+    if (ret == SDDS_RT_OK) {
+        self->in_needle = index;
+    } else {
+
         if (s_History_full (self)) {
+            Mutex_unlock(mutex);
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
+     || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+            //  Start timer which unblocks us after max_blocking_time
+            Task_setData(blockTask, blocktex);
+            Task_start(blockTask, (topic->max_blocking_time / 1000) % 60,
+                                         topic->max_blocking_time % 1000, SDDS_SSW_TaskMode_single);
+            Mutex_lock(blocktex);
+            //  Check if timer has been canceled by dequeue
+            if (s_History_full (self)) {
+                //  Dequeue the oldest item in the History and proceed.
+                (void *) sdds_History_dequeue(self);
+            }
+#else
             //  Dequeue the oldest item in the History and proceed.
             (void *) sdds_History_dequeue(self);
-        }
-#else
-        //  Dequeue the oldest item in the History and proceed.
-        (void *) sdds_History_dequeue(self);
 #endif
-        Mutex_lock(mutex);
+            Mutex_lock(mutex);
+        }
     }
 
     //  Insert sample into queue
@@ -169,7 +191,8 @@ sdds_History_enqueue(History_t* self, NetBuffRef_t* buff) {
     }
 #endif //  End of SDDS_HAS_QOS_RELIABILITY
 
-    rc_t ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+
+    ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
     if (ret == SDDS_RT_FAIL) {
         Mutex_unlock(mutex);
         return ret;

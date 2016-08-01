@@ -217,7 +217,36 @@ ConcurrentLinkedList_size(List_t* this) {
 rc_t
 ConcurrentLinkedList_delete(List_t* this) {
     assert(this);
-    return SDDS_RT_FAIL;
+    ConcurrentLinkedList_t* concurrentLinkedList = (ConcurrentLinkedList_t*) this;
+
+    Node_t *node, *prev = NULL;
+    Mutex_lock(concurrentLinkedList->mutex);
+    for(node = concurrentLinkedList->head; node != NULL; node = node->next) {
+        if(node == concurrentLinkedList->cursor) {
+            break;
+        }
+        prev = node;
+    }
+    if(node) {
+        if (prev) {
+            prev->next = node->next;
+        }
+        else {
+            concurrentLinkedList->head = node->next;
+        }
+        node->data = NULL;
+        node->next = NULL;
+        node->isEmpty = true;
+
+        concurrentLinkedList->cursor = prev;
+        concurrentLinkedList->size--;
+        Mutex_unlock(concurrentLinkedList->mutex);
+        return SDDS_RT_OK;
+    }
+    else {
+        Mutex_unlock(concurrentLinkedList->mutex);
+        return SDDS_RT_FAIL;
+    }
 }
 
 rc_t

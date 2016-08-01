@@ -17,7 +17,7 @@
  */
 #include "sDDS.h"
 #include "Network.h"
-#include "Discovery.h"
+#include "DiscoveryService.h"
 #include "Locator.h"
 
 #define SNPS_MULTICAST_COMPRESSION_FRST_NIBBLE                  0

@@ -21,12 +21,31 @@
 
 #include "List.h"
 
+enum SubscriptionState {
+    CANCELLED,
+    ACTIVE,
+    PAUSED
+};
+typedef enum SubscriptionState SubscriptionState_t;
+
+struct TopicSubscription {
+    BuiltinTopicKey_t participant;
+    Locator_t* addr;
+    SubscriptionState_t state;
+};
+typedef struct TopicSubscription TopicSubscription_t;
+
+#ifndef SDDS_TOPIC_SUBSCRIPTION_MCAST_PARTICIPANT
+#define SDDS_TOPIC_SUBSCRIPTION_MCAST_PARTICIPANT 0
+#endif
+
 struct datasources {
     List_t* list;
 };
 struct datasinks {
     List_t* list;
 };
+
 struct _Topic_t {
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
@@ -38,14 +57,15 @@ struct _Topic_t {
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
     struct datasources dsources;
+    Sample_t incomingSample;
 #endif
 
     rc_t (* Data_decode)(NetBuffRef_t* buff, Data data, size_t* size);
     rc_t (* Data_cpy)(Data dest, Data source);
+    rc_t (* Data_cmpPrimaryKeys)(Data data1, Data data2);
 
     domainid_t domain;
     topicid_t id;
-
 #if defined SDDS_HAS_QOS_RELIABILITY
     uint8_t seqNrBitSize:6;
     uint8_t reliabilityKind:2;
@@ -56,9 +76,11 @@ struct _Topic_t {
 #   endif
 #endif
 
-};                              /* ----------  end of struct Topic  ----------
-                                   */
+};  /* ----------  end of struct Topic  ---------- */
 //typedef struct _Topic_t Topic_t;
+
+rc_t
+Topic_init();
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
  || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
@@ -72,10 +94,13 @@ struct _Topic_t {
  * @return SDDS return code @see rc_t
  */
 rc_t
-Topic_addRemoteDataSink(Topic_t* _this, Locator_t* addr);
+Topic_addRemoteDataSink(Topic_t* _this, Locator_t* addr, BuiltinTopicKey_t participant, SubscriptionState_t state);
+
+rc_t
+Topic_editRemoteDataSink(Topic_t* _this, BuiltinTopicKey_t participant, SubscriptionState_t state);
 #endif
 
-#if defined (SDDS_TOPIC_HAS_PUB) && (SDDS_TOPIC_DYNAMIC)
+#if defined(SDDS_TOPIC_HAS_PUB) && defined(SDDS_TOPIC_DYNAMIC) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 /**
  * Remove the address/locator object of a data sink remote node
  * from this topic. The remote datareader wont get any data samples
@@ -86,7 +111,7 @@ Topic_addRemoteDataSink(Topic_t* _this, Locator_t* addr);
  * @return sdds return code @see rc_t
  */
 rc_t
-Topic_removeRemoteDataSink(Topic_t* _this, Locator_t* addr);
+Topic_removeRemoteDataSink(Topic_t* _this, BuiltinTopicKey_t participant);
 #endif
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
@@ -99,10 +124,13 @@ Topic_removeRemoteDataSink(Topic_t* _this, Locator_t* addr);
  * @return sdds return code @see rc_t
  */
 rc_t
-Topic_addRemoteDataSource(Topic_t* _this, Locator_t* addr);
+Topic_addRemoteDataSource(Topic_t* _this, Locator_t* addr, BuiltinTopicKey_t participant, SubscriptionState_t state);
+
+rc_t
+Topic_editRemoteDataSource(Topic_t* _this, BuiltinTopicKey_t participant, SubscriptionState_t state);
 #endif
 
-#if defined (SDDS_TOPIC_HAS_SUB) && (SDDS_TOPIC_DYNAMIC)
+#if defined(SDDS_TOPIC_HAS_SUB) && defined(SDDS_TOPIC_DYNAMIC) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
 /**
  * Remove the address/locator object of a remote data source node
  * from this topic.
@@ -112,7 +140,7 @@ Topic_addRemoteDataSource(Topic_t* _this, Locator_t* addr);
  * @return sdds return code @see rc_t
  */
 rc_t
-Topic_removeRemoteDataSink(Topic_t* _this, Locator_t* addr);
+Topic_removeRemoteDataSink(Topic_t* _this, BuiltinTopicKey_t participant);
 #endif
 
 //rc_t Topic_addRemoteDataSink(Topic _this, Locator_t* addr);

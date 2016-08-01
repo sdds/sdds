@@ -19,6 +19,7 @@ extern "C" {
 //  Callbacks of this class
 
 typedef void (* On_Data_Avail_Listener)(DataReader_t*);
+typedef rc_t (* Fn_pushData)(DataReader_t* self, NetBuffRef_t* buff);
 
 //  Structure of this class
 
@@ -27,7 +28,11 @@ struct _DataReader_t {
     unsigned int id : 4;
     On_Data_Avail_Listener on_data_avail_listener;
     History_t history;
+    Fn_pushData fn_pushData;
 };
+
+void
+DataReader_init(DataReader_t* self, uint8_t id, Topic_t* topic, On_Data_Avail_Listener listener);
 
 //  Tries to take a sample from the data readers history. The provided
 //  structure must match the de-serialized data for this topic. Return
@@ -51,6 +56,9 @@ DataReader_topic(DataReader_t* self);
 
 History_t*
 DataReader_history(DataReader_t* self);
+
+rc_t
+DataReader_pushData(DataReader_t* self, NetBuffRef_t* buff);
 
 #ifdef __cplusplus
 }

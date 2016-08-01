@@ -99,14 +99,14 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     Topic_t* topic = self->topic;
     List_t* subscribers = topic->dsinks.list;
     NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
-    Locator_t* subscriber = (Locator_t*) subscribers->first_fn(subscribers);
-    while (subscriber) {
-        if (Locator_contains(out_buffer->locators, subscriber) != SDDS_RT_OK) {
-            if (out_buffer->locators->add_fn(out_buffer->locators, subscriber) == SDDS_RT_OK) {
-                Locator_upRef(subscriber);
+    TopicSubscription_t* tSub = (TopicSubscription_t*) subscribers->first_fn(subscribers);
+    while (tSub) {
+        if (Locator_contains(out_buffer->locators, tSub->addr) != SDDS_RT_OK) {
+            if (out_buffer->locators->add_fn(out_buffer->locators, tSub->addr) == SDDS_RT_OK) {
+                Locator_upRef(tSub->addr);
             }
         }
-        subscriber = (Locator_t*) subscribers->next_fn(subscribers);
+        tSub = (TopicSubscription_t*) subscribers->next_fn(subscribers);
     }
     rc_t ret;
 
@@ -377,14 +377,14 @@ DataWriter_writeAddress(DataWriter_t* self,
     List_t* subscribers = topic->dsinks.list;
 
     NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
-    Locator_t* subscriber = (Locator_t*) subscribers->first_fn(subscribers);
-    while (subscriber) {
-        if (Locator_contains(out_buffer->locators, subscriber) != SDDS_RT_OK) {
-            if (out_buffer->locators->add_fn(out_buffer->locators, subscriber) == SDDS_RT_OK) {
-                Locator_upRef(subscriber);
+    TopicSubscription_t* tSub = (TopicSubscription_t*) subscribers->first_fn(subscribers);
+    while (tSub) {
+        if (Locator_contains(out_buffer->locators, tSub->addr) != SDDS_RT_OK) {
+            if (out_buffer->locators->add_fn(out_buffer->locators, tSub->addr) == SDDS_RT_OK) {
+                Locator_upRef(tSub->addr);
             }
         }
-        subscriber = (Locator_t*) subscribers->next_fn(subscribers);
+        tSub = (TopicSubscription_t*) subscribers->next_fn(subscribers);
     }
 
     if (out_buffer->curDomain != domain) {
@@ -512,11 +512,11 @@ checkSending(NetBuffRef_t* buf) {
             return SDDS_RT_FAIL;
         }
     }
-#if defined(TEST_SCALABILITY_LINUX) || defined(TEST_SCALABILITY_RIOT)
+#   if defined(TEST_SCALABILITY_LINUX) || defined(TEST_SCALABILITY_RIOT)
     else {
         ret = SDDS_RT_NO_SUB;
     }
-#endif
+#   endif
     NetBuffRef_renew(buf);
 
     return ret;

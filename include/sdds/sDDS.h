@@ -73,10 +73,11 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #include "TopicDB.h"
 #include "Topic.h"
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-#include "Discovery.h"
+#include "DiscoveryService.h"
 #endif
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 #include "BuiltinTopic.h"
+#include "BuiltInTopicPublicationService.h"
 #endif
 #include "Management.h"
 
