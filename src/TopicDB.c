@@ -69,30 +69,3 @@ TopicDB_checkTopic(topicid_t topic) {
     }
     return false;
 }
-
-// Impl for the BuiltinTopic
-rc_t
-BuiltinTopic_writeTopics2Buf(NetBuffRef_t* buf) {
-    SNPS_writeTopic(buf, DDS_DCPS_TOPIC_TOPIC);
-
-    for (uint8_t i = 0; i < topicdb.topicCount; i++) {
-        SNPS_writeData(buf, BuiltinTopicTopic_encode, (Data) &(topicdb.db[i]));
-    }
-
-    return SDDS_RT_OK;
-}
-
-rc_t
-BuiltinTopicTopic_encode(NetBuffRef_t* buff, Data data, size_t* size) {
-    Topic_t* t = (Topic_t*) data;
-
-    byte_t* start = buff->buff_start + buff->curPos;
-
-    *size = 0;
-    Marshalling_enc_uint8(start+(*size), &(t->domain));
-    *size += sizeof(domainid_t);
-    Marshalling_enc_uint8(start+(*size), &(t->id));
-    *size += sizeof(topicid_t);
-
-    return SDDS_RT_OK;
-}
