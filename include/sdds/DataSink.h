@@ -47,4 +47,13 @@ DataSink_getAddr(struct SNPS_Address* address);
 rc_t
 DataSink_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic);
 
+rc_t
+DataSink_readerIterator_reset(topicid_t topic);
+
+DataReader_t*
+DataSink_readerIterator_next();
+
+rc_t
+DataSink_readerIterator_hasNext();
+
 #endif   /* ----- #ifndef DATASINK_H_INC  ----- */

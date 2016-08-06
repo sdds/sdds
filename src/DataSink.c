@@ -29,6 +29,9 @@ extern SSW_NodeID_t BuiltinTopic_participantID;
 struct _DataSink_t {
     DataReader_t readers[SDDS_DATA_READER_MAX_OBJS];
     uint64_t allocated_readers;
+    topicid_t iteratorTopicID;
+    int8_t iteratorPos;
+    int8_t iteratorNext;
     SNPS_Address_t addr;
 };
 static DataSink_t _dataSink;
@@ -49,6 +52,9 @@ BuiltinTopicDataReader_encode(NetBuffRef_t* buff, Data data, size_t* size);
 
 rc_t
 DataSink_init(void) {
+    self->iteratorTopicID = 0;
+    self->iteratorPos = -1;
+    self->iteratorNext = -1;
     return SDDS_RT_OK;
 }
 
@@ -166,17 +172,20 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         case (SDDS_SNPS_T_DATA):
         {
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-            DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
-            if (data_reader == NULL) {
+            rc_t it_ret = DataSink_readerIterator_reset(topic_id);
+            if (it_ret != SDDS_RT_OK) {
                 Log_debug("Couĺdn't get Data Reader for topic id %u: "
                           "Discard submessage\n", topic_id);
                 SNPS_discardSubMsg(buff);
                 return SDDS_RT_FAIL;
             }
 
-            ret = DataReader_pushData(data_reader, buff);
-            if (ret != SDDS_RT_OK) {
-                return ret;
+            while (DataSink_readerIterator_hasNext() == SDDS_RT_OK) {
+                DataReader_t* data_reader = DataSink_readerIterator_next();
+                ret = DataReader_pushData(data_reader, buff);
+                if (ret != SDDS_RT_OK) {
+                    Log_error("DataReader_pushData failed for readerID %d\n", data_reader->id);
+                }
             }
 #endif // end of defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
         } // end of case SDDS_SNPS_T_DATA
@@ -532,4 +541,41 @@ BuiltinTopicDataReader_encode(NetBuffRef_t* buff, Data data, size_t* size) {
 #endif
 
     return SDDS_RT_OK;
+}
+
+rc_t
+DataSink_readerIterator_reset(topicid_t topic) {
+    self->iteratorTopicID = topic;
+    self->iteratorPos = -1;
+    self->iteratorNext = -1;
+
+    for (int8_t i = 0; i < SDDS_DATA_READER_MAX_OBJS; i++) {
+        if (self->readers[i].topic->id == self->iteratorTopicID) {
+            self->iteratorNext = i;
+            return SDDS_RT_OK;
+        }
+    }
+
+    return SDDS_RT_FAIL;
+}
+
+DataReader_t*
+DataSink_readerIterator_next() {
+    self->iteratorPos = self->iteratorNext;
+    self->iteratorNext = -1;
+    for (int8_t i = self->iteratorPos+1; i < SDDS_DATA_READER_MAX_OBJS; i++) {
+        if (self->readers[i].topic->id == self->iteratorTopicID) {
+            self->iteratorNext = i;
+            break;
+        }
+    }
+    return &(self->readers[self->iteratorPos]);
+}
+
+rc_t
+DataSink_readerIterator_hasNext() {
+    if (self->iteratorNext != -1) {
+        return SDDS_RT_OK;
+    }
+    return SDDS_RT_FAIL;
 }

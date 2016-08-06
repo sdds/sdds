@@ -42,11 +42,11 @@ TimeMng_init(void);
 rc_t
 Time_getTime16(time16_t* time);
 rc_t
-Time_remainMSec16(time16_t* refTime, msec16_t* remainingMSec);
+Time_remainMSec16(time16_t refTime, msec16_t* remainingMSec);
 
 rc_t
 Time_getTime32(time32_t* time);
 rc_t
-Time_remainMSec32(time32_t* refTime, msec32_t* remainingMSec);
+Time_remainMSec32(time32_t refTime, msec32_t* remainingMSec);
 
 #endif   /* ----- #ifndef TIMEMNG_T_INC  ----- */

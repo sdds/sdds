@@ -128,6 +128,12 @@ sDDS_init (void)
 #ifdef FEATURE_SDDS_TRACING_ENABLED
     assert(Trace_init() == SDDS_RT_OK);
 #endif
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
+    LocationService_init();
+#endif
+#ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
+    LocationTrackingService_init();
+#endif
 
     assert(LocatorDB_freeLocators() > 0);
 

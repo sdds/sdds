@@ -60,6 +60,10 @@ extern DDS_Topic g_DCPSSubscription_topic;
 //extern DCPSSubscription_data_t
 // g_DCPSSubscription_pool[SDDS_TOPIC_APP_MSG_COUNT];
 
+extern DDS_DataReader g_DCPSLocation_reader;
+extern DDS_DataWriter g_DCPSLocation_writer;
+extern DDS_Topic g_DCPSLocation_topic;
+
 extern DDS_DataReader g_ParticipantStatelessMessage_reader;
 extern DDS_DataWriter g_ParticipantStatelessMessage_writer;
 extern DDS_Topic g_ParticipantStatelessMessage_topic;

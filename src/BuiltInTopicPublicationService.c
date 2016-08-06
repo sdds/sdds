@@ -142,8 +142,7 @@ BuiltInTopicPublicationService_publishDCPSSubscription(topicid_t id) {
     SDDS_DCPSSubscription st_data_used;
     DDS_ReturnCode_t ret;
 
-    ret = DataSink_getTopic((DDS_DCPSSubscription*) &st_data_used,
-                            id, NULL);
+    ret = DataSink_getTopic((DDS_DCPSSubscription*) &st_data_used, id, NULL);
     if (ret == SDDS_RT_OK) {
         Log_debug("Send (subscription):[%u][%x] topic:%u\n",
                   st_data_used.data.key, st_data_used.data.participant_key,
@@ -160,17 +159,51 @@ BuiltInTopicPublicationService_publishDCPSSubscription(topicid_t id) {
     return SDDS_RT_FAIL;
 }
 
+# ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
 rc_t
-BuiltInTopicPublicationService_publishDCPSLocation() {
+BuiltInTopicPublicationService_publishDCPSLocation(DeviceLocation_t* dev) {
+    assert(dev);
+
+    SDDS_DCPSLocation loc_data_used;
+    DDS_ReturnCode_t ret;
+    msec16_t remainingMSec;
+
+    loc_data_used.pkey = dev->device;
+    loc_data_used.device = dev->device;
+    loc_data_used.x = dev->area.basicShape.vertex.x;
+    loc_data_used.y = dev->area.basicShape.vertex.y;
+    loc_data_used.z = dev->area.basicShape.vertex.z;
+    loc_data_used.width = dev->area.basicShape.width;
+    loc_data_used.length = dev->area.basicShape.length;
+    loc_data_used.expiration = dev->expiration;
+    loc_data_used.age = 0;
+
+    ssw_rc_t ssw_ret = Time_remainMSec16(dev->time, &remainingMSec);
+    if (ssw_ret == SDDS_SSW_RT_OK) {
+        loc_data_used.age = -remainingMSec;
+    }
+
+    if (DDS_DCPSLocationDataWriter_write(g_DCPSLocation_writer,
+                                         &loc_data_used,
+                                         NULL) == DDS_RETCODE_ERROR) {
+        // handle error
+        Log_error("Send subscription topic failed.\n");
+        return SDDS_RT_FAIL;
+    }
     return SDDS_RT_OK;
 }
 
 static void
 s_BuiltInTopicPublicationService_publishDCPSLocation() {
-    if (BuiltInTopicPublicationService_publishDCPSLocation() != SDDS_RT_OK) {
-        Log_error("Failed to publish DCPSLocation.\n");
+    List_t* devices = LocationTrackingService_getLocations();
+    DeviceLocation_t* dev = (DeviceLocation_t*) devices->first_fn(devices);
+    while (dev != NULL) {
+        if (BuiltInTopicPublicationService_publishDCPSLocation(dev) != SDDS_RT_OK) {
+            Log_error("Failed to publish DCPSLocation.\n");
+        }
+        dev = (DeviceLocation_t*) devices->next_fn(devices);
     }
 }
 
-
+# endif
 #endif

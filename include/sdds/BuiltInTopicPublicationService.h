@@ -26,7 +26,7 @@ rc_t
 BuiltInTopicPublicationService_publishDCPSSubscription(topicid_t id);
 
 rc_t
-BuiltInTopicPublicationService_publishDCPSLocation();
+BuiltInTopicPublicationService_publishDCPSLocation(DeviceLocation_t* dev);
 
 
 #endif /* SDDS_INCLUDE_SDDS_BUILTINTOPICPUBLICATIONSERVICE_H_ */
