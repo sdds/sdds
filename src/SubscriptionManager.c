@@ -110,6 +110,11 @@ SubscriptionManager_handlePublication(SubscriptionManager_t* self, DDS_DCPSPubli
         }
 
         if (topic == NULL) {
+            Topic_t* t = TopicDB_getTopic(sample->topic_id);
+            if (t == NULL) {
+                Log_error("Unknown topic: %d.\n", sample->topic_id);
+                return SDDS_RT_FAIL;
+            }
             rc_t ret = topics->add_fn(topics, TopicDB_getTopic(sample->topic_id));
             if (ret != SDDS_RT_OK) {
                 Log_error("Unable to add topic to publisher.\n");

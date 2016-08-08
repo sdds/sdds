@@ -8,7 +8,7 @@ function resolve_topics ()
         if defined (include.filename)
             my.topic_file = project.load_file (filename)
             if defined (my.topic_file)
-                for my.topic_file.topic where count (project.role, role.topic = topic.name)
+                for my.topic_file.topic #where count (project.role, role.topic = topic.name)
                     move topic after include
                 endfor
             else
