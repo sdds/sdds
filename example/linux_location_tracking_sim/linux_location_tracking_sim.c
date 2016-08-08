@@ -25,8 +25,6 @@ int main(int argc, char** argv)
 
     memset(g_LocationService_simulatedDevices, 0, devCount * sizeof(struct DeviceLocation));
 
-    printf("argc: %d\n", argc);
-
     for (int i = 0; i < devCount; i++) {
         int device;
         sscanf(argv[i+1], "%x", &device); 
