@@ -116,6 +116,8 @@ Task_start(Task _this, uint8_t sec, SDDS_msec_t msec, SSW_TaskMode_t mode) {
         return SDDS_SSW_RT_FAIL;
     }
 
+    _this->mode = mode;
+
     if (!_this->active) {
         struct timespec intv;
         struct timespec value;

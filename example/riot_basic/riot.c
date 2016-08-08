@@ -6,7 +6,7 @@
 #include "riot_sdds_impl.h"
 #include "ipc-ds.h"
 #include "os-ssal/Thread.h"
-#include "vtimer.h"
+#include "xtimer.h"
 #include "thread.h"
 
 int main(void);
@@ -33,7 +33,6 @@ int main(void)
 		}
 
 		ipc_data_used.value++;
-		vtimer_usleep(2 *SEC_IN_USEC);
+		xtimer_usleep(2 *SEC_IN_USEC);
 	}
 }
-

@@ -72,12 +72,12 @@ CFLAGS += $(CFLAGS_ALL)
 CXXFLAGS += $(CFLAGS_ALL)
 
 $(SDDS_OBJDIR)/sdds-$(SDDS_PLATFORM)-%.o: $(SDDS_TOPDIR)/platform/$(SDDS_PLATFORM)/%.c
-	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
+	$(CC) $(CFLAGS) -c -MMD $(OUTPUT_OPTION) $<
 
 $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-%.o: $(SDDS_TOPDIR)/driver/src/$(SDDS_ARCH)/%.c
-	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
+	$(CC) $(CFLAGS) -c -MMD $(OUTPUT_OPTION) $<
 
 $(SDDS_OBJDIR)/sdds-%.o: $(SDDS_TOPDIR)/src/%.c
-	$(COMPILE.c) -MMD $(OUTPUT_OPTION) $<
+	$(CC) $(CFLAGS) -c -MMD $(OUTPUT_OPTION) $<
 
 -include $(SDDS_DEPEND_OBJS_DEPEND)

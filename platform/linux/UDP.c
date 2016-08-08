@@ -46,9 +46,15 @@
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS       SDDS_BUILTIN_PARTICIPANT_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS             SDDS_BUILTIN_TOPIC_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS           SDDS_BUILTIN_SUB_PUB_ADDRESS
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_LOCATION_ADDRESS           SDDS_BUILTIN_LOCATION_ADDRESS
 
+#ifndef PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF 20
+#endif
+
+#ifndef PLATFORM_LINUX_MULTICAST_SO_RCVBUF
 #define PLATFORM_LINUX_MULTICAST_SO_RCVBUF SDDS_NET_MAX_BUF_SIZE
+#endif
 
 #ifndef PLATFORM_LINUX_SDDS_ADDRESS
 #define PLATFORM_LINUX_SDDS_ADDRESS "::"
@@ -245,6 +251,7 @@ Network_Multicast_init() {
     Network_Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS);
     Network_Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS);
     Network_Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS);
+    Network_Multicast_joinMulticastGroup(PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_LOCATION_ADDRESS);
 
     NetBuffRef_init(&multiInBuff);
     Locator_t* loc;
@@ -777,7 +784,7 @@ Locator_isEqual(Locator_t* l1, Locator_t* l2) {
 }
 
 rc_t
-Locator_getAddress(Locator_t* self, char* srcAddr) {
+Locator_getAddress(Locator_t* self, char* srcAddr, size_t max_addr_len) {
     assert(self);
     assert(srcAddr);
     struct sockaddr_storage* addr = &((struct UDPLocator_t*) self)->addr_storage;

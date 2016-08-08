@@ -49,11 +49,14 @@ QUIET ?= 0
 USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
-USEMODULE += vtimer
+USEMODULE += sema
+USEMODULE += xtimer
 USEMODULE += config
-USEMODULE += gnrc_netif_default
+#USEMODULE += gnrc_netif_default
+USEMODULE += gnrc_netdev_default
 USEMODULE += auto_init_gnrc_netif
 # Specify the mandatory networking modules for IPv6 and UDP
+#USEMODULE += gnrc_ipv6_default
 USEMODULE += gnrc_ipv6
 USEMODULE += gnrc_ipv6_router_default
 USEMODULE += gnrc_udp
@@ -79,7 +82,7 @@ ifneq (,$(filter msb-430,$(BOARD)))
 endif
 ifneq (,$(filter msba2,$(BOARD)))
 	USEMODULE += sht11
-	USEMODULE += ltc4150
+#	USEMODULE += ltc4150
 	USEMODULE += mci
 	USEMODULE += random
 endif

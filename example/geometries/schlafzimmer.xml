@@ -1,0 +1,10 @@
+<geometryEntry name="GEO_SCHLAFZIMMER" id="2" >
+    <class type="Square" name="s_geo_schlafzimmer">
+        <attribute name="basicShape.vertex.x" value="0"/>
+        <attribute name="basicShape.vertex.y" value="1000"/>
+        <attribute name="basicShape.vertex.z" value="0"/>
+        <attribute name="basicShape.width" value="1000"/>
+        <attribute name="basicShape.length" value="1000"/>     
+    </class>
+</geometryEntry>
+

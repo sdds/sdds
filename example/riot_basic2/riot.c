@@ -6,7 +6,7 @@
 #include "riot_sdds_impl.h"
 #include "ipc-ds.h"
 #include "os-ssal/Thread.h"
-#include "vtimer.h"
+#include "xtimer.h"
 #include "thread.h"
 
 int main(void);
@@ -23,7 +23,7 @@ int main(void)
 
 	for (;;)
 	{
-		vtimer_usleep(2 *SEC_IN_USEC);
+		xtimer_usleep(2 *SEC_IN_USEC);
 		DDS_ReturnCode_t ret = DDS_IpcDataReader_take_next_sample(g_Ipc_reader, &data_used_ptr, NULL);
 		if (ret == DDS_RETCODE_NO_DATA)
 		{

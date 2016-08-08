@@ -26,21 +26,21 @@
 
 //typedef struct sema_t struct mutex_t;
 struct Mutex {
-    struct mutex_t m;
+    mutex_t m;
 };
 
 Mutex_t*
 Mutex_create(void) {
  //   struct sema_t* mutex = (struct sema_t*) Memory_alloc(sizeof(struct 
  //   sema_t));
-    struct mutex_t* mutex = (struct mutex_t*) Memory_alloc(sizeof(struct Mutex));
+    struct mutex_t* mutex = (mutex_t*) Memory_alloc(sizeof(struct Mutex));
     return (Mutex_t*) mutex;
 }
 
 ssw_rc_t
 Mutex_init(Mutex_t* mutex) {
 //    int ret = sema_create(mutex, 1);
-    mutex_init((struct mutex_t*) mutex);
+    mutex_init((mutex_t*) mutex);
 //    if (ret != 0) {
 //        return SDDS_SSW_RT_FAIL;
 //    }
@@ -57,7 +57,7 @@ Mutex_lock(Mutex_t* mutex) {
         return SDDS_SSW_RT_FAIL;
     }
     */
-    mutex_lock((struct mutex_t*) mutex);
+    mutex_lock((mutex_t*) mutex);
 
     return SDDS_SSW_RT_OK;
 }
@@ -72,7 +72,7 @@ Mutex_unlock(Mutex_t* mutex) {
         return SDDS_SSW_RT_FAIL;
     }
 */
-    mutex_unlock((struct mutex_t*) mutex);
+    mutex_unlock((mutex_t*) mutex);
 
     return SDDS_SSW_RT_OK;
 }

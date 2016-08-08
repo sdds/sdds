@@ -29,16 +29,27 @@ $(project.GENERATED_WARNING_HEADER:)
 .for project.topic
 #include "$(topic.c_name)-ds.h"
 .endfor
-
+#include "sDDS.h"
+.echo "topic.qos_reliability_kind: "
 .for project.topic
 extern DDS_DataReader g_$(topic.c_name:)_reader;
 extern DDS_DataWriter g_$(topic.c_name:)_writer;
 extern DDS_Topic g_$(topic.c_name:)_topic;
 
 extern Sample_t $(topic.c_name)_samples_pool[];
-
-
+.  if defined (topic.qos_reliability_kind)
+.    if topic.qos_reliability_kind = 2
+extern ReliableSample_t $(topic.c_name)_reliableSamples_pool[];
+.    endif
+.  endif
 .endfor
+
+.for project.topicFilter
+extern LocationFilteredTopic_t g_$(topicFilter.name:)_topic;
+extern FilteredDataReader_t* g_$(topicFilter.name:)_reader;
+extern Sample_t $(topicFilter.name:)_samples_pool[];
+.endfor
+
 #endif
 /*
 $(project.GENERATED_WARNING_HEADER:)
@@ -68,17 +79,56 @@ $(project.GENERATED_WARNING_HEADER:)
 .   endif
 .endif
 
+.for project.define
+.   if define.name = "FEATURE_SDDS_GEOMETRY_ENABLED"
+#ifdef FEATURE_SDDS_GEOMETRY_ENABLED
+
+static GeometryStoreEntry_t s_geometryStoreEntry[$(count (project.geometryEntry))];
+GeometryStore_t g_geometryStore = {
+    .entry = (GeometryStoreEntry_t*) &s_geometryStoreEntry,
+    .size = $(count (project.geometryEntry))
+};
+
+.       for project.geometryEntry
+.           for geometryEntry.class
+$(class.type:)_t $(class.name);
+.           endfor
+.       endfor
+
+rc_t
+GeometryStore_create(GeometryStore_t* self) {
+    assert(self);
+
+    Geometry_t* geo;
+.       for project.geometryEntry
+.           for geometryEntry.class
+
+    Geometry_init$(class.type:)(&$(class.name));
+.               for class.attribute
+    $(class.name:).$(attribute.name:) = $(attribute.value:);
+.                   endfor
+    self->entry[$(index (geometryEntry)-1)].id = $(geometryEntry.NAME)_ID;
+    self->entry[$(index (geometryEntry)-1)].geometry = (Geometry_t*)&$(class.name);
+.           endfor
+.       endfor
+    
+    return SDDS_RT_OK;
+}
+
+#endif
+.   endif
+.endfor
+
 DDS_ReturnCode_t DDS_DataReader_set_listener(
 	DDS_DataReader self,
 	const struct DDS_DataReaderListener* a_listener,
 	const DDS_StatusMask mask
 )
 {
-.if count (project.role, role.type = "subscriber")
 	rc_t ret = DataReader_set_on_data_avail_listener((DataReader_t *) self, (On_Data_Avail_Listener) a_listener->on_data_available, (const StatusMask) mask);
-	if (ret == SDDS_RT_OK)
+	if (ret == SDDS_RT_OK) {
 		return DDS_RETCODE_OK;
-.endif
+	}
 	return DDS_RETCODE_ERROR;
 }
 
@@ -93,6 +143,35 @@ DDS_DataWriter g_$(topic.c_name:)_writer;
 .   endif
 
 .endfor
+
+.for project.topicFilter
+LocationFilteredTopic_t g_$(topicFilter.name:)_topic;
+FilteredDataReader_t* g_$(topicFilter.name:)_reader;
+
+.   if defined (topic.history_depth)
+Sample_t $(topicFilter.name:)_samples_pool[$(topic.history_depth)];
+static $(topicFilter.topic:) $(topic.c_name)_sample_data[$(topic.history_depth)];
+.   else
+Sample_t $(topicFilter.name:)_samples_pool[SDDS_QOS_HISTORY_DEPTH];
+static $(topicFilter.topic:) $(topicFilter.name:)_sample_data[SDDS_QOS_HISTORY_DEPTH];
+.   endif
+
+
+DDS_ReturnCode_t
+$(topicFilter.name:)_init()
+{
+   int index;
+.  if defined (topic.history_depth)
+   for (index = 0; index < $(topic.history_depth); index++) {
+.  else
+   for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
+.  endif
+      $(topicFilter.name:)_samples_pool[index].data = &$(topicFilter.name:)_sample_data[index];
+   }
+   return DDS_RETCODE_OK;
+}
+.endfor
+
 rc_t
 sDDS_init (void)
 {
@@ -114,22 +193,16 @@ sDDS_init (void)
 	assert(DataSource_init() == SDDS_RT_OK);
 	assert(DataSink_init() == SDDS_RT_OK);
 	assert(sdds_History_init() == SDDS_RT_OK);
-	assert(Network_init() == SDDS_RT_OK);
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-	assert(BuiltinTopic_init() == SDDS_RT_OK);
-#endif
-#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-	assert(Discovery_init() == SDDS_RT_OK);
-#endif
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-    assert(Trace_init() == SDDS_RT_OK);
+	assert(Topic_init() == SDDS_RT_OK);
+#ifdef FEATURE_SDDS_GEOMETRY_ENABLED
+    assert(GeometryStore_create(&g_geometryStore) == SDDS_RT_OK);
 #endif
 
     assert(LocatorDB_freeLocators() > 0);
 
     Locator_t* locator;
 .for project.topic
-    $(topic.c_name:)_init ();
+    $(topic.c_name:)_init();
     g_$(topic.c_name:)_topic = sDDS_$(topic.c_name:)Topic_create(g_$(topic.c_name:)_pool, SDDS_TOPIC_APP_MSG_COUNT);
     assert(g_$(topic.c_name:)_topic != NULL);
 .   if count (project.role, role.topic = topic.name & role.type = "subscriber")
@@ -142,9 +215,9 @@ sDDS_init (void)
 .   endif
 .   if count (project.role, role.topic = topic.name & role.type = "publisher")
     g_$(topic.c_name:)_writer = DataSource_create_datawriter(g_$(topic.c_name:)_topic, NULL, NULL, NULL);
-.      if project.qos_reliability_has_kind_reliableAck | project.qos_reliability_has_kind_reliableNack
-.       endif
-
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+	DataWriter_setup ((Reliable_DataWriter_t*) g_$(topic.c_name:)_writer, $(topic.c_name)_reliableSamples_pool, SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE);
+#endif
 .   endif
 
 .   for project.role where topic.name = role.topic
@@ -171,6 +244,50 @@ sDDS_init (void)
 .       endfor
 .   endfor
 .endfor
+
+.for project.topicFilter
+    $(topicFilter.name:)_init();
+    ret = LocationFilteredTopic_create(&g_$(topicFilter.name:)_topic, g_$(topicFilter.topic:)_topic, $(topicFilter.expression:), &g_geometryStore);
+    assert(ret == SDDS_RT_OK);
+    g_$(topicFilter.name:)_reader = DataSink_create_filteredDatareader(&g_$(topicFilter.name:)_topic, NULL, NULL, NULL);
+.   if defined (project.topic.history_depth)
+    sdds_History_setup (DataReader_history ((DateReader_t*)g_$(topicFilter.name:)_reader, $(topicFilter.name:)_samples_pool, $(topic.history_depth));
+.   else
+    sdds_History_setup (DataReader_history ((DataReader_t*)g_$(topicFilter.name:)_reader), $(topicFilter.name:)_samples_pool, SDDS_QOS_HISTORY_DEPTH);
+.   endif
+.endfor
+
+	assert(Network_init() == SDDS_RT_OK);
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+    assert(Trace_init() == SDDS_RT_OK);
+#endif
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
+    LocationService_init();
+#endif
+#ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
+    LocationTrackingService_init();
+#endif 
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+    assert(ManagementTopic_init() == SDDS_RT_OK);
+#endif
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+	assert(BuiltinTopic_init() == SDDS_RT_OK);
+	assert(BuiltInTopicPublicationService_init() == SDDS_RT_OK);
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED	
+	assert(BuiltInLocationUpdateService_init() == SDDS_RT_OK);
+#   endif
+#endif
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+    assert(ManagementTopicPublicationService_init() == SDDS_RT_OK); 
+    assert(ManagementTopicSubscriptionService_init() == SDDS_RT_OK);
+#endif
+#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+    assert(SubscriptionManagementService_init() == SDDS_RT_OK);
+#endif
+#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
+	assert(DiscoveryService_init() == SDDS_RT_OK);
+#endif
+
     return ret;
 }
 /*

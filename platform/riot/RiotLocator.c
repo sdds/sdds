@@ -23,8 +23,24 @@
 #include "os-ssal/Memory.h"
 #include "sdds/Log.h"
 #include "RiotLocator.h"
+#include <net/ipv6/addr.h>
 
-#define PLATFORM_RIOT_SDDS_BUILTIN_MULTICAST_PORT_OFF                        20
+#ifndef TRANSPORT_IPV6_SDDS_PORT
+#define TRANSPORT_IPV6_SDDS_PORT 23234
+#endif
+
+#ifndef TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF
+#define TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF 20
+#endif
+
+rc_t
+Locator_getAddress(Locator_t* l, char* srcAddr, size_t max_addr_len) {
+    RiotLocator_t* rl = (RiotLocator_t*) l;
+
+    ipv6_addr_to_str(srcAddr, &rl->addr, max_addr_len);
+
+    return SDDS_RT_OK;
+}
 
 rc_t
 Network_createLocator(Locator_t** loc) {
@@ -59,7 +75,7 @@ RiotLocator_setIPv6Address(RiotLocator_t* loc, ipv6_addr_t* addr) {
 	assert(loc != NULL);
 	assert(addr != NULL);
 
-	memcpy(&loc->addr, addr, sizeof(addr));
+	memcpy(&loc->addr, addr, sizeof(ipv6_addr_t));
 
 	if (ipv6_addr_is_multicast(addr) == true) {
 		loc->loc.type = SDDS_LOCATOR_TYPE_MULTI;
@@ -75,11 +91,11 @@ Network_setMulticastAddressToLocator(Locator_t* loc, char* addr) {
 		return SDDS_RT_BAD_PARAMETER;
 	}
 	RiotLocator_t* rl = (RiotLocator_t*) loc;
-	
+
 	if (ipv6_addr_from_str(&rl->addr, addr) == NULL) {
 		Log_error("Can't parse IPv6 address: %s\n", addr);
 		return SDDS_RT_BAD_PARAMETER;
-	}	
+	}
 	if (ipv6_addr_is_multicast(&rl->addr) == false) {
 		Log_error("IPv6 address %s is not a multicast address\n", addr);
 		return SDDS_RT_BAD_PARAMETER;
@@ -118,16 +134,16 @@ Network_setAddressToLocator(Locator_t* loc, char* addr) {
 		return SDDS_RT_BAD_PARAMETER;
 	}
 	RiotLocator_t* rl = (RiotLocator_t*) loc;
-	
+
 	if (ipv6_addr_from_str(&rl->addr, addr) == NULL) {
 		Log_error("Can't parse IPv6 address: %s\n", addr);
 		return SDDS_RT_BAD_PARAMETER;
-	}	
+	}
 
 	if (ipv6_addr_is_multicast(&rl->addr) == false) {
-		rl->port = (PLATFORM_RIOT_SDDS_PORT);
+		rl->port = (TRANSPORT_IPV6_SDDS_PORT);
 	} else {
-		rl->port =  (PLATFORM_RIOT_SDDS_PORT + PLATFORM_RIOT_SDDS_BUILTIN_MULTICAST_PORT_OFF); 
+		rl->port =  (TRANSPORT_IPV6_SDDS_PORT + TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF);
 	}
 
 	return SDDS_RT_OK;
@@ -146,4 +162,3 @@ rc_t
 Network_setPlatformAddressToLocator(Locator_t* loc) {
 	return Network_setAddressToLocator(loc, PLATFORM_RIOT_SDDS_ADDRESS);
 }
-

@@ -78,7 +78,7 @@ rc_t
 Locator_contains(List_t* list, Locator_t* l);
 
 rc_t
-Locator_getAddress(Locator_t* l, char* srcAddr);
+Locator_getAddress(Locator_t* l, char* srcAddr, size_t max_addr_len);
 
 rc_t
 Locator_copy(Locator_t* src, Locator_t* dst);

@@ -24,9 +24,24 @@ struct _TopicDB_t {
 typedef struct _TopicDB_t TopicDB_t;
 
 static TopicDB_t topicdb = {.topicCount = 0};
+static unsigned int s_topicIterator = 0;
 
 rc_t
 BuiltinTopicTopic_encode(NetBuffRef_t* buff, Data data, size_t* size);
+
+void
+TopicDB_iteratorReset() {
+    s_topicIterator = 0;
+}
+Topic_t*
+TopicDB_iteratorNext() {
+    return &topicdb.db[s_topicIterator++];
+}
+
+bool_t
+TopicDB_iteratorHasNext() {
+    return (s_topicIterator < topicdb.topicCount);
+}
 
 Topic_t*
 TopicDB_createTopic(void) {

@@ -1,6 +1,13 @@
 <examples
     script = "sdds_examples.gsl"
-    >
+     >
+
+    <example name = "linux alpha pub" os = "linux">Linux alpha topic - Publisher</example>
+    <example name = "linux alpha sub" os = "linux">Linux alpha topic - Sublisher</example>
+
+    <example name = "linux hello pub" os = "linux">Linux hello world - Publisher</example>
+    <example name = "linux hello sub" os = "linux">Linux hello world - Subscriber</example>
+
     <example name = "linux mcast1"  os = "linux">Linux mulitcast example - Publisher</example>
     <example name = "linux mcast2"  os = "linux" >Linux multicast example - Subscriber</example>
     <example name = "linux publisher"  os = "linux">Linux publisher example</example>

@@ -5,18 +5,30 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "vtimer.h"
-#include "timex.h"
-#include "thread.h"
-#include "msg.h"
+#include <xtimer.h>
+#include <timex.h>
+#include <thread.h>
+#include <msg.h>
+#include <ps.h>
+
+
+#define MSG_QUEUE_SIZE  (8)
+
+#define SDDS_TASKMNG_STACK_SIZE (THREAD_STACKSIZE_DEFAULT)
+
+#define SDDS_TASKMNG_WORKER_TIMEOUT (60000000U)
+static char msg_taskMng_stack[SDDS_TASKMNG_STACK_SIZE];
+static msg_t msg_taskMng_queue[MSG_QUEUE_SIZE];
 
 struct Task_struct {
 
-    vtimer_t timer;
+    xtimer_t timer;
+    msg_t msg;
 
     void (* callback)(void* obj);
     void* data;
-    timex_t interval;
+    uint32_t interval_usecs;
+
     SSW_TaskMode_t mode;
     bool active;
 };
@@ -35,12 +47,26 @@ TaskMngLoop(void* foo) {
 
     msg_t m;
     Task t;
+
+    // init msg queue
+     msg_init_queue(msg_taskMng_queue, MSG_QUEUE_SIZE);
+
     for(;; )
     {
-        msg_receive(&m);
-        t = (Task) m.content.value;
+        int ret = xtimer_msg_receive_timeout(&m, SDDS_TASKMNG_WORKER_TIMEOUT);
+        if (ret < 0 ) {
+            // no data
+            Log_debug("No Task sceduled the last %d seconds interval\n",
+                    SDDS_TASKMNG_WORKER_TIMEOUT/1000000);
+
+            //ps();
+            continue;
+        }
+
+        t = (Task) m.content.ptr;
+
         if(t->mode == SDDS_SSW_TaskMode_repeat) {
-            vtimer_set_msg(&t->timer, t->interval, TaskMngPid, 0, t);
+            xtimer_set_msg(&t->timer, t->interval_usecs, &t->msg, TaskMngPid);
         }
         t->callback(t->data);
         if (t->mode == SDDS_SSW_TaskMode_single)  {
@@ -54,15 +80,8 @@ TaskMngLoop(void* foo) {
  */
 ssw_rc_t
 TaskMng_init(void) {
-    int taskMng_stack_size = THREAD_STACKSIZE_DEFAULT * sizeof(char);
-    char* stack_thread = (char*) Memory_alloc(taskMng_stack_size);
-	if (stack_thread == NULL) {
-		assert(false);
-		Log_error("No memory");
-        return SDDS_SSW_RT_FAIL;
-	}
-    TaskMngPid = thread_create(stack_thread, taskMng_stack_size,
-                               THREAD_PRIORITY_MAIN, 0,
+    TaskMngPid = thread_create(msg_taskMng_stack, SDDS_TASKMNG_STACK_SIZE,
+                               THREAD_PRIORITY_MAIN, THREAD_CREATE_STACKTEST,
                                TaskMngLoop, NULL, "TaskMng sDDS");
     if(TaskMngPid < 0) {
 		Log_error("Can't start task management thread. retcode %d", TaskMngPid);
@@ -89,6 +108,7 @@ Task_init(Task _this, void (* callback)(void* obj), void* data) {
     _this->callback = callback;
     _this->data = data;
     _this->active = false;
+    _this->msg.content.ptr = (char*) _this;
 
     return SDDS_SSW_RT_OK;
 }
@@ -102,18 +122,20 @@ Task_isRunning(Task _this)
 
 ssw_rc_t
 Task_start(Task _this, uint8_t sec, SDDS_usec_t usec, SSW_TaskMode_t mode) {
-    _this->mode = mode;
-    _this->interval.seconds = sec;
-    _this->interval.microseconds = usec;
 
-    vtimer_set_msg(&_this->timer, _this->interval, TaskMngPid, 0, _this);
+    _this->mode = mode;
+    _this->interval_usecs = (((uint32_t) sec) * 1000000) + usec;
+
+    xtimer_set_msg(&_this->timer, _this->interval_usecs, &_this->msg, TaskMngPid);
+
     _this->active = true;
+
     return SDDS_SSW_RT_OK;
 }
 
 ssw_rc_t
 Task_stop(Task _this) {
-    vtimer_remove(&_this->timer);
+    xtimer_remove(&_this->timer);
     _this->active = false;
     return SDDS_SSW_RT_OK;
 }

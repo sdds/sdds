@@ -126,7 +126,7 @@ DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len) {
         if (!BuildinTopic_isBuiltinTopic(dw->topic->id,
                                          dw->topic->domain)) {
 
-        pt[*len].key = dw->id;
+        pt[*len].key = (BuiltinTopic_participantID << 4) | dw->id;
 #            ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
         pt[*len].participant_key = BuiltinTopic_participantID;
 #            endif
@@ -189,13 +189,6 @@ DataSource_create_datawriter(Topic_t* topic, Qos qos,
 #   endif
 #   ifdef SDDS_HAS_QOS_RELIABILITY
     ((Reliable_DataWriter_t*) dw)->seqNr = 0;
-#       if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
-    for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
-        ((Reliable_DataWriter_t*) dw)->samplesToKeep[index].seqNr = 0;
-        ((Reliable_DataWriter_t*) dw)->samplesToKeep[index].timeStamp = 0;
-        ((Reliable_DataWriter_t*) dw)->samplesToKeep[index].isUsed = 0;
-    }
-#       endif
 #   endif
     return dw;
 }
@@ -214,13 +207,15 @@ find_free_buffer(List_t* topic_locators) {
         List_t* send_buff_locators = send_buffer->locators;
         if (send_buff_locators) {
             same_locators = true;
-            Locator_t* topic_locator = topic_locators->first_fn(topic_locators);
-            while (topic_locator) {
-                if (Locator_contains(send_buff_locators, topic_locator) != SDDS_RT_OK) {
-                    same_locators = false;
-                    break;
+            TopicSubscription_t* tSub = (TopicSubscription_t*) topic_locators->first_fn(topic_locators);
+            while (tSub) {
+                if (tSub->state == ACTIVE) {
+                    if (Locator_contains(send_buff_locators, tSub->addr) != SDDS_RT_OK) {
+                        same_locators = false;
+                        break;
+                    }
                 }
-                topic_locator = topic_locators->next_fn(topic_locators);
+                tSub = (TopicSubscription_t*) topic_locators->next_fn(topic_locators);
             }
             if (same_locators) {
                 free_buffer = &(self->sender.out[index]);
@@ -248,14 +243,14 @@ find_free_buffer(List_t* topic_locators) {
     }
     if (same_locators == false) {
         //  Append locators to the obtained free buffer
-        Locator_t* loc = (Locator_t*) topic_locators->first_fn(topic_locators);
-        while (loc != NULL) {
-            if (Locator_contains(free_buffer->locators, loc) != SDDS_RT_OK) {
-                if (free_buffer->locators->add_fn(free_buffer->locators, loc) == SDDS_RT_OK) {
-                    Locator_upRef(loc);
+        TopicSubscription_t* tSub = (TopicSubscription_t*) topic_locators->first_fn(topic_locators);
+        while (tSub) {
+            if (Locator_contains(free_buffer->locators, tSub->addr) != SDDS_RT_OK) {
+                if (free_buffer->locators->add_fn(free_buffer->locators, tSub->addr) == SDDS_RT_OK) {
+                    Locator_upRef(tSub->addr);
                 }
             }
-            loc = (Locator_t*) topic_locators->next_fn(topic_locators);
+            tSub = (TopicSubscription_t*) topic_locators->next_fn(topic_locators);
         }
     }
     return free_buffer;

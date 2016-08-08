@@ -17,7 +17,7 @@
  */
 #include "sDDS.h"
 #include "Network.h"
-#include "Discovery.h"
+#include "DiscoveryService.h"
 #include "Locator.h"
 
 #define SNPS_MULTICAST_COMPRESSION_FRST_NIBBLE                  0
@@ -731,7 +731,6 @@ SNPS_readAck(NetBuffRef_t* ref){
 #endif // QoS Reliability - KIND Reliable_ACK
 
 #ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-#if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC
 rc_t
 SNPS_readNackSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
     if (ref == NULL || seqNr == NULL) {
@@ -746,7 +745,6 @@ SNPS_readNackSeq(NetBuffRef_t* ref, uint8_t* seqNr) {
 
     return ret;
 }
-#endif
 
 #if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
 rc_t
@@ -1047,7 +1045,7 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
         else {
             // not found we need a new one
             if (LocatorDB_newMultiLocator(addr) != SDDS_RT_OK) {
-                Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
+                Log_error("\n\n\n(%d) Cannot obtain free locator.\n\n\n", __LINE__);
                 ref->subMsgCount -=1;
                 return SDDS_RT_FAIL;
             }
@@ -1058,11 +1056,6 @@ SNPS_readAddress(NetBuffRef_t* ref, castType_t* addrCast, addrType_t* addrType, 
             }
         }
 
-#ifdef UTILS_DEBUG
-        char a[1024];
-        ret = Locator_getAddress(*addr, a);
-        Log_debug("Connection from Mcast %s\n", a);
-#endif
     }
 
     ref->subMsgCount -=1;

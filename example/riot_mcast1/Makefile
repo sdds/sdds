@@ -49,11 +49,13 @@ QUIET ?= 0
 USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
-USEMODULE += vtimer
+USEMODULE += xtimer
 USEMODULE += config
-USEMODULE += gnrc_netif_default
+#USEMODULE += gnrc_netif_default
+USEMODULE += gnrc_netdev_default
 USEMODULE += auto_init_gnrc_netif
 # Specify the mandatory networking modules for IPv6 and UDP
+#USEMODULE += gnrc_ipv6_default
 USEMODULE += gnrc_ipv6
 USEMODULE += gnrc_ipv6_router_default
 USEMODULE += gnrc_udp
@@ -61,6 +63,7 @@ USEMODULE += gnrc_udp
 USEMODULE += gnrc_rpl
 USEMODULE += gnrc_conn_udp
 USEMODULE += gnrc_icmpv6_echo
+USEMODULE += sema
 
 USEMODULE += gnrc_ndp
 # Additional networking modules that can be dropped if not needed
@@ -79,7 +82,7 @@ ifneq (,$(filter msb-430,$(BOARD)))
 endif
 ifneq (,$(filter msba2,$(BOARD)))
 	USEMODULE += sht11
-	USEMODULE += ltc4150
+#	USEMODULE += ltc4150
 	USEMODULE += mci
 	USEMODULE += random
 endif
@@ -122,7 +125,7 @@ IMPL_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.h,$(IMPL_DEPEND_OBJS))
 $(SDDS_OBJS): $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS) $(SDDS_CONSTANTS_FILE) $(LOCAL_CONSTANTS) $(SDDS_OBJDIR)
 
 foo:
-	echo $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
+	echo $(CFLAGS)
 
 $(LOCAL_CONSTANTS):
 	touch $(LOCAL_CONSTANTS)
