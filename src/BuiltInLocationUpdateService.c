@@ -6,11 +6,15 @@
  */
 
 #include "BuiltInLocationUpdateService.h"
-#include "sDDS.h"
+#include "BuiltinTopic.h"
+#include "Geometry.h"
+#include "dds/DDS_DCPS.h"
 
-#ifndef SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS
+#if defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) && defined(FEATURE_SDDS_LOCATION_TRACKING_ENABLED)
+
+# ifndef SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS
 #define SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS 20
-#endif
+# endif
 
 
 static DeviceLocation_t s_trackedDevices[SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS];
@@ -38,12 +42,27 @@ BuiltInLocationUpdateService_init() {
 
 rc_t
 BuiltInLocationUpdateService_getDeviceLocation(SSW_NodeID_t device, DeviceLocation_t* devLoc) {
+    assert(device);
+    assert(devLoc);
 
+    for (int i = 0; i < s_deviceCount; i++) {
+        if (s_trackedDevices[i].device == device) {
+            devLoc = &s_trackedDevices[i];
+            return SDDS_RT_OK;
+        }
+    }
+
+    return SDDS_RT_FAIL;
 }
 
 rc_t
-BuiltInLocationUpdateService_getLocations(DeviceLocation_t* devices, uint16_t* size) {
+BuiltInLocationUpdateService_getLocations(DeviceLocation_t** devices, uint16_t* size) {
+    assert(devices);
+    assert(size);
 
+    *devices = s_trackedDevices;
+    *size = s_deviceCount;
+    return SDDS_RT_OK;
 }
 
 static void
@@ -64,10 +83,27 @@ s_updateLocation(DataReader_t* reader) {
             }
 
             if (devPos < SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS) {
+                s_trackedDevices[devPos].device = loc_data_used.device;
+                s_trackedDevices[devPos].area.basicShape.geometry.type = GEO_TYPE_ELLIPSE;
+                s_trackedDevices[devPos].area.basicShape.vertex.geometry.type = GEO_TYPE_POINT;
+                s_trackedDevices[devPos].area.basicShape.vertex.x = loc_data_used.x;
+                s_trackedDevices[devPos].area.basicShape.vertex.y = loc_data_used.y;
+                s_trackedDevices[devPos].area.basicShape.vertex.z = loc_data_used.z;
+                s_trackedDevices[devPos].area.basicShape.length = loc_data_used.length;
+                s_trackedDevices[devPos].area.basicShape.width = loc_data_used.width;
+                s_trackedDevices[devPos].expiration = loc_data_used.expiration;
+                Time_getTime16(&s_trackedDevices[devPos].time);
+                s_trackedDevices[devPos].time += loc_data_used.age;
+
                 if (devPos == s_deviceCount) {
                     s_deviceCount++;
                 }
             }
+            else {
+                Log_error("Maximum of available devices reached.\n");
+            }
         }
     } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 }
+
+#endif
