@@ -55,7 +55,7 @@ BuiltInTopicPublicationService_init() {
 #   endif
 
 
-#   if (SDDS_BUILTIN_TOPIC_LOCATION_TIMER != 0)
+#   if defined(FEATURE_SDDS_LOCATION_TRACKING_ENABLED) && (SDDS_BUILTIN_TOPIC_LOCATION_TIMER != 0)
     sendLocTask = Task_create();
     Task_init(sendLocTask, s_BuiltInTopicPublicationService_publishDCPSLocation, NULL);
     if (Task_start(sendLocTask, SDDS_BUILTIN_TOPIC_LOCATION_TIMER, 0, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {

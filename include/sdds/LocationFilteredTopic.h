@@ -62,5 +62,8 @@ LocationFilteredTopic_evalSample(LocationFilteredTopic_t* self, Data data);
 rc_t
 LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc);
 
+rc_t
+LocationFilteredTopic_equals(LocationFilteredTopic_t* t1, LocationFilteredTopic_t* t2);
+
 
 #endif /* SDDS_INCLUDE_SDDS_LOCATIONFILTEREDTOPIC_H_ */

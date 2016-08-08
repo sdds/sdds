@@ -36,7 +36,7 @@ typedef struct ParticipantNode ParticipantNode_t;
 struct DirectedEdge {
     bool_t filteredSubscription;
     Topic_t* topic;
-    LocationFilteredTopic_t* locTopic;
+    List_t* locTopics;
     ParticipantNode_t* publisher;
     ParticipantNode_t* subscriber;
     SubscriptionState_t sate;

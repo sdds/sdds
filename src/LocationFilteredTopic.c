@@ -93,12 +93,6 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
         }
     } while (pos != NULL);
 
-//    printf("fiterExpression ");
-//    for (int i = 0; i < self->expressionLength; i++) {
-//    	printf("%d ", self->filterExpression[i]);
-//    }
-//    printf("\n");
-
     return SDDS_RT_OK;
 }
 
@@ -108,7 +102,7 @@ LocationFilteredTopic_evalSample(LocationFilteredTopic_t* self, Data data) {
     DeviceLocation_t* devLoc;
     rc_t ret = BuiltInLocationUpdateService_getDeviceLocation(*device, &devLoc);
     if (ret != SDDS_RT_OK) {
-        return SDDS_RT_FAIL;
+        return SDDS_RT_OK;
     }
 
     return LocationFilteredTopic_evalExpression(self, devLoc);
@@ -118,8 +112,6 @@ rc_t
 LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc) {
     assert(self);
     assert(devLoc);
-
-    printf("\n\n\nEval Expression for device: %x\n", devLoc->device);
 
     while (self->filterstate.currentPosition < self->expressionLength) {
         rc_t ret;
@@ -153,6 +145,32 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
 
     self->filterstate.currentPosition = 0;
     return SDDS_RT_FAIL;
+}
+
+rc_t
+LocationFilteredTopic_equals(LocationFilteredTopic_t* t1, LocationFilteredTopic_t* t2) {
+    assert(t1);
+    assert(t2);
+    bool_t sameTopic = (t1->contentFilteredTopic.associatedTopic == t2->contentFilteredTopic.associatedTopic);
+    if (!sameTopic) {
+        return SDDS_RT_FAIL;
+    }
+
+    bool_t sameFilter = t1->expressionLength == t2->expressionLength;
+    if (!sameFilter) {
+        return SDDS_RT_FAIL;
+    }
+
+    uint8_t i = 0;
+    uint8_t length = t1->expressionLength;
+    while (i < length) {
+        if (t1->filterExpression[i] != t2->filterExpression[i]) {
+            return SDDS_RT_FAIL;
+        }
+        i++;
+    }
+
+    return SDDS_RT_OK;
 }
 
 static char*

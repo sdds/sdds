@@ -1,5 +1,5 @@
 <project
-    name = "linux_alpha_pub"
+    name = "linux_subscription_manager"
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
@@ -15,13 +15,13 @@
         port = "23456"
     >
     -->
-    "Linux alpha topic - Publisher"
+    "Linux Subscription Manager"
 
     <!--
         Include your topic files here. You can include topics from multiple files.
         Only those topics will be generated that have at least one matching role.
-    -->
     <include filename = "../topics/alpha.xml" />
+    -->
 
     <!--
         Roles are bound to one topic and are either a publisher or subscriber.
@@ -31,8 +31,8 @@
         <subscriber ip = "fe80::12:13ff:fe14:1516" />
     </role>
     <role topic = "mytopic" type = "subscriber" />
-    -->
     <role topic = "alpha" type = "publisher" />
+    -->
     <!--
         This enables multicast discovery.
     -->
@@ -42,9 +42,6 @@
     <define name = "FEATURE_SDDS_GEOMETRY_ENABLED" />
     <define name = "FEATURE_SDDS_LOCATION_ENABLED" />
     <define name = "FEATURE_SDDS_LOCATION_TRACKING_ENABLED" />
-<!--
-    <define name = "FEATURE_SDDS_SIMULATION_ENABLED" />
--->
     <define name = "FEATURE_SDDS_LOCATION_FILTER_ENABLED" />
     <define name = "FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED" />
     <define name = "FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED" />
@@ -65,24 +62,7 @@
     <define name = "UTILS_DEBUG"/>
     -->
     
-        <geometryEntry name="GEO_WOHNZIMMER" id="1" >
-        <class type="Square" name="s_geo_wohnzimmer">
-             <attribute name="basicShape.vertex.x" value="0"/>
-             <attribute name="basicShape.vertex.y" value="0"/>
-             <attribute name="basicShape.vertex.z" value="0"/>
-             <attribute name="basicShape.width" value="1000"/>
-             <attribute name="basicShape.length" value="1000"/>     
-        </class>
-    </geometryEntry>
-
-    <geometryEntry name="GEO_SCHLAFZIMMER" id="2" >
-        <class type="Square" name="s_geo_schlafzimmer">
-             <attribute name="basicShape.vertex.x" value="0"/>
-             <attribute name="basicShape.vertex.y" value="1000"/>
-             <attribute name="basicShape.vertex.z" value="0"/>
-             <attribute name="basicShape.width" value="1000"/>
-             <attribute name="basicShape.length" value="1000"/>     
-        </class>
-    </geometryEntry>
+    <include filename = "../geometries/wohnzimmer.xml" />
+    <include filename = "../geometries/schlafzimmer.xml" />
 
 </project>

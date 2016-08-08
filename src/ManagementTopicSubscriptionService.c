@@ -233,6 +233,7 @@ s_reactivateSubscription() {
                     if (Time_getTime16(&sub->updated) != SDDS_SSW_RT_OK) {
                         Log_error("Unable to get time.\n");
                     }
+                    printf("Subscription auto resumed (%x): t:%d, %d, %u\n", sub->participant, topic->id, sub->state, sub->updated);
                 }
 //                printf("Subscription (%d,%x) automatically resumed.\n", topic->id, sub->participant);
             }

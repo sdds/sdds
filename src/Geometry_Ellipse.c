@@ -459,9 +459,29 @@ Ellipse_within(Ellipse_t* self, Geometry_t* otherObject) {
     {
         bool_t ret = s_Square_within(self, (Square_t*)otherObject);
         if (ret) {
-            printf("Ellipse WHITHIN Square: TRUE\n");
+            printf("Ellipse([%u, %u, %u], %u, %u) WHITHIN Square([%u, %u, %u], %u, %u): TRUE\n",
+                    self->basicShape.vertex.x,
+                    self->basicShape.vertex.y,
+                    self->basicShape.vertex.z,
+                    self->basicShape.width,
+                    self->basicShape.length,
+                    ((Square_t*)otherObject)->basicShape.vertex.x,
+                    ((Square_t*)otherObject)->basicShape.vertex.y,
+                    ((Square_t*)otherObject)->basicShape.vertex.z,
+                    ((Square_t*)otherObject)->basicShape.width,
+                    ((Square_t*)otherObject)->basicShape.length);
         } else {
-            printf("Ellipse WHITHIN Square: FASLE\n");
+            printf("Ellipse([%u, %u, %u], %u, %u) WHITHIN Square([%u, %u, %u], %u, %u): FALSE\n",
+                    self->basicShape.vertex.x,
+                    self->basicShape.vertex.y,
+                    self->basicShape.vertex.z,
+                    self->basicShape.width,
+                    self->basicShape.length,
+                    ((Square_t*)otherObject)->basicShape.vertex.x,
+                    ((Square_t*)otherObject)->basicShape.vertex.y,
+                    ((Square_t*)otherObject)->basicShape.vertex.z,
+                    ((Square_t*)otherObject)->basicShape.width,
+                    ((Square_t*)otherObject)->basicShape.length);
         }
         return ret;
     }
@@ -554,9 +574,29 @@ Ellipse_overlaps(Ellipse_t* self, Geometry_t* otherObject) {
     {
         bool_t ret = s_Square_overlaps(self, (Square_t*)otherObject) && !s_Square_within(self, (Square_t*)otherObject);
         if (ret) {
-            printf("Ellipse OVERLAPS Square: TRUE\n");
+            printf("Ellipse([%u, %u, %u], %u, %u) OVERLAPS Square([%u, %u, %u], %u, %u): TRUE\n",
+                    self->basicShape.vertex.x,
+                    self->basicShape.vertex.y,
+                    self->basicShape.vertex.z,
+                    self->basicShape.width,
+                    self->basicShape.length,
+                    ((Square_t*)otherObject)->basicShape.vertex.x,
+                    ((Square_t*)otherObject)->basicShape.vertex.y,
+                    ((Square_t*)otherObject)->basicShape.vertex.z,
+                    ((Square_t*)otherObject)->basicShape.width,
+                    ((Square_t*)otherObject)->basicShape.length);
         } else {
-            printf("Ellipse OVERLAPS Square: FASLE\n");
+            printf("Ellipse([%u, %u, %u], %u, %u) OVERLAPS Square([%u, %u, %u], %u, %u): FALSE\n",
+                                self->basicShape.vertex.x,
+                                self->basicShape.vertex.y,
+                                self->basicShape.vertex.z,
+                                self->basicShape.width,
+                                self->basicShape.length,
+                                ((Square_t*)otherObject)->basicShape.vertex.x,
+                                ((Square_t*)otherObject)->basicShape.vertex.y,
+                                ((Square_t*)otherObject)->basicShape.vertex.z,
+                                ((Square_t*)otherObject)->basicShape.width,
+                                ((Square_t*)otherObject)->basicShape.length);
         }
         return ret;
     }
