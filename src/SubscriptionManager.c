@@ -120,9 +120,8 @@ SubscriptionManager_handlePublication(SubscriptionManager_t* self, DDS_DCPSPubli
                 Log_error("Unable to add topic to publisher.\n");
                 return ret;
             }
+            printf("node %x is publisher for topic %d\n", node->id, sample->topic_id);
         }
-
-        printf("node %x is publisher for topic %d\n", node->id, sample->topic_id);
     } else {
         printf("Unknown node\n");
     }

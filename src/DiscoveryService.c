@@ -112,7 +112,7 @@ s_DiscoveryService_topicListener(DDS_DataReader reader) {
 
 static void
 s_DiscoveryService_publicationListener(DDS_DataReader reader) {
-#   if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED)
+#   if defined(SDDS_TOPIC_HAS_PUB) || defined(SDDS_SUBSCRIPTION_MANAGER)
     rc_t ret;
     DDS_DCPSPublication pt_data_used;
     DDS_DCPSPublication* pt_data_used_ptr = &pt_data_used;
@@ -145,7 +145,7 @@ s_DiscoveryService_publicationListener(DDS_DataReader reader) {
                 BuiltInTopicPublicationService_publishDCPSSubscription(pt_data_used.topic_id);
             }
 
-#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#       ifdef SDDS_SUBSCRIPTION_MANAGER
             rc_t retSM;
             retSM = SubscriptionManagementService_handlePublication(&pt_data_used);
             if (retSM != SDDS_RT_OK) {
@@ -159,7 +159,7 @@ s_DiscoveryService_publicationListener(DDS_DataReader reader) {
 
 static void
 s_DiscoveryService_subscriptionListener(DDS_DataReader reader) {
-#   if defined(SDDS_TOPIC_HAS_SUB)
+#   if defined(SDDS_TOPIC_HAS_SUB) || defined(SDDS_SUBSCRIPTION_MANAGER)
     SDDS_DCPSSubscription st_data_used;
     SDDS_DCPSSubscription* st_data_used_ptr = &st_data_used;
     rc_t ret;
@@ -184,7 +184,7 @@ s_DiscoveryService_subscriptionListener(DDS_DataReader reader) {
                 }
             }
 
-#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#       ifdef SDDS_SUBSCRIPTION_MANAGER
             rc_t retSM;
             retSM = SubscriptionManagementService_handleSubscription(&st_data_used);
             if (retSM != SDDS_RT_OK) {
