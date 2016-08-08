@@ -12,7 +12,7 @@
 #include "sDDS.h"
 #include "Log.h"
 
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
 #include <stdio.h>
 static FILE* scalability_msg_count;
 #endif
@@ -54,13 +54,30 @@ DataWriter_init () {
         return SDDS_RT_FAIL;
     }
 
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
     scalability_msg_count = fopen(SCALABILITY_LOG, "w");
     fclose(scalability_msg_count);
 #endif
 
     return SDDS_RT_OK;
 }
+
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+rc_t
+DataWriter_setup(Reliable_DataWriter_t* self, ReliableSample_t* samples, unsigned int depth)
+{
+    assert(self);
+    assert(samples);
+    self->samplesToKeep = samples;
+    self->depthToKeep = depth;
+
+    for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
+        ((Reliable_DataWriter_t*) self)->samplesToKeep[index].seqNr = 0;
+        ((Reliable_DataWriter_t*) self)->samplesToKeep[index].timeStamp = 0;
+        ((Reliable_DataWriter_t*) self)->samplesToKeep[index].isUsed = 0;
+    }
+}
+#endif
 
 #if defined(SDDS_TOPIC_HAS_SUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) \
  || defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) \
@@ -82,14 +99,16 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     Topic_t* topic = self->topic;
     List_t* subscribers = topic->dsinks.list;
     NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
-    Locator_t* subscriber = (Locator_t*) subscribers->first_fn(subscribers);
-    while (subscriber) {
-        if (Locator_contains(out_buffer->locators, subscriber) != SDDS_RT_OK) {
-            if (out_buffer->locators->add_fn(out_buffer->locators, subscriber) == SDDS_RT_OK) {
-                Locator_upRef(subscriber);
+    TopicSubscription_t* tSub = (TopicSubscription_t*) subscribers->first_fn(subscribers);
+    while (tSub) {
+        if (tSub->state == ACTIVE) {
+            if (Locator_contains(out_buffer->locators, tSub->addr) != SDDS_RT_OK) {
+                if (out_buffer->locators->add_fn(out_buffer->locators, tSub->addr) == SDDS_RT_OK) {
+                    Locator_upRef(tSub->addr);
+                }
             }
         }
-        subscriber = (Locator_t*) subscribers->next_fn(subscribers);
+        tSub = (TopicSubscription_t*) subscribers->next_fn(subscribers);
     }
     rc_t ret;
 
@@ -140,6 +159,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
             // check, if sample is already in acknowledgement-list
             bool_t isAlreadyInQueue = 0;
 
+
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
                 if ((dw_reliable_p->samplesToKeep[index].isUsed == 1)
                 &&  (dw_reliable_p->samplesToKeep[index].seqNr == dw_reliable_p->seqNr) ) {
@@ -158,8 +178,9 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
                 for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
                     if(dw_reliable_p->samplesToKeep[index].isUsed == 0
                     || (dw_reliable_p->samplesToKeep[index].timeStamp + self->topic->max_blocking_time) < currentTime ) {
+
                         dw_reliable_p->samplesToKeep[index].isUsed = 1;
-                        dw_reliable_p->samplesToKeep[index].data = data;
+                        topic->Data_cpy(dw_reliable_p->samplesToKeep[index].data, data);
                         dw_reliable_p->samplesToKeep[index].seqNr = dw_reliable_p->seqNr;
                         dw_reliable_p->samplesToKeep[index].timeStamp = currentTime;
                         newSampleHasSlot = 1;
@@ -200,15 +221,9 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
                         }
 
                     }
-                }
+                } // end of for all samples in samplesToKeep
             } // end of confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK
 #       endif // end of ACK
-
-#       ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
-            if (self->topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK) {
-
-            }
-#       endif
 
         } // end of relevant topic has qos reliability_reliable
 #   endif // end of if SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || NACK
@@ -293,11 +308,26 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
     ret = checkSending(out_buffer);
 
-#ifdef TEST_SCALABILITY
+#ifdef TEST_SCALABILITY_LINUX
     if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
         scalability_msg_count = fopen(SCALABILITY_LOG, "a");
         fwrite("D", 1, 1, scalability_msg_count);
         fclose(scalability_msg_count);
+    }
+#endif
+
+#ifdef TEST_SCALABILITY_RIOT
+    if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
+        fprintf(stderr,"{SCL:D}\n");
+    }
+    else if (ret == SDDS_RT_NO_SUB) {
+        Log_debug("No Subscroption\n");
+    }
+    else if (ret == SDDS_RT_FAIL) {
+        Log_debug("Send failed\n");
+    }
+    else {
+        Log_debug("ret: %d\n", ret);
     }
 #endif
 
@@ -349,14 +379,14 @@ DataWriter_writeAddress(DataWriter_t* self,
     List_t* subscribers = topic->dsinks.list;
 
     NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
-    Locator_t* subscriber = (Locator_t*) subscribers->first_fn(subscribers);
-    while (subscriber) {
-        if (Locator_contains(out_buffer->locators, subscriber) != SDDS_RT_OK) {
-            if (out_buffer->locators->add_fn(out_buffer->locators, subscriber) == SDDS_RT_OK) {
-                Locator_upRef(subscriber);
+    TopicSubscription_t* tSub = (TopicSubscription_t*) subscribers->first_fn(subscribers);
+    while (tSub) {
+        if (Locator_contains(out_buffer->locators, tSub->addr) != SDDS_RT_OK) {
+            if (out_buffer->locators->add_fn(out_buffer->locators, tSub->addr) == SDDS_RT_OK) {
+                Locator_upRef(tSub->addr);
             }
         }
-        subscriber = (Locator_t*) subscribers->next_fn(subscribers);
+        tSub = (TopicSubscription_t*) subscribers->next_fn(subscribers);
     }
 
     if (out_buffer->curDomain != domain) {
@@ -484,11 +514,11 @@ checkSending(NetBuffRef_t* buf) {
             return SDDS_RT_FAIL;
         }
     }
-#ifdef TEST_SCALABILITY
+#   if defined(TEST_SCALABILITY_LINUX) || defined(TEST_SCALABILITY_RIOT)
     else {
         ret = SDDS_RT_NO_SUB;
     }
-#endif
+#   endif
     NetBuffRef_renew(buf);
 
     return ret;

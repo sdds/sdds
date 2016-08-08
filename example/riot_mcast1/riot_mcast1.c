@@ -5,7 +5,7 @@
 int main()
 {
 	DDS_ReturnCode_t ret;
-	Log_setLvl(1);
+	Log_setLvl(0);
 
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
@@ -18,6 +18,9 @@ int main()
 
     for (;;) {
         ret = DDS_BetaDataWriter_write (g_Beta_writer, &beta_pub, NULL);
+        if (ret != DDS_RETCODE_OK) {
+            printf("\nERROR SENDING\n");
+        }
         sleep (5);
     }
 

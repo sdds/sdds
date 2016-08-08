@@ -47,7 +47,7 @@ s_print() {
     printf("\n\nLOCATOR DB \n");
     for (int i = 0; i < SDDS_NET_MAX_LOCATOR_COUNT; i++) {
         char srcAddr[NI_MAXHOST];
-        if (Locator_getAddress(db.pool[i], srcAddr) != SDDS_RT_OK) {
+        if (Locator_getAddress(db.pool[i], srcAddr, NI_MAXHOST) != SDDS_RT_OK) {
             srcAddr[0] = '0';
             srcAddr[1] = '\0';
         }
@@ -110,6 +110,9 @@ LocatorDB_newLocator(Locator_t** loc) {
     }
     if (*loc == NULL) {
         db.freeLoc = 0;
+#ifdef UTILS_DEBUG
+        s_print();
+#endif
         Mutex_unlock(mutex);
         Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
         return SDDS_RT_FAIL;
@@ -144,6 +147,9 @@ LocatorDB_newMultiLocator(Locator_t** loc) {
     }
     if (*loc == NULL) {
         db.freeLoc = 0;
+#ifdef UTILS_DEBUG
+        s_print();
+#endif
         Mutex_unlock(mutex);
         Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
         return SDDS_RT_FAIL;
@@ -178,6 +184,9 @@ LocatorDB_newBroadLocator(Locator_t** loc) {
     }
     if (*loc == NULL) {
         db.freeLoc = 0;
+#ifdef UTILS_DEBUG
+        s_print();
+#endif
         Mutex_unlock(mutex);
         Log_error("(%d) Cannot obtain free locator.\n", __LINE__);
         return SDDS_RT_FAIL;

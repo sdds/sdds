@@ -21,7 +21,7 @@
 #include "Log.h"
 
 // virtual timer interface if RIOT-OS
-#include "vtimer.h"
+#include "xtimer.h"
 
 rc_t
 TimeMng_init(void) {
@@ -56,7 +56,7 @@ Time_remainMSec16(time16_t* refTime, msec16_t* remainingMSec) {
     }
 
     *remainingMSec = *refTime - time;
-            
+
     return SDDS_RT_OK;
 }
 

@@ -1,4 +1,4 @@
-SDDS_TOPDIR := ../../
+SDDS_TOPDIR := $(shell dirname $(shell dirname $(shell readlink generate.sh)))
 
 DRIVER := $(SDDS_TOPDIR)/include/
 
@@ -29,8 +29,8 @@ DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/green-ds.o
 #PLATFORM_DEPEND_OBJS += $(SDDS_OBJDIR)/
 
 # object files depending on driver for sensors
-DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
-DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-GammaCorrection.o
+#DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
+#DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-GammaCorrection.o
 
 # object files of the generates implementation code file of sdds
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/contiki_demopub2_sdds_impl.o
@@ -59,6 +59,7 @@ CLEAN += $(IMPL_DEPEND_SRCS)
 CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
+CLEAN += local_constants.h
 
 all:
 
@@ -92,7 +93,7 @@ flash:
 	avarice -g -e -p -f $(APPLICATION_NAME).hex $(FLASH_ARGS)
 
 dude:
-	sudo avrdude -c dragon_jtag -p m128rfa1 -U flash:w:$(APPLICATION_NAME).hex
+	avrdude -c dragon_jtag -p m128rfa1 -P usb -U flash:w:$(APPLICATION_NAME).hex
 
 gdb-server:
 	sudo avarice -g -j usb -P atmega128rfa1 :4242

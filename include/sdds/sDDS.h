@@ -37,8 +37,12 @@ typedef struct NetFrameBuff_t* NetFrameBuff;
 typedef struct _Locator_t Locator_t;
 typedef struct SourceQos_t SourceQos_t;
 typedef struct _Sample_t Sample_t;
+typedef struct _ReliableSample_t ReliableSample_t;
 typedef struct _Topic_t Topic_t;
 typedef struct TimeStampSimple_struct TimeStampSimple_t;
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+typedef struct LocationFilteredTopic LocationFilteredTopic_t;
+#endif
 
 //  Abstraction
 #include "os-ssal/Task.h"
@@ -49,6 +53,9 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #include "os-ssal/Mutex.h"
 #include "os-ssal/NodeConfig.h"
 #include "os-ssal/SSW.h"
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
+#include "os-ssal/LocationService.h"
+#endif
 #include "dds/DDS_DCPS.h"
 
 //  Class headers
@@ -71,12 +78,35 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #include "Sample.h"
 #include "TopicDB.h"
 #include "Topic.h"
+#ifdef FEATURE_SDDS_GEOMETRY_ENABLED
+#include "Geometry.h"
+#include "GeometryStore.h"
+#endif
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-#include "Discovery.h"
+#include "DiscoveryService.h"
 #endif
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 #include "BuiltinTopic.h"
+#include "BuiltInTopicPublicationService.h"
+#include "BuiltInLocationUpdateService.h"
 #endif
+#ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
+#include "LocationTrackingService.h"
+#endif
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+#include "ContentFilteredTopic.h"
+#include "LocationFilteredTopic.h"
+#include "FilteredDataReader.h"
+#endif
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+#include "ManagementTopic.h"
+#include "ManagementTopicPublicationService.h"
+#include "ManagementTopicSubscriptionService.h"
+#endif
+#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#include "SubscriptionManagementService.h"
+#endif
+
 #include "Management.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */

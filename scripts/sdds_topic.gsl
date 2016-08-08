@@ -17,12 +17,15 @@
 function resolve_topic_type (topic)
     my.topic.size ?= 0
     my.topic.description ?= "$(string.trim (topic.?""):left)"
+    my.topic.isPub = count (project.role, role.type = "publisher")
+    my.topic.isSub = count (project.role, role.type = "subscriber")
 
     my.topic.c_name = "$(string.substr (my.topic.name, 0, 0):upper)" + "$(string.substr (my.topic.name, 1):Camel)"
 
     for my.topic.attribute
         attribute.description ?= "$(string.trim (attribute.?""):left)"
         attribute.size ?= 1
+        attribute.key ?= 0 
 
         attribute.enc_type ?= ""
         attribute.print_type ?= ""
@@ -171,10 +174,30 @@ struct $(topic.c_name:)
 {
 .   for topic.attribute
     /* $(attribute.description:) */
-.       if attribute.enc_type = "string"
-    $(attribute.type:) $(attribute.name:c)[$(attribute.size + 1)];
+.       if attribute.key <> 0
+    union {
+.           if attribute.enc_type = "string"
+.               if attribute.key = "primary"
+        $(attribute.type:) pkey[$(attribute.size + 1)];
+.               elsif attribute.key = "secondary"
+        $(attribute.type:) skey[$(attribute.size + 1)];
+.           endif
+        $(attribute.type:) $(attribute.name:c)[$(attribute.size + 1)];
+.           else
+.               if attribute.key = "primary"
+        $(attribute.type:) pkey;
+.               elsif attribute.key = "secondary"
+        $(attribute.type:) skey;
+.               endif
+        $(attribute.type:) $(attribute.name:c);
+.           endif
+    };
 .       else
+.           if attribute.enc_type = "string"
+    $(attribute.type:) $(attribute.name:c)[$(attribute.size + 1)];
+.           else
     $(attribute.type:) $(attribute.name:c);
+.           endif
 .       endif
 .   endfor
 };
@@ -182,7 +205,7 @@ typedef struct $(topic.c_name:) $(topic.c_name:);
 
 
 DDS_ReturnCode_t
-$(topic.c_name:)_init ();
+$(topic.c_name:)_init();
 
 #ifdef SDDS_TOPIC_HAS_PUB
 DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
@@ -250,12 +273,21 @@ extern "C"
 #define SDDS_TOPIC 0x$(topic.id)
 
 .   if project.os <> "autobest" | (defined (project.autobest_role) & project.autobest_role = "server")
-.       if defined (topic.history_depth)
+.       if topic.isSub
+.           if defined (topic.history_depth)
 Sample_t $(topic.c_name)_samples_pool[$(topic.history_depth)];
 static $(topic.c_name:) $(topic.c_name)_sample_data[$(topic.history_depth)];
-.       else
+.           else
 Sample_t $(topic.c_name)_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_QOS_HISTORY_DEPTH];
+.           endif
+static $(topic.c_name:) $(topic.c_name)_incomingSample_data;
+.       endif
+.       if topic.isPub
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+ReliableSample_t $(topic.c_name)_reliableSamples_pool[SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
+static $(topic.c_name:) $(topic.c_name)_reliableSamples_data[SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE];
+#endif
 .       endif
 .   endif
 
@@ -264,16 +296,25 @@ static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_QOS_HISTORY_DEPTH];
 rc_t TopicMarshalling_$(topic.c_name:)_cpy(Data dest, Data source);
 
 DDS_ReturnCode_t
-$(topic.c_name:)_init ()
+$(topic.c_name:)_init()
 {
    int index;
-.   if defined (topic.history_depth)
+.   if topic.isSub
+.       if defined (topic.history_depth)
    for (index = 0; index < $(topic.history_depth); index++) {
-.   else
+.       else
    for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
-.   endif
+.       endif
       $(topic.c_name)_samples_pool[index].data = &$(topic.c_name)_sample_data[index];
    }
+.   endif
+.   if topic.isPub
+#if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+for (index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
+   $(topic.c_name)_reliableSamples_pool[index].data = &$(topic.c_name)_reliableSamples_data[index];
+}
+#endif
+.   endif
 }
 
 #if defined (SDDS_TOPIC_HAS_PUB)
@@ -318,6 +359,14 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
 }
 #endif
 
+rc_t TopicMarshalling_$(topic.c_name:)_cmpPrimaryKeys(Data data1, Data data2);
+
+void*
+TopicMarshalling_$(topic.c_name:)_getPrimaryKey(Data data);
+
+void*
+TopicMarshalling_$(topic.c_name:)_getSecondaryKey(Data data);
+
 Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 {
 	Topic_t *topic = TopicDB_createTopic();
@@ -330,7 +379,8 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
     }
 #endif
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB 
+    topic->incomingSample.data = &$(topic.c_name)_incomingSample_data; 
 	topic->Data_decode = TopicMarshalling_$(topic.c_name:)_decode;
 	topic->dsources.list = List_initConcurrentLinkedList();
     if(topic->dsources.list == NULL){
@@ -341,6 +391,9 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 	topic->domain = SDDS_DOMAIN;
 	topic->id = SDDS_TOPIC;
 	topic->Data_cpy = TopicMarshalling_$(topic.c_name:)_cpy;
+    topic->Data_cmpPrimaryKeys = TopicMarshalling_$(topic.c_name:)_cmpPrimaryKeys;
+    topic->Data_getPrimaryKey = TopicMarshalling_$(topic.c_name:)_getPrimaryKey;
+    topic->Data_getSecondaryKey = TopicMarshalling_$(topic.c_name:)_getSecondaryKey;
 
 .   for topic.config
 .       if config.type = "qos_reliability"
@@ -399,7 +452,7 @@ rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, s
 rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, size_t* size)
 {
 	if (*size != $(topic.size))
-		Log_warn ("size mismatch is %zu should be $(size)\\n", *size);
+		Log_debug ("size mismatch is %zu should be $(size)\\n", *size);
 
 	*size = 0;
 
@@ -419,6 +472,54 @@ rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, s
 
 	return SDDS_RT_OK;
 }
+
+void*
+TopicMarshalling_$(topic.c_name:)_getPrimaryKey(Data data) {
+    $(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
+    
+.   for topic.attribute
+.       if attribute.key = "primary"
+    return (void*) &real_data->pkey;
+.       else
+    return NULL;
+.       endif
+.   endfor
+}
+
+void*
+TopicMarshalling_$(topic.c_name:)_getSecondaryKey(Data data) {
+    assert(data);
+    $(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
+    
+.   for topic.attribute
+.       if attribute.key = "secondary"
+    return (void*) &real_data->skey;
+.       endif
+.   endfor
+
+    return NULL;
+}
+
+rc_t TopicMarshalling_$(topic.c_name:)_cmpPrimaryKeys(Data data1, Data data2) {
+	$(topic.c_name:)* real_data1 = ($(topic.c_name:)*) data1;
+	$(topic.c_name:)* real_data2 = ($(topic.c_name:)*) data2;
+
+.   for topic.attribute
+.       if attribute.key = "primary"
+.           if attribute.enc_type = "string"
+    if (strcmp(real_data1->pkey, real_data2->pkey) == 0) {
+        return SDDS_RT_OK;
+    } 
+.           else
+    if (real_data1->pkey == real_data2->pkey) {
+        return SDDS_RT_OK;
+    }
+.           endif
+.       endif
+.   endfor
+    return SDDS_RT_FAIL;
+}
+
 /*
 $(project.GENERATED_WARNING_HEADER:)
 */

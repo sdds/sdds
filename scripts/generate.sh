@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
-SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P) && SELF_PATH=$SELF_PATH/$(basename -- "$0")
-SELF_SYM=$(readlink $SELF_PATH)
+
+SELF_SYM=$(readlink $0)
 SCRIPT_DIR=$(dirname -- "$SELF_SYM")
 GSL_DIR="$SCRIPT_DIR"/gsl
 
@@ -15,6 +15,7 @@ if [ ! -d $GSL_DIR ]; then
     ./install_gsl.sh
     cd -
 fi
+
 #  Generate code
 export PATH=$PATH:$SCRIPT_DIR:$GSL_DIR/src
 gsl sdds.xml
