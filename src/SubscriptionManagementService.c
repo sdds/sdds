@@ -10,7 +10,7 @@
 #include "SubscriptionManager.h"
 #include "ManagementTopic.h"
 
-#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#ifdef SDDS_SUBSCRIPTION_MANAGER
 
 #define SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC         1
 

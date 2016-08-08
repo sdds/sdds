@@ -22,8 +22,8 @@ int main()
         }
         else {
             printf("Received a sample from topic 'alpha' (OVERLAPS wohnzimmer): {\n"
-                   "   value => %c\n"
-                   "   pkey => %c\n"
+                   "   value => %u\n"
+                   "   pkey => %u\n"
                    "   value2 => %s\n"
                    "   value3 => %"PRId16"\n"
                    "}\n"
@@ -40,8 +40,8 @@ int main()
         }
         else {
             printf("Received a sample from topic 'alpha' (WHITHIN schlafzimmer): {\n"
-                   "   value => %c\n"
-                   "   pkey => %c\n"
+                   "   value => %u\n"
+                   "   pkey => %u\n"
                    "   value2 => %s\n"
                    "   value3 => %"PRId16"\n"
                    "}\n"
