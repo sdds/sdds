@@ -43,6 +43,9 @@ int main(int argc, char** argv)
         unsigned int x;
         unsigned int y;
         unsigned int z;
+        unsigned int width;
+        unsigned int length;
+        unsigned int expiration;
     
         printf("\n\nchoose device");
         for (int i = 0; i < g_LocationService_simulatedDevicesCount; i++) {
@@ -57,6 +60,12 @@ int main(int argc, char** argv)
         scanf("%u", &y);
         printf("z: ");
         scanf("%u", &z);
+        printf("width: ");
+        scanf("%u", &width);
+        printf("length: ");
+        scanf("%u", &length);
+        printf("expiration: ");
+        scanf("%u", &expiration);
 
         int i = 0;
         for (i = 0; i < g_LocationService_simulatedDevicesCount; i++) {
@@ -64,6 +73,9 @@ int main(int argc, char** argv)
                 g_LocationService_simulatedDevices[i].area.basicShape.vertex.x = x;
                 g_LocationService_simulatedDevices[i].area.basicShape.vertex.y = y;
                 g_LocationService_simulatedDevices[i].area.basicShape.vertex.z = z;
+                g_LocationService_simulatedDevices[i].area.basicShape.width = width;
+                g_LocationService_simulatedDevices[i].area.basicShape.length = length;
+                g_LocationService_simulatedDevices[i].expiration = expiration;
                 Time_getTime16(&g_LocationService_simulatedDevices[i].time);
                 break;
             }
@@ -74,7 +86,7 @@ int main(int argc, char** argv)
             continue;
         }
 
-        printf("\nSet new location (%u, %u, %u) for device %x\n", x, y, z, device);
+        printf("\nSet new location ((%u, %u, %u), %u, %u) for device %x\n", x, y, z, width, length, device);
     }
 
     return 0;
