@@ -20,8 +20,8 @@
     <!--
         Include your topic files here. You can include topics from multiple files.
         Only those topics will be generated that have at least one matching role.
-    <include filename = "../topics/alpha.xml" />
     -->
+    <include filename = "../topics/alpha.xml" />
 
     <!--
         Roles are bound to one topic and are either a publisher or subscriber.

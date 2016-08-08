@@ -15,10 +15,10 @@ int main()
     Alpha *alpha_sub_p = &alpha_sub;
 
     for (;;) {
-        ret = DDS_AlphaDataReader_take_next_sample(g_filteredAlpha_reader,
+        ret = DDS_AlphaDataReader_take_next_sample(g_filteredAlpha1_reader,
                 &alpha_sub_p, NULL);
         if (ret == DDS_RETCODE_NO_DATA) {
-            printf("no data for alpha\n");
+            printf("no data for alpha (OVERLAPS wohnzimmer)\n");
         }
         else {
             printf("Received a sample from topic 'alpha' (OVERLAPS wohnzimmer): {\n"
@@ -36,10 +36,10 @@ int main()
         ret = DDS_AlphaDataReader_take_next_sample(g_filteredAlpha2_reader,
                 &alpha_sub_p, NULL);
         if (ret == DDS_RETCODE_NO_DATA) {
-            printf("no data for alpha\n");
+            printf("no data for alpha (WHITHIN schlafzimmer)\n");
         }
         else {
-            printf("Received a sample from topic 'alpha' (WHITHIN wohnzimmer): {\n"
+            printf("Received a sample from topic 'alpha' (WHITHIN schlafzimmer): {\n"
                    "   value => %c\n"
                    "   pkey => %c\n"
                    "   value2 => %s\n"

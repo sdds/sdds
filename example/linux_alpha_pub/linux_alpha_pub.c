@@ -11,7 +11,7 @@ int main()
 	Log_setLvl(4);  // Disable logs, set to 0 for to see everything.
 
     static Alpha alpha_pub;
-    alpha_pub.value = 'H';
+    alpha_pub.pkey = 0;
     strncpy (alpha_pub.value2,   "Es gibt im", 10);
     alpha_pub.value3 = 1;
     alpha_pub.device = NodeConfig_getNodeID(); 
@@ -21,12 +21,13 @@ int main()
     for (;;) {
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
         if (ret != DDS_RETCODE_OK) {
-            printf ("Failed to send topic alpha\n");
+            printf ("Failed to send an alpha sample\n");
         }
         else {
-            printf ("Send a alpha sample\n");
+            printf ("Send an alpha sample\n");
         }
 
+        alpha_pub.pkey++;
         sleep (1);
     }
 

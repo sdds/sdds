@@ -216,12 +216,14 @@ void
 Geometry_initSquare(Square_t* self) {
     assert(self);
     self->basicShape.geometry.type = GEO_TYPE_SQUARE;
+    Geometry_initPoint(&self->basicShape.vertex);
 }
 
 void
 Geometry_initEllipse(Ellipse_t* self) {
     assert(self);
     self->basicShape.geometry.type = GEO_TYPE_ELLIPSE;
+    Geometry_initPoint(&self->basicShape.vertex);
 }
 
 #endif

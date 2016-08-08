@@ -84,11 +84,13 @@ s_executeManagementDirective(DDS_DataReader reader) {
 #endif
                 }
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_REQUEST_FILTER_EXPRESSION) == 0) {
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
                     printf("Received ManagementDirective: %s to ", m_data_used.mKey);
                     Locator_print(m_data_used.addr);
                     if (s_key_requestFilterExpression(m_data_used.mValue, m_data_used.addr) != SDDS_RT_OK) {
                         Log_error("Unable to process FilterExpression request.\n");
                     }
+#endif
                 }
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_SEND_FILTER_EXPRESSION) == 0) {
 #ifdef SDDS_SUBSCRIPTION_MANAGER
@@ -166,7 +168,7 @@ s_key_setSubscriptionState(DDS_char* mValue) {
 /*
  * mValue format: topicid_t
  */
-
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
 rc_t
 s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
     topicid_t topicID;
@@ -205,7 +207,7 @@ s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
 
     return SDDS_RT_OK;
 }
-
+#endif
 
 rc_t
 s_key_deleteFilterExpression(DDS_char* mValue) {
@@ -235,7 +237,6 @@ s_reactivateSubscription() {
                     }
                     printf("Subscription auto resumed (%x): t:%d, %d, %u\n", sub->participant, topic->id, sub->state, sub->updated);
                 }
-//                printf("Subscription (%d,%x) automatically resumed.\n", topic->id, sub->participant);
             }
             sub = subscriptions->next_fn(subscriptions);
         }
