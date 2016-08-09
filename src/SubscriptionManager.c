@@ -57,6 +57,7 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
                     break;
                 default:
                     printf("UNKNOWN\n");
+                    break;
                 }
 
                 ret = SubscriptionManager_publishSubscriptionState(edge);
@@ -229,9 +230,8 @@ SubscriptionManager_registerFilter(SubscriptionManager_t* self, SDDS_DCPSManagem
                 printf("|%d", locTopic->filterExpression[i]);
             }
             printf("|}\n");
-
-            edge = (DirectedEdge_t*) edges->next_fn(edges);
         }
+        edge = (DirectedEdge_t*) edges->next_fn(edges);
     }
 
     return SDDS_RT_OK;
