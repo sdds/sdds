@@ -196,8 +196,7 @@ s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
     FilteredDataReader_t* filteredReader = DataSink_getFilteredDataReaders();
     for (int i = 0; i < SDDS_DATA_FILTER_READER_MAX_OBJS; i++) {
         if (filteredReader[i].locationFilteredTopic->contentFilteredTopic.associatedTopic->id == topicID) {
-            printf("Send filter expression for %d\n", topicID);
-            Locator_print(addr);
+//            printf("Send filter expression for %d\n", topicID);
 
             SDDS_DCPSManagement data;
             data.participant = SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS;
