@@ -86,7 +86,6 @@ s_executeManagementDirective(DDS_DataReader reader) {
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_REQUEST_FILTER_EXPRESSION) == 0) {
 #ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
                     Log_debug("Received ManagementDirective: %s to ", m_data_used.mKey);
-                    Locator_print(m_data_used.addr);
                     if (s_key_requestFilterExpression(m_data_used.mValue, m_data_used.addr) != SDDS_RT_OK) {
                         Log_error("Unable to process FilterExpression request.\n");
                     }
@@ -142,27 +141,30 @@ s_key_setSubscriptionState(DDS_char* mValue) {
     TopicSubscription_t* sub = subscriptions->first_fn(subscriptions);
     while (sub != NULL) {
         if (sub->participant == participant) {
+            SubscriptionState_t prevState = sub->state;
             sub->state = state;
             if (Time_getTime16(&sub->updated) != SDDS_SSW_RT_OK) {
                 Log_error("Unable to set time.\n");
                 return SDDS_RT_FAIL;
             }
 
-            printf("Subscription updated (%x): t:%d, ", sub->participant, topic->id);
-            switch (sub->state) {
-            case CANCELLED:
-                printf("CANCELLED ");
-                break;
-            case ACTIVE:
-                printf("ACTIVE ");
-                break;
-            case PAUSED:
-                printf("PAUSED ");
-                break;
-            default:
-                printf("UNKNOWN ");
+            if (prevState != sub->state) {
+                printf("Subscription updated (%x): t:%d, ", sub->participant, topic->id);
+                switch (sub->state) {
+                case CANCELLED:
+                    printf("CANCELLED ");
+                    break;
+                case ACTIVE:
+                    printf("ACTIVE ");
+                    break;
+                case PAUSED:
+                    printf("PAUSED ");
+                    break;
+                default:
+                    printf("UNKNOWN ");
+                }
+                printf("\n");
             }
-            printf("%u\n", sub->updated);
             break;
         }
         sub = subscriptions->next_fn(subscriptions);
