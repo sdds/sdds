@@ -225,13 +225,13 @@ SubscriptionGraph_cancelSubscription(SubscriptionGraph_t *self, DirectedEdge_t* 
 
 rc_t
 SubscriptionGraph_pauseSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge) {
-    edge->sate = PAUSED;
+    edge->state = PAUSED;
     return SDDS_RT_OK;
 }
 
 rc_t
 SubscriptionGraph_resumeSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge) {
-    edge->sate = ACTIVE;
+    edge->state = ACTIVE;
     return SDDS_RT_OK;
 }
 
