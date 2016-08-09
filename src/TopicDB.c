@@ -106,7 +106,7 @@ BuiltinTopicTopic_encode(NetBuffRef_t* buff, Data data, size_t* size) {
     *size = 0;
     Marshalling_enc_uint8(start+(*size), &(t->domain));
     *size += sizeof(domainid_t);
-    Marshalling_enc_uint8(start+(*size), &(t->id));
+    Marshalling_enc_uint8(start+(*size), (uint8_t*)&(t->id));
     *size += sizeof(topicid_t);
 
     return SDDS_RT_OK;

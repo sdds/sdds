@@ -583,7 +583,7 @@ BuiltinTopicDataReader_encode(NetBuffRef_t* buff, Data data, size_t* size) {
     *size = 0;
     Marshalling_enc_uint8(start + (*size), &(DataReader_topic(dr)->domain));
     *size += sizeof(domainid_t);
-    Marshalling_enc_uint8(start + (*size), &(DataReader_topic(dr)->id));
+    Marshalling_enc_uint8(start + (*size), (uint8_t*)&(DataReader_topic(dr)->id));
     *size += sizeof(topicid_t);
 #endif
 
