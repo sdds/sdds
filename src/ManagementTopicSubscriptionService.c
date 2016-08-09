@@ -77,7 +77,7 @@ s_executeManagementDirective(DDS_DataReader reader) {
             if (m_data_used.participant == SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS || m_data_used.participant == BuiltinTopic_participantID) {
                 if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_SET_SUBSCRIPTION_STATE) == 0) {
 #ifdef SDDS_TOPIC_HAS_SUB
-                    printf("Received ManagementDirective: %s\n", m_data_used.mKey);
+                    Log_debug("Received ManagementDirective: %s\n", m_data_used.mKey);
                     if (s_key_setSubscriptionState(m_data_used.mValue) != SDDS_RT_OK) {
                         Log_error("Unable to set subscription state.\n");
                     }
@@ -85,7 +85,7 @@ s_executeManagementDirective(DDS_DataReader reader) {
                 }
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_REQUEST_FILTER_EXPRESSION) == 0) {
 #ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
-                    printf("Received ManagementDirective: %s to ", m_data_used.mKey);
+                    Log_debug("Received ManagementDirective: %s to ", m_data_used.mKey);
                     Locator_print(m_data_used.addr);
                     if (s_key_requestFilterExpression(m_data_used.mValue, m_data_used.addr) != SDDS_RT_OK) {
                         Log_error("Unable to process FilterExpression request.\n");
@@ -94,7 +94,7 @@ s_executeManagementDirective(DDS_DataReader reader) {
                 }
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_SEND_FILTER_EXPRESSION) == 0) {
 #ifdef SDDS_SUBSCRIPTION_MANAGER
-                    printf("Received ManagementDirective: %s\n", m_data_used.mKey);
+                    Log_debug("Received ManagementDirective: %s\n", m_data_used.mKey);
                     if (SubscriptionManagementService_registerFilter(&m_data_used) != SDDS_RT_OK) {
                         Log_error("Unable to process FilterExpression.\n");
                     }
@@ -102,7 +102,7 @@ s_executeManagementDirective(DDS_DataReader reader) {
                 }
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_DELETE_FILTER_EXPRESSION) == 0) {
 #ifdef SDDS_SUBSCRIPTION_MANAGER
-                    printf("Received ManagementDirective: %s\n", m_data_used.mKey);
+                    Log_debug("Received ManagementDirective: %s\n", m_data_used.mKey);
                     if (s_key_deleteFilterExpression(m_data_used.mValue) != SDDS_RT_OK) {
                         Log_error("Unable to delete FilterExpression.\n");
                     }
@@ -142,6 +142,27 @@ s_key_setSubscriptionState(DDS_char* mValue) {
     TopicSubscription_t* sub = subscriptions->first_fn(subscriptions);
     while (sub != NULL) {
         if (sub->participant == participant) {
+            sub->state = state;
+            if (Time_getTime16(&sub->updated) != SDDS_SSW_RT_OK) {
+                Log_error("Unable to set time.\n");
+                return SDDS_RT_FAIL;
+            }
+
+            printf("Subscription updated (%x): t:%d, ", sub->participant, topic->id);
+            switch (sub->state) {
+            case CANCELLED:
+                printf("CANCELLED ");
+                break;
+            case ACTIVE:
+                printf("ACTIVE ");
+                break;
+            case PAUSED:
+                printf("PAUSED ");
+                break;
+            default:
+                printf("UNKNOWN ");
+            }
+            printf("%u\n", sub->updated);
             break;
         }
         sub = subscriptions->next_fn(subscriptions);
@@ -151,16 +172,6 @@ s_key_setSubscriptionState(DDS_char* mValue) {
         Log_error("Subscription not found.\n");
         return SDDS_RT_FAIL;
     }
-
-
-    sub->state = state;
-
-    if (Time_getTime16(&sub->updated) != SDDS_SSW_RT_OK) {
-        Log_error("Unable to set time.\n");
-        return SDDS_RT_FAIL;
-    }
-
-    printf("Subscription updated (%x): t:%d, %d, %u\n", sub->participant, topic->id, sub->state, sub->updated);
 
     return SDDS_RT_OK;
 }

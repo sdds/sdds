@@ -521,6 +521,9 @@ TopicMarshalling_DCPSParticipant_decode(NetBuffRef_t* buffer, Data data, size_t*
     SDDS_DCPSParticipant* sdds_data = (SDDS_DCPSParticipant*) data;
 
     sdds_data->addr = address.addr;
+    sdds_data->srcAddr = buffer->locators->first_fn(buffer->locators);
+    assert(sdds_data->srcAddr);
+    Locator_upRef(sdds_data->srcAddr);
 
     return SDDS_RT_OK;
 }

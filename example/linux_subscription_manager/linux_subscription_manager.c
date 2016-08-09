@@ -8,7 +8,7 @@ int main()
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
 	}
-	Log_setLvl(4);  // Disable logs, set to 0 for to see everything.
+	Log_setLvl(5);  // Disable logs, set to 0 for to see everything.
 
     for (;;) {
         sleep (1);

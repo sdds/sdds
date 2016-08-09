@@ -27,6 +27,8 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
     DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);
     while (edge != NULL) {
         if (sample->device == edge->publisher->id) {
+            SubscriptionState_t prevState = edge->state;
+
             rc_t ret = FilterEvaluator_evalSubscription(sample, edge);
             if ((ret == SDDS_RT_FAIL)) {
                 ret = SubscriptionGraph_pauseSubscription(&self->subscriptionGraph, edge);
@@ -40,11 +42,27 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
                     Log_error("Unable to resume subscription.\n");
                 }
             }
-            printf("set Subscription State: %d\n", edge->sate);
 
-            ret = SubscriptionManager_publishSubscriptionState(edge);
-            if (ret != SDDS_RT_OK) {
-                Log_error("Unable to publish Subscription state.\n");
+            if (prevState != edge->state) {
+                printf("set Subscription State: ");
+                switch (edge->state) {
+                case CANCELLED:
+                    printf("CANCELLED\n");
+                    break;
+                case ACTIVE:
+                    printf("ACTIVE\n");
+                    break;
+                case PAUSED:
+                    printf("PAUSED\n");
+                    break;
+                default:
+                    printf("UNKNOWN\n");
+                }
+
+                ret = SubscriptionManager_publishSubscriptionState(edge);
+                if (ret != SDDS_RT_OK) {
+                    Log_error("Unable to publish Subscription state.\n");
+                }
             }
         }
         edge = (DirectedEdge_t*) edges->next_fn(edges);
@@ -64,7 +82,10 @@ SubscriptionManager_publishSubscriptionState(DirectedEdge_t* edge) {
     size += sizeof(edge->topic->id);
     ret =  Marshalling_enc_uint16((byte_t*) data.mValue + size, &edge->subscriber->id);
     size += sizeof(edge->publisher->id);
-    ret =  Marshalling_enc_uint8((byte_t*) data.mValue + size, (uint8_t*)&edge->sate);
+    ret =  Marshalling_enc_uint8((byte_t*) data.mValue + size, (uint8_t*)&edge->state);
+
+    printf("SubscriptionManager_publishSubscriptionState %d to %x\n", edge->state, edge->publisher->id);
+    Locator_print(edge->publisher->addr);
 
     return ManagementTopicPublicationService_publishManagementDirective(&data, edge->publisher->addr);
 }
@@ -74,23 +95,21 @@ SubscriptionManager_handleParticipant(SubscriptionManager_t* self, SDDS_DCPSPart
     ParticipantNode_t* node = SubscriptionGraph_containsParticipantNode(&self->subscriptionGraph, sample->data.key);
     if (node == NULL) {
         ParticipantNode_t* node = SubscriptionGraph_createParticipantNode(&self->subscriptionGraph);
-//        Locator_upRef(sample->addr);
-        node->addr = sample->addr;
+        Locator_upRef(sample->srcAddr);
+        node->addr = sample->srcAddr;
         node->id = sample->data.key;
 
         List_t* nodes = self->subscriptionGraph.nodes;
         rc_t ret = nodes->add_fn(nodes, node);
         if (ret != SDDS_RT_OK) {
-//            Locator_downRef(sample->addr);
+            Locator_downRef(sample->srcAddr);
             Log_error("Unable to add new participant node.\n");
             SubscriptionGraph_freeParticipantNode(&self->subscriptionGraph, node);
             return SDDS_RT_FAIL;
         }
         printf("Create node %x\n", node->id);
     }
-//    else {
-//        printf("node %x exists\n", node->id);
-//    }
+
     return SDDS_RT_OK;
 }
 
@@ -149,10 +168,8 @@ SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSub
                         return SDDS_RT_FAIL;
                     }
                     printf("New subscription: {%x --(%d)--> %x}\n", node->id, topic->id, sub->id);
-
-                }
-                else {
-                    printf("Existing subscription: {%x --(%d)--> %x}\n", edge->publisher->id, edge->topic->id, edge->subscriber->id);
+                    Locator_print(edge->publisher->addr);
+                    Locator_print(edge->subscriber->addr);
                 }
             }
             node = nodes->next_fn(nodes);
@@ -201,12 +218,6 @@ SubscriptionManager_registerFilter(SubscriptionManager_t* self, SDDS_DCPSManagem
     size += sizeof(locTopic->expressionLength);
 
     Marshalling_dec_string(sample->mValue+size, locTopic->filterExpression, locTopic->expressionLength);
-
-    printf("Register Filter: %x: {%d, ", participantID, locTopic->contentFilteredTopic.associatedTopic->id);
-    for (int i = 0; i < locTopic->expressionLength; i++) {
-        printf("|%d", locTopic->filterExpression[i]);
-    }
-    printf("|}\n");
 
     List_t* edges = self->subscriptionGraph.edges;
     DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);

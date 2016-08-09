@@ -39,7 +39,7 @@ struct DirectedEdge {
     List_t* locTopics;
     ParticipantNode_t* publisher;
     ParticipantNode_t* subscriber;
-    SubscriptionState_t sate;
+    SubscriptionState_t state;
 };
 typedef struct DirectedEdge DirectedEdge_t;
 

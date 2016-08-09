@@ -72,7 +72,7 @@ s_pauseSubscription() {
     List_t* edges = s_subscriptionManager.subscriptionGraph.edges;
     DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);
     while (edge != NULL) {
-        if (edge->sate == PAUSED) {
+        if (edge->state == PAUSED) {
             rc_t ret = SubscriptionManager_publishSubscriptionState(edge);
             if (ret != SDDS_RT_OK) {
                 Log_error("Unable to publish Subscription state.\n");
