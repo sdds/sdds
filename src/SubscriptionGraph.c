@@ -140,13 +140,21 @@ SubscriptionGraph_freeDirectedEdge(SubscriptionGraph_t *self, DirectedEdge_t*edg
 
 DirectedEdge_t*
 SubscriptionGraph_establishSubscription(SubscriptionGraph_t *self, ParticipantNode_t* pub, ParticipantNode_t* sub, Topic_t* topic) {
+    assert(self);
+    assert(pub);
+    assert(sub);
+    assert(topic);
+
+    pub->roleMask |= SDDS_PARTICIPANT_ROLE_PUB;
+    sub->roleMask |= SDDS_PARTICIPANT_ROLE_SUB;
     DirectedEdge_t* edge = SubscriptionGraph_createDirectedEdge(self);
-    if (edge != NULL) {
-        edge->publisher = pub;
-        edge->subscriber = sub;
-        edge->topic = topic;
-        edge->filteredSubscription = false;
-    }
+    assert(edge);
+
+    edge->publisher = pub;
+    edge->subscriber = sub;
+    edge->topic = topic;
+    edge->filteredSubscription = false;
+
     return edge;
 }
 
@@ -157,6 +165,8 @@ SubscriptionGraph_establishFilteredSubscription(SubscriptionGraph_t *self, Parti
     assert(sub);
     assert(topic);
 
+    pub->roleMask |= SDDS_PARTICIPANT_ROLE_PUB;
+    sub->roleMask |= SDDS_PARTICIPANT_ROLE_SUB;
     DirectedEdge_t* edge = SubscriptionGraph_createDirectedEdge(self);
     assert(edge);
 

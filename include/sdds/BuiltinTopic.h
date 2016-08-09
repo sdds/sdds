@@ -88,6 +88,7 @@ struct SDDS_DCPSParticipant_t {
     struct DDS_DCPSParticipant_t data;
     BuiltinTopicKey_t participantID;
     Locator_t* addr;
+    Locator_t* srcAddr;
 };
 typedef struct SDDS_DCPSParticipant_t SDDS_DCPSParticipant;
 

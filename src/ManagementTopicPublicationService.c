@@ -29,8 +29,6 @@ ManagementTopicPublicationService_publishManagementDirective(SDDS_DCPSManagement
         return SDDS_RT_FAIL;
     }
 
-    printf("Published ManagementDirective: %s\n ", data->mKey);
-
     return SDDS_RT_OK;
 }
 
