@@ -5,7 +5,7 @@
  *      Author: o_dedi
  */
 
-#include "os-ssal/LocationTrackingService.h"
+#include "LocationTrackingService.h"
 #include "os-ssal/Task.h"
 #include "sDDS.h"
 

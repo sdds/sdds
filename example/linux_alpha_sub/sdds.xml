@@ -39,6 +39,9 @@
     <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
     <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
     <define name = "FEATURE_SDDS_DISCOVERY_ENABLED" />
+    <define name = "FEATURE_SDDS_GEOMETRY_ENABLED" />
+    <define name = "FEATURE_SDDS_LOCATION_ENABLED" />
+    <define name = "FEATURE_SDDS_LOCATION_TRACKING_ENABLED" />
     <!--
         Configure discovery intervals
     -->

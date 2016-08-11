@@ -30,6 +30,9 @@ LocationService_getLocation(DeviceLocation_t* devLoc) {
 
 ssw_rc_t
 LocationService_getDeviceLocation(SSW_NodeID_t device, DeviceLocation_t* devLoc) {
+    assert(device);
+    assert(devLoc);
+
     for (uint16_t i; i < g_LocationService_simulatedDevicesCount; i++ ) {
         if (g_LocationService_simulatedDevices[i].device == device) {
             memcpy(devLoc, &g_LocationService_simulatedDevices[i], sizeof(struct DeviceLocation));

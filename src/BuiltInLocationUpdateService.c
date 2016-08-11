@@ -10,7 +10,7 @@
 #include "Geometry.h"
 #include "dds/DDS_DCPS.h"
 
-#if defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) && defined(FEATURE_SDDS_LOCATION_TRACKING_ENABLED)
+#if defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) && defined(FEATURE_SDDS_LOCATION_ENABLED)
 
 # ifndef SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS
 #define SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS 20
@@ -21,14 +21,13 @@ static DeviceLocation_t s_trackedDevices[SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS];
 static uint16_t s_deviceCount;
 
 static void
-s_updateLocation(DataReader_t* reader);
+s_updateLocation(DDS_DataReader reader);
 
 rc_t
 BuiltInLocationUpdateService_init() {
     DDS_ReturnCode_t dds_ret;
     struct DDS_DataReaderListener locationListStruct = {
-            .on_data_available =
-            &s_updateLocation
+            .on_data_available = &s_updateLocation
     };
     dds_ret = DDS_DataReader_set_listener(g_DCPSLocation_reader, &locationListStruct, NULL);
     if(dds_ret == DDS_RETCODE_ERROR){
@@ -66,14 +65,17 @@ BuiltInLocationUpdateService_getLocations(DeviceLocation_t** devices, uint16_t* 
 }
 
 static void
-s_updateLocation(DataReader_t* reader) {
+s_updateLocation(DDS_DataReader reader) {
+    assert(reader);
+
     SDDS_DCPSLocation loc_data_used;
     SDDS_DCPSLocation* loc_data_used_ptr = &loc_data_used;
+    DDS_ReturnCode_t dds_ret;
     rc_t ret;
 
     do {
-        ret = DDS_DCPSLocationDataReader_take_next_sample(reader, (SDDS_DCPSLocation**) &loc_data_used_ptr, NULL);
-        if (ret != DDS_RETCODE_NO_DATA) {
+        dds_ret = DDS_DCPSLocationDataReader_take_next_sample(reader, (SDDS_DCPSLocation**) &loc_data_used_ptr, NULL);
+        if (dds_ret != DDS_RETCODE_NO_DATA) {
             int devPos = s_deviceCount;
             for (int i = 0; i < s_deviceCount; i++) {
                 if (s_trackedDevices[i].device == loc_data_used.device) {
@@ -103,7 +105,30 @@ s_updateLocation(DataReader_t* reader) {
                 Log_error("Maximum of available devices reached.\n");
             }
         }
-    } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
+    } while ((dds_ret != DDS_RETCODE_NO_DATA) && (dds_ret != DDS_RETCODE_ERROR));
+//    DeviceLocation_t* devices;
+//    uint16_t size;
+//    ret = BuiltInLocationUpdateService_getLocations(&devices, &size);
+//    if (ret == SDDS_RT_OK) {
+//        printf("============= BuiltIn tracked devices =============\n");
+//        for (int i = 0; i < size; i++) {
+//            printf("DeviceLocation {\n"
+//                   "\t device: %x\n"
+//                   "\t area: (%d, %d, %d)\n"
+//                   "\t time: %d\n"
+//                   "\t expiration: %u\n"
+//                   "}\n", devices[i].device,
+//                          devices[i].area.basicShape.vertex.x,
+//                          devices[i].area.basicShape.vertex.y,
+//                          devices[i].area.basicShape.vertex.z,
+//                          devices[i].time,
+//                          devices[i].expiration);
+//        }
+//        printf("====================================================\n");
+//    }
+//    else {
+//        Log_error("BuiltInLocationUpdateService_getLocations failed.\n");
+//    }
 }
 
 #endif

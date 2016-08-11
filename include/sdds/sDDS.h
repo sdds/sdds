@@ -50,8 +50,9 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #include "os-ssal/Mutex.h"
 #include "os-ssal/NodeConfig.h"
 #include "os-ssal/SSW.h"
-#include "os-ssal/LocationTrackingService.h"
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
 #include "os-ssal/LocationService.h"
+#endif
 #include "dds/DDS_DCPS.h"
 
 //  Class headers
@@ -76,6 +77,7 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #include "Topic.h"
 #ifdef FEATURE_SDDS_GEOMETRY_ENABLED
 #include "Geometry.h"
+#include "GeometryStore.h"
 #endif
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 #include "DiscoveryService.h"
@@ -83,6 +85,10 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 #include "BuiltinTopic.h"
 #include "BuiltInTopicPublicationService.h"
+#include "BuiltInLocationUpdateService.h"
+#endif
+#ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
+#include "LocationTrackingService.h"
 #endif
 #include "Management.h"
 
