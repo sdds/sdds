@@ -63,6 +63,8 @@ struct _Topic_t {
     rc_t (* Data_decode)(NetBuffRef_t* buff, Data data, size_t* size);
     rc_t (* Data_cpy)(Data dest, Data source);
     rc_t (* Data_cmpPrimaryKeys)(Data data1, Data data2);
+    void* (* Data_getPrimaryKey)(Data data);
+    void* (* Data_getSecondaryKey)(Data data);
 
     domainid_t domain;
     topicid_t id;

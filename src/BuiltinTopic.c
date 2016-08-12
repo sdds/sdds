@@ -335,6 +335,12 @@ BuiltinTopic_init(void) {
 * DCPS Participant *
 ********************/
 
+void*
+TopicMarshalling_DCPSParticipant_getPrimaryKey(Data data);
+
+void*
+TopicMarshalling_DCPSParticipant_getSecondaryKey(Data data);
+
 rc_t
 TopicMarshalling_DCPSParticipant_cmpPrimaryKeys(Data data1, Data data2);
 
@@ -423,6 +429,8 @@ sDDS_DCPSParticipantTopic_create() {
     topic->Data_cpy = TopicMarshalling_DCPSParticipant_cpy;
     topic->dsinks.list = List_initConcurrentLinkedList();
     topic->Data_cmpPrimaryKeys = TopicMarshalling_DCPSParticipant_cmpPrimaryKeys;
+
+
     if(topic->dsinks.list == NULL){
         return NULL;
     }

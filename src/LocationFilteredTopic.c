@@ -79,7 +79,7 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
 
 rc_t
 LocationFilteredTopic_evalSample(LocationFilteredTopic_t* self, Data data) {
-
+//    self->contentFilteredTopic.associatedTopic->
 }
 
 rc_t
@@ -87,8 +87,25 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     assert(self);
     assert(devLoc);
 
-    while () {
+    while (self->filterstate.currentPosition < self->expressionLength) {
+        rc_t ret;
+        ret = s_readFunction(self);
+        if (ret != SDDS_RT_OK) {
+            Log_error("s_readFunction failed.\n");
+            return SDDS_RT_FAIL;
+        }
 
+        ret = s_readGeometry(self);
+        if (ret != SDDS_RT_OK) {
+            Log_error("s_readGeometry failed.\n");
+            return SDDS_RT_FAIL;
+        }
+
+        ret = s_processExpression(self, devLoc);
+        if (ret != SDDS_RT_OK) {
+            Log_error("s_processExpression failed.\n");
+            return SDDS_RT_FAIL;
+        }
     }
 
     if (self->filterstate.result) {
@@ -104,6 +121,7 @@ s_readWord(char* filterExpr, char* word) {
 
     int i = 0;
     while((filterExpr[i] != ' ')
+          && (filterExpr[i] != '\n')
           && (filterExpr[i] != '\0')
           && (i < EXPR_WORD_MAX_LEN)) {
         word[i] = filterExpr[i];
@@ -191,7 +209,7 @@ s_encodeWord(LocationFilteredTopic_t* self, char* word) {
 static rc_t
 s_readFunction(LocationFilteredTopic_t* self) {
     assert(self);
-    assert(self->filterstate.currentPosition != self->expressionLength);
+//    assert(self->filterstate.currentPosition != self->expressionLength);
 
     if ((self->filterExpression[self->filterstate.currentPosition] >= EXPR_FUNC_EQUALS_VAL)
             && (self->filterExpression[self->filterstate.currentPosition] <= EXPR_FUNC_OVERLAPS_VAL)) {
@@ -203,7 +221,7 @@ s_readFunction(LocationFilteredTopic_t* self) {
     else if (self->filterExpression[self->filterstate.currentPosition] == EXPR_NOT_VAL) {
         self->filterstate.expression.negation = true;
         self->filterstate.currentPosition++;
-        return SDDS_RT_OK;
+        return s_readNotFunction(self);
     }
 
     return SDDS_RT_FAIL;
@@ -212,7 +230,7 @@ s_readFunction(LocationFilteredTopic_t* self) {
 static rc_t
 s_readNotFunction(LocationFilteredTopic_t* self) {
     assert(self);
-    assert(self->filterstate.currentPosition != self->expressionLength);
+//    assert(self->filterstate.currentPosition != self->expressionLength);
 
     if ((self->filterExpression[self->filterstate.currentPosition] >= EXPR_FUNC_EQUALS_VAL)
             && (self->filterExpression[self->filterstate.currentPosition] <= EXPR_FUNC_OVERLAPS_VAL)) {
@@ -227,7 +245,7 @@ s_readNotFunction(LocationFilteredTopic_t* self) {
 static rc_t
 s_readGeometry(LocationFilteredTopic_t* self) {
     assert(self);
-    assert(self->filterstate.currentPosition != self->expressionLength);
+//    assert(self->filterstate.currentPosition != self->expressionLength);
 
     self->filterstate.expression.geometryID = self->filterExpression[self->filterstate.currentPosition];
     self->filterstate.currentPosition++;
@@ -302,7 +320,7 @@ s_processExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc) {
     self->filterstate.expression.functionID = 0;
     self->filterstate.expression.geometryID = 0;
 
-    if (self->filterstate.currentPosition != self->expressionLength) {
+    if (self->filterstate.currentPosition < self->expressionLength) {
         return s_readConnector(self);
     }
     return SDDS_RT_OK;
@@ -311,14 +329,14 @@ s_processExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc) {
 static rc_t
 s_readConnector(LocationFilteredTopic_t* self) {
     assert(self);
-    assert(self->filterstate.currentPosition != self->expressionLength);
+//    assert(self->filterstate.currentPosition != self->expressionLength);
 
-    if (self->filterExpression[self->filterstate.currentPosition] >= EXPR_CONN_AND_VAL) {
+    if (self->filterExpression[self->filterstate.currentPosition] == EXPR_CONN_AND_VAL) {
         self->filterstate.connector = CONNECTOR_AND;
         self->filterstate.currentPosition++;
         return SDDS_RT_OK;
     }
-    else if (self->filterExpression[self->filterstate.currentPosition] >= EXPR_CONN_OR_VAL) {
+    else if (self->filterExpression[self->filterstate.currentPosition] == EXPR_CONN_OR_VAL) {
         self->filterstate.connector = CONNECTOR_OR;
         self->filterstate.currentPosition++;
         return SDDS_RT_OK;
