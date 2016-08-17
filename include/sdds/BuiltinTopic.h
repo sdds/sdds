@@ -76,6 +76,7 @@ struct DDS_DCPSParticipant_t {
     union {
         BuiltinTopicKey_t key;
         BuiltinTopicKey_t pkey;
+        BuiltinTopicKey_t skey;
     };
     // IF BUILTINTOPIC AND QOS AND USERDATA
     // DDS_UserDataQosPolicy user_data;
@@ -106,6 +107,7 @@ struct DDS_DCPSTopic_t {
     union {
         BuiltinTopicKey_t key;
         BuiltinTopicKey_t pkey;
+        BuiltinTopicKey_t skey;
     };
     DDS_char name[DDS_TOPIC_NAME_SIZE];
 //    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
@@ -133,6 +135,7 @@ struct DDS_DCPSPublication_t {
     union {
         BuiltinTopicKey_t key;
         BuiltinTopicKey_t pkey;
+        BuiltinTopicKey_t skey;
     };
     BuiltinTopicKey_t participant_key;
     uint16_t topic_id;
@@ -163,6 +166,7 @@ struct DDS_DCPSSubscription_t {
     union {
         BuiltinTopicKey_t key;
         BuiltinTopicKey_t pkey;
+        BuiltinTopicKey_t skey;
     };
     BuiltinTopicKey_t participant_key;
     uint16_t topic_id;
@@ -217,6 +221,7 @@ struct ParticipantGenericMessage_t {
     union {
         BuiltinTopicKey_t key;
         BuiltinTopicKey_t pkey;
+        BuiltinTopicKey_t skey;
     };
     DDS_char message_class_id[CLASS_ID_STRLEN];
     DataHolder message_data;

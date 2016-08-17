@@ -14,12 +14,12 @@ typedef uint16_t GeometryId_t;
 
 struct GeometryStoreEntry {
     GeometryId_t id;
-    Geometry_t geometry;
+    Geometry_t* geometry;
 };
 typedef struct GeometryStoreEntry GeometryStoreEntry_t;
 
 struct GeometryStore {
-    GeometryStoreEntry_t entry;
+    GeometryStoreEntry_t* entry;
     uint16_t size;
 };
 typedef struct GeometryStore GeometryStore_t;

@@ -18,6 +18,7 @@
 #include "Geometry_SquareExtrusion.h"
 #include "Geometry_PolygonExtrusion.h"
 #include "Geometry_PolyhedralSurfaceExtrusion.h"
+#include "sDDS.h"
 
 #ifdef FEATURE_SDDS_GEOMETRY_ENABLED
 
@@ -62,6 +63,7 @@ Geometry_eaquals(Geometry_t* self, Geometry_t* otherObject) {
 
     default:
         return false;
+    }
 }
 
 bool_t

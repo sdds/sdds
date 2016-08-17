@@ -59,6 +59,12 @@ static rc_t
 s_readConnector(LocationFilteredTopic_t* self);
 
 rc_t
+LocationFilteredTopic_create(LocationFilteredTopic_t* self, Topic_t* topic, char* filterExpression) {
+    self->contentFilteredTopic->associatedTopic = topic;
+    return LocationFilteredTopic_setFilter(self, filterExpression);
+}
+
+rc_t
 LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpression) {
     assert(self);
     assert(filterExpression);
@@ -79,7 +85,11 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
 
 rc_t
 LocationFilteredTopic_evalSample(LocationFilteredTopic_t* self, Data data) {
-//    self->contentFilteredTopic.associatedTopic->
+    SSW_NodeID_t* device = (SSW_NodeID_t*) self->contentFilteredTopic.associatedTopic->Data_getSecondaryKey;
+    DeviceLocation_t devLoc;
+    BuiltInLocationUpdateService_getDeviceLocation(*device, &devLoc);
+
+    return LocationFilteredTopic_evalExpression(self, &devLoc);
 }
 
 rc_t
@@ -209,7 +219,6 @@ s_encodeWord(LocationFilteredTopic_t* self, char* word) {
 static rc_t
 s_readFunction(LocationFilteredTopic_t* self) {
     assert(self);
-//    assert(self->filterstate.currentPosition != self->expressionLength);
 
     if ((self->filterExpression[self->filterstate.currentPosition] >= EXPR_FUNC_EQUALS_VAL)
             && (self->filterExpression[self->filterstate.currentPosition] <= EXPR_FUNC_OVERLAPS_VAL)) {
@@ -230,7 +239,6 @@ s_readFunction(LocationFilteredTopic_t* self) {
 static rc_t
 s_readNotFunction(LocationFilteredTopic_t* self) {
     assert(self);
-//    assert(self->filterstate.currentPosition != self->expressionLength);
 
     if ((self->filterExpression[self->filterstate.currentPosition] >= EXPR_FUNC_EQUALS_VAL)
             && (self->filterExpression[self->filterstate.currentPosition] <= EXPR_FUNC_OVERLAPS_VAL)) {
@@ -245,7 +253,6 @@ s_readNotFunction(LocationFilteredTopic_t* self) {
 static rc_t
 s_readGeometry(LocationFilteredTopic_t* self) {
     assert(self);
-//    assert(self->filterstate.currentPosition != self->expressionLength);
 
     self->filterstate.expression.geometryID = self->filterExpression[self->filterstate.currentPosition];
     self->filterstate.currentPosition++;
@@ -259,7 +266,7 @@ s_processExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc) {
     assert(self->filterstate.expression.geometryID);
     assert(devLoc);
 
-    Geometry_t* geo = GeometryStore_getGeometry(self->filterstate.expression.geometryID);
+    Geometry_t* geo = GeometryStore_getGeometry(&self->geometryStore, self->filterstate.expression.geometryID);
     if (geo == NULL) {
         Log_error("Geometry %d not found.\n", self->filterstate.expression.geometryID);
         return SDDS_RT_FAIL;
@@ -268,28 +275,28 @@ s_processExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc) {
     bool_t result;
     switch (self->filterstate.expression.functionID) {
     case EXPR_FUNC_EQUALS_VAL:
-        result = Geometry_eaquals(&devLoc->area, geo);
+        result = Geometry_eaquals((Geometry_t*) &devLoc->area, geo);
         break;
     case EXPR_FUNC_DISJOINT_VAL:
-        result = Geometry_disjoint(&devLoc->area, geo);
+        result = Geometry_disjoint((Geometry_t*) &devLoc->area, geo);
         break;
     case EXPR_FUNC_INTERSECTS_VAL:
-        result = Geometry_intersects(&devLoc->area, geo);
+        result = Geometry_intersects((Geometry_t*) &devLoc->area, geo);
         break;
     case EXPR_FUNC_TOUCHES_VAL:
-        result = Geometry_touches(&devLoc->area, geo);
+        result = Geometry_touches((Geometry_t*) &devLoc->area, geo);
         break;
     case EXPR_FUNC_CROSSES_VAL:
-        result = Geometry_crosses(&devLoc->area, geo);
+        result = Geometry_crosses((Geometry_t*) &devLoc->area, geo);
         break;
     case EXPR_FUNC_WITHIN_VAL:
-        result = Geometry_whithin(&devLoc->area, geo);
+        result = Geometry_within((Geometry_t*) &devLoc->area, geo);
         break;
     case EXPR_FUNC_CONTAINS_VAL:
-        result = Geometry_contains(&devLoc->area, geo);
+        result = Geometry_contains((Geometry_t*) &devLoc->area, geo);
         break;
     case EXPR_FUNC_OVERLAPS_VAL:
-        result = Geometry_overlaps(&devLoc->area, geo);
+        result = Geometry_overlaps((Geometry_t*) &devLoc->area, geo);
         break;
     default:
         Log_error("Unknown function.");
@@ -329,7 +336,6 @@ s_processExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc) {
 static rc_t
 s_readConnector(LocationFilteredTopic_t* self) {
     assert(self);
-//    assert(self->filterstate.currentPosition != self->expressionLength);
 
     if (self->filterExpression[self->filterstate.currentPosition] == EXPR_CONN_AND_VAL) {
         self->filterstate.connector = CONNECTOR_AND;

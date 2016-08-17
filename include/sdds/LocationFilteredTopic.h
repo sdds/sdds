@@ -49,6 +49,9 @@ struct LocationFilteredTopic {
 typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 
 rc_t
+LocationFilteredTopic_create(LocationFilteredTopic_t* self, Topic_t* topic, char* filterExpression);
+
+rc_t
 LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpression);
 
 rc_t

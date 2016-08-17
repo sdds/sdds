@@ -429,7 +429,8 @@ sDDS_DCPSParticipantTopic_create() {
     topic->Data_cpy = TopicMarshalling_DCPSParticipant_cpy;
     topic->dsinks.list = List_initConcurrentLinkedList();
     topic->Data_cmpPrimaryKeys = TopicMarshalling_DCPSParticipant_cmpPrimaryKeys;
-
+    topic->Data_getPrimaryKey = TopicMarshalling_DCPSParticipant_getPrimaryKey;
+    topic->Data_getSecondaryKey = TopicMarshalling_DCPSParticipant_getSecondaryKey;
 
     if(topic->dsinks.list == NULL){
         return NULL;
@@ -441,6 +442,19 @@ sDDS_DCPSParticipantTopic_create() {
 
     return topic;
 }
+
+void*
+TopicMarshalling_DCPSParticipant_getPrimaryKey(Data data) {
+    DDS_DCPSParticipant* real_data = (DDS_DCPSParticipant*) data;
+    return (void*) &real_data->pkey;
+}
+
+void*
+TopicMarshalling_DCPSParticipant_getSecondaryKey(Data data) {
+    DDS_DCPSParticipant* real_data = (DDS_DCPSParticipant*) data;
+    return (void*) &real_data->skey;
+}
+
 
 rc_t
 TopicMarshalling_DCPSParticipant_cmpPrimaryKeys(Data data1, Data data2) {
@@ -511,6 +525,12 @@ TopicMarshalling_DCPSParticipant_decode(NetBuffRef_t* buffer, Data data, size_t*
 *  DCPS_TOPIC *
 ***************/
 
+void*
+TopicMarshalling_DCPSTopic_getPrimaryKey(Data data);
+
+void*
+TopicMarshalling_DCPSTopic_getSecondaryKey(Data data);
+
 rc_t
 TopicMarshalling_DCPSTopic_cmpPrimaryKeys(Data data1, Data data2);
 
@@ -580,6 +600,9 @@ sDDS_DCPSTopicTopic_create() {
     topic->Data_cpy = TopicMarshalling_DCPSTopic_cpy;
     topic->dsinks.list = List_initConcurrentLinkedList();
     topic->Data_cmpPrimaryKeys = TopicMarshalling_DCPSTopic_cmpPrimaryKeys;
+    topic->Data_getPrimaryKey = TopicMarshalling_DCPSTopic_getPrimaryKey;
+    topic->Data_getSecondaryKey = TopicMarshalling_DCPSTopic_getSecondaryKey;
+
     if(topic->dsinks.list == NULL){
         return NULL;
     }
@@ -589,6 +612,18 @@ sDDS_DCPSTopicTopic_create() {
     }
 
     return topic;
+}
+
+void*
+TopicMarshalling_DCPSTopic_getPrimaryKey(Data data) {
+    DDS_DCPSTopic* real_data = (DDS_DCPSTopic*) data;
+    return (void*) &real_data->pkey;
+}
+
+void*
+TopicMarshalling_DCPSTopic_getSecondaryKey(Data data) {
+    DDS_DCPSTopic* real_data = (DDS_DCPSTopic*) data;
+    return (void*) &real_data->skey;
 }
 
 rc_t
@@ -661,6 +696,12 @@ TopicMarshalling_DCPSTopic_decode(NetBuffRef_t* buffer, Data data, size_t* size)
 * DCPS Publication *
 ********************/
 
+void*
+TopicMarshalling_DCPSPublication_getPrimaryKey(Data data);
+
+void*
+TopicMarshalling_DCPSPublication_getSecondaryKey(Data data);
+
 rc_t
 TopicMarshalling_DCPSPublication_cmpPrimaryKeys(Data data1, Data data2);
 
@@ -732,6 +773,9 @@ sDDS_DCPSPublicationTopic_create() {
     topic->Data_cpy = TopicMarshalling_DCPSPublication_cpy;
     topic->dsinks.list = List_initConcurrentLinkedList();
     topic->Data_cmpPrimaryKeys = TopicMarshalling_DCPSPublication_cmpPrimaryKeys;
+    topic->Data_getPrimaryKey = TopicMarshalling_DCPSPublication_getPrimaryKey;
+    topic->Data_getSecondaryKey = TopicMarshalling_DCPSPublication_getSecondaryKey;
+
     if(topic->dsinks.list == NULL){
         return NULL;
     }
@@ -741,6 +785,18 @@ sDDS_DCPSPublicationTopic_create() {
     }
 
     return topic;
+}
+
+void*
+TopicMarshalling_DCPSPublication_getPrimaryKey(Data data) {
+    DDS_DCPSPublication* real_data = (DDS_DCPSPublication*) data;
+    return (void*) &real_data->pkey;
+}
+
+void*
+TopicMarshalling_DCPSPublication_getSecondaryKey(Data data) {
+    DDS_DCPSPublication* real_data = (DDS_DCPSPublication*) data;
+    return (void*) &real_data->skey;
 }
 
 rc_t
@@ -816,6 +872,12 @@ TopicMarshalling_DCPSPublication_decode(NetBuffRef_t* buffer, Data data, size_t*
 /*********************
 * DCPS Subscription *
 *********************/
+
+void*
+TopicMarshalling_DCPSSubscription_getPrimaryKey(Data data);
+
+void*
+TopicMarshalling_DCPSSubscription_getSecondaryKey(Data data);
 
 rc_t
 TopicMarshalling_DCPSSubscription_cmpPrimaryKeys(Data data1, Data data2);
@@ -910,6 +972,9 @@ sDDS_DCPSSubscriptionTopic_create() {
     topic->Data_cpy = TopicMarshalling_DCPSSubscription_cpy;
     topic->dsinks.list = List_initConcurrentLinkedList();
     topic->Data_cmpPrimaryKeys = TopicMarshalling_DCPSSubscription_cmpPrimaryKeys;
+    topic->Data_getPrimaryKey = TopicMarshalling_DCPSSubscription_getPrimaryKey;
+    topic->Data_getSecondaryKey = TopicMarshalling_DCPSSubscription_getSecondaryKey;
+
     if(topic->dsinks.list == NULL){
         return NULL;
     }
@@ -918,6 +983,18 @@ sDDS_DCPSSubscriptionTopic_create() {
         return NULL;
     }
     return topic;
+}
+
+void*
+TopicMarshalling_DCPSSubscription_getPrimaryKey(Data data) {
+    DDS_DCPSSubscription* real_data = (DDS_DCPSSubscription*) data;
+    return (void*) &real_data->pkey;
+}
+
+void*
+TopicMarshalling_DCPSSubscription_getSecondaryKey(Data data) {
+    DDS_DCPSSubscription* real_data = (DDS_DCPSSubscription*) data;
+    return (void*) &real_data->skey;
 }
 
 rc_t
@@ -1003,6 +1080,12 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
 *******************************/
 /* Security */
 
+void*
+TopicMarshalling_ParticipantStatelessMessage_getPrimaryKey(Data data);
+
+void*
+TopicMarshalling_ParticipantStatelessMessage_getSecondaryKey(Data data);
+
 rc_t
 TopicMarshalling_ParticipantStatelessMessage_cmpPrimaryKeys(Data data1, Data data2);
 
@@ -1062,6 +1145,9 @@ sDDS_ParticipantStatelessMessageTopic_create() {
     topic->Data_cpy = TopicMarshalling_ParticipantStatelessMessage_cpy;
     topic->Data_cmpPrimaryKeys = TopicMarshalling_ParticipantStatelessMessage_cmpPrimaryKeys;
     topic->dsinks.list = List_initConcurrentLinkedList();
+    topic->Data_getPrimaryKey = TopicMarshalling_ParticipantStatelessMessage_getPrimaryKey;
+    topic->Data_getSecondaryKey = TopicMarshalling_ParticipantStatelessMessage_getSecondaryKey;
+
     if(topic->dsinks.list == NULL){
         return NULL;
     }
@@ -1071,6 +1157,18 @@ sDDS_ParticipantStatelessMessageTopic_create() {
     }
 
     return topic;
+}
+
+void*
+TopicMarshalling_ParticipantStatelessMessage_getPrimaryKey(Data data) {
+    DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
+    return (void*) &real_data->pkey;
+}
+
+void*
+TopicMarshalling_ParticipantStatelessMessage_getSecondaryKey(Data data) {
+    DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
+    return (void*) &real_data->skey;
 }
 
 rc_t
@@ -1146,6 +1244,13 @@ TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data d
 /********************
 * DCPS Location *
 ********************/
+
+void*
+TopicMarshalling_DCPSLocation_getPrimaryKey(Data data);
+
+void*
+TopicMarshalling_DCPSLocation_getSecondaryKey(Data data);
+
 
 rc_t
 TopicMarshalling_DCPSLocation_cmpPrimaryKeys(Data data1, Data data2);
@@ -1226,6 +1331,9 @@ sDDS_DCPSLocationTopic_create() {
     topic->Data_cpy = TopicMarshalling_DCPSLocation_cpy;
     topic->dsinks.list = List_initConcurrentLinkedList();
     topic->Data_cmpPrimaryKeys = TopicMarshalling_DCPSLocation_cmpPrimaryKeys;
+    topic->Data_getPrimaryKey = TopicMarshalling_DCPSLocation_getPrimaryKey;
+    topic->Data_getSecondaryKey = TopicMarshalling_DCPSLocation_getSecondaryKey;
+
     if(topic->dsinks.list == NULL){
         return NULL;
     }
@@ -1235,6 +1343,18 @@ sDDS_DCPSLocationTopic_create() {
     }
 
     return topic;
+}
+
+void*
+TopicMarshalling_DCPSLocation_getPrimaryKey(Data data) {
+    SDDS_DCPSLocation* real_data = (SDDS_DCPSLocation*) data;
+    return (void*) &real_data->pkey;
+}
+
+void*
+TopicMarshalling_DCPSLocation_getSecondaryKey(Data data) {
+    SDDS_DCPSLocation* real_data = (SDDS_DCPSLocation*) data;
+    return (void*) &real_data->skey;
 }
 
 rc_t

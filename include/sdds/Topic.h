@@ -20,6 +20,7 @@
 #define  TOPIC_H_INC
 
 #include "List.h"
+#include "sDDS.h"
 
 enum SubscriptionState {
     CANCELLED,
