@@ -57,4 +57,25 @@
         Enable all debug messages
     <define name = "UTILS_DEBUG"/>
     -->
+    
+    <geometryEntry name="GEO_WOHNZIMMER" id="1" >
+        <class type="Square" name="s_geo_wohnzimmer">
+             <attribute name="basicShape.x" value="0"/>
+             <attribute name="basicShape.y" value="0"/>
+             <attribute name="basicShape.z" value="0"/>
+             <attribute name="basicShape.width" value="1000"/>
+             <attribute name="basicShape.length" value="1000"/>     
+        </class>
+    </geometryEntry>
+
+    <geometryEntry name="GEO_SCHLAFZIMMER" id="2" >
+        <class type="Square" name="s_geo_schlafzimmer">
+             <attribute name="basicShape.x" value="0"/>
+             <attribute name="basicShape.y" value="1000"/>
+             <attribute name="basicShape.z" value="0"/>
+             <attribute name="basicShape.width" value="1000"/>
+             <attribute name="basicShape.length" value="1000"/>     
+        </class>
+    </geometryEntry>
+
 </project>

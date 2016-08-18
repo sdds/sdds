@@ -71,6 +71,40 @@ $(project.GENERATED_WARNING_HEADER:)
 .   endif
 .endif
 
+.for project.define
+.   if define.name = "FEATURE_SDDS_GEOMETRY_ENABLED"
+static GeometryStoreEntry_t s_geometryStoreEntry[$(count (project.geometryEntry))];
+static GeometryStore_t s_geometryStore = {
+    .entry = &s_geometryStoreEntry,
+    .size = $(count (project.geometryEntry))
+};
+.       for project.geometryEntry
+
+#define $(geometryEntry.NAME) $(geometryEntry.id)
+.           for geometryEntry.class
+$(class.type:)_t $(class.name);
+.           endfor
+.       endfor
+
+
+rc_t
+GeometryStore_create(GeometryStore_t* self) {
+    Geometry_t* geo;
+.       for project.geometryEntry
+.           for geometryEntry.class
+
+    Geometry_init$(class.type:)(&$(class.name));
+.               for class.attribute
+    $(class.name).$(attribute.name) = $(attribute.value);
+.                   endfor
+    self->entry[$(index (geometryEntry)-1)].id = $(geometryEntry.NAME);
+    self->entry[$(index (geometryEntry)-1)].geometry = &$(class.name);
+.           endfor
+.       endfor
+.   endif
+.endfor
+}
+
 DDS_ReturnCode_t DDS_DataReader_set_listener(
 	DDS_DataReader self,
 	const struct DDS_DataReaderListener* a_listener,
