@@ -9,6 +9,8 @@
 #include "os-ssal/LocationService.h"
 #include "string.h"
 
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+
 #define EXPR_FUNC_EQUALS_STR        "EQUALS"
 #define EXPR_FUNC_DISJOINT_STR      "DISJOINT"
 #define EXPR_FUNC_INTERSECTS_STR    "INTERSECTS"
@@ -352,3 +354,5 @@ s_readConnector(LocationFilteredTopic_t* self) {
         return SDDS_RT_FAIL;
     }
 }
+
+#endif /* FEATURE_SDDS_LOCATION_FILTER_ENABLED */

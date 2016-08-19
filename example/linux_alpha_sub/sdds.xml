@@ -42,6 +42,7 @@
     <define name = "FEATURE_SDDS_GEOMETRY_ENABLED" />
     <define name = "FEATURE_SDDS_LOCATION_ENABLED" />
     <define name = "FEATURE_SDDS_LOCATION_TRACKING_ENABLED" />
+    <define name = "FEATURE_SDDS_LOCATION_FILTER_ENABLED" />
     <!--
         Configure discovery intervals
     -->

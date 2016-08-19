@@ -90,6 +90,9 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
 #include "LocationTrackingService.h"
 #endif
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+#include "LocationFilteredTopic.h"
+#endif
 #include "Management.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */

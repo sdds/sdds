@@ -29,6 +29,7 @@ $(project.GENERATED_WARNING_HEADER:)
 .for project.topic
 #include "$(topic.c_name)-ds.h"
 .endfor
+#include "sDDS.h"
 .echo "topic.qos_reliability_kind: "
 .for project.topic
 extern DDS_DataReader g_$(topic.c_name:)_reader;
@@ -73,22 +74,24 @@ $(project.GENERATED_WARNING_HEADER:)
 
 .for project.define
 .   if define.name = "FEATURE_SDDS_GEOMETRY_ENABLED"
+#ifdef FEATURE_SDDS_GEOMETRY_ENABLED
+
 static GeometryStoreEntry_t s_geometryStoreEntry[$(count (project.geometryEntry))];
 static GeometryStore_t s_geometryStore = {
     .entry = &s_geometryStoreEntry,
     .size = $(count (project.geometryEntry))
 };
-.       for project.geometryEntry
 
-#define $(geometryEntry.NAME) $(geometryEntry.id)
+.       for project.geometryEntry
 .           for geometryEntry.class
 $(class.type:)_t $(class.name);
 .           endfor
 .       endfor
 
-
 rc_t
 GeometryStore_create(GeometryStore_t* self) {
+    assert(self);
+
     Geometry_t* geo;
 .       for project.geometryEntry
 .           for geometryEntry.class
@@ -101,9 +104,13 @@ GeometryStore_create(GeometryStore_t* self) {
     self->entry[$(index (geometryEntry)-1)].geometry = &$(class.name);
 .           endfor
 .       endfor
+    
+    return SDDS_RT_OK;
+}
+
+#endif
 .   endif
 .endfor
-}
 
 DDS_ReturnCode_t DDS_DataReader_set_listener(
 	DDS_DataReader self,
@@ -171,6 +178,9 @@ sDDS_init (void)
 #ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
     LocationTrackingService_init();
 #endif
+#ifdef FEATURE_SDDS_GEOMETRY_ENABLED
+    assert(GeometryStore_create(&s_geometryStore) == SDDS_RT_OK);
+#endif 
 
     assert(LocatorDB_freeLocators() > 0);
 

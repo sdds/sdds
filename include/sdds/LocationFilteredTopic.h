@@ -13,6 +13,8 @@
 #include "os-ssal/LocationService.h"
 #include "sdds_types.h"
 
+#   ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+
 #ifndef SDDS_FILTER_EXPR_MAX_LEN
 #define SDDS_FILTER_EXPR_MAX_LEN 32
 #endif
@@ -59,5 +61,7 @@ LocationFilteredTopic_evalSample(LocationFilteredTopic_t* self, Data data);
 
 rc_t
 LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc);
+
+#   endif /*FEATURE_SDDS_LOCATION_FILTER_ENABLED*/
 
 #endif /* SDDS_INCLUDE_SDDS_LOCATIONFILTEREDTOPIC_H_ */

@@ -266,6 +266,21 @@ $(project.GENERATED_WARNING_HEADER:)
 #endif
 .endif
 
+.for project.define
+.   if define.name = "FEATURE_SDDS_GEOMETRY_ENABLED"
+#ifdef FEATURE_SDDS_GEOMETRY_ENABLED
+
+/* 
+ * Geometry IDs 
+ */
+.       for project.geometryEntry
+#define $(geometryEntry.NAME) $(geometryEntry.id)
+.       endfor
+
+#endif
+.   endif
+.endfor
+
 #endif
 /*
 $(project.GENERATED_WARNING_HEADER:)

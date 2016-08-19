@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include "linux_alpha_sub_sdds_impl.h"
+#include "sDDS.h"
 
 int main()
 {
@@ -16,7 +17,10 @@ int main()
     LocationFilteredTopic_t alphaFiltered;
 
     Topic_t* topic = TopicDB_getTopic(1);
-    LocationFilteredTopic_setFilter(&alphaFiltered, topic, "WITHIN "GEO_WOHNZIMMER);
+    char filterExpr[64];
+    sprintf(filterExpr, "WITHIN %d", GEO_WOHNZIMMER);
+
+    LocationFilteredTopic_setFilter(&alphaFiltered, topic, );
 
     for (;;) {
         ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader,
