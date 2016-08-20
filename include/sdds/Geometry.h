@@ -34,19 +34,20 @@ typedef uint16_t GeoMeasurement_t;
 #define GEO_TYPE_POLYGON_EXTRUSION              GEO_TYPE_POLYGON | GEO_TYPE_EXTRUSION
 #define GEO_TYPE_POLYHEDRALSURFACE_EXTRUSION    GEO_TYPE_POLYHEDRALSURFACE | GEO_TYPE_EXTRUSION
 
-enum GeoMeasurementAccuracy {
-    GEO_MM_ACCURACY,
-    GEO_CM_ACCURACY,
-    GEO_DM_ACCURACY,
-    GEO_1M_ACCURACY,
-    GEO_10M_ACCURACY,
-    GEO_100M_ACCURACY,
-    GEO_KM_ACCURACY
-};
-typedef enum GeoMeasurementAccuracy GeoMeasurementAccuracy_t;
+
+#define GEO_MM_ACCURACY     0
+#define GEO_CM_ACCURACY     1
+#define GEO_DM_ACCURACY     2
+#define GEO_1M_ACCURACY     3
+#define GEO_10M_ACCURACY    4
+#define GEO_100M_ACCURACY   5
+#define GEO_KM_ACCURACY     6
+
+#ifndef GEO_MEASUEMENT_ACCURACY
+#define GEO_MEASUEMENT_ACCURACY GEO_CM_ACCURACY
+#endif
 
 struct Geometry {
-    GeoMeasurementAccuracy_t accuracy;
     GeometryType_t type;
 };
 typedef struct Geometry Geometry_t;
@@ -158,5 +159,11 @@ Geometry_overlaps(Geometry_t* self, Geometry_t* otherObject);
 
 Polygon_t*
 BasicShape_asPolygon(BasicShape_t* self);
+
+void
+Geometry_initSquare(Square_t* self);
+
+void
+Geometry_initPoint(Point_t* self);
 
 #endif /* SDDS_INCLUDE_SDDS_GEOMETRY_H_ */

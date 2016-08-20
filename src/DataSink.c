@@ -488,6 +488,28 @@ DataSink_create_datareader(Topic_t* topic, Qos qos, Listener listener, StatusMas
     }
     return NULL;
 }
+
+DataReader_t*
+DataSink_create_filteredDatareader(LocationFilteredTopic_t* topic, Qos qos, Listener listener, StatusMask sm) {
+    (void) qos;
+    (void) sm;
+
+    uint8_t index;
+    for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
+        //  Check if object at index has been allocated
+        if (!BitArray_check(&self->allocated_readers, index)) {
+            //  Allocate object at index
+            BitArray_set(&self->allocated_readers, index);
+            DataReader_t* reader = &self->readers[index];
+            // Initialize object properties
+            FilteredDataReader_init(reader, index, topic, listener);
+            Log_debug("Create data reader with id %u\n", DataReader_id(reader));
+            return reader;
+        }
+    }
+    return NULL;
+}
+
 #endif
 
 

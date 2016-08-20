@@ -24,8 +24,8 @@ struct GeometryStore {
 };
 typedef struct GeometryStore GeometryStore_t;
 
-GeometryStore_t*
-GeometryStore_create();
+rc_t
+GeometryStore_create(GeometryStore_t* self);
 
 Geometry_t*
 GeometryStore_getGeometry(GeometryStore_t* self, GeometryId_t id);

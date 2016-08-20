@@ -20,7 +20,7 @@ int main()
     char filterExpr[64];
     sprintf(filterExpr, "WITHIN %d", GEO_WOHNZIMMER);
 
-    LocationFilteredTopic_setFilter(&alphaFiltered, topic, );
+    LocationFilteredTopic_create(&alphaFiltered, topic, filterExpr);
 
     for (;;) {
         ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader,

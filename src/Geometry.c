@@ -106,4 +106,17 @@ BasicShape_asPolygon(BasicShape_t* self)  {
     return NULL;
 }
 
+void
+Geometry_initPoint(Point_t* self) {
+    self->geometry.type = GEO_TYPE_POINT;
+    self->x = 0;
+    self->y = 0;
+    self->z = 0;
+}
+
+void
+Geometry_initSquare(Square_t* self) {
+
+}
+
 #endif

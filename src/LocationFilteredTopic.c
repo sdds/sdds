@@ -62,7 +62,7 @@ s_readConnector(LocationFilteredTopic_t* self);
 
 rc_t
 LocationFilteredTopic_create(LocationFilteredTopic_t* self, Topic_t* topic, char* filterExpression) {
-    self->contentFilteredTopic->associatedTopic = topic;
+    self->contentFilteredTopic.associatedTopic = topic;
     return LocationFilteredTopic_setFilter(self, filterExpression);
 }
 
