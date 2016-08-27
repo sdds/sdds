@@ -18,6 +18,7 @@
 
 #include "sDDS.h"
 #include <os-ssal/Trace.h>
+#include "FilteredDataReader.h"
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 // participant ID is defined in src/BuiltinTopic.c
@@ -29,9 +30,16 @@ extern SSW_NodeID_t BuiltinTopic_participantID;
 struct _DataSink_t {
     DataReader_t readers[SDDS_DATA_READER_MAX_OBJS];
     uint64_t allocated_readers;
+
+    FilteredDataReader_t filteredReaders[SDDS_DATA_FILTER_READER_MAX_OBJS];
+	uint64_t allocated_filteredReaders;
+
     topicid_t iteratorTopicID;
     int8_t iteratorPos;
     int8_t iteratorNext;
+
+    bool_t iteratorFiltered;
+
     SNPS_Address_t addr;
 };
 static DataSink_t _dataSink;
@@ -55,6 +63,7 @@ DataSink_init(void) {
     self->iteratorTopicID = 0;
     self->iteratorPos = -1;
     self->iteratorNext = -1;
+    self->iteratorFiltered = 0;
     return SDDS_RT_OK;
 }
 
@@ -489,21 +498,21 @@ DataSink_create_datareader(Topic_t* topic, Qos qos, Listener listener, StatusMas
     return NULL;
 }
 
-DataReader_t*
+FilteredDataReader_t*
 DataSink_create_filteredDatareader(LocationFilteredTopic_t* topic, Qos qos, Listener listener, StatusMask sm) {
     (void) qos;
     (void) sm;
 
     uint8_t index;
-    for (index = 0; index < SDDS_DATA_READER_MAX_OBJS; index++) {
+    for (index = 0; index < SDDS_DATA_FILTER_READER_MAX_OBJS; index++) {
         //  Check if object at index has been allocated
-        if (!BitArray_check(&self->allocated_readers, index)) {
+        if (!BitArray_check(&self->allocated_filteredReaders, index)) {
             //  Allocate object at index
-            BitArray_set(&self->allocated_readers, index);
-            DataReader_t* reader = &self->readers[index];
+            BitArray_set(&self->allocated_filteredReaders, index);
+            FilteredDataReader_t* reader = &self->filteredReaders[index];
             // Initialize object properties
             FilteredDataReader_init(reader, index, topic, listener);
-            Log_debug("Create data reader with id %u\n", DataReader_id(reader));
+            Log_debug("Create filtered data reader with id %u\n", DataReader_id((DataReader_t*)reader));
             return reader;
         }
     }
@@ -570,13 +579,21 @@ DataSink_readerIterator_reset(topicid_t topic) {
     self->iteratorTopicID = topic;
     self->iteratorPos = -1;
     self->iteratorNext = -1;
+    self->iteratorFiltered = 0;
 
-    for (int8_t i = 0; i < SDDS_DATA_READER_MAX_OBJS; i++) {
-        if (self->readers[i].topic->id == self->iteratorTopicID) {
-            self->iteratorNext = i;
-            return SDDS_RT_OK;
-        }
-    }
+	for (int8_t i = 0; i < SDDS_DATA_READER_MAX_OBJS; i++) {
+		if (self->readers[i].topic->id == self->iteratorTopicID) {
+			self->iteratorNext = i;
+			return SDDS_RT_OK;
+		}
+	}
+	self->iteratorFiltered = 1;
+	for (int8_t i = 0; i < SDDS_DATA_FILTER_READER_MAX_OBJS; i++) {
+		if (self->filteredReaders[i].dataReader.topic->id == self->iteratorTopicID) {
+			self->iteratorNext = i;
+			return SDDS_RT_OK;
+		}
+	}
 
     return SDDS_RT_FAIL;
 }
@@ -585,13 +602,43 @@ DataReader_t*
 DataSink_readerIterator_next() {
     self->iteratorPos = self->iteratorNext;
     self->iteratorNext = -1;
-    for (int8_t i = self->iteratorPos+1; i < SDDS_DATA_READER_MAX_OBJS; i++) {
-        if (self->readers[i].topic->id == self->iteratorTopicID) {
-            self->iteratorNext = i;
-            break;
-        }
+
+    if (self->iteratorFiltered == 0) {
+		for (int8_t i = self->iteratorPos+1; i < SDDS_DATA_READER_MAX_OBJS; i++) {
+			printf("readerID %d\n", self->readers[i].id);
+			if (self->readers[i].id == 7) {
+				printf("topic: %d\n", self->readers[i].topic->id);
+			}
+			if (self->readers[i].topic->id == self->iteratorTopicID) {
+				self->iteratorNext = i;
+				break;
+			}
+		}
     }
-    return &(self->readers[self->iteratorPos]);
+
+    if (self->iteratorNext == -1) {
+    	self->iteratorFiltered = 1;
+    }
+
+    if (self->iteratorFiltered != 0) {
+		for (int8_t i = self->iteratorPos+1; i < SDDS_DATA_FILTER_READER_MAX_OBJS; i++) {
+			printf("readerID %d\n", self->readers[i].id);
+			if (self->filteredReaders[i].dataReader.id == 7) {
+				printf("topic: %d\n", self->filteredReaders[i].dataReader.topic->id);
+			}
+			if (self->filteredReaders[i].dataReader.topic->id == self->iteratorTopicID) {
+				self->iteratorNext = i;
+				break;
+			}
+		}
+    }
+
+    if (self->iteratorFiltered == 0) {
+    	return &(self->readers[self->iteratorPos]);
+    }
+    else {
+    	return (DataReader_t*) &(self->filteredReaders[self->iteratorPos]);
+    }
 }
 
 rc_t

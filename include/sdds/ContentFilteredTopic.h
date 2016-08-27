@@ -8,6 +8,7 @@
 #ifndef SDDS_INCLUDE_SDDS_CONTENTFILTEREDTOPIC_H_
 #define SDDS_INCLUDE_SDDS_CONTENTFILTEREDTOPIC_H_
 
+#include "sDDS.h"
 #include "Topic.h"
 
 struct ContentFilteredTopic {

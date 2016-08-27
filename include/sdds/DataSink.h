@@ -23,7 +23,10 @@
 #include "sDDS.h"
 #include "BuiltinTopic.h"
 #include "TopicDB.h"
-#include "LocationFilteredTopic.h"
+#include "Sample.h"
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+#include "FilteredDataReader.h"
+#endif
 
 struct _DataSink_t;
 typedef struct _DataSink_t DataSink_t;
@@ -36,9 +39,10 @@ DataSink_init(void);
 DataReader_t*
 DataSink_create_datareader(Topic_t* topic, Qos qos, Listener listener, StatusMask sm);
 
-DataReader_t*
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+FilteredDataReader_t*
 DataSink_create_filteredDatareader(LocationFilteredTopic_t* topic, Qos qos, Listener listener, StatusMask sm);
-
+#endif
 rc_t
 DataSink_processFrame(NetBuffRef_t* buff);
 

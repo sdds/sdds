@@ -43,6 +43,12 @@ extern ReliableSample_t $(topic.c_name)_reliableSamples_pool[];
 .    endif
 .  endif
 .endfor
+
+.for project.topicFilter
+extern LocationFilteredTopic_t g_$(topicFilter.name:)_topic;
+extern FilteredDataReader_t* g_$(topicFilter.name:)_reader;
+.endfor
+
 #endif
 /*
 $(project.GENERATED_WARNING_HEADER:)
@@ -100,7 +106,7 @@ GeometryStore_create(GeometryStore_t* self) {
 .               for class.attribute
     $(class.name:).$(attribute.name:) = $(attribute.value:);
 .                   endfor
-    self->entry[$(index (geometryEntry)-1)].id = $(geometryEntry.NAME);
+    self->entry[$(index (geometryEntry)-1)].id = $(geometryEntry.NAME)_ID;
     self->entry[$(index (geometryEntry)-1)].geometry = (Geometry_t*)&$(class.name);
 .           endfor
 .       endfor
@@ -136,6 +142,12 @@ DDS_DataWriter g_$(topic.c_name:)_writer;
 .   endif
 
 .endfor
+
+.for project.topicFilter
+LocationFilteredTopic_t g_$(topicFilter.name:)_topic;
+FilteredDataReader_t* g_$(topicFilter.name:)_reader;
+.endfor
+
 rc_t
 sDDS_init (void)
 {
@@ -157,30 +169,7 @@ sDDS_init (void)
 	assert(DataSource_init() == SDDS_RT_OK);
 	assert(DataSink_init() == SDDS_RT_OK);
 	assert(sdds_History_init() == SDDS_RT_OK);
-	assert(Network_init() == SDDS_RT_OK);
 	assert(Topic_init() == SDDS_RT_OK);
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-	assert(BuiltinTopic_init() == SDDS_RT_OK);
-	assert(BuiltInTopicPublicationService_init() == SDDS_RT_OK);
-#   ifdef FEATURE_SDDS_LOCATION_ENABLED	
-	assert(BuiltInLocationUpdateService_init() == SDDS_RT_OK);
-#   endif
-#endif
-#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-	assert(DiscoveryService_init() == SDDS_RT_OK);
-#endif
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-    assert(Trace_init() == SDDS_RT_OK);
-#endif
-#ifdef FEATURE_SDDS_LOCATION_ENABLED
-    LocationService_init();
-#endif
-#ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
-    LocationTrackingService_init();
-#endif
-#ifdef FEATURE_SDDS_GEOMETRY_ENABLED
-    assert(GeometryStore_create(&s_geometryStore) == SDDS_RT_OK);
-#endif 
 
     assert(LocatorDB_freeLocators() > 0);
 
@@ -228,6 +217,37 @@ sDDS_init (void)
 .       endfor
 .   endfor
 .endfor
+
+.for project.topicFilter
+    ret = LocationFilteredTopic_create(&g_$(topicFilter.name:)_topic, g_$(topicFilter.topic:)_topic, $(topicFilter.expression:));
+    assert(ret == SDDS_RT_OK);
+    g_$(topicFilter.name:)_reader = DataSink_create_filteredDatareader(&g_$(topicFilter.name:)_topic, NULL, NULL, NULL);
+.endfor
+
+	assert(Network_init() == SDDS_RT_OK);
+#ifdef FEATURE_SDDS_TRACING_ENABLED
+    assert(Trace_init() == SDDS_RT_OK);
+#endif
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
+    LocationService_init();
+#endif
+#ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
+    LocationTrackingService_init();
+#endif
+#ifdef FEATURE_SDDS_GEOMETRY_ENABLED
+    assert(GeometryStore_create(&s_geometryStore) == SDDS_RT_OK);
+#endif 
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+	assert(BuiltinTopic_init() == SDDS_RT_OK);
+	assert(BuiltInTopicPublicationService_init() == SDDS_RT_OK);
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED	
+	assert(BuiltInLocationUpdateService_init() == SDDS_RT_OK);
+#   endif
+#endif
+#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
+	assert(DiscoveryService_init() == SDDS_RT_OK);
+#endif
+
     return ret;
 }
 /*

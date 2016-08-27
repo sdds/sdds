@@ -84,6 +84,8 @@ DataReader_history(DataReader_t* self) {
 
 rc_t
 DataReader_pushData(DataReader_t* self, NetBuffRef_t* buff) {
+	assert(self);
+	assert(buff);
     return self->fn_pushData(self, buff);
 }
 

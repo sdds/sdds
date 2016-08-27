@@ -14,16 +14,8 @@ int main()
     static Alpha alpha_sub;
     Alpha *alpha_sub_p = &alpha_sub;
 
-    LocationFilteredTopic_t alphaFiltered;
-
-    Topic_t* topic = TopicDB_getTopic(1);
-    char filterExpr[64];
-    sprintf(filterExpr, "WITHIN %d", GEO_WOHNZIMMER);
-
-    LocationFilteredTopic_create(&alphaFiltered, topic, filterExpr);
-
     for (;;) {
-        ret = DDS_AlphaDataReader_take_next_sample(g_Alpha_reader,
+        ret = DDS_AlphaDataReader_take_next_sample(g_filteredAlpha_reader,
                 &alpha_sub_p, NULL);
         if (ret == DDS_RETCODE_NO_DATA) {
             printf("no data for alpha\n");

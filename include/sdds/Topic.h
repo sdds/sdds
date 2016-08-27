@@ -19,8 +19,8 @@
 #ifndef  TOPIC_H_INC
 #define  TOPIC_H_INC
 
-#include "List.h"
 #include "sDDS.h"
+#include "List.h"
 
 enum SubscriptionState {
     CANCELLED,

@@ -488,15 +488,16 @@ TopicMarshalling_$(topic.c_name:)_getPrimaryKey(Data data) {
 
 void*
 TopicMarshalling_$(topic.c_name:)_getSecondaryKey(Data data) {
+    assert(data);
     $(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
     
 .   for topic.attribute
-.       if attribute.key = "primary"
+.       if attribute.key = "secondary"
     return (void*) &real_data->skey;
-.       else
-    return NULL;
 .       endif
 .   endfor
+
+    return NULL;
 }
 
 rc_t TopicMarshalling_$(topic.c_name:)_cmpPrimaryKeys(Data data1, Data data2) {

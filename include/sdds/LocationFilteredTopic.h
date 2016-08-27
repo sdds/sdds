@@ -8,6 +8,7 @@
 #ifndef SDDS_INCLUDE_SDDS_LOCATIONFILTEREDTOPIC_H_
 #define SDDS_INCLUDE_SDDS_LOCATIONFILTEREDTOPIC_H_
 
+#include "sDDS.h"
 #include "ContentFilteredTopic.h"
 #include "GeometryStore.h"
 #include "os-ssal/LocationService.h"

@@ -5,20 +5,23 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
+#include "LocationFilteredTopic.h"
 #include "FilteredDataReader.h"
 
 static rc_t
 s_pushData(DataReader_t* self, NetBuffRef_t* buff);
 
 void
-FilteredDataReader_init(DataReader_t* self, uint8_t id, LocationFilteredTopic_t* topic, On_Data_Avail_Listener listener) {
+FilteredDataReader_init(FilteredDataReader_t* self, uint8_t id, LocationFilteredTopic_t* topic, On_Data_Avail_Listener listener) {
     assert(self);
     assert(topic);
 
-    self->id = id;
-    self->topic = (Topic_t*) topic;
-    self->on_data_avail_listener = listener;
-    self->fn_pushData = s_pushData;
+    self->dataReader.id = id;
+    self->dataReader.topic = topic->contentFilteredTopic.associatedTopic;
+    self->dataReader.on_data_avail_listener = listener;
+    self->dataReader.fn_pushData = s_pushData;
+    self->locationFilteredTopic = topic;
 }
 
 static rc_t
@@ -185,11 +188,13 @@ s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
 #       endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK/NACK
 #    else // else of: if SDDS_HAS_QOS_RELIABILITY
 
-    LocationFilteredTopic_t* locationFilteredTopic = (LocationFilteredTopic_t*) self->topic;
+    FilteredDataReader_t* fdr = (FilteredDataReader_t*) self;
+    LocationFilteredTopic_t* locationFilteredTopic = fdr->locationFilteredTopic;
 
     ret = LocationFilteredTopic_evalSample(locationFilteredTopic, (Data) topic->incomingSample.data);
 
     if (ret == SDDS_RT_OK) {
+    	printf("Filter matches.\n");
         ret = sdds_History_enqueue(history, topic, &topic->incomingSample);
         if (ret == SDDS_RT_FAIL) {
             Log_warn("Can't parse data: Discard submessage\n");
@@ -197,7 +202,13 @@ s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
             return SDDS_RT_FAIL;
         }
     }
-#    endif // end of: if SDDS_HAS_QOS_RELIABILITY
+#		ifdef UTILS_DEBUG
+    else {
+    	printf("Filter doesn't match.\n");
+    	Log_debug("Filter doesn't match.\n");
+    }
+#		endif
+#   endif // end of: if SDDS_HAS_QOS_RELIABILITY
 
     return SDDS_RT_OK;
 }

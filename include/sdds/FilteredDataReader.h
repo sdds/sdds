@@ -8,11 +8,12 @@
 #ifndef SDDS_INCLUDE_SDDS_FILTEREDDATAREADER_H_
 #define SDDS_INCLUDE_SDDS_FILTEREDDATAREADER_H_
 
-#include "LocationFilteredTopic.h"
 #include "sDDS.h"
+#include "LocationFilteredTopic.h"
 
 struct FilteredDataReader {
     DataReader_t dataReader;
+    LocationFilteredTopic_t* locationFilteredTopic;
 };
 typedef struct FilteredDataReader FilteredDataReader_t;
 
