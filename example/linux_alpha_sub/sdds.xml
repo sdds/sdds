@@ -4,8 +4,8 @@
     endian = "little"
     os = "linux"
     protocol = "AF_INET6"
-    ip = "fe80::c0ef:62ff:fed4:d26a"
-    iface = "tap0"
+    ip = "fe80::12:13ff:fe14:1516"
+    iface = "usb0"
     >
     <!--
     Set Set interface and port for this project. Interface is required if your
@@ -60,8 +60,8 @@
     <define name = "GEO_MEASUEMENT_ACCURACY" value = "GEO_CM_ACCURACY" />
     <!--
         Enable all debug messages
-    <define name = "UTILS_DEBUG"/>
     -->
+    <define name = "UTILS_DEBUG"/>
     
     <geometryEntry name="GEO_WOHNZIMMER" id="1" >
         <class type="Square" name="s_geo_wohnzimmer">
@@ -82,5 +82,7 @@
              <attribute name="basicShape.length" value="1000"/>     
         </class>
     </geometryEntry>
+
+    <topicFilter name="filteredAlpha" topic="Alpha" expression="&quot;WITHIN &quot;GEO_WOHNZIMMER"/>
 
 </project>
