@@ -46,12 +46,12 @@ struct LocationFilteredTopic {
     uint8_t filterExpression[SDDS_FILTER_EXPR_MAX_LEN];
     uint8_t expressionLength;
     FilterState_t filterstate;
-    GeometryStore_t geometryStore;
+    GeometryStore_t* geometryStore;
 };
 typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 
 rc_t
-LocationFilteredTopic_create(LocationFilteredTopic_t* self, Topic_t* topic, char* filterExpression);
+LocationFilteredTopic_create(LocationFilteredTopic_t* self, Topic_t* topic, char* filterExpression, GeometryStore_t* store);
 
 rc_t
 LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpression);

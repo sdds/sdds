@@ -4,8 +4,8 @@
     endian = "little"
     os = "linux"
     protocol = "AF_INET6"
-    ip = "fe80::12:13ff:fe14:1516"
-    iface = "usb0"
+    ip = "fe80::c0ef:62ff:fed4:d26a"
+    iface = "tap0"
     >
     <!--
     Set Set interface and port for this project. Interface is required if your

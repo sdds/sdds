@@ -189,6 +189,16 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 return SDDS_RT_FAIL;
             }
 
+            Topic_t* topic = buff->curTopic;
+            Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
+
+            ret = SNPS_readData(buff, topic->Data_decode, (Data) topic->incomingSample.data);
+            if (ret == SDDS_RT_FAIL) {
+                SNPS_discardSubMsg(buff);
+                return ret;
+            }
+            topic->incomingSample.instance = loc;
+
             while (DataSink_readerIterator_hasNext() == SDDS_RT_OK) {
                 DataReader_t* data_reader = DataSink_readerIterator_next();
                 ret = DataReader_pushData(data_reader, buff);
@@ -603,12 +613,16 @@ DataSink_readerIterator_next() {
     self->iteratorPos = self->iteratorNext;
     self->iteratorNext = -1;
 
+    DataReader_t* curReader;
+    if (self->iteratorFiltered == 0) {
+        curReader = &(self->readers[self->iteratorPos]);
+    }
+    else {
+        curReader = (DataReader_t*) &(self->filteredReaders[self->iteratorPos]);
+    }
+
     if (self->iteratorFiltered == 0) {
 		for (int8_t i = self->iteratorPos+1; i < SDDS_DATA_READER_MAX_OBJS; i++) {
-			printf("readerID %d\n", self->readers[i].id);
-			if (self->readers[i].id == 7) {
-				printf("topic: %d\n", self->readers[i].topic->id);
-			}
 			if (self->readers[i].topic->id == self->iteratorTopicID) {
 				self->iteratorNext = i;
 				break;
@@ -618,14 +632,11 @@ DataSink_readerIterator_next() {
 
     if (self->iteratorNext == -1) {
     	self->iteratorFiltered = 1;
+    	self->iteratorPos = -1;
     }
 
     if (self->iteratorFiltered != 0) {
 		for (int8_t i = self->iteratorPos+1; i < SDDS_DATA_FILTER_READER_MAX_OBJS; i++) {
-			printf("readerID %d\n", self->readers[i].id);
-			if (self->filteredReaders[i].dataReader.id == 7) {
-				printf("topic: %d\n", self->filteredReaders[i].dataReader.topic->id);
-			}
 			if (self->filteredReaders[i].dataReader.topic->id == self->iteratorTopicID) {
 				self->iteratorNext = i;
 				break;
@@ -633,12 +644,7 @@ DataSink_readerIterator_next() {
 		}
     }
 
-    if (self->iteratorFiltered == 0) {
-    	return &(self->readers[self->iteratorPos]);
-    }
-    else {
-    	return (DataReader_t*) &(self->filteredReaders[self->iteratorPos]);
-    }
+    return curReader;
 }
 
 rc_t

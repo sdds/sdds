@@ -94,12 +94,8 @@ s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
     History_t* history = DataReader_history(self);
     Topic_t* topic = buff->curTopic;
     Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);
+    rc_t ret;
 
-    rc_t ret = SNPS_readData(buff, topic->Data_decode, (Data) topic->incomingSample.data);
-    if (ret == SDDS_RT_FAIL) {
-        return ret;
-    }
-    topic->incomingSample.instance = loc;
 #   ifdef SDDS_HAS_QOS_RELIABILITY
     ret = sdds_History_enqueue(history, topic, &topic->incomingSample, topic->incomingSample.seqNr);
     if (ret == SDDS_RT_FAIL) {

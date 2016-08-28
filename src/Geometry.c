@@ -88,7 +88,7 @@ Geometry_crosses(Geometry_t* self, Geometry_t* otherObject) {
 
 bool_t
 Geometry_within(Geometry_t* self, Geometry_t* otherObject) {
-    return false;
+    return true;
 }
 
 bool_t

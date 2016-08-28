@@ -62,13 +62,9 @@ static rc_t
 s_readConnector(LocationFilteredTopic_t* self);
 
 rc_t
-LocationFilteredTopic_create(LocationFilteredTopic_t* self, Topic_t* topic, char* filterExpression) {
+LocationFilteredTopic_create(LocationFilteredTopic_t* self, Topic_t* topic, char* filterExpression, GeometryStore_t* store) {
     self->contentFilteredTopic.associatedTopic = topic;
-
-    printf("\n====================================================\n");
-    printf("%d %s: %s\n", __LINE__, __FUNCTION__, filterExpression);
-    printf("====================================================\n");
-
+    self->geometryStore = store;
     return LocationFilteredTopic_setFilter(self, filterExpression);
 }
 
@@ -79,21 +75,21 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
 
     memset(self->filterExpression, 0, SDDS_FILTER_EXPR_MAX_LEN);
     char word[EXPR_WORD_MAX_LEN];
-    char* pos = s_readWord(filterExpression, word);
-    while (pos != NULL) {
+    char* pos = filterExpression;
+    do {
+        pos = s_readWord(pos, word);
         rc_t ret = s_encodeWord(self, word);
         if (ret != SDDS_RT_OK) {
             Log_error("Filter expression too long.\n");
             return SDDS_RT_FAIL;
         }
-        pos = s_readWord(pos, word);
-    }
+    } while (pos != NULL);
 
-    printf("fiterExpression ");
-    for (int i = 0; i < self->expressionLength; i++) {
-    	printf("%d ", self->filterExpression[i]);
-    }
-    printf("\n");
+//    printf("fiterExpression ");
+//    for (int i = 0; i < self->expressionLength; i++) {
+//    	printf("%d ", self->filterExpression[i]);
+//    }
+//    printf("\n");
 
     return SDDS_RT_OK;
 }
@@ -169,76 +165,63 @@ s_encodeWord(LocationFilteredTopic_t* self, char* word) {
         return SDDS_RT_FAIL;
     }
 
-    printf("%d %s: %s\n", __LINE__, __FUNCTION__, word);
     if (strcmp(word, EXPR_FUNC_EQUALS_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_FUNC_EQUALS_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else if (strcmp(word, EXPR_FUNC_DISJOINT_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_FUNC_DISJOINT_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else if (strcmp(word, EXPR_FUNC_INTERSECTS_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_FUNC_INTERSECTS_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else if (strcmp(word, EXPR_FUNC_TOUCHES_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_FUNC_TOUCHES_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else if (strcmp(word, EXPR_FUNC_CROSSES_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_FUNC_CROSSES_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else if (strcmp(word, EXPR_FUNC_WITHIN_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_FUNC_WITHIN_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else if (strcmp(word, EXPR_FUNC_CONTAINS_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_FUNC_CONTAINS_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else if (strcmp(word, EXPR_FUNC_OVERLAPS_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_FUNC_OVERLAPS_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else if (strcmp(word, EXPR_CONN_AND_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_CONN_AND_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else if (strcmp(word, EXPR_CONN_OR_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_CONN_OR_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else if (strcmp(word, EXPR_NOT_STR) == 0) {
         self->filterExpression[self->expressionLength] = EXPR_NOT_VAL;
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
     else {
         self->filterExpression[self->expressionLength] = atoi(word);
-        printf("%d %s: [%d]%d\n", __LINE__, __FUNCTION__, self->expressionLength, self->filterExpression[self->expressionLength]);
         self->expressionLength++;
         return SDDS_RT_OK;
     }
@@ -281,7 +264,6 @@ s_readNotFunction(LocationFilteredTopic_t* self) {
 static rc_t
 s_readGeometry(LocationFilteredTopic_t* self) {
     assert(self);
-    printf("%d < %d\n", self->filterstate.currentPosition, self->expressionLength);
     assert(self->filterstate.currentPosition < self->expressionLength);
 
     self->filterstate.expression.geometryID = self->filterExpression[self->filterstate.currentPosition];
@@ -296,7 +278,7 @@ s_processExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc) {
     assert(self->filterstate.expression.geometryID);
     assert(devLoc);
 
-    Geometry_t* geo = GeometryStore_getGeometry(&self->geometryStore, self->filterstate.expression.geometryID);
+    Geometry_t* geo = GeometryStore_getGeometry(self->geometryStore, self->filterstate.expression.geometryID);
     if (geo == NULL) {
         Log_error("Geometry %d not found.\n", self->filterstate.expression.geometryID);
         return SDDS_RT_FAIL;

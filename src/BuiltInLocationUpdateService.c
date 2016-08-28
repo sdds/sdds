@@ -41,7 +41,6 @@ BuiltInLocationUpdateService_init() {
 
 rc_t
 BuiltInLocationUpdateService_getDeviceLocation(SSW_NodeID_t device, DeviceLocation_t* devLoc) {
-    assert(device);
     assert(devLoc);
 
     for (int i = 0; i < s_deviceCount; i++) {

@@ -56,4 +56,8 @@ List_t*
 List_initConcurrentLinkedList(void);
 
 
+List_t*
+List_initDynamicLinkedList(void);
+
+
 #endif /* SDDS_INCLUDE_OS_SSAL_LIST_H_ */
