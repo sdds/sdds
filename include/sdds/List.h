@@ -55,7 +55,11 @@ List_initLinkedList(void);
 List_t*
 List_initConcurrentLinkedList(void);
 
-
+/**
+ *  ----------------------------------------------------------------------------
+ * Initializes a linked list with dynamily allocated memory.
+ * @return     Returns the pointer to the list on success, or NULL on failure.
+ */
 List_t*
 List_initDynamicLinkedList(void);
 
