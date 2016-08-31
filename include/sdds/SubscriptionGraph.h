@@ -59,7 +59,13 @@ ParticipantNode_t*
 SubscriptionGraph_createParticipantNode(SubscriptionGraph_t *self);
 
 rc_t
-SubscriptionGraph_freeParticipantNode(SubscriptionGraph_t *self);
+SubscriptionGraph_freeParticipantNode(SubscriptionGraph_t *self, ParticipantNode_t* node);
+
+DirectedEdge_t*
+SubscriptionGraph_createDirectedEdge(SubscriptionGraph_t *self);
+
+rc_t
+SubscriptionGraph_freeDirectedEdge(SubscriptionGraph_t *self, DirectedEdge_t*edge);
 
 DirectedEdge_t*
 SubscriptionGraph_establishSubscription(SubscriptionGraph_t *self, ParticipantNode_t* pub, ParticipantNode_t* sub, Topic_t* topic);
