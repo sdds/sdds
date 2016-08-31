@@ -29,6 +29,13 @@ TopicDB_checkTopic(topicid_t topic);
 Topic_t*
 TopicDB_createTopic(void);
 
+void
+TopicDB_iteratorReset();
+Topic_t*
+TopicDB_iteratorNext();
+bool_t
+TopicDB_iteratorHasNext();
+
 rc_t
 TopicDB_publishBuiltinTopic(NetBuffRef_t* buf);
 

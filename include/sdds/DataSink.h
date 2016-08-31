@@ -64,4 +64,7 @@ DataSink_readerIterator_next();
 rc_t
 DataSink_readerIterator_hasNext();
 
+FilteredDataReader_t*
+DataSink_getFilteredDataReaders();
+
 #endif   /* ----- #ifndef DATASINK_H_INC  ----- */

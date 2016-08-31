@@ -13,6 +13,8 @@
 rc_t
 SubscriptionManagementService_init();
 
+rc_t
+SubscriptionManagementService_registerFilter(SDDS_DCPSManagement* sample);
 
 
 #endif /* SDDS_INCLUDE_SDDS_SUBSCRIPTIONMANAGEMENTSERVICE_H_ */

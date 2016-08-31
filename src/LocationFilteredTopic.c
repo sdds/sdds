@@ -63,8 +63,16 @@ s_readConnector(LocationFilteredTopic_t* self);
 
 rc_t
 LocationFilteredTopic_create(LocationFilteredTopic_t* self, Topic_t* topic, char* filterExpression, GeometryStore_t* store) {
+    assert(self);
+    assert(store);
+
     self->contentFilteredTopic.associatedTopic = topic;
     self->geometryStore = store;
+
+    if (filterExpression == NULL) {
+        return SDDS_RT_OK;
+    }
+
     return LocationFilteredTopic_setFilter(self, filterExpression);
 }
 

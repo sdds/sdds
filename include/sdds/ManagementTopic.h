@@ -22,14 +22,22 @@
 #define SDDS_MANAGEMENT_TOPIC_VALUE_SIZE 255
 #endif
 
+#define SDDS_MANAGEMENT_TOPIC_KEY_SET_SUBSCRIPTION_STATE    "set_subscription_state"
+#define SDDS_MANAGEMENT_TOPIC_KEY_REQUEST_FILTER_EXPRESSION "request_filter_expression"
+#define SDDS_MANAGEMENT_TOPIC_KEY_SEND_FILTER_EXPRESSION    "send_filter_expression"
+#define SDDS_MANAGEMENT_TOPIC_KEY_DELETE_FILTER_EXPRESSION  "delete_filter_expression"
+
+#define SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS              0
+
 struct SDDS_DCPSManagement_t {
     union {
         BuiltinTopicKey_t key;
         BuiltinTopicKey_t pkey;
     };
     BuiltinTopicKey_t participant;
-    DDS_char* mKey;
-    DDS_char* mValue;
+    DDS_char mKey[SDDS_MANAGEMENT_TOPIC_KEY_SIZE];
+    DDS_char mValue[SDDS_MANAGEMENT_TOPIC_VALUE_SIZE];
+    Locator_t* addr;
 };
 typedef struct SDDS_DCPSManagement_t SDDS_DCPSManagement;
 

@@ -67,6 +67,11 @@ DataSink_init(void) {
     return SDDS_RT_OK;
 }
 
+FilteredDataReader_t*
+DataSink_getFilteredDataReaders() {
+    return self->filteredReaders;
+}
+
 #if defined(SDDS_TOPIC_HAS_PUB) || \
     defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) || \
     defined(SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || \

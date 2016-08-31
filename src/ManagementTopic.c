@@ -174,6 +174,10 @@ TopicMarshalling_DCPSManagement_decode(NetBuffRef_t* buffer, Data data, size_t* 
     Marshalling_dec_string(start + *size, real_data->mValue, SDDS_MANAGEMENT_TOPIC_VALUE_SIZE);
     *size += SDDS_MANAGEMENT_TOPIC_VALUE_SIZE;
 
+    real_data->addr = buffer->locators->first_fn(buffer->locators);
+    assert(real_data->addr);
+    Locator_upRef(real_data->addr);
+
     return SDDS_RT_OK;
 }
 

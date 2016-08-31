@@ -33,6 +33,7 @@ struct TopicSubscription {
     BuiltinTopicKey_t participant;
     Locator_t* addr;
     SubscriptionState_t state;
+    time16_t updated;
 };
 typedef struct TopicSubscription TopicSubscription_t;
 

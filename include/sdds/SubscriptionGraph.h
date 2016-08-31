@@ -13,6 +13,10 @@
 #include "List.h"
 #include <stdint.h>
 
+#define SDDS_PARTICIPANT_ROLE_SUB       (1 << 0)
+#define SDDS_PARTICIPANT_ROLE_PUB       (1 << 1)
+#define SDDS_PARTICIPANT_ROLE_SUB_PUB   (SDDS_PARTICIPANT_ROLE_SUB | SDDS_PARTICIPANT_ROLE_PUB)
+
 enum PropagationType {
     SDDS_PROPAGATION_MULTICAST,
     SDDS_PROPAGATION_UNICAST
@@ -29,7 +33,8 @@ typedef struct ParticipantNode ParticipantNode_t;
 
 struct DirectedEdge {
     bool_t filteredSubscription;
-    void* topic;
+    Topic_t* topic;
+    LocationFilteredTopic_t* locTopic;
     ParticipantNode_t* publisher;
     ParticipantNode_t* subscriber;
 };
@@ -42,30 +47,30 @@ struct SubscriptionGraph {
 typedef struct SubscriptionGraph SubscriptionGraph_t;
 
 List_t*
-ParticipantNode_getEdges();
+ParticipantNode_getEdges(ParticipantNode_t* node);
 
 rc_t
 SubscriptionGraph_init(SubscriptionGraph_t *self);
 
 ParticipantNode_t*
-SubscriptionGraph_createParticipantNode();
+SubscriptionGraph_createParticipantNode(SubscriptionGraph_t *self);
 
 DirectedEdge_t*
-SubscriptionGraph_establishSubscription(ParticipantNode_t* pub, ParticipantNode_t* sub, Topic_t* topic);
+SubscriptionGraph_establishSubscription(SubscriptionGraph_t *self, ParticipantNode_t* pub, ParticipantNode_t* sub, Topic_t* topic);
 
 DirectedEdge_t*
-SubscriptionGraph_establishFilteredSubscription(ParticipantNode_t* pub, ParticipantNode_t* sub, LocationFilteredTopic_t* topic);
+SubscriptionGraph_establishFilteredSubscription(SubscriptionGraph_t *self, ParticipantNode_t* pub, ParticipantNode_t* sub, LocationFilteredTopic_t* topic);
 
 rc_t
 SubscriptionGraph_registerFilter(DirectedEdge_t* edge, LocationFilteredTopic_t* topic);
 
 rc_t
-SubscriptionGraph_cancelSubscription(DirectedEdge_t* edge);
+SubscriptionGraph_cancelSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge);
 
 rc_t
-SubscriptionGraph_pauseSubscription(DirectedEdge_t* edge);
+SubscriptionGraph_pauseSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge);
 
 rc_t
-SubscriptionGraph_resumeSubscription(DirectedEdge_t* edge);
+SubscriptionGraph_resumeSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge);
 
 #endif /* SDDS_INCLUDE_SDDS_SUBSCRIPTIONGRAPH_H_ */
