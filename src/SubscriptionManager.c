@@ -29,11 +29,23 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
             if (ret != SDDS_RT_OK) {
                 Log_error("Unable to pause subscription.\n");
             }
+            SDDS_DCPSManagement data;
+            // TODO FILL DATA
+            ret = ManagementTopicPublicationService_publishManagementDirective(edge->publisher->addr);
+            if (ret != SDDS_RT_OK) {
+                Log_error("Unable to pause subscription.\n");
+            }
         }
         else {
             ret = SubscriptionGraph_resumeSubscription(self->subscriptionGraph, edge);
             if (ret != SDDS_RT_OK) {
                 Log_error("Unable to resume subscription.\n");
+            }
+            SDDS_DCPSManagement data;
+            // TODO FILL DATA
+            ret = ManagementTopicPublicationService_publishManagementDirective(edge->publisher->addr);
+            if (ret != SDDS_RT_OK) {
+                Log_error("Unable to pause subscription.\n");
             }
         }
         edge = (DirectedEdge_t*) edges->next_fn(edges);

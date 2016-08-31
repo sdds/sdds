@@ -128,22 +128,45 @@ SubscriptionGraph_freeDirectedEdge(SubscriptionGraph_t *self, DirectedEdge_t*edg
 
 DirectedEdge_t*
 SubscriptionGraph_establishSubscription(SubscriptionGraph_t *self, ParticipantNode_t* pub, ParticipantNode_t* sub, Topic_t* topic) {
-
+    DirectedEdge_t* edge = SubscriptionGraph_createDirectedEdge(self);
+    if (edge != NULL) {
+        edge->publisher = pub;
+        edge->subscriber = sub;
+        edge->topic = topic;
+        edge->filteredSubscription = false;
+    }
+    return edge;
 }
 
 DirectedEdge_t*
 SubscriptionGraph_establishFilteredSubscription(SubscriptionGraph_t *self, ParticipantNode_t* pub, ParticipantNode_t* sub, LocationFilteredTopic_t* topic) {
-
+    DirectedEdge_t* edge = SubscriptionGraph_createDirectedEdge(self);
+    if (edge != NULL) {
+        edge->publisher = pub;
+        edge->subscriber = sub;
+        edge->topic = topic->contentFilteredTopic.associatedTopic;
+        edge->locTopic = topic;
+        edge->filteredSubscription = true;
+    }
+    return edge;
 }
 
 rc_t
 SubscriptionGraph_registerFilter(DirectedEdge_t* edge, LocationFilteredTopic_t* topic) {
+    assert(edge);
+    assert(topic);
 
+    edge->filteredSubscription = true;
+    edge->topic = topic->contentFilteredTopic.associatedTopic;
+    edge->locTopic = topic;
+
+    return SDDS_RT_OK;
 }
 
 rc_t
 SubscriptionGraph_cancelSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge) {
 
+    return SubscriptionGraph_freeDirectedEdge(self, edge);
 }
 
 rc_t
@@ -157,11 +180,26 @@ SubscriptionGraph_resumeSubscription(SubscriptionGraph_t *self, DirectedEdge_t* 
 }
 
 ParticipantNode_t*
-SubscriptionGraph_containsParticipantNode(SubscriptionGraph_t *self, ParticipantNode_t* node) {
+SubscriptionGraph_containsParticipantNode(SubscriptionGraph_t *self, SSW_NodeID_t participantID) {
+    List_t* nodes = self->nodes;
+    ParticipantNode_t* node = nodes->first_fn(nodes);
+    while((node != NULL) && (node->id != participantID)) {
+        node = nodes->next_fn(nodes);
+    }
 
+    return node;
 }
 
 DirectedEdge_t*
 SubscriptionGraph_containsSubscription(SubscriptionGraph_t *self, SSW_NodeID_t pubID, SSW_NodeID_t subID, topicid_t topicID) {
+    List_t* edges = self->edges;
+    DirectedEdge_t* edge = edges->first_fn(edges);
+    while (edge != NULL) {
+        if ((edge->publisher->id == pubID) && (edge->subscriber->id == subID) && (edge->topic->id == topicID)) {
+            return edge;
+        }
+        edge = edges->next_fn(edges);
+    }
 
+    return NULL;
 }
