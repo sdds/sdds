@@ -24,10 +24,12 @@ enum PropagationType {
 typedef enum PropagationType PropagationType_t;
 
 struct ParticipantNode {
+    SSW_NodeID_t id;
     uint8_t roleMask;
     DeviceLocation_t devLoc;
     Locator_t* addr;
     List_t* edges;
+    List_t* topics;
 };
 typedef struct ParticipantNode ParticipantNode_t;
 
@@ -37,6 +39,7 @@ struct DirectedEdge {
     LocationFilteredTopic_t* locTopic;
     ParticipantNode_t* publisher;
     ParticipantNode_t* subscriber;
+    SubscriptionState_t sate;
 };
 typedef struct DirectedEdge DirectedEdge_t;
 
@@ -55,6 +58,9 @@ SubscriptionGraph_init(SubscriptionGraph_t *self);
 ParticipantNode_t*
 SubscriptionGraph_createParticipantNode(SubscriptionGraph_t *self);
 
+rc_t
+SubscriptionGraph_freeParticipantNode(SubscriptionGraph_t *self);
+
 DirectedEdge_t*
 SubscriptionGraph_establishSubscription(SubscriptionGraph_t *self, ParticipantNode_t* pub, ParticipantNode_t* sub, Topic_t* topic);
 
@@ -72,5 +78,11 @@ SubscriptionGraph_pauseSubscription(SubscriptionGraph_t *self, DirectedEdge_t* e
 
 rc_t
 SubscriptionGraph_resumeSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge);
+
+ParticipantNode_t*
+SubscriptionGraph_containsParticipantNode(SubscriptionGraph_t *self, SSW_NodeID_t participantID);
+
+DirectedEdge_t*
+SubscriptionGraph_containsSubscription(SubscriptionGraph_t *self, SSW_NodeID_t pubID, SSW_NodeID_t subID, topicid_t topicID);
 
 #endif /* SDDS_INCLUDE_SDDS_SUBSCRIPTIONGRAPH_H_ */

@@ -23,6 +23,11 @@ SubscriptionGraph_createParticipantNode(SubscriptionGraph_t *self) {
 
 }
 
+rc_t
+SubscriptionGraph_freeParticipantNode(SubscriptionGraph_t *self) {
+
+}
+
 DirectedEdge_t*
 SubscriptionGraph_establishSubscription(SubscriptionGraph_t *self, ParticipantNode_t* pub, ParticipantNode_t* sub, Topic_t* topic) {
 
@@ -50,5 +55,15 @@ SubscriptionGraph_pauseSubscription(SubscriptionGraph_t *self, DirectedEdge_t* e
 
 rc_t
 SubscriptionGraph_resumeSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge) {
+
+}
+
+ParticipantNode_t*
+SubscriptionGraph_containsParticipantNode(SubscriptionGraph_t *self, ParticipantNode_t* node) {
+
+}
+
+DirectedEdge_t*
+SubscriptionGraph_containsSubscription(SubscriptionGraph_t *self, SSW_NodeID_t pubID, SSW_NodeID_t subID, topicid_t topicID) {
 
 }

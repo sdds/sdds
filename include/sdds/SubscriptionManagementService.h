@@ -14,6 +14,18 @@ rc_t
 SubscriptionManagementService_init();
 
 rc_t
+SubscriptionManagementService_evalFilteredSubscription(DeviceLocation_t* sample);
+
+rc_t
+SubscriptionManagementService_handleParticipant(SDDS_DCPSParticipant* sample);
+
+rc_t
+SubscriptionManagementService_handlePupblication(DDS_DCPSPublication* sample);
+
+rc_t
+SubscriptionManagementService_handleSubscription(SDDS_DCPSSubscription* sample);
+
+rc_t
 SubscriptionManagementService_registerFilter(SDDS_DCPSManagement* sample);
 
 
