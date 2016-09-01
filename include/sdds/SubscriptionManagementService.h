@@ -9,6 +9,7 @@
 #define SDDS_INCLUDE_SDDS_SUBSCRIPTIONMANAGEMENTSERVICE_H_
 
 #include "sDDS.h"
+#include "ManagementTopic.h"
 
 rc_t
 SubscriptionManagementService_init();

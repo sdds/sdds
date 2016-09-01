@@ -14,8 +14,8 @@
 
 rc_t
 ManagementTopicDataWriter_writeToParticipant(DataWriter_t* self,
-                                             const DDS_DCPSParticipant* instance_data,
-                                             const DDS_InstanceHandle_t handle,
+                                             Data data,
+                                             void* handle,
                                              Locator_t* addr
                                              );
 

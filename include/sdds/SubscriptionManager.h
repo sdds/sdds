@@ -11,6 +11,7 @@
 #include "sDDS.h"
 #include "SubscriptionGraph.h"
 #include "FilterEvaluator.h"
+#include "ManagementTopic.h"
 
 struct SubscriptionManager {
     SubscriptionGraph_t subscriptionGraph;

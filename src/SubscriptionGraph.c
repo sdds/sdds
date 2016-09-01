@@ -8,6 +8,8 @@
 #include "sDDS.h"
 #include "SubscriptionGraph.h"
 
+#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+
 List_t*
 ParticipantNode_getEdges(ParticipantNode_t* node) {
     return node->edges;
@@ -23,7 +25,7 @@ SubscriptionGraph_createParticipantNode(SubscriptionGraph_t *self) {
     ParticipantNode_t* node = calloc(1, sizeof(ParticipantNode_t*));
     node->topics = List_initDynamicLinkedList();
     node->edges = List_initDynamicLinkedList();
-    List_t nodes = self->nodes;
+    List_t* nodes = self->nodes;
     rc_t ret = nodes->add_fn(nodes, node);
     if (ret != SDDS_RT_OK) {
         free(node->topics);
@@ -92,7 +94,7 @@ SubscriptionGraph_createDirectedEdge(SubscriptionGraph_t *self) {
 
 rc_t
 SubscriptionGraph_freeDirectedEdge(SubscriptionGraph_t *self, DirectedEdge_t*edge) {
-    List_t nodes = self->nodes;
+    List_t* nodes = self->nodes;
     ParticipantNode_t* node = nodes->first_fn(nodes);
     while (nodes != NULL) {
         List_t* nodeEdges = node->edges;
@@ -171,12 +173,14 @@ SubscriptionGraph_cancelSubscription(SubscriptionGraph_t *self, DirectedEdge_t* 
 
 rc_t
 SubscriptionGraph_pauseSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge) {
-
+    edge->sate = PAUSED;
+    return SDDS_RT_OK;
 }
 
 rc_t
 SubscriptionGraph_resumeSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge) {
-
+    edge->sate = ACTIVE;
+    return SDDS_RT_OK;
 }
 
 ParticipantNode_t*
@@ -203,3 +207,5 @@ SubscriptionGraph_containsSubscription(SubscriptionGraph_t *self, SSW_NodeID_t p
 
     return NULL;
 }
+
+#endif

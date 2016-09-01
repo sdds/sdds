@@ -48,20 +48,20 @@ extern DDS_Topic g_DCPSManagement_topic;
 DDS_ReturnCode_t
 DDS_DCPSManagementDataReader_take_next_sample(
                                                DDS_DataReader slef,
-                                               DDS_DCPSParticipant** data_values,
+                                               SDDS_DCPSManagement** data_values,
                                                DDS_SampleInfo* sample_info);
 
 DDS_ReturnCode_t
 DDS_DCPSManagementDataWriter_write(
                                     DDS_DataWriter self,
-                                    const DDS_DCPSParticipant* instance_data,
+                                    const SDDS_DCPSManagement* instance_data,
                                     const DDS_InstanceHandle_t handle
                                     );
 
 DDS_ReturnCode_t
 SDDS_DCPSManagementDataWriter_writeToParticipant(
                                     DDS_DataWriter* self,
-                                    const DDS_DCPSParticipant* instance_data,
+                                    const SDDS_DCPSManagement* instance_data,
                                     const DDS_InstanceHandle_t handle,
                                     Locator_t* addr
                                     );

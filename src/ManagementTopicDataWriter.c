@@ -5,7 +5,10 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "ManagementTopicDataWriter.h"
+
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
 
 rc_t
 checkSendingToParticipant(NetBuffRef_t* buf, Locator_t* addr) {
@@ -37,8 +40,8 @@ checkSendingToParticipant(NetBuffRef_t* buf, Locator_t* addr) {
 
 rc_t
 ManagementTopicDataWriter_writeToParticipant(DataWriter_t* self,
-                                             const DDS_DCPSParticipant* instance_data,
-                                             const DDS_InstanceHandle_t handle,
+                                             Data data,
+                                             void* handle,
                                              Locator_t* addr
                                              ) {
     assert(self);
@@ -226,3 +229,5 @@ ManagementTopicDataWriter_writeToParticipant(DataWriter_t* self,
     }
     return SDDS_RT_OK;
 } // end of DataWriter_write
+
+#endif

@@ -7,15 +7,21 @@
 
 #include "sDDS.h"
 #include "ManagementTopicSubscriptionService.h"
+#include "ManagementTopicPublicationService.h"
 #include "ManagementTopic.h"
 #include "string.h"
+#include "stdint.h"
 
-#ifndef SDDS_SUBCRIPTION_REACTIVATION_TIMER
-#define SDDS_SUBCRIPTION_REACTIVATION_TIMER     100000
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+
+#define SDDS_SUBCRIPTION_REACTIVATION_TIMER_SEC     0
+
+#ifndef SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC
+#define SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC     10000
 #endif
 
 static void
-s_executeManagementDirective(DataReader_t* reader);
+s_executeManagementDirective(DDS_DataReader reader);
 
 rc_t
 s_key_setSubscriptionState(DDS_char* mValue);
@@ -33,19 +39,19 @@ s_reactivateSubscription();
 
 rc_t
 ManagementTopicSubscriptionService_init() {
-#   if (SDDS_SUBCRIPTION_REACTIVATION_TIMER != 0)
+#   if (SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC != 0 || SDDS_SUBCRIPTION_REACTIVATION_TIMER_SEC != 0)
     reactivateSubscriptionTask = Task_create();
     Task_init(reactivateSubscriptionTask, s_reactivateSubscription, NULL);
-    if (Task_start(reactivateSubscriptionTask, SDDS_SUBCRIPTION_REACTIVATION_TIMER, 0, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
+    if (Task_start(reactivateSubscriptionTask, SDDS_SUBCRIPTION_REACTIVATION_TIMER_SEC, SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
         Log_error("Task_start failed\n");
     }
 #   endif
 
     DDS_ReturnCode_t dds_ret;
     struct DDS_DataReaderListener managementListStruct = {
-            .on_data_available =
-            &s_executeManagementDirective
+            .on_data_available = &s_executeManagementDirective
     };
+
     dds_ret = DDS_DataReader_set_listener(g_DCPSManagement_reader, &managementListStruct, NULL);
     if(dds_ret == DDS_RETCODE_ERROR){
         Log_error("Unable to set executeManagementDirective.\n");
@@ -55,7 +61,7 @@ ManagementTopicSubscriptionService_init() {
 }
 
 static void
-s_executeManagementDirective(DataReader_t* reader) {
+s_executeManagementDirective(DDS_DataReader reader) {
     DDS_ReturnCode_t ret;
     SDDS_DCPSManagement m_data_used;
     SDDS_DCPSManagement* m_data_used_ptr = &m_data_used;
@@ -70,7 +76,7 @@ s_executeManagementDirective(DataReader_t* reader) {
                     }
                 }
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_REQUEST_FILTER_EXPRESSION) == 0) {
-                    if (s_key_requestFilterExpression(m_data_used.mValue) != SDDS_RT_OK) {
+                    if (s_key_requestFilterExpression(m_data_used.mValue, m_data_used.addr) != SDDS_RT_OK) {
                         Log_error("Unable to process FilterExpression request.\n");
                     }
                 }
@@ -83,7 +89,7 @@ s_executeManagementDirective(DataReader_t* reader) {
                 }
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_DELETE_FILTER_EXPRESSION) == 0) {
 #ifdef SDDS_SUBSCRIPTION_MANAGER
-                    if (s_key_deleteFilterExpression(m_data_used.mValue) != SDDS_RT_OK) {
+                    if (s_key_deleteFilterExpression(m_data_used.mValue, m_data_used.addr) != SDDS_RT_OK) {
                         Log_error("Unable to delete FilterExpression.\n");
                     }
 #endif
@@ -111,7 +117,7 @@ s_key_setSubscriptionState(DDS_char* mValue) {
 
 
     SubscriptionState_t state;
-    ret =  Marshalling_dec_uint8((byte_t*) mValue + size, &state);
+    ret =  Marshalling_dec_uint8((byte_t*) mValue + size, (uint8_t*)&state);
 
     Topic_t* topic = TopicDB_getTopic(topicID);
 
@@ -147,7 +153,7 @@ s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
 
     Topic_t* topic = TopicDB_getTopic(topicID);
     if (topic == NULL) {
-        Log_error("Unknown topic: %s\.n", mValue);
+        Log_error("Unknown topic: %s\n", mValue);
         return SDDS_RT_FAIL;
     }
 
@@ -166,7 +172,7 @@ s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
             size += sizeof(BuiltinTopic_participantID);
 
             Marshalling_enc_uint8(data.mValue+size, &filteredReader[i].locationFilteredTopic->expressionLength);
-            size += sizeog(filteredReader[i].locationFilteredTopic->expressionLength);
+            size += sizeof(filteredReader[i].locationFilteredTopic->expressionLength);
 
             Marshalling_enc_string(data.mValue+size, filteredReader[i].locationFilteredTopic->filterExpression, filteredReader[i].locationFilteredTopic->expressionLength);
             rc_t ret = ManagementTopicPublicationService_publishManagementDirective(&data, addr);
@@ -197,7 +203,7 @@ s_reactivateSubscription() {
                 }
 
                 remainingMSec = -remainingMSec;
-                if (remainingMSec >= SDDS_SUBCRIPTION_REACTIVATION_TIMER) {
+                if (remainingMSec >= SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC) {
                     sub->state = ACTIVE;
                     if (Time_getTime16(&sub->updated) != SDDS_SSW_RT_OK) {
                         Log_error("Unable to get time.\n");
@@ -209,3 +215,5 @@ s_reactivateSubscription() {
         }
     }
 }
+
+#endif

@@ -10,6 +10,9 @@
 #include "ManagementTopic.h"
 #include "Locator.h"
 #include "FilterEvaluator.h"
+#include "ManagementTopicPublicationService.h"
+
+#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
 
 extern GeometryStore_t g_geometryStore;
 
@@ -20,52 +23,55 @@ SubscriptionManager_init(SubscriptionManager_t* self) {
 
 rc_t
 SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, DeviceLocation_t* sample) {
-    List_t* edges = self.subscriptionGraph.edges;
+    List_t* edges = self->subscriptionGraph.edges;
     DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);
     while (edge != NULL) {
         rc_t ret = FilterEvaluator_evalSubscription(sample, edge);
         if ((ret == SDDS_RT_FAIL)) {
-            ret = SubscriptionGraph_pauseSubscription(self->subscriptionGraph, edge);
-            if (ret != SDDS_RT_OK) {
-                Log_error("Unable to pause subscription.\n");
-            }
-            SDDS_DCPSManagement data;
-            // TODO FILL DATA
-            ret = ManagementTopicPublicationService_publishManagementDirective(edge->publisher->addr);
+            ret = SubscriptionGraph_pauseSubscription(&self->subscriptionGraph, edge);
             if (ret != SDDS_RT_OK) {
                 Log_error("Unable to pause subscription.\n");
             }
         }
         else {
-            ret = SubscriptionGraph_resumeSubscription(self->subscriptionGraph, edge);
+            ret = SubscriptionGraph_resumeSubscription(&self->subscriptionGraph, edge);
             if (ret != SDDS_RT_OK) {
                 Log_error("Unable to resume subscription.\n");
             }
-            SDDS_DCPSManagement data;
-            // TODO FILL DATA
-            ret = ManagementTopicPublicationService_publishManagementDirective(edge->publisher->addr);
-            if (ret != SDDS_RT_OK) {
-                Log_error("Unable to pause subscription.\n");
-            }
         }
+        SDDS_DCPSManagement data;
+        data.participant = edge->publisher->id;
+        strcpy(data.mKey, SDDS_MANAGEMENT_TOPIC_KEY_SET_SUBSCRIPTION_STATE);
+        int size = 0;
+        ret =  Marshalling_dec_uint8((byte_t*) data.mValue + size, &edge->topic->id);
+        size += sizeof(edge->topic->id);
+        ret =  Marshalling_dec_uint16((byte_t*) data.mValue + size, &edge->publisher->id);
+        size += sizeof(edge->publisher->id);
+        ret =  Marshalling_dec_uint8((byte_t*) data.mValue + size, (uint8_t*)&edge->sate);
+
+        ret = ManagementTopicPublicationService_publishManagementDirective(&data, edge->publisher->addr);
+        if (ret != SDDS_RT_OK) {
+            Log_error("Unable to publish ManagementDirective.\n");
+        }
+
         edge = (DirectedEdge_t*) edges->next_fn(edges);
     }
 }
 
 rc_t
 SubscriptionManager_handleParticipant(SubscriptionManager_t* self, SDDS_DCPSParticipant* sample) {
-    ParticipantNode_t* node = SubscriptionGraph_containsParticipantNode(self->subscriptionGraph, sample->data.key);
+    ParticipantNode_t* node = SubscriptionGraph_containsParticipantNode(&self->subscriptionGraph, sample->data.key);
     if (node == NULL) {
-        ParticipantNode_t* node = SubscriptionGraph_createParticipantNode(self->subscriptionGraph);
-        Loctor_upRef(sample->addr);
+        ParticipantNode_t* node = SubscriptionGraph_createParticipantNode(&self->subscriptionGraph);
+        Locator_upRef(sample->addr);
         node->addr = sample->addr;
         node->id = sample->data.key;
 
-        List_t* nodes = self->subscriptionGraph->nodes;
-        rc_t ret = nodes->add_fn(node);
+        List_t* nodes = self->subscriptionGraph.nodes;
+        rc_t ret = nodes->add_fn(nodes, node);
         if (ret != SDDS_RT_OK) {
-            Loctor_downRef(sample->addr);
-            SubscriptionGraph_freeParticipantNode(node);
+            Locator_downRef(sample->addr);
+            SubscriptionGraph_freeParticipantNode(&self->subscriptionGraph, node);
             return SDDS_RT_FAIL;
         }
     }
@@ -74,7 +80,7 @@ SubscriptionManager_handleParticipant(SubscriptionManager_t* self, SDDS_DCPSPart
 
 rc_t
 SubscriptionManager_handlePupblication(SubscriptionManager_t* self, DDS_DCPSPublication* sample) {
-    ParticipantNode_t* node = SubscriptionGraph_containsParticipantNode(self->subscriptionGraph, sample->participant_key);
+    ParticipantNode_t* node = SubscriptionGraph_containsParticipantNode(&self->subscriptionGraph, sample->participant_key);
     if (node != NULL) {
         node->roleMask |= SDDS_PARTICIPANT_ROLE_PUB;
 
@@ -85,7 +91,7 @@ SubscriptionManager_handlePupblication(SubscriptionManager_t* self, DDS_DCPSPubl
         }
 
         if (topic == NULL) {
-            return topics->add_fn(TopicDB_getTopic(sample->topic_id));
+            return topics->add_fn(topics, TopicDB_getTopic(sample->topic_id));
         }
     }
     return SDDS_RT_FAIL;
@@ -93,18 +99,18 @@ SubscriptionManager_handlePupblication(SubscriptionManager_t* self, DDS_DCPSPubl
 
 rc_t
 SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSubscription* sample) {
-    ParticipantNode_t* sub = SubscriptionGraph_containsParticipantNode(self->subscriptionGraph, sample->data.participant_key);
+    ParticipantNode_t* sub = SubscriptionGraph_containsParticipantNode(&self->subscriptionGraph, sample->data.participant_key);
 
-    List_t* nodes = self->subscriptionGraph->nodes;
+    List_t* nodes = self->subscriptionGraph.nodes;
     ParticipantNode_t* node = nodes->first_fn(nodes);
     while (node != NULL) {
-        DirectedEdge_t* edge = SubscriptionGraph_containsSubscription(self->subscriptionGraph, node->id, sample->data.participant_key, sample.data.topic_id);
+        DirectedEdge_t* edge = SubscriptionGraph_containsSubscription(&self->subscriptionGraph, node->id, sample->data.participant_key, sample->data.topic_id);
         if (edge == NULL) {
             Topic_t* topic = TopicDB_getTopic(sample->data.topic_id);
             if (topic == NULL) {
                 return SDDS_RT_FAIL;
             }
-            edge = SubscriptionGraph_establishSubscription(self->subscriptionGraph, node, sub, topic);
+            edge = SubscriptionGraph_establishSubscription(&self->subscriptionGraph, node, sub, topic);
             if (edge == NULL) {
                 return SDDS_RT_FAIL;
             }
@@ -133,17 +139,17 @@ SubscriptionManager_registerFilter(SubscriptionManager_t* self, SDDS_DCPSManagem
 
     Topic_t* topic = TopicDB_getTopic(topicID);
     LocationFilteredTopic_t* locTopic = malloc(sizeof(LocationFilteredTopic_t));
-    rc_t ret = LocationFilteredTopic_create(locTopic, topic, NULL, g_geometryStore);
+    rc_t ret = LocationFilteredTopic_create(locTopic, topic, NULL, &g_geometryStore);
 
     Marshalling_dec_uint8(data.mValue+size, &locTopic->expressionLength);
-    size += sizeog(locTopic->expressionLength);
+    size += sizeof(locTopic->expressionLength);
 
     Marshalling_enc_string(data.mValue+size, locTopic->filterExpression, locTopic->expressionLength);
 
-    List_t* edges = self.subscriptionGraph.edges;
+    List_t* edges = self->subscriptionGraph.edges;
     DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);
     while (edge != NULL) {
-        if ((edge->subscriber == participantID) && (edge->topic->id == topic->id)) {
+        if ((edge->subscriber->id == participantID) && (edge->topic->id == topic->id)) {
             ret = SubscriptionGraph_registerFilter(edge, locTopic);
             if (ret != SDDS_RT_OK) {
                 Log_error("Unable to register Filter.\n");
@@ -154,3 +160,5 @@ SubscriptionManager_registerFilter(SubscriptionManager_t* self, SDDS_DCPSManagem
 
     return SDDS_RT_OK;
 }
+
+#endif

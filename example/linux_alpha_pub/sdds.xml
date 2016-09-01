@@ -44,6 +44,7 @@
     <define name = "FEATURE_SDDS_LOCATION_TRACKING_ENABLED" />
     <define name = "FEATURE_SDDS_SIMULATION_ENABLED" />
     <define name = "FEATURE_SDDS_LOCATION_FILTER_ENABLED" />
+    <define name = "FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED" />
     <!--
         Configure discovery intervals
     -->

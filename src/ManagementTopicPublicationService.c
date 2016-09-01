@@ -9,13 +9,15 @@
 #include "ManagementTopicPublicationService.h"
 #include "ManagementTopic.h"
 
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+
 rc_t
 ManagementTopicPublicationService_init() {
     return SDDS_RT_OK;
 }
 
 rc_t
-ManagementTopicPublicationService_publishManagementDirective(Data data, Locator_t* addr) {
+ManagementTopicPublicationService_publishManagementDirective(SDDS_DCPSManagement* data, Locator_t* addr) {
     DataWriter_t* dw = ((DataWriter_t*) g_DCPSManagement_writer);
 
     if (SDDS_DCPSManagementDataWriter_writeToParticipant(g_DCPSParticipant_writer, data, NULL, addr) == DDS_RETCODE_ERROR) {
@@ -25,3 +27,5 @@ ManagementTopicPublicationService_publishManagementDirective(Data data, Locator_
     }
     return SDDS_RT_OK;
 }
+
+#endif

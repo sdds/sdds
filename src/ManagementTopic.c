@@ -9,6 +9,8 @@
 #include "ManagementTopic.h"
 #include "ManagementTopicDataWriter.h"
 
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+
 DDS_Topic g_DCPSManagement_topic;
 Sample_t dcps_management_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSManagement dcps_management_sample_data[SDDS_QOS_HISTORY_DEPTH];
@@ -34,7 +36,7 @@ TopicMarshalling_DCPSManagement_decode(NetBuffRef_t* buffer, Data data, size_t* 
 DDS_ReturnCode_t
 DDS_DCPSManagementDataReader_take_next_sample(
                                                DDS_DataReader self,
-                                               DDS_DCPSParticipant** data_values,
+                                               SDDS_DCPSManagement** data_values,
                                                DDS_SampleInfo* sample_info
                                                ) {
     rc_t ret = DataReader_take_next_sample((DataReader_t*) self, (Data*) data_values, (DataInfo) sample_info);
@@ -53,7 +55,7 @@ DDS_DCPSManagementDataReader_take_next_sample(
 DDS_ReturnCode_t
 DDS_DCPSManagementDataWriter_write(
                                     DDS_DataWriter self,
-                                    const DDS_DCPSParticipant* instance_data,
+                                    const SDDS_DCPSManagement* instance_data,
                                     const DDS_InstanceHandle_t handle
                                     ) {
     rc_t ret = DataWriter_write((DataWriter_t*) self, (Data)instance_data, (void*) handle);
@@ -68,7 +70,7 @@ DDS_DCPSManagementDataWriter_write(
 DDS_ReturnCode_t
 SDDS_DCPSManagementDataWriter_writeToParticipant(
                                     DDS_DataWriter* self,
-                                    const DDS_DCPSParticipant* instance_data,
+                                    const SDDS_DCPSManagement* instance_data,
                                     const DDS_InstanceHandle_t handle,
                                     Locator_t* addr
                                     ) {
@@ -225,3 +227,5 @@ ManagementTopic_init(void) {
 
     return SDDS_RT_OK;
 }
+
+#endif

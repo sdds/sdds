@@ -10,11 +10,15 @@
 #include "SubscriptionManager.h"
 #include "ManagementTopic.h"
 
+#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+
 static SubscriptionManager_t s_subscriptionManager;
 
 rc_t
 SubscriptionManagementService_init() {
     return SubscriptionManager_init(&s_subscriptionManager);
+
+    // TODO regelmäßig pause senden
 }
 
 rc_t
@@ -42,3 +46,5 @@ rc_t
 SubscriptionManagementService_registerFilter(SDDS_DCPSManagement* sample) {
     return SubscriptionManager_registerFilter(&s_subscriptionManager, sample);
 }
+
+#endif

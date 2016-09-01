@@ -96,6 +96,11 @@ typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 #include "LocationFilteredTopic.h"
 #include "FilteredDataReader.h"
 #endif
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+#include "ManagementTopic.h"
+#endif
+
+
 #include "Management.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */
