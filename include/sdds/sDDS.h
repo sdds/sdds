@@ -98,8 +98,12 @@ typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 #endif
 #ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
 #include "ManagementTopic.h"
+#include "ManagementTopicPublicationService.h"
+#include "ManagementTopicSubscriptionService.h"
 #endif
-
+#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#include "SubscriptionManagementService.h"
+#endif
 
 #include "Management.h"
 

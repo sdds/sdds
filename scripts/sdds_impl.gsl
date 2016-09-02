@@ -279,6 +279,11 @@ sDDS_init (void)
 #endif
 #ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
     assert(ManagementTopic_init() == SDDS_RT_OK);
+    assert(ManagementTopicPublicationService_init() == SDDS_RT_OK); 
+    assert(ManagementTopicSubscriptionService_init() == SDDS_RT_OK);
+#endif
+#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+    assert(SubscriptionManagementService_init() == SDDS_RT_OK);
 #endif
 
     return ret;

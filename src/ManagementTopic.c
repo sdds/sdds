@@ -222,8 +222,14 @@ ManagementTopic_init(void) {
         return SDDS_RT_FAIL;
     }
     g_DCPSManagement_reader = DataSink_create_datareader(g_DCPSManagement_topic, NULL, NULL, NULL);
+    if (g_DCPSManagement_reader == NULL){
+        return SDDS_RT_FAIL;
+    }
     sdds_History_setup (DataReader_history (g_DCPSManagement_reader), dcps_management_samples_pool, SDDS_QOS_HISTORY_DEPTH);
     g_DCPSManagement_writer = DataSource_create_datawriter(g_DCPSManagement_topic, NULL, NULL, NULL);
+    if (g_DCPSManagement_writer == NULL){
+        return SDDS_RT_FAIL;
+    }
 
     return SDDS_RT_OK;
 }

@@ -18,7 +18,7 @@ extern GeometryStore_t g_geometryStore;
 
 rc_t
 SubscriptionManager_init(SubscriptionManager_t* self) {
-    return SDDS_RT_OK;
+    return SubscriptionGraph_init(&self->subscriptionGraph);
 }
 
 rc_t
