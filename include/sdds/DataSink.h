@@ -32,6 +32,14 @@ struct _DataSink_t;
 typedef struct _DataSink_t DataSink_t;
 extern DataSink_t* dataSink;
 
+struct DataSink_ReaderIterator {
+    topicid_t iteratorTopicID;
+    int8_t iteratorPos;
+    int8_t iteratorNext;
+    bool_t iteratorFiltered;
+};
+typedef struct DataSink_ReaderIterator DataSink_ReaderIterator_t;
+
 rc_t
 DataSink_init(void);
 
@@ -56,13 +64,13 @@ rc_t
 DataSink_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic);
 
 rc_t
-DataSink_readerIterator_reset(topicid_t topic);
+DataSink_readerIterator_reset(DataSink_ReaderIterator_t* it, topicid_t topic);
 
 DataReader_t*
-DataSink_readerIterator_next();
+DataSink_readerIterator_next(DataSink_ReaderIterator_t* it);
 
 rc_t
-DataSink_readerIterator_hasNext();
+DataSink_readerIterator_hasNext(DataSink_ReaderIterator_t* it);
 
 FilteredDataReader_t*
 DataSink_getFilteredDataReaders();

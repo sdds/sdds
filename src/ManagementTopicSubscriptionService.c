@@ -14,10 +14,10 @@
 
 #ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
 
-#define SDDS_SUBCRIPTION_REACTIVATION_TIMER_SEC     0
+#define SDDS_SUBCRIPTION_REACTIVATION_TIMER_SEC         0
 
 #ifndef SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC
-#define SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC     10000
+#define SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC        10
 #endif
 
 static void
@@ -39,6 +39,7 @@ s_reactivateSubscription();
 
 rc_t
 ManagementTopicSubscriptionService_init() {
+#if defined(SDDS_TOPIC_HAS_SUB)
 #   if (SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC != 0 || SDDS_SUBCRIPTION_REACTIVATION_TIMER_SEC != 0)
     reactivateSubscriptionTask = Task_create();
     Task_init(reactivateSubscriptionTask, s_reactivateSubscription, NULL);
@@ -46,6 +47,7 @@ ManagementTopicSubscriptionService_init() {
         Log_error("Task_start failed\n");
     }
 #   endif
+#endif
 
     DDS_ReturnCode_t dds_ret;
     struct DDS_DataReaderListener managementListStruct = {

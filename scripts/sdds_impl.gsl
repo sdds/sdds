@@ -257,7 +257,6 @@ sDDS_init (void)
 .   endif
 .endfor
 
-	assert(Network_init() == SDDS_RT_OK);
 #ifdef FEATURE_SDDS_TRACING_ENABLED
     assert(Trace_init() == SDDS_RT_OK);
 #endif
@@ -267,6 +266,9 @@ sDDS_init (void)
 #ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
     LocationTrackingService_init();
 #endif 
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+    assert(ManagementTopic_init() == SDDS_RT_OK);
+#endif
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 	assert(BuiltinTopic_init() == SDDS_RT_OK);
 	assert(BuiltInTopicPublicationService_init() == SDDS_RT_OK);
@@ -274,17 +276,17 @@ sDDS_init (void)
 	assert(BuiltInLocationUpdateService_init() == SDDS_RT_OK);
 #   endif
 #endif
-#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-	assert(DiscoveryService_init() == SDDS_RT_OK);
-#endif
 #ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
-    assert(ManagementTopic_init() == SDDS_RT_OK);
     assert(ManagementTopicPublicationService_init() == SDDS_RT_OK); 
     assert(ManagementTopicSubscriptionService_init() == SDDS_RT_OK);
 #endif
 #ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
     assert(SubscriptionManagementService_init() == SDDS_RT_OK);
 #endif
+#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
+	assert(DiscoveryService_init() == SDDS_RT_OK);
+#endif
+	assert(Network_init() == SDDS_RT_OK);
 
     return ret;
 }

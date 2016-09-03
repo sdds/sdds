@@ -93,6 +93,13 @@ s_DiscoveryService_participantListener(DDS_DataReader reader) {
             if (s_DiscoveryService_handleParticipant(&p_data_used) != SDDS_RT_OK) {
                 Log_error("Error in s_DiscoveryService_handleParticipant\n.");
             }
+
+//#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+//            ret = SubscriptionManagementService_handleParticipant(&p_data_used);
+//            if (ret != SDDS_RT_OK) {
+//                Log_error("SubscriptionManagementService_handleParticipant failed.\n");
+//            }
+//#       endif
         }
     } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 }
@@ -136,6 +143,13 @@ s_DiscoveryService_publicationListener(DDS_DataReader reader) {
                 nextID = (nextID + 1) % SDDS_DISCOVERY_MAX_PARTICIPANTS;
                 BuiltInTopicPublicationService_publishDCPSSubscription(pt_data_used.topic_id);
             }
+
+//#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+//            ret = SubscriptionManagementService_handlePupblication(&pt_data_used);
+//            if (ret != SDDS_RT_OK) {
+//                Log_error("SubscriptionManagementService_handlePupblication failed.\n");
+//            }
+//#       endif
         }
     } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 #   endif
@@ -167,6 +181,13 @@ s_DiscoveryService_subscriptionListener(DDS_DataReader reader) {
                     Locator_downRef(st_data_used.addr);
                 }
             }
+
+//#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+//            ret = SubscriptionManagementService_handleSubscription(&st_data_used);
+//            if (ret != SDDS_RT_OK) {
+//                Log_error("SubscriptionManagementService_handleSubscription failed.\n");
+//            }
+//#       endif
         }
     } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 #   endif
