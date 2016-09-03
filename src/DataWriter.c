@@ -318,7 +318,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
 #ifdef TEST_SCALABILITY_RIOT
     if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
-        fprintf(stderr,"{SCL:D}\n");
+//        fprintf(stderr,"{SCL:D}\n");
     }
     else if (ret == SDDS_RT_NO_SUB) {
         Log_debug("No Subscroption\n");
@@ -330,14 +330,24 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         Log_debug("ret: %d\n", ret);
     }
 #endif
-
+#ifdef TEST_MSG_COUNT_RIOT
+    if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
+        fprintf(stderr,"MSG_COUNT\n");
+    }
+    else if (ret == SDDS_RT_NO_SUB) {
+        Log_debug("No Subscroption\n");
+    }
+#endif
 
     Mutex_unlock(mutex);
     //  Caller doesn't understand different return codes but FAIL and OK
+    /*
     if (ret == SDDS_RT_FAIL) {
         return SDDS_RT_FAIL;
     }
     return SDDS_RT_OK;
+    */
+    return ret;
 } // end of DataWriter_write
 #endif // end of SDDS_TOPIC_HAS_SUB
 
@@ -504,6 +514,7 @@ checkSending(NetBuffRef_t* buf) {
     // update header
     SNPS_updateHeader(buf);
     rc_t ret = SDDS_RT_OK;
+
     if (buf->locators->size_fn(buf->locators) > 0) {
 
 
@@ -514,7 +525,7 @@ checkSending(NetBuffRef_t* buf) {
             return SDDS_RT_FAIL;
         }
     }
-#   if defined(TEST_SCALABILITY_LINUX) || defined(TEST_SCALABILITY_RIOT)
+#   if defined(TEST_SCALABILITY_LINUX) || defined(TEST_SCALABILITY_RIOT) || defined(TEST_MSG_COUNT_RIOT)
     else {
         ret = SDDS_RT_NO_SUB;
     }

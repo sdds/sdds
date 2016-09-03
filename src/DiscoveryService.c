@@ -85,16 +85,16 @@ s_DiscoveryService_participantListener(DDS_DataReader reader) {
         ret = DDS_DCPSParticipantDataReader_take_next_sample(reader, (DDS_DCPSParticipant**) &p_data_used_ptr, NULL);
         if (ret == DDS_RETCODE_NO_DATA) {
 #   ifdef UTILS_DEBUG
-            Log_info("no participant data\n");
+            Log_debug("no participant data\n");
 #   endif
         }
         else {
-            Log_info("Received (participant):[%x]\n", p_data_used.data.key);
+            Log_debug("Received (participant):[%x]\n", p_data_used.data.key);
             if (s_DiscoveryService_handleParticipant(&p_data_used) != SDDS_RT_OK) {
                 Log_error("Error in s_DiscoveryService_handleParticipant\n.");
             }
 
-#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#       ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
             rc_t retSM;
             retSM = SubscriptionManagementService_handleParticipant(&p_data_used);
             if (retSM != SDDS_RT_OK) {
@@ -126,11 +126,11 @@ s_DiscoveryService_publicationListener(DDS_DataReader reader) {
         ret = DDS_DCPSPublicationDataReader_take_next_sample(reader, &pt_data_used_ptr, NULL);
         if (ret == DDS_RETCODE_NO_DATA) {
 #       ifdef UTILS_DEBUG
-            Log_info("no publication data\n");
+            Log_debug("no publication data\n");
 #       endif
         }
         else {
-            Log_info("Received (publication):[%u][%x] topic:%u\n",
+            Log_debug("Received (publication):[%u][%x] topic:%u\n",
                       pt_data_used.key, pt_data_used.participant_key,
                       pt_data_used.topic_id);
             for (int i = 0; i <= nextID; i++) {
@@ -168,11 +168,11 @@ s_DiscoveryService_subscriptionListener(DDS_DataReader reader) {
         ret = DDS_DCPSSubscriptionDataReader_take_next_sample(reader, (DDS_DCPSSubscription**) &st_data_used_ptr, NULL);
         if (ret == DDS_RETCODE_NO_DATA) {
 #       ifdef UTILS_DEBUG
-            Log_info("no subscription data\n");
+            Log_debug("no subscription data\n");
 #       endif
         }
         else {
-            Log_info("Received (subscription):[%u][%x] topic:%u\n",
+            Log_debug("Received (subscription):[%u][%x] topic:%u\n",
                       st_data_used.data.key, st_data_used.data.participant_key,
                       st_data_used.data.topic_id);
             Topic_t* topic = NULL;

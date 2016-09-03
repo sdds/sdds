@@ -9,6 +9,8 @@
 #ifndef BUILTINTOPIC_H_
 #define BUILTINTOPIC_H_
 
+#include "Locator.h"
+
 #ifndef SDDS_BUILTIN_MULTICAST_ADDRESS
 #define SDDS_BUILTIN_MULTICAST_ADDRESS          "ff02::10"
 #endif
@@ -141,6 +143,7 @@ struct DDS_DCPSPublication_t {
     };
     BuiltinTopicKey_t participant_key;
     uint16_t topic_id;
+    Locator_t* srcAddr;
 //    DDS_char topic_name[DDS_TOPIC_NAME_SIZE];
 //    DDS_char type_name[DDS_TOPIC_TYPE_SIZE];
     // IF QOS AND FOO

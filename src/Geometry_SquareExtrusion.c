@@ -5,7 +5,10 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "Geometry_SquareExtrusion.h"
+
+#ifdef FEATURE_SDDS_GEOMETRY_SQUARE_EXTRUSION_ENABLED
 
 static bool_t
 s_Point_equals(SquareExtrusion_t* self, Point_t* otherObject);
@@ -1062,3 +1065,4 @@ s_PolyhedralSurfaceExtrusion_overlaps(SquareExtrusion_t* self, PolyhedralSurface
     return false;
 }
 
+#endif

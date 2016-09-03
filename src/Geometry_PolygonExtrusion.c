@@ -5,7 +5,10 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "Geometry_PolygonExtrusion.h"
+
+#ifdef FEATURE_SDDS_GEOMETRY_POLYGON_EXTRUSION_ENABLED
 
 static bool_t
 s_Point_equals(PolygonExtrusion_t* self, Point_t* otherObject);
@@ -1063,3 +1066,4 @@ s_PolyhedralSurfaceExtrusion_overlaps(PolygonExtrusion_t* self, PolyhedralSurfac
     return false;
 }
 
+#endif

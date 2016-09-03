@@ -9,6 +9,7 @@
 #include "List.h"
 #include "os-ssal/Memory.h"
 
+
 struct Node {
     struct Node* next;
     void* data;
@@ -164,3 +165,4 @@ DynamicLinkedList_delete_all(List_t* self) {
 
     return SDDS_RT_OK;
 }
+

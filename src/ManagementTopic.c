@@ -59,8 +59,10 @@ DDS_DCPSManagementDataWriter_write(
                                     const DDS_InstanceHandle_t handle
                                     ) {
     rc_t ret = DataWriter_write((DataWriter_t*) self, (Data)instance_data, (void*) handle);
-
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY_RIOT
+        fprintf(stderr,"{SCL:M}\n");
+#endif
         return DDS_RETCODE_OK;
     }
 
@@ -77,6 +79,9 @@ SDDS_DCPSManagementDataWriter_writeToParticipant(
     rc_t ret = ManagementTopicDataWriter_writeToParticipant((DataWriter_t*) self, (Data)instance_data, (void*) handle, addr);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY_RIOT
+        fprintf(stderr,"{SCL:M}\n");
+#endif
         return DDS_RETCODE_OK;
     }
 
@@ -157,7 +162,7 @@ TopicMarshalling_DCPSManagement_decode(NetBuffRef_t* buffer, Data data, size_t* 
     expectedSize += SDDS_MANAGEMENT_TOPIC_VALUE_SIZE;
 
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;

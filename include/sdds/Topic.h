@@ -59,8 +59,9 @@ struct _Topic_t {
 
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
     struct datasources dsources;
-    Sample_t incomingSample;
 #endif
+
+    Sample_t incomingSample;
 
     rc_t (* Data_decode)(NetBuffRef_t* buff, Data data, size_t* size);
     rc_t (* Data_cpy)(Data dest, Data source);

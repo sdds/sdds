@@ -18,11 +18,6 @@ checkSendingToParticipant(NetBuffRef_t* buf, Locator_t* addr) {
     // update header
     SNPS_updateHeader(buf);
 
-//    ret = buf->locators->delete_all_fn(buf->locators);
-//    if (ret != SDDS_RT_OK) {
-//        return SDDS_RT_FAIL;
-//    }
-
     ret = buf->locators->add_fn(buf->locators, addr);
     if (ret != SDDS_RT_OK) {
         return SDDS_RT_FAIL;

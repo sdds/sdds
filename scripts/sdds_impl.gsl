@@ -280,7 +280,7 @@ sDDS_init (void)
     assert(ManagementTopicPublicationService_init() == SDDS_RT_OK); 
     assert(ManagementTopicSubscriptionService_init() == SDDS_RT_OK);
 #endif
-#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
     assert(SubscriptionManagementService_init() == SDDS_RT_OK);
 #endif
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED

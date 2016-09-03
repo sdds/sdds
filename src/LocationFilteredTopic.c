@@ -69,6 +69,11 @@ LocationFilteredTopic_create(LocationFilteredTopic_t* self, Topic_t* topic, char
     self->contentFilteredTopic.associatedTopic = topic;
     self->geometryStore = store;
 
+    self->filterstate.connector = CONNECTOR_NONE;
+    self->filterstate.expression.negation = false;
+    self->filterstate.expression.functionID = 0;
+    self->filterstate.expression.geometryID = 0;
+
     if (filterExpression == NULL) {
         return SDDS_RT_OK;
     }
@@ -99,19 +104,24 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
 rc_t
 LocationFilteredTopic_evalSample(LocationFilteredTopic_t* self, Data data) {
     SSW_NodeID_t* device = (SSW_NodeID_t*) self->contentFilteredTopic.associatedTopic->Data_getSecondaryKey(data);
-    DeviceLocation_t* devLoc;
+    DeviceLocation_t devLoc;
     rc_t ret = BuiltInLocationUpdateService_getDeviceLocation(*device, &devLoc);
     if (ret != SDDS_RT_OK) {
         return SDDS_RT_OK;
     }
 
-    return LocationFilteredTopic_evalExpression(self, devLoc);
+    return LocationFilteredTopic_evalExpression(self, &devLoc);
 }
 
 rc_t
 LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc) {
     assert(self);
     assert(devLoc);
+
+#ifdef TEST_EVAL_LOCATION_FILTER
+    time32_t start;
+    Time_getTime32(&start);
+#endif
 
     while (self->filterstate.currentPosition < self->expressionLength) {
         rc_t ret;
@@ -136,6 +146,13 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
             return SDDS_RT_FAIL;
         }
     }
+
+#ifdef TEST_EVAL_LOCATION_FILTER
+    msec32_t duration;
+    Time_remainMSec32(start, &duration);
+
+    printf("filterEval: %u, %d\n", start, abs(duration));
+#endif
 
 
     if (self->filterstate.result) {
@@ -349,7 +366,7 @@ s_processExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc) {
         result = Geometry_overlaps((Geometry_t*) &devLoc->area, geo);
         break;
     default:
-        Log_error("Unknown function.");
+        Log_error("Unknown function %d.\n", self->filterstate.expression.functionID);
         return SDDS_RT_FAIL;
     }
 
@@ -368,7 +385,12 @@ s_processExpression(LocationFilteredTopic_t* self, DeviceLocation_t* devLoc) {
         self->filterstate.result = self->filterstate.result || result;
         break;
     default:
-        Log_error("Unknown connector.");
+        Log_error("Unknown connector %d\n", self->filterstate.connector);
+        self->filterstate.connector = CONNECTOR_NONE;
+        self->filterstate.expression.negation = false;
+        self->filterstate.expression.functionID = 0;
+        self->filterstate.expression.geometryID = 0;
+
         return SDDS_RT_FAIL;
     }
 
@@ -398,7 +420,7 @@ s_readConnector(LocationFilteredTopic_t* self) {
         return SDDS_RT_OK;
     }
     else {
-        Log_error("Unknown connector.");
+        Log_error("Unknown connector %d\n", self->filterstate.connector);
         return SDDS_RT_FAIL;
     }
 }

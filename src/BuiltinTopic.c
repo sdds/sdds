@@ -51,20 +51,23 @@ static SDDS_DCPSSubscription dcps_subscription_incomingSample_data;
 DDS_DataReader g_DCPSSubscription_reader;
 DDS_DataWriter g_DCPSSubscription_writer;
 
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
 DDS_Topic g_ParticipantStatelessMessage_topic;
 Sample_t dcps_psm_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static DDS_ParticipantStatelessMessage dcps_psm_sample_data[SDDS_QOS_HISTORY_DEPTH];
 static DDS_ParticipantStatelessMessage dcps_psm_incomingSample_data;
 DDS_DataReader g_ParticipantStatelessMessage_reader;
 DDS_DataWriter g_ParticipantStatelessMessage_writer;
+#endif
 
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
 DDS_Topic g_DCPSLocation_topic;
 Sample_t dcps_location_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSLocation dcps_location_sample_data[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSLocation dcps_location_incomingSample_data;
 DDS_DataReader g_DCPSLocation_reader;
 DDS_DataWriter g_DCPSLocation_writer;
-
+#endif
 
 Topic_t*
 sDDS_DCPSParticipantTopic_create();
@@ -83,7 +86,10 @@ static uint8_t generalByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
 static uint8_t participantByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
 static uint8_t subPubByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
 static uint8_t topicByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
+
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
 static uint8_t locationByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
+#endif
 
 /**************
 * Initialize *
@@ -100,8 +106,12 @@ BuiltinTopic_init(void) {
         dcps_topic_samples_pool[index].data = &dcps_topic_sample_data[index];
         dcps_publication_samples_pool[index].data = &dcps_publication_sample_data[index];
         dcps_subscription_samples_pool[index].data = &dcps_subscription_sample_data[index];
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
         dcps_psm_samples_pool[index].data = &dcps_psm_sample_data[index];
+#endif
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
         dcps_location_samples_pool[index].data = &dcps_location_sample_data[index];
+#endif
     }
 
     BuiltinTopic_participantID = NodeConfig_getNodeID();
@@ -239,7 +249,7 @@ BuiltinTopic_init(void) {
     }
 
     /* Security */
-
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
     g_ParticipantStatelessMessage_topic = sDDS_ParticipantStatelessMessageTopic_create();
     if (g_ParticipantStatelessMessage_topic == NULL){
         return SDDS_RT_FAIL;
@@ -270,9 +280,9 @@ BuiltinTopic_init(void) {
         Locator_downRef(l);
         return ret;
     }
-
+#endif
     /* Location Built-In Topic */
-
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
     g_DCPSLocation_topic = sDDS_DCPSLocationTopic_create();
     if (g_DCPSLocation_topic == NULL){
         return SDDS_RT_FAIL;
@@ -303,6 +313,7 @@ BuiltinTopic_init(void) {
         Locator_downRef(l);
         return ret;
     }
+#endif
 
 #ifdef FEATURE_SDDS_MULTICAST_ENABLED
     uint8_t addrLen;
@@ -322,16 +333,15 @@ BuiltinTopic_init(void) {
     if (ret != SDDS_RT_OK) {
         return ret;
     }
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED
     ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_LOCATION_ADDRESS, locationByteAddr, &addrLen);
     if (ret != SDDS_RT_OK) {
         return ret;
     }
-#endif
-
-#ifndef FEATURE_SDDS_MULTICAST_ENABLED
+#   endif
+#else
     // TO DO
 #endif
-
     return SDDS_RT_OK;
 }
 
@@ -505,7 +515,7 @@ TopicMarshalling_DCPSParticipant_decode(NetBuffRef_t* buffer, Data data, size_t*
 
     size_t expectedSize = sizeof(real_data->key);
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;
@@ -683,7 +693,7 @@ TopicMarshalling_DCPSTopic_decode(NetBuffRef_t* buffer, Data data, size_t* size)
 
     size_t expectedSize = sizeof(real_data->key) + DDS_TOPIC_NAME_SIZE;
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;
@@ -857,7 +867,7 @@ TopicMarshalling_DCPSPublication_decode(NetBuffRef_t* buffer, Data data, size_t*
 
     size_t expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;
@@ -872,6 +882,10 @@ TopicMarshalling_DCPSPublication_decode(NetBuffRef_t* buffer, Data data, size_t*
 
     Marshalling_dec_uint16(start + *size, &real_data->topic_id);
     *size += sizeof(real_data->topic_id);
+
+    real_data->srcAddr = buffer->locators->first_fn(buffer->locators);
+    assert(real_data->srcAddr);
+    Locator_upRef(real_data->srcAddr);
 
     return SDDS_RT_OK;
 }
@@ -1056,7 +1070,7 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
 
     size_t expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;
@@ -1086,6 +1100,8 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
 * ParticipantStatelessMessage *
 *******************************/
 /* Security */
+
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
 
 void*
 TopicMarshalling_ParticipantStatelessMessage_getPrimaryKey(Data data);
@@ -1247,10 +1263,13 @@ TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data d
     return SDDS_RT_OK;
 
 }
+#endif
 
 /********************
 * DCPS Location *
 ********************/
+
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
 
 void*
 TopicMarshalling_DCPSLocation_getPrimaryKey(Data data);
@@ -1442,7 +1461,7 @@ TopicMarshalling_DCPSLocation_decode(NetBuffRef_t* buffer, Data data, size_t* si
     expectedSize += sizeof(real_data->expiration);
     expectedSize += sizeof(real_data->age);
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;
@@ -1471,6 +1490,8 @@ TopicMarshalling_DCPSLocation_decode(NetBuffRef_t* buffer, Data data, size_t* si
     return SDDS_RT_OK;
 }
 
+#endif
+
 bool
 BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID) {
     if (
@@ -1479,7 +1500,9 @@ BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID) {
        || (DDS_DCPS_PUBLICATION_DOMAIN == dID) && (DDS_DCPS_PUBLICATION_TOPIC == tID)
        || (DDS_DCPS_SUBSCRIPTION_DOMAIN == dID) && (DDS_DCPS_SUBSCRIPTION_TOPIC == tID)
        || (DDS_PARTICIPANT_STATELESS_MESSAGE_DOMAIN == dID) && (DDS_PARTICIPANT_STATELESS_MESSAGE_TOPIC == tID)
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED
        || (SDDS_DCPS_LOCATION_DOMAIN == dID) && (SDDS_DCPS_LOCATION_TOPIC == tID)
+#   endif
 #   ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
        || (SDDS_DCPS_MANAGEMENT_DOMAIN == dID) && (SDDS_DCPS_MANAGEMENT_TOPIC == tID)
 #   endif
