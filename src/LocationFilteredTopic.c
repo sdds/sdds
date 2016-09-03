@@ -167,11 +167,11 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
 #ifdef TEST_EVAL_LOCATION_FILTER_LINUX
     struct timeval end;
     gettimeofday(&end, NULL);
-    long start_usec = (start.tv_sec * 1000000 + start.tv_usec);
-    long end_usec = (end.tv_sec * 1000000 + end.tv_usec);
-    long duration = (end_usec - start_usec);
+    time_t start_usec = (start.tv_sec * 1000000 + start.tv_usec);
+    time_t end_usec = (end.tv_sec * 1000000 + end.tv_usec);
+    time_t duration = (end_usec - start_usec);
 
-    printf("filterEval: %ld, %ld, %ld\n", start_usec, end_usec, duration);
+    printf("filterEval: %lu.%lu, %lu.%lu, %lu\n", start.tv_sec, start.tv_usec, end.tv_sec, end.tv_usec, duration);
 #endif
 
 
