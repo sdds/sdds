@@ -171,7 +171,8 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     time_t end_usec = (end.tv_sec * 1000000 + end.tv_usec);
     time_t duration = (end_usec - start_usec);
 
-    printf("filterEval: %lu.%lu, %lu.%lu, %lu\n", start.tv_sec, start.tv_usec, end.tv_sec, end.tv_usec, duration);
+    printf("filterEval: %lu.%lu, %lu.%lu, %lu\n", start.tv_sec, start.tv_usec, end.tv_sec, end.tv_usec, duration); 
+    fflush(stdout);
 #endif
 
 
