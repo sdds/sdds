@@ -18,12 +18,21 @@
 time32_t start_time;
 #endif
 
+#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH_LINUX
+#include <sys/time.h>
+struct timeval start;
+#endif
+
 extern GeometryStore_t g_geometryStore;
 
 rc_t
 SubscriptionManager_init(SubscriptionManager_t* self) {
 #ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH
         Time_getTime32(&start_time);
+#endif
+
+#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH_LINUX
+gettimeofday(&start, NULL);
 #endif
     return SubscriptionGraph_init(&self->subscriptionGraph);
 }
@@ -56,7 +65,6 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
             }
 
             if (prevState != edge->state) {
-#ifndef SDDS_EVAL_SUBSCRIPTION_GRAPH
                 Log_info("set Subscription State: ");
                 switch (edge->state) {
                 case CANCELLED:
@@ -72,7 +80,6 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
                     Log_info("UNKNOWN\n");
                     break;
                 }
-#endif
                 ret = SubscriptionManager_publishSubscriptionState(edge);
                 if (ret != SDDS_RT_OK) {
                     Log_error("Unable to publish Subscription state.\n");
@@ -123,9 +130,7 @@ SubscriptionManager_handleParticipant(SubscriptionManager_t* self, SDDS_DCPSPart
             SubscriptionGraph_freeParticipantNode(&self->subscriptionGraph, node);
             return SDDS_RT_FAIL;
         }
-#ifndef SDDS_EVAL_SUBSCRIPTION_GRAPH
         Log_info("Create node %x\n", node->id);
-#endif
     }
     else {
      //   printf("node %x exists\n", sample->data.key);
@@ -169,15 +174,11 @@ SubscriptionManager_handlePublication(SubscriptionManager_t* self, DDS_DCPSPubli
                 Log_error("Unable to add topic to publisher.\n");
                 return ret;
             }
-#ifndef SDDS_EVAL_SUBSCRIPTION_GRAPH
             Log_info("node %x is publisher for topic %d\n", node->id, sample->topic_id);
-#endif
         }
     }
     else {
-#ifndef SDDS_EVAL_SUBSCRIPTION_GRAPH
         Log_info("Unknown node %x\n", sample->participant_key);
-#endif
     }
 
     return SDDS_RT_OK;
@@ -203,11 +204,8 @@ SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSub
                         return SDDS_RT_FAIL;
                     }
                     
-#ifndef SDDS_EVAL_SUBSCRIPTION_GRAPH
                     Log_info("New subscription: {%x --(%d)--> %x}\n", node->id, topic->id, sub->id);
-                    Locator_print(edge->publisher->addr);
-                    Locator_print(edge->subscriber->addr);
-#endif
+
 #ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH
                     if (self->subscriptionGraph.edges->size_fn(self->subscriptionGraph.edges) == SDDS_EVAL_SUBSCRIPTION_GRAPH_MAX_EDGES) {
                         msec32_t build_time;
@@ -218,6 +216,20 @@ SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSub
     
                         printf("Subscrption Graph Build (now, start, duration):\n");
                         printf("%u, %u, %d\n", now, start_time, abs(build_time));
+                    }
+#endif
+
+#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH_LINUX
+                    if (self->subscriptionGraph.edges->size_fn(self->subscriptionGraph.edges) == SDDS_EVAL_SUBSCRIPTION_GRAPH_MAX_EDGES) {
+			struct timeval end;
+			gettimeofday(&end, NULL);
+			time_t start_usec = (start.tv_sec * 1000000 + start.tv_usec);
+   			time_t end_usec = (end.tv_sec * 1000000 + end.tv_usec);
+   			time_t duration = (end_usec - start_usec);
+    
+			printf("graphBuild (us): %lu.%lu, %lu.%lu, %lu\n", start.tv_sec, start.tv_usec, end.tv_sec, end.tv_usec, duration);
+			fflush(stdout);
+			exit(0);
                     }
 #endif
                     
@@ -241,9 +253,7 @@ SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSub
         }
     }
     else {
-#ifndef SDDS_EVAL_SUBSCRIPTION_GRAPH
         Log_info("Unknown node\n");
-#endif
     }
 
     return SDDS_RT_OK;
@@ -291,10 +301,8 @@ SubscriptionManager_registerFilter(SubscriptionManager_t* self, SDDS_DCPSManagem
             }
 
             if (ret == SDDS_RT_OK) {
-#ifndef SDDS_EVAL_SUBSCRIPTION_GRAPH
                 Log_info("Register Filter: %x\n", participantID);
                 reg = true;
-#endif
             }
         }
         edge = (DirectedEdge_t*) edges->next_fn(edges);
