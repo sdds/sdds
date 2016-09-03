@@ -8,7 +8,7 @@
 #include "sDDS.h"
 #include "FilterEvaluator.h"
 
-#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+#if defined(FEATURE_SDDS_LOCATION_FILTER_ENABLED) && defined(FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED)
 
 rc_t
 FilterEvaluator_evalSubscription(DeviceLocation_t* sample, DirectedEdge_t* edge) {

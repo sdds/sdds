@@ -46,7 +46,7 @@ Time_getTime16(time16_t* time) {
 }
 
 rc_t
-Time_remainMSec16(time16_t* refTime, msec16_t* remainingMSec) {
+Time_remainMSec16(time16_t refTime, msec16_t* remainingMSec) {
     time16_t time;
     int ret;
     ret = Time_getTime16(&time);
@@ -55,7 +55,7 @@ Time_remainMSec16(time16_t* refTime, msec16_t* remainingMSec) {
         return ret;
     }
 
-    *remainingMSec = *refTime - time;
+    *remainingMSec = refTime - time;
 
     return SDDS_RT_OK;
 }
@@ -73,7 +73,7 @@ Time_getTime32(time32_t* time) {
     return SDDS_RT_OK;
 }
 rc_t
-Time_remainMSec32(time32_t* refTime, msec32_t* remainingMSec) {
+Time_remainMSec32(time32_t refTime, msec32_t* remainingMSec) {
     time32_t time;
     int ret;
     ret = Time_getTime32(&time);
@@ -81,7 +81,7 @@ Time_remainMSec32(time32_t* refTime, msec32_t* remainingMSec) {
     if (ret != SDDS_RT_OK) {
         return ret;
     }
-
-   *remainingMSec = *refTime - time;
+    
+   *remainingMSec = refTime - time;
    return SDDS_RT_OK;
 }

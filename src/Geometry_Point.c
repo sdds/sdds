@@ -5,6 +5,7 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "Geometry_Point.h"
 
 static bool_t

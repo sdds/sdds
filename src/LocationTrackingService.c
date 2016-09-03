@@ -5,9 +5,10 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "LocationTrackingService.h"
 #include "os-ssal/Task.h"
-#include "sDDS.h"
+#include "os-ssal/LocationService.h"
 
 #ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
 

@@ -8,7 +8,8 @@
 #include "sDDS.h"
 #include "SubscriptionGraph.h"
 
-#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
+
 
 List_t*
 ParticipantNode_getEdges(ParticipantNode_t* node) {
@@ -25,10 +26,14 @@ SubscriptionGraph_init(SubscriptionGraph_t* self) {
 ParticipantNode_t*
 SubscriptionGraph_createParticipantNode(SubscriptionGraph_t *self) {
     ParticipantNode_t* node = malloc(sizeof(ParticipantNode_t));
+    if (node == NULL) {
+        printf("OUT OF MEMEORY\n");
+    }
     node->topics = List_initDynamicLinkedList();
     node->edges = List_initDynamicLinkedList();
     node->roleMask = 0;
     List_t* nodes = self->nodes;
+
     rc_t ret = nodes->add_fn(nodes, node);
     if (ret != SDDS_RT_OK) {
         free(node->topics);
@@ -94,11 +99,13 @@ SubscriptionGraph_createDirectedEdge(SubscriptionGraph_t *self) {
         free(edge);
         return NULL;
     }
+
     return edge;
 }
 
 rc_t
 SubscriptionGraph_freeDirectedEdge(SubscriptionGraph_t *self, DirectedEdge_t*edge) {
+    printf("\t%s %u\n", __FUNCTION__, __LINE__);
     List_t* nodes = self->nodes;
     ParticipantNode_t* node = nodes->first_fn(nodes);
     while (nodes != NULL) {
@@ -191,6 +198,7 @@ s_containsLocationFilteredTopic(DirectedEdge_t* edge, LocationFilteredTopic_t* t
     LocationFilteredTopic_t* lt = locTopics->first_fn(locTopics);
     while (lt != NULL) {
         if (LocationFilteredTopic_equals(lt, topic) == SDDS_RT_OK) {
+            //printf("Filter known\n");
             return SDDS_RT_OK;
         }
         lt = locTopics->next_fn(locTopics);
@@ -208,7 +216,7 @@ SubscriptionGraph_registerFilter(DirectedEdge_t* edge, LocationFilteredTopic_t* 
     List_t* locTopics = edge->locTopics;
 
     if (s_containsLocationFilteredTopic(edge, topic) == SDDS_RT_OK) {
-        return SDDS_RT_OK;
+        return SDDS_RT_KNOWN;
     }
 
     rc_t ret = locTopics->add_fn(locTopics, topic);
@@ -219,7 +227,6 @@ SubscriptionGraph_registerFilter(DirectedEdge_t* edge, LocationFilteredTopic_t* 
 
 rc_t
 SubscriptionGraph_cancelSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge) {
-
     return SubscriptionGraph_freeDirectedEdge(self, edge);
 }
 

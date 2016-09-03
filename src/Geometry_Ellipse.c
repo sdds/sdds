@@ -5,9 +5,12 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "Geometry_Ellipse.h"
 #include <stdlib.h>
 #include <math.h>
+
+#ifdef FEATURE_SDDS_GEOMETRY_ELLIPSE_ENABLED
 
 static bool_t
 s_Point_equals(Ellipse_t* self, Point_t* otherObject);
@@ -443,23 +446,31 @@ Ellipse_within(Ellipse_t* self, Geometry_t* otherObject) {
     case GEO_TYPE_POINT:
         return s_Point_within(self, (Point_t*)otherObject);
 
+#ifdef FEATURE_SDDS_GEOMETRY_LINESTRING_ENABLED
     case GEO_TYPE_LINESTRING:
         return s_LineString_within(self, (LineString_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_LINE_ENABLED
     case GEO_TYPE_LINE:
         return s_Line_within(self, (Line_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_LINERING_ENABLED
     case GEO_TYPE_LINERING:
         return s_LineRing_within(self, (LineRing_t*)otherObject);
+#endif
 
     case GEO_TYPE_ELLIPSE:
         return s_Ellipse_within(self, (Ellipse_t*)otherObject);
 
+#ifdef FEATURE_SDDS_GEOMETRY_SQUARE_ENABLED
     case GEO_TYPE_SQUARE:
     {
         bool_t ret = s_Square_within(self, (Square_t*)otherObject);
         if (ret) {
-            printf("Ellipse([%u, %u, %u], %u, %u) WHITHIN Square([%u, %u, %u], %u, %u): TRUE\n",
+#ifdef UTILS_DEBUG_LOCATION
+            Log_info("Ellipse([%u, %u, %u], %u, %u) WHITHIN Square([%u, %u, %u], %u, %u): TRUE\n",
                     self->basicShape.vertex.x,
                     self->basicShape.vertex.y,
                     self->basicShape.vertex.z,
@@ -471,7 +482,7 @@ Ellipse_within(Ellipse_t* self, Geometry_t* otherObject) {
                     ((Square_t*)otherObject)->basicShape.width,
                     ((Square_t*)otherObject)->basicShape.length);
         } else {
-            printf("Ellipse([%u, %u, %u], %u, %u) WHITHIN Square([%u, %u, %u], %u, %u): FALSE\n",
+            Log_info("Ellipse([%u, %u, %u], %u, %u) WHITHIN Square([%u, %u, %u], %u, %u): FALSE\n",
                     self->basicShape.vertex.x,
                     self->basicShape.vertex.y,
                     self->basicShape.vertex.z,
@@ -482,26 +493,41 @@ Ellipse_within(Ellipse_t* self, Geometry_t* otherObject) {
                     ((Square_t*)otherObject)->basicShape.vertex.z,
                     ((Square_t*)otherObject)->basicShape.width,
                     ((Square_t*)otherObject)->basicShape.length);
+#endif
         }
         return ret;
     }
+#endif
+
+#ifdef FEATURE_SDDS_GEOMETRY_POLYGON_ENABLED
     case GEO_TYPE_POLYGON:
         return s_Polygon_within(self, (Polygon_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_POLYHEDRALSURFACE_ENABLED
     case GEO_TYPE_POLYHEDRALSURFACE:
         return s_PolyhedralSurface_within(self, (PolyhedralSurface_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_ELLIPSE_EXTRUSION_ENABLED
     case GEO_TYPE_ELLIPSE_EXTRUSION:
         return s_EllipseExtrusion_within(self, (EllipseExtrusion_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_SQUARE_EXTRUSION_ENABLED
     case GEO_TYPE_SQUARE_EXTRUSION:
         return s_SquareExtrusion_within(self, (SquareExtrusion_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_POLYGON_EXTRUSION_ENABLED
     case GEO_TYPE_POLYGON_EXTRUSION:
         return s_PolygonExtrusion_within(self, (PolygonExtrusion_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_POLYHEDRALSURFACE_EXTRUSION_ENABLED
     case GEO_TYPE_POLYHEDRALSURFACE_EXTRUSION:
         return s_PolyhedralSurfaceExtrusion_within(self, (PolyhedralSurfaceExtrusion_t*)otherObject);
+#endif
 
     default:
         return false;
@@ -572,9 +598,10 @@ Ellipse_overlaps(Ellipse_t* self, Geometry_t* otherObject) {
 
     case GEO_TYPE_SQUARE:
     {
-        bool_t ret = s_Square_overlaps(self, (Square_t*)otherObject) && !s_Square_within(self, (Square_t*)otherObject);
+        bool_t ret = s_Square_overlaps(self, (Square_t*)otherObject); // && !s_Square_within(self, (Square_t*)otherObject);
+#ifdef UTILS_DEBUG_LOCATION
         if (ret) {
-            printf("Ellipse([%u, %u, %u], %u, %u) OVERLAPS Square([%u, %u, %u], %u, %u): TRUE\n",
+            Log_info("Ellipse([%u, %u, %u], %u, %u) OVERLAPS Square([%u, %u, %u], %u, %u): TRUE\n",
                     self->basicShape.vertex.x,
                     self->basicShape.vertex.y,
                     self->basicShape.vertex.z,
@@ -586,18 +613,19 @@ Ellipse_overlaps(Ellipse_t* self, Geometry_t* otherObject) {
                     ((Square_t*)otherObject)->basicShape.width,
                     ((Square_t*)otherObject)->basicShape.length);
         } else {
-            printf("Ellipse([%u, %u, %u], %u, %u) OVERLAPS Square([%u, %u, %u], %u, %u): FALSE\n",
-                                self->basicShape.vertex.x,
-                                self->basicShape.vertex.y,
-                                self->basicShape.vertex.z,
-                                self->basicShape.width,
-                                self->basicShape.length,
-                                ((Square_t*)otherObject)->basicShape.vertex.x,
-                                ((Square_t*)otherObject)->basicShape.vertex.y,
-                                ((Square_t*)otherObject)->basicShape.vertex.z,
-                                ((Square_t*)otherObject)->basicShape.width,
-                                ((Square_t*)otherObject)->basicShape.length);
+            Log_info("Ellipse([%u, %u, %u], %u, %u) OVERLAPS Square([%u, %u, %u], %u, %u): FALSE\n",
+                    self->basicShape.vertex.x,
+                    self->basicShape.vertex.y,
+                    self->basicShape.vertex.z,
+                    self->basicShape.width,
+                    self->basicShape.length,
+                    ((Square_t*)otherObject)->basicShape.vertex.x,
+                    ((Square_t*)otherObject)->basicShape.vertex.y,
+                    ((Square_t*)otherObject)->basicShape.vertex.z,
+                    ((Square_t*)otherObject)->basicShape.width,
+                    ((Square_t*)otherObject)->basicShape.length);
         }
+#endif
         return ret;
     }
 
@@ -908,28 +936,60 @@ s_Square_within(Ellipse_t* self, Square_t* otherObject) {
     assert(self);
     assert(otherObject);
 
-    GeoMeasurement_t circleDistance_x = abs(self->basicShape.vertex.x - otherObject->basicShape.vertex.x);
-    GeoMeasurement_t circleDistance_y = abs(self->basicShape.vertex.y - otherObject->basicShape.vertex.y);
+    GeoMeasurement_t selfCenter_x = self->basicShape.vertex.x + self->basicShape.width/2;
+    GeoMeasurement_t selfCenter_y = self->basicShape.vertex.y + self->basicShape.length/2;
+    GeoMeasurement_t self_r = fmax(self->basicShape.width/2, self->basicShape.length/2);
 
-    if (circleDistance_x > (otherObject->basicShape.width/2 + self->basicShape.width)) {
+    GeoMeasurement_t squareCenter_x = otherObject->basicShape.vertex.x + otherObject->basicShape.width/2;
+    GeoMeasurement_t squareCenter_y = otherObject->basicShape.vertex.y + otherObject->basicShape.length/2;
+
+    GeoMeasurement_t selfDistance_x = abs(selfCenter_x - squareCenter_x);
+    GeoMeasurement_t selfDistance_y = abs(selfCenter_y - squareCenter_y);
+
+#ifdef UTILS_DEBUG
+    printf("\n\nWITHIN CALC:\n");
+    printf("selfCenter: (%u, %u) self_r: %u\n", selfCenter_x, selfCenter_y, self_r);
+    printf("squareCenter: (%u, %u)\n", squareCenter_x, squareCenter_y);
+    printf("selfDistance: (%u, %u)\n", selfDistance_x, selfDistance_y);
+#endif
+    if (selfDistance_x > (otherObject->basicShape.width/2 + self_r)) {
+#ifdef UTILS_DEBUG
+        printf("dist_x > (widht/2 + r)\n");
+        printf("%u > %u\n", selfDistance_x, (otherObject->basicShape.width/2 + self_r));
+#endif
         return false;
     }
-    if (circleDistance_y > (otherObject->basicShape.length/2 + self->basicShape.width)) {
+    if (selfDistance_y > (otherObject->basicShape.length/2 + self_r)) {
+#ifdef UTILS_DEBUG
+        printf("dist_y > (length/2 + r)\n");
+        printf("%u > %u\n", selfDistance_y, (otherObject->basicShape.length/2 + self_r));
+#endif
         return false;
     }
 
-    if (circleDistance_x <= (otherObject->basicShape.width/2)) {
+    if (selfDistance_x <= (otherObject->basicShape.width/2)) {
+#ifdef UTILS_DEBUG
+        printf("dist_x <= (width/2)\n");
+        printf("%u <= %u\n", selfDistance_x,(otherObject->basicShape.width/2));
+#endif
         return true;
     }
-    if (circleDistance_y <= (otherObject->basicShape.length/2)) {
+    if (selfDistance_y <= (otherObject->basicShape.length/2)) {
+#ifdef UTILS_DEBUG
+        printf("dist_y <= (length/2)\n");
+        printf("%u <= %u\n", selfDistance_y, (otherObject->basicShape.length/2));
+#endif
         return true;
     }
 
-    GeoMeasurement_t cornerDistance_x = (circleDistance_x - otherObject->basicShape.width/2) * (circleDistance_x - otherObject->basicShape.width/2);
-    GeoMeasurement_t cornerDistance_y = (circleDistance_y - otherObject->basicShape.length/2) * (circleDistance_y - otherObject->basicShape.length/2);
+    GeoMeasurement_t cornerDistance_x = (selfDistance_x - otherObject->basicShape.width/2) * (selfDistance_x - otherObject->basicShape.width/2);
+    GeoMeasurement_t cornerDistance_y = (selfDistance_y - otherObject->basicShape.length/2) * (selfDistance_y - otherObject->basicShape.length/2);
     GeoMeasurement_t cornerDistance_sq = cornerDistance_x + cornerDistance_y;
+    bool_t ret = (cornerDistance_sq <= (self_r * self_r));
 
-    bool_t ret = (cornerDistance_sq <= (self->basicShape.width * self->basicShape.width));
+#ifdef UTILS_DEBUG
+    printf("cornerDistance: (%u, %u) sq: %u\n", cornerDistance_x, cornerDistance_y, cornerDistance_sq);
+#endif
 
     return ret;
 }
@@ -1179,3 +1239,4 @@ s_PolyhedralSurfaceExtrusion_overlaps(Ellipse_t* self, PolyhedralSurfaceExtrusio
     return false;
 }
 
+#endif

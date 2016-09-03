@@ -5,7 +5,10 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "Geometry_Line.h"
+
+#ifdef FEATURE_SDDS_GEOMETRY_LINE_ENABLED
 
 static bool_t
 s_Point_equals(Line_t* self, Point_t* otherObject);
@@ -939,7 +942,6 @@ s_EllipseExtrusion_overlaps(Line_t* self, EllipseExtrusion_t* otherObject) {
     return false;
 }
 
-
 static bool_t
 s_SquareExtrusion_equals(Line_t* self, SquareExtrusion_t* otherObject) {
     return false;
@@ -1062,5 +1064,4 @@ s_PolyhedralSurfaceExtrusion_overlaps(Line_t* self, PolyhedralSurfaceExtrusion_t
     return false;
 }
 
-
-
+#endif

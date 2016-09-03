@@ -5,8 +5,10 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "Geometry_EllipseExtrusion.h"
 
+#ifdef FEATURE_SDDS_GEOMETRY_ELLIPSE_EXTRUSION_ENABLED
 
 static bool_t
 s_Point_equals(EllipseExtrusion_t* self, Point_t* otherObject);
@@ -199,7 +201,7 @@ static bool_t
 s_PolyhedralSurfaceExtrusion_equals(EllipseExtrusion_t* self, PolyhedralSurfaceExtrusion_t* otherObject);
 static bool_t
 s_PolyhedralSurfaceExtrusion_disjoint(EllipseExtrusion_t* self, PolyhedralSurfaceExtrusion_t* otherObject);
-static bool_t
+static bool_t#ifdef FEATURE_SDDS_GEOMETRY__ENABLED
 s_PolyhedralSurfaceExtrusion_intersects(EllipseExtrusion_t* self, PolyhedralSurfaceExtrusion_t* otherObject);
 static bool_t
 s_PolyhedralSurfaceExtrusion_touches(EllipseExtrusion_t* self, PolyhedralSurfaceExtrusion_t* otherObject);
@@ -1065,3 +1067,4 @@ s_PolyhedralSurfaceExtrusion_overlaps(EllipseExtrusion_t* self, PolyhedralSurfac
     return false;
 }
 
+#endif

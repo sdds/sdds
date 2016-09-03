@@ -5,6 +5,7 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "BuiltInLocationUpdateService.h"
 #include "BuiltinTopic.h"
 #include "Geometry.h"
@@ -40,12 +41,12 @@ BuiltInLocationUpdateService_init() {
 }
 
 rc_t
-BuiltInLocationUpdateService_getDeviceLocation(SSW_NodeID_t device, DeviceLocation_t** devLoc) {
+BuiltInLocationUpdateService_getDeviceLocation(SSW_NodeID_t device, DeviceLocation_t* devLoc) {
     assert(devLoc);
 
     for (int i = 0; i < s_deviceCount; i++) {
         if (s_trackedDevices[i].device == device) {
-            *devLoc = &s_trackedDevices[i];
+            memcpy(devLoc, &s_trackedDevices[i], sizeof(DeviceLocation_t));
             return SDDS_RT_OK;
         }
     }
