@@ -184,17 +184,17 @@ SubscriptionManager_handlePublication(SubscriptionManager_t* self, DDS_DCPSPubli
 }
 
 rc_t
-SubscriptionManager_handleSubscription(SubscriptionManager_t* self, DDS_DCPSSubscription* sample) {
-    ParticipantNode_t* sub = SubscriptionGraph_containsParticipantNode(&self->subscriptionGraph, sample->participant_key);
+SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSubscription* sample) {
+    ParticipantNode_t* sub = SubscriptionGraph_containsParticipantNode(&self->subscriptionGraph, sample->data.participant_key);
 
     if (sub != NULL)  {
         List_t* nodes = self->subscriptionGraph.nodes;
         ParticipantNode_t* node = nodes->first_fn(nodes);
         while (node != NULL) {
             if (node->roleMask & SDDS_PARTICIPANT_ROLE_PUB) {
-                DirectedEdge_t* edge = SubscriptionGraph_containsSubscription(&self->subscriptionGraph, node->id, sample->participant_key, sample->topic_id);
+                DirectedEdge_t* edge = SubscriptionGraph_containsSubscription(&self->subscriptionGraph, node->id, sample->data.participant_key, sample->data.topic_id);
                 if (edge == NULL) {
-                    Topic_t* topic = TopicDB_getTopic(sample->topic_id);
+                    Topic_t* topic = TopicDB_getTopic(sample->data.topic_id);
                     if (topic == NULL) {
                         return SDDS_RT_FAIL;
                     }
@@ -231,7 +231,7 @@ SubscriptionManager_handleSubscription(SubscriptionManager_t* self, DDS_DCPSSubs
         SDDS_DCPSManagement data;
         data.participant = sub->id;
         strcpy(data.mKey, SDDS_MANAGEMENT_TOPIC_KEY_REQUEST_FILTER_EXPRESSION);
-        rc_t ret =  Marshalling_enc_uint8((byte_t*) data.mValue, (uint8_t*)&sample->topic_id);
+        rc_t ret =  Marshalling_enc_uint8((byte_t*) data.mValue, (uint8_t*)&sample->data.topic_id);
         if (ret != SDDS_RT_OK) {
             Log_error("Marshalling_dec_uint8 failed\n");
         }

@@ -88,7 +88,7 @@ typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 #include "BuiltinTopic.h"
 #include "BuiltInTopicPublicationService.h"
-#   ifdef FEATURE_SDDS_BUILTIN_LOCATION_UPDATE_ENABLED
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED 
 #include "BuiltInLocationUpdateService.h"
 #   endif
 #endif
