@@ -144,7 +144,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
         return ret;
     }
 
-    topicid_t topic_id;
+    topicid_t topic_id = 0;
 
     while (buff->subMsgCount > 0) {
 
@@ -184,8 +184,8 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 
         case (SDDS_SNPS_T_DATA):
         {
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-            DataSink_ReaderIterator_t it;
+#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) || defined(FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED)
+                        DataSink_ReaderIterator_t it;
             rc_t it_ret = DataSink_readerIterator_reset(&it, topic_id);
             if (it_ret != SDDS_RT_OK) {
                 Log_debug("Couĺdn't get Data Reader for topic id %u: "
@@ -552,6 +552,7 @@ checkDomain(NetBuffRef_t* buff) {
 
 rc_t
 checkTopic(NetBuffRef_t* buff, topicid_t topic) {
+    assert(buff);
     Topic_t* t_ptr = TopicDB_getTopic(topic);
     if (t_ptr == NULL) {
         SNPS_gotoNextSubMsg(buff, SDDS_SNPS_T_TOPIC);
@@ -633,11 +634,11 @@ DataSink_readerIterator_next(DataSink_ReaderIterator_t* it) {
 				break;
 			}
 		}
-    }
 
-    if (it->iteratorNext == -1) {
-        it->iteratorFiltered = 1;
-        it->iteratorPos = -1;
+	    if (it->iteratorNext == -1) {
+	        it->iteratorFiltered = 1;
+	        it->iteratorPos = -1;
+	    }
     }
 
     if (it->iteratorFiltered != 0) {

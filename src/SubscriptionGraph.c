@@ -17,12 +17,14 @@ ParticipantNode_getEdges(ParticipantNode_t* node) {
 
 rc_t
 SubscriptionGraph_init(SubscriptionGraph_t* self) {
+    self->nodes = List_initDynamicLinkedList();
+    self->edges = List_initDynamicLinkedList();
     return SDDS_RT_OK;
 }
 
 ParticipantNode_t*
 SubscriptionGraph_createParticipantNode(SubscriptionGraph_t *self) {
-    ParticipantNode_t* node = calloc(1, sizeof(ParticipantNode_t*));
+    ParticipantNode_t* node = malloc(sizeof(ParticipantNode_t));
     node->topics = List_initDynamicLinkedList();
     node->edges = List_initDynamicLinkedList();
     List_t* nodes = self->nodes;
@@ -82,7 +84,7 @@ SubscriptionGraph_freeParticipantNode(SubscriptionGraph_t *self, ParticipantNode
 
 DirectedEdge_t*
 SubscriptionGraph_createDirectedEdge(SubscriptionGraph_t *self) {
-    DirectedEdge_t* edge = calloc(1, sizeof(DirectedEdge_t*));
+    DirectedEdge_t* edge = malloc(sizeof(DirectedEdge_t));
     List_t* edges = self->edges;
     rc_t ret = edges->add_fn(edges, edge);
     if (ret != SDDS_RT_OK) {
@@ -187,7 +189,10 @@ ParticipantNode_t*
 SubscriptionGraph_containsParticipantNode(SubscriptionGraph_t *self, SSW_NodeID_t participantID) {
     List_t* nodes = self->nodes;
     ParticipantNode_t* node = nodes->first_fn(nodes);
-    while((node != NULL) && (node->id != participantID)) {
+    while(node != NULL) {
+        if  (node->id == participantID) {
+            break;
+        }
         node = nodes->next_fn(nodes);
     }
 

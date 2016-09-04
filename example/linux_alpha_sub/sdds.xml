@@ -44,8 +44,8 @@
     <define name = "FEATURE_SDDS_LOCATION_TRACKING_ENABLED" />
     <define name = "FEATURE_SDDS_LOCATION_FILTER_ENABLED" />
     <define name = "FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED" />
-    <define name = "FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED" />
     <!--
+    <define name = "FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED" />
         Configure discovery intervals
     -->
     <define name = "SDDS_BUILTIN_TOPIC_PARTICIPANT_TIMER" value = "1"/>
@@ -64,7 +64,7 @@
         Enable all debug messages
     -->
     <define name = "UTILS_DEBUG"/>
-    
+
     <geometryEntry name="GEO_WOHNZIMMER" id="1" >
         <class type="Square" name="s_geo_wohnzimmer">
              <attribute name="basicShape.vertex.x" value="0"/>
@@ -86,5 +86,6 @@
     </geometryEntry>
 
     <topicFilter name="filteredAlpha" topic="Alpha" expression="&quot;WITHIN &quot;GEO_WOHNZIMMER"/>
-
+<!-- 
+-->
 </project>

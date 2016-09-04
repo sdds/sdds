@@ -70,11 +70,12 @@ BuiltInTopicPublicationService_init() {
 
 rc_t
 BuiltInTopicPublicationService_publishDCPSParticipant() {
-    DDS_DCPSParticipant p;
+    SDDS_DCPSParticipant p;
     DataWriter_t* dw = ((DataWriter_t*) g_DCPSParticipant_writer);
-    p.key = (BuiltinTopic_participantID << 4) | dw->id;
+    p.data.key = BuiltinTopic_participantID; //(BuiltinTopic_participantID << 4) | dw->id;
+    p.participantID = BuiltinTopic_participantID;
 
-    if (DDS_DCPSParticipantDataWriter_write(g_DCPSParticipant_writer, &p,
+    if (DDS_DCPSParticipantDataWriter_write(g_DCPSParticipant_writer, (DDS_DCPSParticipant *)&p,
                                             NULL) == DDS_RETCODE_ERROR) {
         // handle error
         Log_error("Send participant topic failed.\n");

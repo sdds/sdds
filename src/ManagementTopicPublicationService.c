@@ -20,11 +20,14 @@ rc_t
 ManagementTopicPublicationService_publishManagementDirective(SDDS_DCPSManagement* data, Locator_t* addr) {
     DataWriter_t* dw = ((DataWriter_t*) g_DCPSManagement_writer);
 
-    if (SDDS_DCPSManagementDataWriter_writeToParticipant(g_DCPSParticipant_writer, data, NULL, addr) == DDS_RETCODE_ERROR) {
+    if (SDDS_DCPSManagementDataWriter_writeToParticipant(g_DCPSManagement_writer, data, NULL, addr) == DDS_RETCODE_ERROR) {
         // handle error
         Log_error("Send participant topic failed.\n");
         return SDDS_RT_FAIL;
     }
+
+    printf("Published ManagementDirective: %s\n ", data->mKey);
+
     return SDDS_RT_OK;
 }
 

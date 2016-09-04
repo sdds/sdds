@@ -73,17 +73,23 @@ s_executeManagementDirective(DDS_DataReader reader) {
         if (ret == DDS_RETCODE_OK) {
             if (m_data_used.participant == SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS || m_data_used.participant == BuiltinTopic_participantID) {
                 if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_SET_SUBSCRIPTION_STATE) == 0) {
+#ifdef SDDS_TOPIC_HAS_SUB
+                    printf("Received ManagementDirective: %s\n", m_data_used.mKey);
                     if (s_key_setSubscriptionState(m_data_used.mValue) != SDDS_RT_OK) {
                         Log_error("Unable to set subscription state.\n");
                     }
+#endif
                 }
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_REQUEST_FILTER_EXPRESSION) == 0) {
+                    printf("Received ManagementDirective: %s to ", m_data_used.mKey);
+                    Locator_print(m_data_used.addr);
                     if (s_key_requestFilterExpression(m_data_used.mValue, m_data_used.addr) != SDDS_RT_OK) {
                         Log_error("Unable to process FilterExpression request.\n");
                     }
                 }
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_SEND_FILTER_EXPRESSION) == 0) {
 #ifdef SDDS_SUBSCRIPTION_MANAGER
+                    printf("Received ManagementDirective: %s\n", m_data_used.mKey);
                     if (SubscriptionManagementService_registerFilter(&m_data_used) != SDDS_RT_OK) {
                         Log_error("Unable to process FilterExpression.\n");
                     }
@@ -91,12 +97,16 @@ s_executeManagementDirective(DDS_DataReader reader) {
                 }
                 else if (strcmp(m_data_used.mKey, SDDS_MANAGEMENT_TOPIC_KEY_DELETE_FILTER_EXPRESSION) == 0) {
 #ifdef SDDS_SUBSCRIPTION_MANAGER
-                    if (s_key_deleteFilterExpression(m_data_used.mValue, m_data_used.addr) != SDDS_RT_OK) {
+                    printf("Received ManagementDirective: %s\n", m_data_used.mKey);
+                    if (s_key_deleteFilterExpression(m_data_used.mValue) != SDDS_RT_OK) {
                         Log_error("Unable to delete FilterExpression.\n");
                     }
 #endif
                 }
             }
+        }
+        else {
+            printf("No ManagementDirective\n");
         }
     } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 }
@@ -124,12 +134,16 @@ s_key_setSubscriptionState(DDS_char* mValue) {
     Topic_t* topic = TopicDB_getTopic(topicID);
 
     List_t* subscriptions = topic->dsinks.list;
+
     TopicSubscription_t* sub = subscriptions->first_fn(subscriptions);
-    while (sub != NULL && sub->participant == participant) {
+    while (sub != NULL) {
+        if (sub->participant == participant) {
+            break;
+        }
         sub = subscriptions->next_fn(subscriptions);
     }
 
-    if (sub != NULL) {
+    if (sub == NULL) {
         Log_error("Subscription not found.\n");
         return SDDS_RT_FAIL;
     }
@@ -142,6 +156,8 @@ s_key_setSubscriptionState(DDS_char* mValue) {
         return SDDS_RT_FAIL;
     }
 
+    printf("Subscription updated: %x, %d, %u\n", sub->participant, sub->state, sub->updated);
+
     return SDDS_RT_OK;
 }
 
@@ -151,7 +167,8 @@ s_key_setSubscriptionState(DDS_char* mValue) {
 
 rc_t
 s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
-    topicid_t topicID = atoi(mValue);
+    topicid_t topicID;
+    rc_t ret =  Marshalling_dec_uint8((byte_t*) mValue, &topicID);
 
     Topic_t* topic = TopicDB_getTopic(topicID);
     if (topic == NULL) {
@@ -162,6 +179,7 @@ s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
     FilteredDataReader_t* filteredReader = DataSink_getFilteredDataReaders();
     for (int i = 0; i < SDDS_DATA_FILTER_READER_MAX_OBJS; i++) {
         if (filteredReader[i].locationFilteredTopic->contentFilteredTopic.associatedTopic->id == topicID) {
+
             SDDS_DCPSManagement data;
             data.participant = SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS;
             strcpy(data.mKey, SDDS_MANAGEMENT_TOPIC_KEY_SEND_FILTER_EXPRESSION);
@@ -177,6 +195,8 @@ s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
             size += sizeof(filteredReader[i].locationFilteredTopic->expressionLength);
 
             Marshalling_enc_string(data.mValue+size, filteredReader[i].locationFilteredTopic->filterExpression, filteredReader[i].locationFilteredTopic->expressionLength);
+            size += filteredReader[i].locationFilteredTopic->expressionLength;
+
             rc_t ret = ManagementTopicPublicationService_publishManagementDirective(&data, addr);
         }
     }

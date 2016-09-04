@@ -5,6 +5,10 @@ extern "C"
 
 #include "sDDS.h"
 
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+#include "ManagementTopic.h"
+#endif
+
 #ifdef __cplusplus
 }
 #endif
@@ -1473,6 +1477,9 @@ BuildinTopic_isBuiltinTopic(topicid_t tID, domainid_t dID) {
        || (DDS_DCPS_SUBSCRIPTION_DOMAIN == dID) && (DDS_DCPS_SUBSCRIPTION_TOPIC == tID)
        || (DDS_PARTICIPANT_STATELESS_MESSAGE_DOMAIN == dID) && (DDS_PARTICIPANT_STATELESS_MESSAGE_TOPIC == tID)
        || (SDDS_DCPS_LOCATION_DOMAIN == dID) && (SDDS_DCPS_LOCATION_TOPIC == tID)
+#   ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+       || (SDDS_DCPS_MANAGEMENT_DOMAIN == dID) && (SDDS_DCPS_MANAGEMENT_TOPIC == tID)
+#   endif
         ) {
         return true;
     }

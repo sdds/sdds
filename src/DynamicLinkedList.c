@@ -60,47 +60,61 @@ List_initDynamicLinkedList(void) {
 void*
 DynamicLinkedList_first(List_t* self) {
     assert(self);
-    DynamicLinkedList_t* list = (DynamicLinkedList_t*) list;
+    DynamicLinkedList_t* list = (DynamicLinkedList_t*) self;
     list->cursor = list->head;
-    return list->cursor->data;
+    if(list->cursor) {
+        return list->head->data;
+    }
+    else {
+        return NULL;
+    }
 }
 
 void*
 DynamicLinkedList_next(List_t* self) {
     assert(self);
-    DynamicLinkedList_t* list = (DynamicLinkedList_t*) list;
-    list->cursor = list->cursor->next;
-    return list->cursor->data;
+    DynamicLinkedList_t* list = (DynamicLinkedList_t*) self;
+    if (list->cursor) {
+        list->cursor = list->cursor->next;
+    }
+    else {
+        list->cursor = list->head;
+    }
+
+    if (list->cursor) {
+        return list->cursor->data;
+    }
+    else {
+        return NULL;
+    }
 }
 
 rc_t
 DynamicLinkedList_add(List_t* self, void* data) {
     assert(self);
     assert(data);
-    DynamicLinkedList_t* list = (DynamicLinkedList_t*) list;
+    DynamicLinkedList_t* list = (DynamicLinkedList_t*) self;
 
-
-    if (list->head == NULL) {
-        list->head = malloc(sizeof(Node_t));
-        list->head->next = NULL;
-        list->head->data = data;
-        list->size = 1;
-
-        return SDDS_RT_OK;
+    Node_t* node = malloc(sizeof(Node_t));
+    if(!node) {
+        return SDDS_RT_FAIL;
     }
+    node->data = data;
+    node->next = NULL;
 
-    Node_t* node = list->head;
-    Node_t* prev = NULL;
-    while (node != NULL) {
-        prev = list->cursor;
-        node = list->cursor->next;
+    if (list->head) {
+        Node_t* tail = list->head;
+        while (tail->next) {
+            tail = tail->next;
+        }
+        tail->next = node;
     }
-
-    prev->next = malloc(sizeof(Node_t));
-    prev->next->next = NULL;
-    prev->next->data = data;
+    else {
+        list->head = node;
+    }
 
     list->size++;
+    list->cursor = NULL;
 
     return SDDS_RT_OK;
 }
@@ -109,14 +123,14 @@ DynamicLinkedList_add(List_t* self, void* data) {
 size_t
 DynamicLinkedList_size(List_t* self) {
     assert(self);
-    DynamicLinkedList_t* list = (DynamicLinkedList_t*) list;
+    DynamicLinkedList_t* list = (DynamicLinkedList_t*) self;
     return list->size;
 }
 
 rc_t
 DynamicLinkedList_delete(List_t* self) {
     assert(self);
-    DynamicLinkedList_t* list = (DynamicLinkedList_t*) list;
+    DynamicLinkedList_t* list = (DynamicLinkedList_t*) self;
     Node_t* node = list->head;
 
     while (node != NULL) {
@@ -136,7 +150,7 @@ DynamicLinkedList_delete(List_t* self) {
 rc_t
 DynamicLinkedList_delete_all(List_t* self) {
     assert(self);
-    DynamicLinkedList_t* list = (DynamicLinkedList_t*) list;
+    DynamicLinkedList_t* list = (DynamicLinkedList_t*) self;
 
     Node_t* node = list->head;
     while (node != NULL) {

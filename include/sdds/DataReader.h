@@ -60,6 +60,9 @@ DataReader_history(DataReader_t* self);
 rc_t
 DataReader_pushData(DataReader_t* self, NetBuffRef_t* buff);
 
+rc_t
+DataReader_s_pushData(DataReader_t* self, NetBuffRef_t* buff);
+
 #ifdef __cplusplus
 }
 #endif

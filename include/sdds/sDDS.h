@@ -40,7 +40,9 @@ typedef struct _Sample_t Sample_t;
 typedef struct _ReliableSample_t ReliableSample_t;
 typedef struct _Topic_t Topic_t;
 typedef struct TimeStampSimple_struct TimeStampSimple_t;
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
 typedef struct LocationFilteredTopic LocationFilteredTopic_t;
+#endif
 
 //  Abstraction
 #include "os-ssal/Task.h"

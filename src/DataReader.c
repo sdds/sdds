@@ -17,9 +17,6 @@
 //  structure must match the de-serialized data for this topic. Return
 //  SDDS_RT_OK if data available, otherwise SDDS_RT_NODATA.
 
-static rc_t
-s_pushData(DataReader_t* self, NetBuffRef_t* buff);
-
 void
 DataReader_init(DataReader_t* self, uint8_t id, Topic_t* topic, On_Data_Avail_Listener listener) {
     assert(self);
@@ -28,7 +25,7 @@ DataReader_init(DataReader_t* self, uint8_t id, Topic_t* topic, On_Data_Avail_Li
     self->id = id;
     self->topic = topic;
     self->on_data_avail_listener = listener;
-    self->fn_pushData = s_pushData;
+    self->fn_pushData = DataReader_s_pushData;
 }
 
 rc_t
@@ -89,8 +86,8 @@ DataReader_pushData(DataReader_t* self, NetBuffRef_t* buff) {
     return self->fn_pushData(self, buff);
 }
 
-static rc_t
-s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
+rc_t
+DataReader_s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
     History_t* history = DataReader_history(self);
     Topic_t* topic = buff->curTopic;
     Locator_t* loc = (Locator_t*) buff->locators->first_fn(buff->locators);

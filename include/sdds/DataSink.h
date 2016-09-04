@@ -72,7 +72,9 @@ DataSink_readerIterator_next(DataSink_ReaderIterator_t* it);
 rc_t
 DataSink_readerIterator_hasNext(DataSink_ReaderIterator_t* it);
 
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
 FilteredDataReader_t*
 DataSink_getFilteredDataReaders();
+#endif
 
 #endif   /* ----- #ifndef DATASINK_H_INC  ----- */

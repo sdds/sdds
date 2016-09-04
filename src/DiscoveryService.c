@@ -94,12 +94,13 @@ s_DiscoveryService_participantListener(DDS_DataReader reader) {
                 Log_error("Error in s_DiscoveryService_handleParticipant\n.");
             }
 
-//#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
-//            ret = SubscriptionManagementService_handleParticipant(&p_data_used);
-//            if (ret != SDDS_RT_OK) {
-//                Log_error("SubscriptionManagementService_handleParticipant failed.\n");
-//            }
-//#       endif
+#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+            rc_t retSM;
+            retSM = SubscriptionManagementService_handleParticipant(&p_data_used);
+            if (retSM != SDDS_RT_OK) {
+                Log_error("SubscriptionManagementService_handleParticipant failed.\n");
+            }
+#       endif
         }
     } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 }
@@ -111,7 +112,7 @@ s_DiscoveryService_topicListener(DDS_DataReader reader) {
 
 static void
 s_DiscoveryService_publicationListener(DDS_DataReader reader) {
-#   if defined(SDDS_TOPIC_HAS_PUB)
+#   if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED)
     rc_t ret;
     DDS_DCPSPublication pt_data_used;
     DDS_DCPSPublication* pt_data_used_ptr = &pt_data_used;
@@ -144,12 +145,13 @@ s_DiscoveryService_publicationListener(DDS_DataReader reader) {
                 BuiltInTopicPublicationService_publishDCPSSubscription(pt_data_used.topic_id);
             }
 
-//#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
-//            ret = SubscriptionManagementService_handlePupblication(&pt_data_used);
-//            if (ret != SDDS_RT_OK) {
-//                Log_error("SubscriptionManagementService_handlePupblication failed.\n");
-//            }
-//#       endif
+#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+            rc_t retSM;
+            retSM = SubscriptionManagementService_handlePublication(&pt_data_used);
+            if (retSM != SDDS_RT_OK) {
+                Log_error("SubscriptionManagementService_handlePublication failed.\n");
+            }
+#       endif
         }
     } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 #   endif
@@ -182,12 +184,13 @@ s_DiscoveryService_subscriptionListener(DDS_DataReader reader) {
                 }
             }
 
-//#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
-//            ret = SubscriptionManagementService_handleSubscription(&st_data_used);
-//            if (ret != SDDS_RT_OK) {
-//                Log_error("SubscriptionManagementService_handleSubscription failed.\n");
-//            }
-//#       endif
+#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+            rc_t retSM;
+            retSM = SubscriptionManagementService_handleSubscription(&st_data_used);
+            if (retSM != SDDS_RT_OK) {
+                Log_error("SubscriptionManagementService_handleSubscription failed.\n");
+            }
+#       endif
         }
     } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 #   endif

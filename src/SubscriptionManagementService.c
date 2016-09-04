@@ -21,10 +21,12 @@ SubscriptionManagementService_init() {
     // TODO regelmäßig pause senden
 }
 
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
 rc_t
 SubscriptionManagementService_evalFilteredSubscription(DeviceLocation_t* sample) {
     return SubscriptionManager_evalFilteredSubscription(&s_subscriptionManager, sample);
 }
+#endif
 
 rc_t
 SubscriptionManagementService_handleParticipant(SDDS_DCPSParticipant* sample) {
@@ -32,8 +34,8 @@ SubscriptionManagementService_handleParticipant(SDDS_DCPSParticipant* sample) {
 }
 
 rc_t
-SubscriptionManagementService_handlePupblication(DDS_DCPSPublication* sample) {
-    return SubscriptionManager_handlePupblication(&s_subscriptionManager, sample);
+SubscriptionManagementService_handlePublication(DDS_DCPSPublication* sample) {
+    return SubscriptionManager_handlePublication(&s_subscriptionManager, sample);
 }
 
 rc_t

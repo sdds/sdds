@@ -9,6 +9,8 @@
 #include "LocationFilteredTopic.h"
 #include "FilteredDataReader.h"
 
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+
 static rc_t
 s_pushData(DataReader_t* self, NetBuffRef_t* buff);
 
@@ -206,3 +208,5 @@ s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
 
     return SDDS_RT_OK;
 }
+
+#endif

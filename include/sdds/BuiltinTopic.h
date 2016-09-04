@@ -86,6 +86,7 @@ typedef struct DDS_DCPSParticipant_t DDS_DCPSParticipant;
 
 struct SDDS_DCPSParticipant_t {
     struct DDS_DCPSParticipant_t data;
+    BuiltinTopicKey_t participantID;
     Locator_t* addr;
 };
 typedef struct SDDS_DCPSParticipant_t SDDS_DCPSParticipant;

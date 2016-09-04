@@ -28,7 +28,7 @@ rc_t
 SubscriptionManager_handleParticipant(SubscriptionManager_t* self, SDDS_DCPSParticipant* sample);
 
 rc_t
-SubscriptionManager_handlePupblication(SubscriptionManager_t* self, DDS_DCPSPublication* sample);
+SubscriptionManager_handlePublication(SubscriptionManager_t* self, DDS_DCPSPublication* sample);
 
 rc_t
 SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSubscription* sample);

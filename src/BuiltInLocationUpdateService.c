@@ -99,6 +99,12 @@ s_updateLocation(DDS_DataReader reader) {
                 if (devPos == s_deviceCount) {
                     s_deviceCount++;
                 }
+#ifdef SDDS_SUBSCRIPTION_MANAGER
+                ret = SubscriptionManagementService_evalFilteredSubscription(&s_trackedDevices[devPos]);
+                if (ret != SDDS_RT_OK) {
+                    Log_error("SubscriptionManagementService_evalFilteredSubscription failed.\n");
+                }
+#endif
             }
             else {
                 Log_error("Maximum of available devices reached.\n");
