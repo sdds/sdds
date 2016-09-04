@@ -1,0 +1,7 @@
+<domain id = "1">
+    <topic name = "temperature" domain = "1" id = "A">
+        Alpha testing topic.
+        <attribute name = "device" type = "DDS_short" key = "secondary">Device ID</attribute>
+        <attribute name = "value" type = "DDS_short">Temperature value</attribute>
+    </topic>
+</domain>

@@ -1,0 +1,9 @@
+<geometryEntry name="GEO_HALLWAY" id="5" >
+    <class type="Square" name="s_geo_hallway">
+        <attribute name="basicShape.vertex.x" value="400"/>
+        <attribute name="basicShape.vertex.y" value="400"/>
+        <attribute name="basicShape.vertex.z" value="0"/>
+        <attribute name="basicShape.width" value="600"/>
+        <attribute name="basicShape.length" value="100"/>     
+    </class>
+</geometryEntry>

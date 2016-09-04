@@ -1,0 +1,9 @@
+<geometryEntry name="GEO_LIVINGROOM" id="2" >
+    <class type="Square" name="s_geo_livingroom">
+        <attribute name="basicShape.vertex.x" value="300"/>
+        <attribute name="basicShape.vertex.y" value="0"/>
+        <attribute name="basicShape.vertex.z" value="0"/>
+        <attribute name="basicShape.width" value="700"/>
+        <attribute name="basicShape.length" value="400"/>     
+    </class>
+</geometryEntry>
