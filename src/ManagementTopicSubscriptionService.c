@@ -14,11 +14,14 @@
 
 #ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
 
-#define SDDS_SUBCRIPTION_REACTIVATION_TIMER_SEC         0
+#define SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS           0
 
-#ifndef SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC
-#define SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC        10
+#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC         1
+
+#ifndef SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC
+#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC        500
 #endif
+
 
 static void
 s_executeManagementDirective(DDS_DataReader reader);
@@ -40,10 +43,10 @@ s_reactivateSubscription();
 rc_t
 ManagementTopicSubscriptionService_init() {
 #if defined(SDDS_TOPIC_HAS_SUB)
-#   if (SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC != 0 || SDDS_SUBCRIPTION_REACTIVATION_TIMER_SEC != 0)
+#   if (SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC != 0 || SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC != 0)
     reactivateSubscriptionTask = Task_create();
     Task_init(reactivateSubscriptionTask, s_reactivateSubscription, NULL);
-    if (Task_start(reactivateSubscriptionTask, SDDS_SUBCRIPTION_REACTIVATION_TIMER_SEC, SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
+    if (Task_start(reactivateSubscriptionTask, SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC, SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
         Log_error("Task_start failed\n");
     }
 #   endif
@@ -105,9 +108,6 @@ s_executeManagementDirective(DDS_DataReader reader) {
                 }
             }
         }
-        else {
-            printf("No ManagementDirective\n");
-        }
     } while ((ret != DDS_RETCODE_NO_DATA) && (ret != DDS_RETCODE_ERROR));
 }
 
@@ -128,8 +128,10 @@ s_key_setSubscriptionState(DDS_char* mValue) {
     size += sizeof(BuiltinTopicKey_t);
 
 
-    SubscriptionState_t state;
-    ret =  Marshalling_dec_uint8((byte_t*) mValue + size, (uint8_t*)&state);
+    uint8_t st;
+    ret =  Marshalling_dec_uint8((byte_t*) mValue + size, &st);
+    size += sizeof(st);
+    SubscriptionState_t state = st;
 
     Topic_t* topic = TopicDB_getTopic(topicID);
 
@@ -156,7 +158,7 @@ s_key_setSubscriptionState(DDS_char* mValue) {
         return SDDS_RT_FAIL;
     }
 
-    printf("Subscription updated: %x, %d, %u\n", sub->participant, sub->state, sub->updated);
+    printf("Subscription updated (%x): t:%d, %d, %u\n", sub->participant, topic->id, sub->state, sub->updated);
 
     return SDDS_RT_OK;
 }
@@ -224,14 +226,15 @@ s_reactivateSubscription() {
                     Log_error("Unable to get remainig time.\n");
                 }
 
-                remainingMSec = -remainingMSec;
-                if (remainingMSec >= SDDS_SUBCRIPTION_REACTIVATION_TIMER_MSEC) {
+                remainingMSec = abs(remainingMSec);
+                msec16_t deadline = ((SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC * 1000) + SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC);
+                if (remainingMSec >= deadline) {
                     sub->state = ACTIVE;
                     if (Time_getTime16(&sub->updated) != SDDS_SSW_RT_OK) {
                         Log_error("Unable to get time.\n");
                     }
                 }
-                break;
+//                printf("Subscription (%d,%x) automatically resumed.\n", topic->id, sub->participant);
             }
             sub = subscriptions->next_fn(subscriptions);
         }

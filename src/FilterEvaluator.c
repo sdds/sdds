@@ -10,5 +10,12 @@
 
 rc_t
 FilterEvaluator_evalSubscription(DeviceLocation_t* sample, DirectedEdge_t* edge) {
+    assert(sample);
+    assert(edge);
 
+    if (edge->filteredSubscription == false) {
+        return SDDS_RT_OK;
+    }
+
+    return LocationFilteredTopic_evalExpression(edge->locTopic, sample);
 }

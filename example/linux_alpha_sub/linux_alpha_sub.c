@@ -25,13 +25,11 @@ int main()
                    "   value => %c\n"
                    "   pkey => %c\n"
                    "   value2 => %s\n"
-                   "   skey => %s\n"
                    "   value3 => %"PRId16"\n"
                    "}\n"
                    , alpha_sub_p->value
                    , alpha_sub_p->pkey
                    , alpha_sub_p->value2
-                   , alpha_sub_p->skey
                    , alpha_sub_p->value3);
         }
 

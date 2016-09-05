@@ -15,7 +15,7 @@ BuiltInLocationUpdateService_init();
 
 #ifdef FEATURE_SDDS_LOCATION_ENABLED
 rc_t
-BuiltInLocationUpdateService_getDeviceLocation(SSW_NodeID_t device, DeviceLocation_t* devLoc);
+BuiltInLocationUpdateService_getDeviceLocation(SSW_NodeID_t device, DeviceLocation_t** devLoc);
 
 rc_t
 BuiltInLocationUpdateService_getLocations(DeviceLocation_t** devices, uint16_t* size);

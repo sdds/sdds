@@ -39,23 +39,33 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
                 Log_error("Unable to resume subscription.\n");
             }
         }
-        SDDS_DCPSManagement data;
-        data.participant = edge->publisher->id;
-        strcpy(data.mKey, SDDS_MANAGEMENT_TOPIC_KEY_SET_SUBSCRIPTION_STATE);
-        int size = 0;
-        ret =  Marshalling_enc_uint8((byte_t*) data.mValue + size, &edge->topic->id);
-        size += sizeof(edge->topic->id);
-        ret =  Marshalling_enc_uint16((byte_t*) data.mValue + size, &edge->subscriber->id);
-        size += sizeof(edge->publisher->id);
-        ret =  Marshalling_enc_uint8((byte_t*) data.mValue + size, (uint8_t*)&edge->sate);
+        printf("set Subscription State: %d\n", edge->sate);
 
-        ret = ManagementTopicPublicationService_publishManagementDirective(&data, edge->publisher->addr);
+        ret = SubscriptionManager_publishSubscriptionState(edge);
         if (ret != SDDS_RT_OK) {
-            Log_error("Unable to publish ManagementDirective.\n");
+            Log_error("Unable to publish Subscription state.\n");
         }
 
         edge = (DirectedEdge_t*) edges->next_fn(edges);
     }
+}
+
+rc_t
+SubscriptionManager_publishSubscriptionState(DirectedEdge_t* edge) {
+    assert(edge);
+
+    rc_t ret;
+    SDDS_DCPSManagement data;
+    data.participant = edge->publisher->id;
+    strcpy(data.mKey, SDDS_MANAGEMENT_TOPIC_KEY_SET_SUBSCRIPTION_STATE);
+    int size = 0;
+    ret =  Marshalling_enc_uint8((byte_t*) data.mValue + size, &edge->topic->id);
+    size += sizeof(edge->topic->id);
+    ret =  Marshalling_enc_uint16((byte_t*) data.mValue + size, &edge->subscriber->id);
+    size += sizeof(edge->publisher->id);
+    ret =  Marshalling_enc_uint8((byte_t*) data.mValue + size, (uint8_t*)&edge->sate);
+
+    return ManagementTopicPublicationService_publishManagementDirective(&data, edge->publisher->addr);
 }
 
 rc_t
@@ -141,6 +151,8 @@ SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSub
             }
             node = nodes->next_fn(nodes);
         }
+
+        assert(sub->addr);
 
         SDDS_DCPSManagement data;
         data.participant = sub->id;

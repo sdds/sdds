@@ -27,8 +27,6 @@
 #define SDDS_MANAGEMENT_TOPIC_KEY_SEND_FILTER_EXPRESSION    "send_filter_expression"
 #define SDDS_MANAGEMENT_TOPIC_KEY_DELETE_FILTER_EXPRESSION  "delete_filter_expression"
 
-#define SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS              0
-
 struct SDDS_DCPSManagement_t {
     union {
         BuiltinTopicKey_t key;

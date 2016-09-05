@@ -18,6 +18,9 @@ ManagementTopicPublicationService_init() {
 
 rc_t
 ManagementTopicPublicationService_publishManagementDirective(SDDS_DCPSManagement* data, Locator_t* addr) {
+    assert(data);
+    assert(addr);
+
     DataWriter_t* dw = ((DataWriter_t*) g_DCPSManagement_writer);
 
     if (SDDS_DCPSManagementDataWriter_writeToParticipant(g_DCPSManagement_writer, data, NULL, addr) == DDS_RETCODE_ERROR) {

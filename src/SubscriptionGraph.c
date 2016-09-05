@@ -27,6 +27,7 @@ SubscriptionGraph_createParticipantNode(SubscriptionGraph_t *self) {
     ParticipantNode_t* node = malloc(sizeof(ParticipantNode_t));
     node->topics = List_initDynamicLinkedList();
     node->edges = List_initDynamicLinkedList();
+    node->roleMask = 0;
     List_t* nodes = self->nodes;
     rc_t ret = nodes->add_fn(nodes, node);
     if (ret != SDDS_RT_OK) {

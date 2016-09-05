@@ -24,6 +24,9 @@
 
 bool_t
 Geometry_eaquals(Geometry_t* self, Geometry_t* otherObject) {
+    assert(self);
+    assert(otherObject);
+
     switch (self->type) {
     case GEO_TYPE_POINT:
         return Point_equals((Point_t*)self, otherObject);
@@ -68,36 +71,90 @@ Geometry_eaquals(Geometry_t* self, Geometry_t* otherObject) {
 
 bool_t
 Geometry_disjoint(Geometry_t* self, Geometry_t* otherObject) {
+    assert(self);
+    assert(otherObject);
     return false;
 }
 
 bool_t
 Geometry_intersects(Geometry_t* self, Geometry_t* otherObject) {
+    assert(self);
+    assert(otherObject);
     return false;
 }
 
 bool_t
 Geometry_touches(Geometry_t* self, Geometry_t* otherObject) {
+    assert(self);
+    assert(otherObject);
     return false;
 }
 
 bool_t
 Geometry_crosses(Geometry_t* self, Geometry_t* otherObject) {
+    assert(self);
+    assert(otherObject);
     return false;
 }
 
 bool_t
 Geometry_within(Geometry_t* self, Geometry_t* otherObject) {
-    return false;
+    assert(self);
+    assert(otherObject);
+
+    switch (self->type) {
+    case GEO_TYPE_POINT:
+        return Point_within((Point_t*)self, otherObject);
+
+    case GEO_TYPE_LINESTRING:
+        return LineString_within((LineString_t*)self, otherObject);
+
+    case GEO_TYPE_LINE:
+        return Line_within((Line_t*)self, otherObject);
+
+    case GEO_TYPE_LINERING:
+        return LineRing_within((LineRing_t*)self, otherObject);
+
+    case GEO_TYPE_ELLIPSE:
+        return Ellipse_within((Ellipse_t*)self, otherObject);
+
+    case GEO_TYPE_SQUARE:
+        return Square_within((Square_t*)self, otherObject);
+
+    case GEO_TYPE_POLYGON:
+        return Polygon_within((Polygon_t*)self, otherObject);
+
+    case GEO_TYPE_POLYHEDRALSURFACE:
+        return PolyhedralSurface_within((PolyhedralSurface_t*)self, otherObject);
+
+    case GEO_TYPE_ELLIPSE_EXTRUSION:
+        return EllipseExtrusion_within((EllipseExtrusion_t*)self, otherObject);
+
+    case GEO_TYPE_SQUARE_EXTRUSION:
+        return SquareExtrusion_within((SquareExtrusion_t*)self, otherObject);
+
+    case GEO_TYPE_POLYGON_EXTRUSION:
+        return PolygonExtrusion_within((PolygonExtrusion_t*)self, otherObject);
+
+    case GEO_TYPE_POLYHEDRALSURFACE_EXTRUSION:
+        return PolyhedralSurfaceExtrusion_within((PolyhedralSurfaceExtrusion_t*)self, otherObject);
+
+    default:
+        return false;
+    }
 }
 
 bool_t
 Geometry_contains(Geometry_t* self, Geometry_t* otherObject) {
+    assert(self);
+    assert(otherObject);
     return false;
 }
 
 bool_t
 Geometry_overlaps(Geometry_t* self, Geometry_t* otherObject) {
+    assert(self);
+    assert(otherObject);
     return false;
 }
 
@@ -108,6 +165,7 @@ BasicShape_asPolygon(BasicShape_t* self)  {
 
 void
 Geometry_initPoint(Point_t* self) {
+    assert(self);
     self->geometry.type = GEO_TYPE_POINT;
     self->x = 0;
     self->y = 0;
@@ -116,7 +174,14 @@ Geometry_initPoint(Point_t* self) {
 
 void
 Geometry_initSquare(Square_t* self) {
+    assert(self);
+    self->basicShape.geometry.type = GEO_TYPE_SQUARE;
+}
 
+void
+Geometry_initEllipse(Ellipse_t* self) {
+    assert(self);
+    self->basicShape.geometry.type = GEO_TYPE_ELLIPSE;
 }
 
 #endif

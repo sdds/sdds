@@ -45,6 +45,9 @@ int main()
     alpha_pub.value = 'H';
     strncpy (alpha_pub.value2,   "Es gibt im", 10);
     alpha_pub.value3 = 1;
+    alpha_pub.device = NodeConfig_getNodeID(); 
+
+    uint8_t sec = 0;
 
     for (;;) {
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
@@ -56,6 +59,17 @@ int main()
         }
 
         sleep (1);
+        sec++;
+        sec = sec % 40;
+
+        if (sec == 19) {
+            g_LocationService_simulatedDevices[1].area.basicShape.vertex.x = 1100;
+            g_LocationService_simulatedDevices[1].area.basicShape.vertex.y = 1100;
+        }
+        if (sec == 39) {
+            g_LocationService_simulatedDevices[1].area.basicShape.vertex.x = 10;
+            g_LocationService_simulatedDevices[1].area.basicShape.vertex.y = 3;
+        }
     }
 
     return 0;

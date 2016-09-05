@@ -105,10 +105,13 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
 rc_t
 LocationFilteredTopic_evalSample(LocationFilteredTopic_t* self, Data data) {
     SSW_NodeID_t* device = (SSW_NodeID_t*) self->contentFilteredTopic.associatedTopic->Data_getSecondaryKey(data);
-    DeviceLocation_t devLoc;
-    BuiltInLocationUpdateService_getDeviceLocation(*device, &devLoc);
+    DeviceLocation_t* devLoc;
+    rc_t ret = BuiltInLocationUpdateService_getDeviceLocation(*device, &devLoc);
+    if (ret != SDDS_RT_OK) {
+        return SDDS_RT_FAIL;
+    }
 
-    return LocationFilteredTopic_evalExpression(self, &devLoc);
+    return LocationFilteredTopic_evalExpression(self, devLoc);
 }
 
 rc_t
@@ -121,25 +124,32 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
         ret = s_readFunction(self);
         if (ret != SDDS_RT_OK) {
             Log_error("s_readFunction failed.\n");
+            self->filterstate.currentPosition = 0;
             return SDDS_RT_FAIL;
         }
 
         ret = s_readGeometry(self);
         if (ret != SDDS_RT_OK) {
             Log_error("s_readGeometry failed.\n");
+            self->filterstate.currentPosition = 0;
             return SDDS_RT_FAIL;
         }
 
         ret = s_processExpression(self, devLoc);
         if (ret != SDDS_RT_OK) {
             Log_error("s_processExpression failed.\n");
+            self->filterstate.currentPosition = 0;
             return SDDS_RT_FAIL;
         }
     }
 
+
     if (self->filterstate.result) {
+        self->filterstate.currentPosition = 0;
         return SDDS_RT_OK;
     }
+
+    self->filterstate.currentPosition = 0;
     return SDDS_RT_FAIL;
 }
 

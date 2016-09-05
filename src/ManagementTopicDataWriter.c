@@ -12,6 +12,8 @@
 
 rc_t
 checkSendingToParticipant(NetBuffRef_t* buf, Locator_t* addr) {
+    assert(buf);
+    assert(addr);
     rc_t ret;
     // update header
     SNPS_updateHeader(buf);
@@ -45,12 +47,15 @@ ManagementTopicDataWriter_writeToParticipant(DataWriter_t* self,
                                              Locator_t* addr
                                              ) {
     assert(self);
+    assert(data);
+    assert(addr);
     (void) handle;
 
     DataWriter_mutex_lock();
     Topic_t* topic = self->topic;
     List_t* subscribers = topic->dsinks.list;
     NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
+    assert(out_buffer);
     rc_t ret;
 
     domainid_t domain = topic->domain;

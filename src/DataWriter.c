@@ -101,9 +101,11 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     NetBuffRef_t* out_buffer = find_free_buffer(subscribers);
     TopicSubscription_t* tSub = (TopicSubscription_t*) subscribers->first_fn(subscribers);
     while (tSub) {
-        if (Locator_contains(out_buffer->locators, tSub->addr) != SDDS_RT_OK) {
-            if (out_buffer->locators->add_fn(out_buffer->locators, tSub->addr) == SDDS_RT_OK) {
-                Locator_upRef(tSub->addr);
+        if (tSub->state == ACTIVE) {
+            if (Locator_contains(out_buffer->locators, tSub->addr) != SDDS_RT_OK) {
+                if (out_buffer->locators->add_fn(out_buffer->locators, tSub->addr) == SDDS_RT_OK) {
+                    Locator_upRef(tSub->addr);
+                }
             }
         }
         tSub = (TopicSubscription_t*) subscribers->next_fn(subscribers);

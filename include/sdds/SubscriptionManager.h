@@ -25,6 +25,9 @@ rc_t
 SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, DeviceLocation_t* sample);
 
 rc_t
+SubscriptionManager_publishSubscriptionState(DirectedEdge_t* edge);
+
+rc_t
 SubscriptionManager_handleParticipant(SubscriptionManager_t* self, SDDS_DCPSParticipant* sample);
 
 rc_t

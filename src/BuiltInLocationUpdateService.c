@@ -40,12 +40,12 @@ BuiltInLocationUpdateService_init() {
 }
 
 rc_t
-BuiltInLocationUpdateService_getDeviceLocation(SSW_NodeID_t device, DeviceLocation_t* devLoc) {
+BuiltInLocationUpdateService_getDeviceLocation(SSW_NodeID_t device, DeviceLocation_t** devLoc) {
     assert(devLoc);
 
     for (int i = 0; i < s_deviceCount; i++) {
         if (s_trackedDevices[i].device == device) {
-            devLoc = &s_trackedDevices[i];
+            *devLoc = &s_trackedDevices[i];
             return SDDS_RT_OK;
         }
     }
@@ -84,6 +84,7 @@ s_updateLocation(DDS_DataReader reader) {
             }
 
             if (devPos < SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS) {
+                Geometry_initEllipse(&s_trackedDevices[devPos].area);
                 s_trackedDevices[devPos].device = loc_data_used.device;
                 s_trackedDevices[devPos].area.basicShape.geometry.type = GEO_TYPE_ELLIPSE;
                 s_trackedDevices[devPos].area.basicShape.vertex.geometry.type = GEO_TYPE_POINT;

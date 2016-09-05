@@ -85,7 +85,10 @@
         </class>
     </geometryEntry>
 
+<!--
     <topicFilter name="filteredAlpha" topic="Alpha" expression="&quot;WITHIN &quot;GEO_WOHNZIMMER"/>
+-->
+    <topicFilter name="filteredAlpha" topic="Alpha" expression="&quot;OVERLAPS &quot;GEO_WOHNZIMMER"/>
 <!-- 
 -->
 </project>

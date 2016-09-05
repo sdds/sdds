@@ -214,8 +214,8 @@ find_free_buffer(List_t* topic_locators) {
                         same_locators = false;
                         break;
                     }
-                    tSub = (TopicSubscription_t*) topic_locators->next_fn(topic_locators);
                 }
+                tSub = (TopicSubscription_t*) topic_locators->next_fn(topic_locators);
             }
             if (same_locators) {
                 free_buffer = &(self->sender.out[index]);

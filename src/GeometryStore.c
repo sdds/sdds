@@ -14,7 +14,7 @@ Geometry_t*
 GeometryStore_getGeometry(GeometryStore_t* self, GeometryId_t id) {
     for (uint16_t i = 0; i < self->size; i++) {
         if (self->entry[i].id == id) {
-            return (Geometry_t*) &(self->entry[i].geometry);
+            return self->entry[i].geometry;
         }
     }
     return NULL;

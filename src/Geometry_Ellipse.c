@@ -6,7 +6,8 @@
  */
 
 #include "Geometry_Ellipse.h"
-
+#include <stdlib.h>
+#include <math.h>
 
 static bool_t
 s_Point_equals(Ellipse_t* self, Point_t* otherObject);
@@ -849,7 +850,38 @@ s_Square_crosses(Ellipse_t* self, Square_t* otherObject) {
 
 static bool_t
 s_Square_within(Ellipse_t* self, Square_t* otherObject) {
-    return false;
+    assert(self);
+    assert(otherObject);
+
+    GeoMeasurement_t circleDistance_x = abs(self->basicShape.vertex.x - otherObject->basicShape.vertex.x);
+    GeoMeasurement_t circleDistance_y = abs(self->basicShape.vertex.y - otherObject->basicShape.vertex.y);
+
+    if (circleDistance_x > (otherObject->basicShape.width/2 + self->basicShape.width)) {
+        printf("Ellipse WHITNIN Square: FALSE\n");
+        return false;
+    }
+    if (circleDistance_y > (otherObject->basicShape.length/2 + self->basicShape.width)) {
+        printf("Ellipse WHITNIN Square: FALSE\n");
+        return false;
+    }
+
+    if (circleDistance_x <= (otherObject->basicShape.width/2)) {
+        printf("Ellipse WHITNIN Square: TRUE\n");
+        return true;
+    }
+    if (circleDistance_y <= (otherObject->basicShape.length/2)) {
+        printf("Ellipse WHITNIN Square: TRUE\n");
+        return true;
+    }
+
+    GeoMeasurement_t cornerDistance_x = (circleDistance_x - otherObject->basicShape.width/2) * (circleDistance_x - otherObject->basicShape.width/2);
+    GeoMeasurement_t cornerDistance_y = (circleDistance_y - otherObject->basicShape.length/2) * (circleDistance_y - otherObject->basicShape.length/2);
+    GeoMeasurement_t cornerDistance_sq = cornerDistance_x + cornerDistance_y;
+
+    bool_t ret = (cornerDistance_sq <= (self->basicShape.width * self->basicShape.width));
+    printf("Ellipse WHITNIN Square: %d\n", ret);
+
+    return ret;
 }
 
 static bool_t
@@ -859,7 +891,43 @@ s_Square_contains(Ellipse_t* self, Square_t* otherObject) {
 
 static bool_t
 s_Square_overlaps(Ellipse_t* self, Square_t* otherObject) {
-    return false;
+    assert(self);
+    assert(otherObject);
+
+    GeoMeasurement_t closestX;
+    GeoMeasurement_t closestY;
+
+    if (self->basicShape.vertex.x < otherObject->basicShape.vertex.x) {
+        closestX = otherObject->basicShape.vertex.x;
+    }
+    else if (self->basicShape.vertex.x > (otherObject->basicShape.vertex.x + otherObject->basicShape.width)) {
+        closestX = otherObject->basicShape.vertex.x + otherObject->basicShape.width;
+    }
+    else {
+        closestX = self->basicShape.vertex.x;
+    }
+
+    if (self->basicShape.vertex.y < otherObject->basicShape.vertex.y) {
+        closestY = otherObject->basicShape.vertex.y;
+    }
+    else if (self->basicShape.vertex.y > (otherObject->basicShape.vertex.y + otherObject->basicShape.length)) {
+        closestY = otherObject->basicShape.vertex.y + otherObject->basicShape.length;
+    }
+    else {
+        closestY = self->basicShape.vertex.y;
+    }
+
+    GeoMeasurement_t distX = abs(self->basicShape.vertex.x - closestX);
+    GeoMeasurement_t distY = abs(self->basicShape.vertex.y - closestY);
+    GeoMeasurement_t distance = (GeoMeasurement_t) sqrt((distX * distX) + (distY * distY));
+
+    if (distance < self->basicShape.width) {
+        printf("Ellipse OVERLAPS Square: TRUE\n");
+    }
+    else {
+        printf("Ellipse OVERLAPS Square: FASLE\n");
+    }
+    return distance < self->basicShape.width;
 }
 
 

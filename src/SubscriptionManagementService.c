@@ -12,13 +12,31 @@
 
 #ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
 
+#define SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC         1
+
+#ifndef SDDS_SUBSCRIPTION_PAUSE_TIMER_MSEC
+#define SDDS_SUBSCRIPTION_PAUSE_TIMER_MSEC        0
+#endif
+
+
 static SubscriptionManager_t s_subscriptionManager;
+
+static Task pasueSubscriptionTask;
+
+static void
+s_pauseSubscription();
 
 rc_t
 SubscriptionManagementService_init() {
-    return SubscriptionManager_init(&s_subscriptionManager);
+#   if (SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC != 0) || (SDDS_SUBSCRIPTION_PAUSE_TIMER_MSEC != 0)
+    pasueSubscriptionTask = Task_create();
+    Task_init(pasueSubscriptionTask, s_pauseSubscription, NULL);
+    if (Task_start(pasueSubscriptionTask, SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC, SDDS_SUBSCRIPTION_PAUSE_TIMER_MSEC, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
+        Log_error("Task_start failed\n");
+    }
+#   endif
 
-    // TODO regelmäßig pause senden
+    return SubscriptionManager_init(&s_subscriptionManager);
 }
 
 #ifdef FEATURE_SDDS_LOCATION_ENABLED
@@ -47,6 +65,21 @@ SubscriptionManagementService_handleSubscription(SDDS_DCPSSubscription* sample) 
 rc_t
 SubscriptionManagementService_registerFilter(SDDS_DCPSManagement* sample) {
     return SubscriptionManager_registerFilter(&s_subscriptionManager, sample);
+}
+
+static void
+s_pauseSubscription() {
+    List_t* edges = s_subscriptionManager.subscriptionGraph.edges;
+    DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);
+    while (edge != NULL) {
+        if (edge->sate == PAUSED) {
+            rc_t ret = SubscriptionManager_publishSubscriptionState(edge);
+            if (ret != SDDS_RT_OK) {
+                Log_error("Unable to publish Subscription state.\n");
+            }
+        }
+        edge = (DirectedEdge_t*) edges->next_fn(edges);
+    }
 }
 
 #endif

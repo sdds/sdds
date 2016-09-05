@@ -23,8 +23,8 @@ typedef uint16_t GeoMeasurement_t;
 #define GEO_TYPE_LINERING                       GEO_TYPE_LINESTRING | (1 << 3)
 #define GEO_TYPE_SURFACE                        (1 << 2)
 #define GEO_TYPE_BASICSHAPE                     GEO_TYPE_SURFACE | (1 << 3)
-#define GEO_TYPE_ELLIPSE                        GEO_TYPE_BASICSHAPE | (1 << 4)
-#define GEO_TYPE_SQUARE                         GEO_TYPE_BASICSHAPE | (1 << 5)
+#define GEO_TYPE_ELLIPSE                        (uint8_t)(GEO_TYPE_BASICSHAPE | (1 << 4))
+#define GEO_TYPE_SQUARE                         (uint8_t)(GEO_TYPE_BASICSHAPE | (1 << 5))
 #define GEO_TYPE_POLYGON                        GEO_TYPE_SURFACE | (1 << 4)
 #define GEO_TYPE_POLYHEDRALSURFACE              GEO_TYPE_SURFACE | (1 << 5)
 #define GEO_TYPE_GEOMETRYCOLLECTION             (1 << 6)
@@ -162,6 +162,9 @@ BasicShape_asPolygon(BasicShape_t* self);
 
 void
 Geometry_initSquare(Square_t* self);
+
+void
+Geometry_initEllipse(Ellipse_t* self);
 
 void
 Geometry_initPoint(Point_t* self);
