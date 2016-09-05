@@ -119,6 +119,8 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     assert(self);
     assert(devLoc);
 
+    printf("\n\n\nEval Expression for device: %x\n", devLoc->device);
+
     while (self->filterstate.currentPosition < self->expressionLength) {
         rc_t ret;
         ret = s_readFunction(self);

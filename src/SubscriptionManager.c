@@ -26,26 +26,27 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
     List_t* edges = self->subscriptionGraph.edges;
     DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);
     while (edge != NULL) {
-        rc_t ret = FilterEvaluator_evalSubscription(sample, edge);
-        if ((ret == SDDS_RT_FAIL)) {
-            ret = SubscriptionGraph_pauseSubscription(&self->subscriptionGraph, edge);
+        if (sample->device == edge->publisher->id) {
+            rc_t ret = FilterEvaluator_evalSubscription(sample, edge);
+            if ((ret == SDDS_RT_FAIL)) {
+                ret = SubscriptionGraph_pauseSubscription(&self->subscriptionGraph, edge);
+                if (ret != SDDS_RT_OK) {
+                    Log_error("Unable to pause subscription.\n");
+                }
+            }
+            else {
+                ret = SubscriptionGraph_resumeSubscription(&self->subscriptionGraph, edge);
+                if (ret != SDDS_RT_OK) {
+                    Log_error("Unable to resume subscription.\n");
+                }
+            }
+            printf("set Subscription State: %d\n", edge->sate);
+
+            ret = SubscriptionManager_publishSubscriptionState(edge);
             if (ret != SDDS_RT_OK) {
-                Log_error("Unable to pause subscription.\n");
+                Log_error("Unable to publish Subscription state.\n");
             }
         }
-        else {
-            ret = SubscriptionGraph_resumeSubscription(&self->subscriptionGraph, edge);
-            if (ret != SDDS_RT_OK) {
-                Log_error("Unable to resume subscription.\n");
-            }
-        }
-        printf("set Subscription State: %d\n", edge->sate);
-
-        ret = SubscriptionManager_publishSubscriptionState(edge);
-        if (ret != SDDS_RT_OK) {
-            Log_error("Unable to publish Subscription state.\n");
-        }
-
         edge = (DirectedEdge_t*) edges->next_fn(edges);
     }
 }

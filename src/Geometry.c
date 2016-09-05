@@ -155,7 +155,47 @@ bool_t
 Geometry_overlaps(Geometry_t* self, Geometry_t* otherObject) {
     assert(self);
     assert(otherObject);
-    return false;
+
+    switch (self->type) {
+     case GEO_TYPE_POINT:
+         return Point_overlaps((Point_t*)self, otherObject);
+
+     case GEO_TYPE_LINESTRING:
+         return LineString_overlaps((LineString_t*)self, otherObject);
+
+     case GEO_TYPE_LINE:
+         return Line_overlaps((Line_t*)self, otherObject);
+
+     case GEO_TYPE_LINERING:
+         return LineRing_overlaps((LineRing_t*)self, otherObject);
+
+     case GEO_TYPE_ELLIPSE:
+         return Ellipse_overlaps((Ellipse_t*)self, otherObject);
+
+     case GEO_TYPE_SQUARE:
+         return Square_overlaps((Square_t*)self, otherObject);
+
+     case GEO_TYPE_POLYGON:
+         return Polygon_overlaps((Polygon_t*)self, otherObject);
+
+     case GEO_TYPE_POLYHEDRALSURFACE:
+         return PolyhedralSurface_overlaps((PolyhedralSurface_t*)self, otherObject);
+
+     case GEO_TYPE_ELLIPSE_EXTRUSION:
+         return EllipseExtrusion_overlaps((EllipseExtrusion_t*)self, otherObject);
+
+     case GEO_TYPE_SQUARE_EXTRUSION:
+         return SquareExtrusion_overlaps((SquareExtrusion_t*)self, otherObject);
+
+     case GEO_TYPE_POLYGON_EXTRUSION:
+         return PolygonExtrusion_overlaps((PolygonExtrusion_t*)self, otherObject);
+
+     case GEO_TYPE_POLYHEDRALSURFACE_EXTRUSION:
+         return PolyhedralSurfaceExtrusion_overlaps((PolyhedralSurfaceExtrusion_t*)self, otherObject);
+
+     default:
+         return false;
+     }
 }
 
 Polygon_t*

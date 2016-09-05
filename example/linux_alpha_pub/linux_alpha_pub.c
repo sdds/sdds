@@ -63,12 +63,12 @@ int main()
         sec = sec % 40;
 
         if (sec == 19) {
-            g_LocationService_simulatedDevices[1].area.basicShape.vertex.x = 1100;
-            g_LocationService_simulatedDevices[1].area.basicShape.vertex.y = 1100;
+            g_LocationService_simulatedDevices[0].area.basicShape.vertex.x = 1000;
+            g_LocationService_simulatedDevices[0].area.basicShape.vertex.y = 1000;
         }
         if (sec == 39) {
-            g_LocationService_simulatedDevices[1].area.basicShape.vertex.x = 10;
-            g_LocationService_simulatedDevices[1].area.basicShape.vertex.y = 3;
+            g_LocationService_simulatedDevices[0].area.basicShape.vertex.x = 10;
+            g_LocationService_simulatedDevices[0].area.basicShape.vertex.y = 3;
         }
     }
 

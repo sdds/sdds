@@ -456,8 +456,15 @@ Ellipse_within(Ellipse_t* self, Geometry_t* otherObject) {
         return s_Ellipse_within(self, (Ellipse_t*)otherObject);
 
     case GEO_TYPE_SQUARE:
-        return s_Square_within(self, (Square_t*)otherObject);
-
+    {
+        bool_t ret = s_Square_within(self, (Square_t*)otherObject);
+        if (ret) {
+            printf("Ellipse WHITHIN Square: TRUE\n");
+        } else {
+            printf("Ellipse WHITHIN Square: FASLE\n");
+        }
+        return ret;
+    }
     case GEO_TYPE_POLYGON:
         return s_Polygon_within(self, (Polygon_t*)otherObject);
 
@@ -544,7 +551,15 @@ Ellipse_overlaps(Ellipse_t* self, Geometry_t* otherObject) {
         return s_Ellipse_overlaps(self, (Ellipse_t*)otherObject);
 
     case GEO_TYPE_SQUARE:
-        return s_Square_overlaps(self, (Square_t*)otherObject);
+    {
+        bool_t ret = s_Square_overlaps(self, (Square_t*)otherObject) && !s_Square_within(self, (Square_t*)otherObject);
+        if (ret) {
+            printf("Ellipse OVERLAPS Square: TRUE\n");
+        } else {
+            printf("Ellipse OVERLAPS Square: FASLE\n");
+        }
+        return ret;
+    }
 
     case GEO_TYPE_POLYGON:
         return s_Polygon_overlaps(self, (Polygon_t*)otherObject);
@@ -857,20 +872,16 @@ s_Square_within(Ellipse_t* self, Square_t* otherObject) {
     GeoMeasurement_t circleDistance_y = abs(self->basicShape.vertex.y - otherObject->basicShape.vertex.y);
 
     if (circleDistance_x > (otherObject->basicShape.width/2 + self->basicShape.width)) {
-        printf("Ellipse WHITNIN Square: FALSE\n");
         return false;
     }
     if (circleDistance_y > (otherObject->basicShape.length/2 + self->basicShape.width)) {
-        printf("Ellipse WHITNIN Square: FALSE\n");
         return false;
     }
 
     if (circleDistance_x <= (otherObject->basicShape.width/2)) {
-        printf("Ellipse WHITNIN Square: TRUE\n");
         return true;
     }
     if (circleDistance_y <= (otherObject->basicShape.length/2)) {
-        printf("Ellipse WHITNIN Square: TRUE\n");
         return true;
     }
 
@@ -879,7 +890,6 @@ s_Square_within(Ellipse_t* self, Square_t* otherObject) {
     GeoMeasurement_t cornerDistance_sq = cornerDistance_x + cornerDistance_y;
 
     bool_t ret = (cornerDistance_sq <= (self->basicShape.width * self->basicShape.width));
-    printf("Ellipse WHITNIN Square: %d\n", ret);
 
     return ret;
 }
@@ -921,12 +931,6 @@ s_Square_overlaps(Ellipse_t* self, Square_t* otherObject) {
     GeoMeasurement_t distY = abs(self->basicShape.vertex.y - closestY);
     GeoMeasurement_t distance = (GeoMeasurement_t) sqrt((distX * distX) + (distY * distY));
 
-    if (distance < self->basicShape.width) {
-        printf("Ellipse OVERLAPS Square: TRUE\n");
-    }
-    else {
-        printf("Ellipse OVERLAPS Square: FASLE\n");
-    }
     return distance < self->basicShape.width;
 }
 
