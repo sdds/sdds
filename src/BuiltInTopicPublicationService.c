@@ -46,7 +46,7 @@ BuiltInTopicPublicationService_init() {
     }
 #   endif
 
-#   if defined(SDDS_HAS_SUB) && (SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER != 0)
+#   if defined(SDDS_TOPIC_HAS_SUB) && (SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER != 0)
     sendPubTask = Task_create();
     Task_init(sendPubTask, s_BuiltInTopicPublicationService_publishDCPSPublication, NULL);
     if (Task_start(sendPubTask, SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER, 0, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
@@ -104,7 +104,7 @@ s_BuiltInTopicPublicationService_publishDCPSTopic() {
 
 rc_t
 BuiltInTopicPublicationService_publishDCPSPublication() {
-#   if defined(SDDS_TOPIC_HAS_SUB)
+#   ifdef SDDS_TOPIC_HAS_SUB
     rc_t ret;
     DDS_DCPSPublication pubT[BUILTIN_TOPIC_PUBLICATION_MAX_PUBS];
     int len = 0;
@@ -129,6 +129,8 @@ BuiltInTopicPublicationService_publishDCPSPublication() {
         return SDDS_RT_OK;
     }
     return SDDS_RT_FAIL;
+#   else
+    return SDDS_RT_OK;
 #   endif
 }
 
