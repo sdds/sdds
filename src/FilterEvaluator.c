@@ -8,6 +8,8 @@
 #include "sDDS.h"
 #include "FilterEvaluator.h"
 
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+
 rc_t
 FilterEvaluator_evalSubscription(DeviceLocation_t* sample, DirectedEdge_t* edge) {
     assert(sample);
@@ -19,3 +21,5 @@ FilterEvaluator_evalSubscription(DeviceLocation_t* sample, DirectedEdge_t* edge)
 
     return LocationFilteredTopic_evalExpression(edge->locTopic, sample);
 }
+
+#endif
