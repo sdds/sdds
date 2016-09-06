@@ -28,7 +28,6 @@ int main(int argc, char** argv)
     printf("argc: %d\n", argc);
 
     for (int i = 0; i < devCount; i++) {
-        printf("argv[%d]: %s\n", i+1, argv[i+1]);
         int device;
         sscanf(argv[i+1], "%x", &device); 
 
