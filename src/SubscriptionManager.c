@@ -84,9 +84,6 @@ SubscriptionManager_publishSubscriptionState(DirectedEdge_t* edge) {
     size += sizeof(edge->publisher->id);
     ret =  Marshalling_enc_uint8((byte_t*) data.mValue + size, (uint8_t*)&edge->state);
 
-    printf("SubscriptionManager_publishSubscriptionState %d to %x\n", edge->state, edge->publisher->id);
-    Locator_print(edge->publisher->addr);
-
     return ManagementTopicPublicationService_publishManagementDirective(&data, edge->publisher->addr);
 }
 
