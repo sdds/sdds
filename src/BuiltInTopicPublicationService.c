@@ -46,13 +46,14 @@ BuiltInTopicPublicationService_init() {
     }
 #   endif
 
-#   if (SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER != 0)
+#   if defined(SDDS_HAS_SUB) && (SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER != 0)
     sendPubTask = Task_create();
     Task_init(sendPubTask, s_BuiltInTopicPublicationService_publishDCPSPublication, NULL);
     if (Task_start(sendPubTask, SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER, 0, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
         Log_error("Task_start failed\n");
     }
 #   endif
+
 
 #   if (SDDS_BUILTIN_TOPIC_LOCATION_TIMER != 0)
     sendLocTask = Task_create();
