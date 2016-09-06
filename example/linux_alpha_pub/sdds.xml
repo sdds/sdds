@@ -39,16 +39,16 @@
     <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
     <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
     <define name = "FEATURE_SDDS_DISCOVERY_ENABLED" />
+<!--
     <define name = "FEATURE_SDDS_GEOMETRY_ENABLED" />
     <define name = "FEATURE_SDDS_LOCATION_ENABLED" />
     <define name = "FEATURE_SDDS_LOCATION_TRACKING_ENABLED" />
-<!--
     <define name = "FEATURE_SDDS_SIMULATION_ENABLED" />
--->
     <define name = "FEATURE_SDDS_LOCATION_FILTER_ENABLED" />
-    <define name = "FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED" />
     <define name = "FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED" />
     <define name = "SDDS_SUBSCRIPTION_MANAGER" />
+-->
+    <define name = "FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED" />
     <!--
         Configure discovery intervals
     -->
@@ -65,24 +65,4 @@
     <define name = "UTILS_DEBUG"/>
     -->
     
-        <geometryEntry name="GEO_WOHNZIMMER" id="1" >
-        <class type="Square" name="s_geo_wohnzimmer">
-             <attribute name="basicShape.vertex.x" value="0"/>
-             <attribute name="basicShape.vertex.y" value="0"/>
-             <attribute name="basicShape.vertex.z" value="0"/>
-             <attribute name="basicShape.width" value="1000"/>
-             <attribute name="basicShape.length" value="1000"/>     
-        </class>
-    </geometryEntry>
-
-    <geometryEntry name="GEO_SCHLAFZIMMER" id="2" >
-        <class type="Square" name="s_geo_schlafzimmer">
-             <attribute name="basicShape.vertex.x" value="0"/>
-             <attribute name="basicShape.vertex.y" value="1000"/>
-             <attribute name="basicShape.vertex.z" value="0"/>
-             <attribute name="basicShape.width" value="1000"/>
-             <attribute name="basicShape.length" value="1000"/>     
-        </class>
-    </geometryEntry>
-
 </project>

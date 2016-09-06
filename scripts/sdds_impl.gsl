@@ -30,7 +30,6 @@ $(project.GENERATED_WARNING_HEADER:)
 #include "$(topic.c_name)-ds.h"
 .endfor
 #include "sDDS.h"
-.echo "topic.qos_reliability_kind: "
 .for project.topic
 extern DDS_DataReader g_$(topic.c_name:)_reader;
 extern DDS_DataWriter g_$(topic.c_name:)_writer;
