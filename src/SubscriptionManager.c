@@ -87,9 +87,10 @@ SubscriptionManager_handleParticipant(SubscriptionManager_t* self, SDDS_DCPSPart
             return SDDS_RT_FAIL;
         }
         printf("Create node %x\n", node->id);
-    } else {
-        printf("node %x exists\n", node->id);
     }
+//    else {
+//        printf("node %x exists\n", node->id);
+//    }
     return SDDS_RT_OK;
 }
 

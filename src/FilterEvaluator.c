@@ -19,7 +19,17 @@ FilterEvaluator_evalSubscription(DeviceLocation_t* sample, DirectedEdge_t* edge)
         return SDDS_RT_OK;
     }
 
-    return LocationFilteredTopic_evalExpression(edge->locTopic, sample);
+    List_t* locTopics = edge->locTopics;
+    LocationFilteredTopic_t* locTopic = locTopics->first_fn(locTopics);
+    while (locTopic != NULL) {
+        rc_t ret = LocationFilteredTopic_evalExpression(locTopic, sample);
+        if (ret == SDDS_RT_OK) {
+            return SDDS_RT_OK;
+        }
+        locTopic = locTopics->next_fn(locTopics);
+    }
+
+    return SDDS_RT_FAIL;
 }
 
 #endif

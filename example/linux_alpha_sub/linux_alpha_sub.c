@@ -21,7 +21,25 @@ int main()
             printf("no data for alpha\n");
         }
         else {
-            printf("Received a sample from topic 'alpha': {\n"
+            printf("Received a sample from topic 'alpha' (OVERLAPS wohnzimmer): {\n"
+                   "   value => %c\n"
+                   "   pkey => %c\n"
+                   "   value2 => %s\n"
+                   "   value3 => %"PRId16"\n"
+                   "}\n"
+                   , alpha_sub_p->value
+                   , alpha_sub_p->pkey
+                   , alpha_sub_p->value2
+                   , alpha_sub_p->value3);
+        }
+
+        ret = DDS_AlphaDataReader_take_next_sample(g_filteredAlpha2_reader,
+                &alpha_sub_p, NULL);
+        if (ret == DDS_RETCODE_NO_DATA) {
+            printf("no data for alpha\n");
+        }
+        else {
+            printf("Received a sample from topic 'alpha' (WHITHIN wohnzimmer): {\n"
                    "   value => %c\n"
                    "   pkey => %c\n"
                    "   value2 => %s\n"

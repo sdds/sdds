@@ -86,9 +86,11 @@ SubscriptionGraph_freeParticipantNode(SubscriptionGraph_t *self, ParticipantNode
 DirectedEdge_t*
 SubscriptionGraph_createDirectedEdge(SubscriptionGraph_t *self) {
     DirectedEdge_t* edge = malloc(sizeof(DirectedEdge_t));
+    edge->locTopics = List_initDynamicLinkedList();
     List_t* edges = self->edges;
     rc_t ret = edges->add_fn(edges, edge);
     if (ret != SDDS_RT_OK) {
+        free(edge->locTopics);
         free(edge);
         return NULL;
     }
@@ -126,6 +128,11 @@ SubscriptionGraph_freeDirectedEdge(SubscriptionGraph_t *self, DirectedEdge_t*edg
         e = edges->next_fn(edges);
     }
 
+    rc_t ret = edge->locTopics->delete_all_fn(edge->locTopics);
+    if (ret != SDDS_RT_OK) {
+        return SDDS_RT_FAIL;
+    }
+    free(edge->locTopics);
     free(edge);
     return SDDS_RT_OK;
 
@@ -145,25 +152,57 @@ SubscriptionGraph_establishSubscription(SubscriptionGraph_t *self, ParticipantNo
 
 DirectedEdge_t*
 SubscriptionGraph_establishFilteredSubscription(SubscriptionGraph_t *self, ParticipantNode_t* pub, ParticipantNode_t* sub, LocationFilteredTopic_t* topic) {
+    assert(self);
+    assert(pub);
+    assert(sub);
+    assert(topic);
+
     DirectedEdge_t* edge = SubscriptionGraph_createDirectedEdge(self);
-    if (edge != NULL) {
-        edge->publisher = pub;
-        edge->subscriber = sub;
-        edge->topic = topic->contentFilteredTopic.associatedTopic;
-        edge->locTopic = topic;
-        edge->filteredSubscription = true;
+    assert(edge);
+
+    edge->publisher = pub;
+    edge->subscriber = sub;
+    edge->topic = topic->contentFilteredTopic.associatedTopic;
+    rc_t ret = edge->locTopics->add_fn(edge->locTopics, topic);
+    if (ret != SDDS_RT_OK) {
+        return NULL;
     }
+    edge->filteredSubscription = true;
+
     return edge;
+}
+
+rc_t
+s_containsLocationFilteredTopic(DirectedEdge_t* edge, LocationFilteredTopic_t* topic) {
+    assert(edge);
+    assert(topic);
+
+    List_t* locTopics = edge->locTopics;
+    LocationFilteredTopic_t* lt = locTopics->first_fn(locTopics);
+    while (lt != NULL) {
+        if (LocationFilteredTopic_equals(lt, topic) == SDDS_RT_OK) {
+            return SDDS_RT_OK;
+        }
+        lt = locTopics->next_fn(locTopics);
+    }
+
+    return SDDS_RT_FAIL;
 }
 
 rc_t
 SubscriptionGraph_registerFilter(DirectedEdge_t* edge, LocationFilteredTopic_t* topic) {
     assert(edge);
     assert(topic);
+    assert(edge->topic == topic->contentFilteredTopic.associatedTopic);
 
+    List_t* locTopics = edge->locTopics;
+
+    if (s_containsLocationFilteredTopic(edge, topic) == SDDS_RT_OK) {
+        return SDDS_RT_OK;
+    }
+
+    rc_t ret = locTopics->add_fn(locTopics, topic);
     edge->filteredSubscription = true;
-    edge->topic = topic->contentFilteredTopic.associatedTopic;
-    edge->locTopic = topic;
 
     return SDDS_RT_OK;
 }
