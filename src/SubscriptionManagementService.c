@@ -77,6 +77,8 @@ s_pauseSubscription() {
             if (ret != SDDS_RT_OK) {
                 Log_error("Unable to publish Subscription state.\n");
             }
+
+            Locator_print(edge->publisher->addr);
         }
         edge = (DirectedEdge_t*) edges->next_fn(edges);
     }

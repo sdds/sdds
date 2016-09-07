@@ -16,10 +16,10 @@
 
 #define SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS           0
 
-#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC         1
+#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC         3
 
 #ifndef SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC
-#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC        500
+#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC        0
 #endif
 
 
@@ -196,6 +196,8 @@ s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
     FilteredDataReader_t* filteredReader = DataSink_getFilteredDataReaders();
     for (int i = 0; i < SDDS_DATA_FILTER_READER_MAX_OBJS; i++) {
         if (filteredReader[i].locationFilteredTopic->contentFilteredTopic.associatedTopic->id == topicID) {
+            printf("Send filter expression for %d\n", topicID);
+            Locator_print(addr);
 
             SDDS_DCPSManagement data;
             data.participant = SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS;
