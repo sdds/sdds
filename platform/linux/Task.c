@@ -4,10 +4,9 @@
  *  Created on: Jul 22, 2010
  *      Author: kai
  */
-
 #include "os-ssal/Task.h"
 
-#include "gen_constants.h"
+#include "sDDS.h"
 #include "pthread.h"
 #include <time.h>
 #include <signal.h>

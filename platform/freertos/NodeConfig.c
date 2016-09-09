@@ -7,7 +7,7 @@
 
 #include "os-ssal/NodeConfig.h"
 #include "Log.h"
-#include "gen_constants.h"
+#include "sDDS.h"
 
 
 SSW_NodeID_t

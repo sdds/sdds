@@ -1,7 +1,6 @@
 #include "os-ssal/NodeConfig.h"
 
-#include "gen_constants.h"
-#include "sdds/Log.h"
+#include "sDDS.h"
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <netinet/in.h>

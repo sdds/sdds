@@ -5,7 +5,7 @@
 #include <sdds/LocatorDB.h>
 #include <sdds/NetBuffRef.h>
 #include <sdds/sdds_types.h>
-#include "gen_constants.h"
+#include "sDDS.h"
 
 //#include "arpa/inet.h"
 

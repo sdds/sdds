@@ -1,4 +1,4 @@
-SDDS_TOPDIR := ../..
+SDDS_TOPDIR := $(shell dirname $(shell dirname $(shell readlink generate.sh)))
 
 SDDS_OBJDIR := objs-linux
 TARGET := linux
@@ -11,7 +11,7 @@ IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/linux_demopub3_sdds_impl.o
 ALL_OBJS += $(IMPL_DEPEND_OBJS)
 ALL_OBJS += $(SDDS_OBJDIR)/linux_demopub3.o
 
-SDDS_CONSTANTS_FILE := ./gen_constants.h
+SDDS_CONSTANTS_FILE :=   sdds_features_config.h   sdds_features.h   sdds_network.h
 
 include $(SDDS_TOPDIR)/sdds.mk
 
@@ -29,6 +29,7 @@ CLEAN += $(IMPL_DEPEND_SRCS)
 CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
+CLEAN += local_constants.h
 
 all:
 

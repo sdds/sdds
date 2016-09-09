@@ -31,7 +31,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "gen_constants.h"
+#include "sdds_features_config.h"
+#include "sdds_features.h"
+#include "sdds_network.h"
 
 
 DDS_FooDataReader fooDataReader;

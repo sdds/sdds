@@ -1,6 +1,6 @@
 #include "os-ssal/NodeConfig.h"
 
-#include "gen_constants.h"
+#include "sDDS.h"
 #include <hv.h>
 #include <Log.h>
 #include "lwip/netif.h"

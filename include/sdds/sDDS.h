@@ -20,7 +20,9 @@
 #ifndef  SDDS_H_INC
 #define  SDDS_H_INC
 
-#include "gen_constants.h"
+#include "sdds_features_config.h"
+#include "sdds_features.h"
+#include "sdds_network.h"
 #include "sdds_types.h"
 
 rc_t

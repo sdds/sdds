@@ -1,6 +1,6 @@
 #include "os-ssal/NodeConfig.h"
 
-#include "gen_constants.h"
+#include "sDDS.h"
 
 #include <net/eui64.h>
 #include <net/gnrc/netapi.h>
@@ -48,6 +48,6 @@ NodeConfig_getNodeID(void) {
             eui.uint8[7],
             nodeID);
             */
-    
+
     return nodeID;
 }

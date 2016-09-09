@@ -21,7 +21,7 @@
 #define  NETBUFFREF_H_INC
 
 #include "List.h"
-#include "gen_constants.h"
+#include "sDDS.h"
 
 struct Locator_t;
 

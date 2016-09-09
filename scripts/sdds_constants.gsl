@@ -5,13 +5,15 @@
 .#  language. See https://github.com/imatix/gsl for details.
 .#
 .#  This script will generate the following files:
-.#      * gen_constants.h
+.#      * sdds_feature_config.h - Configuration for features based on sdds.xml
+.#      * sdds_features.h - Enabled/Disabled sDDS features
+.#      * sdds_network.h - Platform network configuration
 .#  ===========================================================================
 .#
-.#  Create local constants header file
+.#  Generate sDDS features configuration
 .#
-.#if !file.exists ("local_constants.h")
-.output "local_constants.h"
+.echo "Generating sdds_features_config.h ..."
+.output "sdds_features_config.h"
 .for project.define
 .   if defined (define.value)
 #ifndef $(define.name:)
@@ -24,19 +26,18 @@
 .   endif
 .endfor
 .close
-.#endif
 .#
-.#  Generate sDDS constants
+.#  Generate sDDS feature constants
 .#
-.echo "Generating gen_constants.h ..."
-.output "gen_constants.h"
+.echo "Generating sdds_features.h ..."
+.output "sdds_features.h"
 /*
 $(project.GENERATED_WARNING_HEADER:)
 */
-#ifndef $(PROJECT.NAME)_CONSTANTS_H_INCLUDED
-#define $(PROJECT.NAME)_CONSTANTS_H_INCLUDED
+#ifndef $(PROJECT.NAME)_SDDS_FEATURES_H_INCLUDED
+#define $(PROJECT.NAME)_SDDS_FEATURES_H_INCLUDED
 
-#include "local_constants.h"
+#include "sdds_features_config.h"
 
 #define SDDS_LOCAL_BYTEORDER_$(PROJECT.ENDIAN)_ENDIAN
 #define SDDS_NET_VERSION 0x01
@@ -44,38 +45,38 @@ $(project.GENERATED_WARNING_HEADER:)
 .SDDS_BUILTIN_TOPICS_COUNT=5
 
 #ifndef SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS
-#define SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS 0
+#   define SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS 0
 #endif
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-#define SDDS_MAX_DATA_WRITERS ($(count (project.role, role.type = "publisher") + SDDS_BUILTIN_TOPICS_COUNT) + SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS)
-#undef SDDS_DATA_READER_MAX_OBJS
-#define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber") + SDDS_BUILTIN_TOPICS_COUNT)
+#   define SDDS_MAX_DATA_WRITERS ($(count (project.role, role.type = "publisher") + SDDS_BUILTIN_TOPICS_COUNT) + SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS)
+#   undef SDDS_DATA_READER_MAX_OBJS
+#   define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber") + SDDS_BUILTIN_TOPICS_COUNT)
 #else
-#define SDDS_MAX_DATA_WRITERS ($(count (project.role, role.type = "publisher")) + SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS)
-#undef SDDS_DATA_READER_MAX_OBJS
-#define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber"))
+#   define SDDS_MAX_DATA_WRITERS ($(count (project.role, role.type = "publisher")) + SDDS_QOS_RELIABILITY_RELIABLE_SUBS_WITHOUT_PUBS)
+#   undef SDDS_DATA_READER_MAX_OBJS
+#   define SDDS_DATA_READER_MAX_OBJS $(count (project.role, role.type = "subscriber"))
 #endif
 
 #ifndef SDDS_MAX_LINKED_LIST_NODES
-#define SDDS_MAX_LINKED_LIST_NODES 20
-#endif /* SDDS_MAX_LINKED_LIST_NODES */
+#   define SDDS_MAX_LINKED_LIST_NODES 20
+#endif
 
 #ifndef SDDS_NET_MAX_OUT_QUEUE
-#define SDDS_NET_MAX_OUT_QUEUE 2
-#endif /*SDDS_NET_MAX_OUT_QUEUE */
+#   define SDDS_NET_MAX_OUT_QUEUE 2
+#endif
 
 
 #ifndef SDDS_NET_MAX_BUF_SIZE
-#define SDDS_NET_MAX_BUF_SIZE 128
-#endif /* SDDS_NET_MAX_BUF_SIZE */
+#   define SDDS_NET_MAX_BUF_SIZE 128
+#endif
 
 #ifndef SDDS_NET_MAX_LOCATOR_COUNT
-#define SDDS_NET_MAX_LOCATOR_COUNT 25
-#endif /* SDDS_NET_MAX_LOCATOR_COUNT */
+#   define SDDS_NET_MAX_LOCATOR_COUNT 25
+#endif
 
 #ifndef SDDS_QOS_HISTORY_DEPTH
-#define SDDS_QOS_HISTORY_DEPTH 20
+#   define SDDS_QOS_HISTORY_DEPTH 20
 #endif
 
 #define SDDS_QOS_DW1_LATBUD 100
@@ -118,13 +119,13 @@ $(project.GENERATED_WARNING_HEADER:)
 #endif
 
 #ifndef SDDS_TOPIC_APP_MSG_COUNT
-#define SDDS_TOPIC_APP_MSG_COUNT 5
-#endif /* SDDS_TOPIC_APP_MSG_COUNT */
+#   define SDDS_TOPIC_APP_MSG_COUNT 5
+#endif
 
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-#define SDDS_TOPIC_MAX_COUNT $(count (project.topic) + SDDS_BUILTIN_TOPICS_COUNT)
+#   define SDDS_TOPIC_MAX_COUNT $(count (project.topic) + SDDS_BUILTIN_TOPICS_COUNT)
 #else
-#define SDDS_TOPIC_MAX_COUNT $(count (project.topic))
+#   define SDDS_TOPIC_MAX_COUNT $(count (project.topic))
 #endif
 
 #define SDDS_MNG_WORKER_CYCLE_TIME 10000
@@ -134,139 +135,57 @@ $(project.GENERATED_WARNING_HEADER:)
 #define SDDS_EXTENDED_TOPIC_SUPPORT
 .endif
 
-/* TWI bus speed in Hz */
-#define DRIVER_TWI_BUS_SPEED 10000UL // 10kh to use internal pull ups
-//#define DRIVER_TWI_BUS_SPEED 100000UL
-
-/* TWI data and clock pin and port */
-#define DRIVER_TWI_CLOCK_PORT D
-#define DRIVER_TWI_DATA_PORT D
-#define DRIVER_TWI_CLOCK_PIN 0
-#define DRIVER_TWI_DATA_PIN 1
-
-
-/* adc reference voltage, see adc.h */
-#define DRIVER_WIND_VANE_ADC_REFERENCE ADC_USE_AVCC
-
-/* adc channel for the wind vane */
-#define DRIVER_WIND_VANE_ADC_CHANNEL 0
-
-/* resistor used as voltage divider */
-#define DRIVER_WIND_VANE_DIVIDER_RESISTOR 5.4f
-
-/* internal = 10bit resoluti0on, pcf8591 = 8bit */
-#define DRIVER_WIND_VANE_POSSIBLE_VALUES (1 << 10)
-
-/* define port and pin for the anemometer interrupt */
-#define DRIVER_ANEMOMETER_PORT E
-#define DRIVER_ANEMOMETER_PIN 5
-
-/* which interrupt is used for the anemometer (5 == PE5) */
-#define DRIVER_ANEMOMETER_INTERRUPT 5
-
-/* the external interrupt control register for this interrupt */
-#define DRIVER_ANEMOMETER_EICR EICRB
-
-/* how often is the callback called (in seconds) */
-#define DRIVER_ANEMOMETER_CALLBACK_PERIOD 1
-
-/* define port and pin for the rain gauge interrupt */
-#define DRIVER_RAINGAUGE_PORT E
-#define DRIVER_RAINGAUGE_PIN 4
-
-/* which interrupt is used for the rain gauge (4 == PE4) */
-#define DRIVER_RAINGAUGE_INTERRUPT 4
-
-/* the external interrupt control register for this interrupt */
-#define DRIVER_RAINGAUGE_EICR EICRB
-
-/* how often is the callback called (in seconds) */
-#define DRIVER_RAINGAUGE_CALLBACK_PERIOD 1
-
-/* SHT15 bus speed in Hz */
-#define DRIVER_SHT15_BUS_SPEED 100000
-
-/* SHT15 data and clock pin and port */
-#define DRIVER_SHT15_CLOCK_PORT D
-#define DRIVER_SHT15_DATA_PORT D
-#define DRIVER_SHT15_CLOCK_PIN 7
-#define DRIVER_SHT15_DATA_PIN 5
-
+#endif /* $(PROJECT.NAME)_SDDS_FEATURES_H_INCLUDED */
+.close
+.#
+.#  Generate sDDS network constants
+.#
+.echo "Generating sdds_network.h ..."
+.output "sdds_network.h"
 /*
- * SHT15 temperature coefficients
- * 5V = -4010, 4V = -3980, 3.5V = -3970, 3V = -3960, 2.5V = -3940
- */
-#define DRIVER_SHT15_TEMPERATURE_COEFFICIENT -3960
-
-/*
- * SHT15 measurement resolution
- * can be 14bit temperature/12bit humidity
- * or 12bit temperature/8bit humidity
- */
-#define DRIVER_SHT15_HIGH_RESOLUTION
-
-/* settings for the AMN31112 PIR Sensor
- */
-
-#define DRIVER_AMN31112_PORT B
-#define DRIVER_AMN31112_PIN 5
-
-/* settings for the TSL2561 light sensor
+$(project.GENERATED_WARNING_HEADER:)
 */
-
-#define DRIVER_TSL2561_TWI_ADDRESS (0x29<<1)
-
-/*
- * Settings for the one wire bus
- */
-#define DRIVER_ONEWIRE_PORT E
-#define DRIVER_ONEWIRE_PIN 6
-
-.if project.os = "contiki"
-#define TARGET_USE_DERFMEGA128
-.endif
-
-/*
- * Network settings
- */
+#ifndef $(PROJECT.NAME)_SDDS_NETWORK_H_INCLUDED
+#define $(PROJECT.NAME)_SDDS_NETWORK_H_INCLUDED
+/* Network settings */
 #ifndef PLATFORM_$(PROJECT.OS)_SDDS_IFACE
-#define PLATFORM_$(PROJECT.OS)_SDDS_IFACE       "$(project.iface)"
+#   define PLATFORM_$(PROJECT.OS)_SDDS_IFACE       "$(project.iface)"
 #endif
 #ifndef PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS
-#define PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS 			"$(project.ip)"
+#   define PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS 			"$(project.ip)"
 #endif
 #ifndef PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS
 .if project.iface > 0
-#define PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS		PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS"%"PLATFORM_$(PROJECT.OS)_SDDS_IFACE
+#   define PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS		PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS"%"PLATFORM_$(PROJECT.OS)_SDDS_IFACE
 .else
-#define PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS		PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS
+#   define PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS		PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS
 .endif
 #endif
 
 #ifndef PLATFORM_$(PROJECT.OS)_SDDS_DEVICE
 .if defined (project.device)
-#define PLATFORM_$(PROJECT.OS)_SDDS_DEVICE		"$(project.device)"
+#   define PLATFORM_$(PROJECT.OS)_SDDS_DEVICE		"$(project.device)"
 .else
-#define PLATFORM_$(PROJECT.OS)_SDDS_DEVICE		PLATFORM_$(PROJECT.OS)_SDDS_IFACE
+#   define PLATFORM_$(PROJECT.OS)_SDDS_DEVICE		PLATFORM_$(PROJECT.OS)_SDDS_IFACE
 .endif
 #endif
 
 .if project.os = "linux" | project.os = "autobest"
 #ifndef PLATFORM_$(PROJECT.OS:c)_SDDS_PROTOCOL
-#define PLATFORM_$(PROJECT.OS:c)_SDDS_PROTOCOL			$((project.protocol):upper)
+#   define PLATFORM_$(PROJECT.OS:c)_SDDS_PROTOCOL			$((project.protocol):upper)
 #endif
 .endif
 .if project.os = "contiki"
 #ifndef SDDS_CONTIKIPORT
-#define SDDS_CONTIKIPORT                 				$(project.port)
+#   define SDDS_CONTIKIPORT                 				$(project.port)
 #endif
 .else
 #ifndef PLATFORM_$(PROJECT.OS)_SDDS_PORT
-#define PLATFORM_$(PROJECT.OS)_SDDS_PORT				$(project.port)
+#   define PLATFORM_$(PROJECT.OS)_SDDS_PORT				$(project.port)
 #endif
 .endif
 
-#endif
+#endif /* $(PROJECT.NAME)_SDDS_NETWORK_H_INCLUDED */
 /*
 $(project.GENERATED_WARNING_HEADER:)
 */
