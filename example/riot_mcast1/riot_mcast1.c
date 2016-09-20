@@ -5,23 +5,29 @@
 int main()
 {
 	DDS_ReturnCode_t ret;
-	Log_setLvl(0);
 
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
 	}
+	Log_setLvl(4);  // Disable logs, set to 0 for to see everything.
 
-    Beta beta_pub;
-    beta_pub.value = 'H';
-    strncpy (beta_pub.value2,   "Es gibt im", 10);
-    strncpy (beta_pub.value3,   "Es gibt i", 9);
+    static Alpha alpha_pub;
+    alpha_pub.pkey = 0;
+    strncpy (alpha_pub.value2,   "Es gibt im", 10);
+    alpha_pub.value3 = 1;
+    alpha_pub.device = NodeConfig_getNodeID(); 
 
     for (;;) {
-        ret = DDS_BetaDataWriter_write (g_Beta_writer, &beta_pub, NULL);
+        ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
         if (ret != DDS_RETCODE_OK) {
-            printf("\nERROR SENDING\n");
+            printf ("Failed to send an alpha sample\n");
         }
-        sleep (5);
+        else {
+            printf ("Send an alpha sample\n");
+        }
+
+        alpha_pub.pkey++;
+        sleep (1);
     }
 
     return 0;

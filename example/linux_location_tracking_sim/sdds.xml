@@ -41,6 +41,8 @@
     <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
     <define name = "FEATURE_SDDS_DISCOVERY_ENABLED" />
     <define name = "FEATURE_SDDS_GEOMETRY_ENABLED" />
+    <define name = "FEATURE_SDDS_GEOMETRY_ELLIPSE_ENABLED" />
+    <define name = "FEATURE_SDDS_BUILTIN_LOCATION_UPDATE_ENABLED"/>
     <define name = "FEATURE_SDDS_LOCATION_ENABLED" />
     <define name = "FEATURE_SDDS_LOCATION_TRACKING_ENABLED" />
     <define name = "FEATURE_SDDS_SIMULATION_ENABLED" />
@@ -51,6 +53,8 @@
     <define name = "SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER" value = "5"/>
     <define name = "SDDS_BUILTIN_TOPIC_TOPIC_TIMER" value = "0"/>
     <define name = "SDDS_BUILTIN_TOPIC_LOCATION_TIMER" value = "5"/>
+
+    <define name = "PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "20"/>
     <!--
         Configure default history depth
     -->

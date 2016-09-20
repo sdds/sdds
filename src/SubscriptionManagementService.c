@@ -10,28 +10,30 @@
 #include "SubscriptionManager.h"
 #include "ManagementTopic.h"
 
-#ifdef SDDS_SUBSCRIPTION_MANAGER
+#ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
 
-#define SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC         1
+#ifndef SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC
+#define SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC         0
+#endif
 
-#ifndef SDDS_SUBSCRIPTION_PAUSE_TIMER_MSEC
-#define SDDS_SUBSCRIPTION_PAUSE_TIMER_MSEC        0
+#ifndef SDDS_SUBSCRIPTION_PAUSE_TIMER_USEC
+#define SDDS_SUBSCRIPTION_PAUSE_TIMER_USEC        500000
 #endif
 
 
-static SubscriptionManager_t s_subscriptionManager;
+SubscriptionManager_t s_subscriptionManager;
 
-static Task pasueSubscriptionTask;
+Task pasueSubscriptionTask;
 
 static void
 s_pauseSubscription();
 
 rc_t
 SubscriptionManagementService_init() {
-#   if (SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC != 0) || (SDDS_SUBSCRIPTION_PAUSE_TIMER_MSEC != 0)
+#   if (SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC != 0) || (SDDS_SUBSCRIPTION_PAUSE_TIMER_USEC != 0)
     pasueSubscriptionTask = Task_create();
     Task_init(pasueSubscriptionTask, s_pauseSubscription, NULL);
-    if (Task_start(pasueSubscriptionTask, SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC, SDDS_SUBSCRIPTION_PAUSE_TIMER_MSEC, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
+    if (Task_start(pasueSubscriptionTask, SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC, SDDS_SUBSCRIPTION_PAUSE_TIMER_USEC, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
         Log_error("Task_start failed\n");
     }
 #   endif
@@ -39,12 +41,10 @@ SubscriptionManagementService_init() {
     return SubscriptionManager_init(&s_subscriptionManager);
 }
 
-#ifdef FEATURE_SDDS_LOCATION_ENABLED
 rc_t
 SubscriptionManagementService_evalFilteredSubscription(DeviceLocation_t* sample) {
     return SubscriptionManager_evalFilteredSubscription(&s_subscriptionManager, sample);
 }
-#endif
 
 rc_t
 SubscriptionManagementService_handleParticipant(SDDS_DCPSParticipant* sample) {
@@ -71,6 +71,7 @@ static void
 s_pauseSubscription() {
     List_t* edges = s_subscriptionManager.subscriptionGraph.edges;
     DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);
+//    printf("Update paused subscriptions\n");
     while (edge != NULL) {
         if (edge->state == PAUSED) {
             rc_t ret = SubscriptionManager_publishSubscriptionState(edge);
@@ -78,7 +79,7 @@ s_pauseSubscription() {
                 Log_error("Unable to publish Subscription state.\n");
             }
 
-            Locator_print(edge->publisher->addr);
+//            Locator_print(edge->publisher->addr);
         }
         edge = (DirectedEdge_t*) edges->next_fn(edges);
     }

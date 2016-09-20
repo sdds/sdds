@@ -27,9 +27,9 @@ rc_t
 sDDS_init(void);
 
 //  Forward declaration of classes
-#ifndef SDDS_DATA_READER_MAX_OBJS
-#define SDDS_DATA_READER_MAX_OBJS 64
-#endif
+//#ifndef SDDS_DATA_READER_MAX_OBJS
+//#define SDDS_DATA_READER_MAX_OBJS 64
+//#endif
 typedef struct _DataReader_t DataReader_t;
 typedef struct _History_t History_t;
 typedef struct _NetBuffRef_t NetBuffRef_t;
@@ -88,7 +88,9 @@ typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 #include "BuiltinTopic.h"
 #include "BuiltInTopicPublicationService.h"
+#   ifdef FEATURE_SDDS_BUILTIN_LOCATION_UPDATE_ENABLED
 #include "BuiltInLocationUpdateService.h"
+#   endif
 #endif
 #ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
 #include "LocationTrackingService.h"
@@ -103,7 +105,7 @@ typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 #include "ManagementTopicPublicationService.h"
 #include "ManagementTopicSubscriptionService.h"
 #endif
-#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
 #include "SubscriptionManagementService.h"
 #endif
 

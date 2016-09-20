@@ -94,7 +94,7 @@ s_DiscoveryService_participantListener(DDS_DataReader reader) {
                 Log_error("Error in s_DiscoveryService_handleParticipant\n.");
             }
 
-#       ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#       ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
             rc_t retSM;
             retSM = SubscriptionManagementService_handleParticipant(&p_data_used);
             if (retSM != SDDS_RT_OK) {

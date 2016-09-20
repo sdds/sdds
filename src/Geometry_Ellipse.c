@@ -5,9 +5,12 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "Geometry_Ellipse.h"
 #include <stdlib.h>
 #include <math.h>
+
+#ifdef FEATURE_SDDS_GEOMETRY_ELLIPSE_ENABLED
 
 static bool_t
 s_Point_equals(Ellipse_t* self, Point_t* otherObject);
@@ -443,18 +446,25 @@ Ellipse_within(Ellipse_t* self, Geometry_t* otherObject) {
     case GEO_TYPE_POINT:
         return s_Point_within(self, (Point_t*)otherObject);
 
+#ifdef FEATURE_SDDS_GEOMETRY_LINESTRING_ENABLED
     case GEO_TYPE_LINESTRING:
         return s_LineString_within(self, (LineString_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_LINE_ENABLED
     case GEO_TYPE_LINE:
         return s_Line_within(self, (Line_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_LINERING_ENABLED
     case GEO_TYPE_LINERING:
         return s_LineRing_within(self, (LineRing_t*)otherObject);
+#endif
 
     case GEO_TYPE_ELLIPSE:
         return s_Ellipse_within(self, (Ellipse_t*)otherObject);
 
+#ifdef FEATURE_SDDS_GEOMETRY_SQUARE_ENABLED
     case GEO_TYPE_SQUARE:
     {
         bool_t ret = s_Square_within(self, (Square_t*)otherObject);
@@ -485,23 +495,37 @@ Ellipse_within(Ellipse_t* self, Geometry_t* otherObject) {
         }
         return ret;
     }
+#endif
+
+#ifdef FEATURE_SDDS_GEOMETRY_POLYGON_ENABLED
     case GEO_TYPE_POLYGON:
         return s_Polygon_within(self, (Polygon_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_POLYHEDRALSURFACE_ENABLED
     case GEO_TYPE_POLYHEDRALSURFACE:
         return s_PolyhedralSurface_within(self, (PolyhedralSurface_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_ELLIPSE_EXTRUSION_ENABLED
     case GEO_TYPE_ELLIPSE_EXTRUSION:
         return s_EllipseExtrusion_within(self, (EllipseExtrusion_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_SQUARE_EXTRUSION_ENABLED
     case GEO_TYPE_SQUARE_EXTRUSION:
         return s_SquareExtrusion_within(self, (SquareExtrusion_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_POLYGON_EXTRUSION_ENABLED
     case GEO_TYPE_POLYGON_EXTRUSION:
         return s_PolygonExtrusion_within(self, (PolygonExtrusion_t*)otherObject);
+#endif
 
+#ifdef FEATURE_SDDS_GEOMETRY_POLYHEDRALSURFACE_EXTRUSION_ENABLED
     case GEO_TYPE_POLYHEDRALSURFACE_EXTRUSION:
         return s_PolyhedralSurfaceExtrusion_within(self, (PolyhedralSurfaceExtrusion_t*)otherObject);
+#endif
 
     default:
         return false;
@@ -1179,3 +1203,4 @@ s_PolyhedralSurfaceExtrusion_overlaps(Ellipse_t* self, PolyhedralSurfaceExtrusio
     return false;
 }
 
+#endif

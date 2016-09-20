@@ -5,7 +5,10 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "Geometry_LineRing.h"
+
+#ifdef FEATURE_SDDS_GEOMETRY_LINERING_ENABLED
 
 static bool_t
 s_Point_equals(LineRing_t* self, Point_t* otherObject);
@@ -1061,3 +1064,4 @@ s_PolyhedralSurfaceExtrusion_overlaps(LineRing_t* self, PolyhedralSurfaceExtrusi
     return false;
 }
 
+#endif

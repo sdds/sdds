@@ -16,8 +16,6 @@ int main()
     alpha_pub.value3 = 1;
     alpha_pub.device = NodeConfig_getNodeID(); 
 
-    uint8_t sec = 0;
-
     for (;;) {
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
         if (ret != DDS_RETCODE_OK) {

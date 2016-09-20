@@ -12,7 +12,7 @@
 #include "FilterEvaluator.h"
 #include "ManagementTopicPublicationService.h"
 
-#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
 
 extern GeometryStore_t g_geometryStore;
 

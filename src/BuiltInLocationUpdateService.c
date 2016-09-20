@@ -5,6 +5,7 @@
  *      Author: o_dedi
  */
 
+#include "sDDS.h"
 #include "BuiltInLocationUpdateService.h"
 #include "BuiltinTopic.h"
 #include "Geometry.h"

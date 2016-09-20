@@ -8,7 +8,7 @@
 #include "sDDS.h"
 #include "SubscriptionGraph.h"
 
-#ifdef FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED
+#ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
 
 List_t*
 ParticipantNode_getEdges(ParticipantNode_t* node) {
@@ -191,6 +191,7 @@ s_containsLocationFilteredTopic(DirectedEdge_t* edge, LocationFilteredTopic_t* t
     LocationFilteredTopic_t* lt = locTopics->first_fn(locTopics);
     while (lt != NULL) {
         if (LocationFilteredTopic_equals(lt, topic) == SDDS_RT_OK) {
+            printf("Filter known\n");
             return SDDS_RT_OK;
         }
         lt = locTopics->next_fn(locTopics);

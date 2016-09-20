@@ -16,10 +16,10 @@
 
 #define SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS           0
 
-#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC         3
+#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC         5
 
-#ifndef SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC
-#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC        0
+#ifndef SDDS_SUBSCRIPTION_REACTIVATION_TIMER_USEC
+#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_USEC        0
 #endif
 
 
@@ -43,10 +43,10 @@ s_reactivateSubscription();
 rc_t
 ManagementTopicSubscriptionService_init() {
 #if defined(SDDS_TOPIC_HAS_SUB)
-#   if (SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC != 0 || SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC != 0)
+#   if (SDDS_SUBSCRIPTION_REACTIVATION_TIMER_USEC != 0 || SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC != 0)
     reactivateSubscriptionTask = Task_create();
     Task_init(reactivateSubscriptionTask, s_reactivateSubscription, NULL);
-    if (Task_start(reactivateSubscriptionTask, SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC, SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
+    if (Task_start(reactivateSubscriptionTask, SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC, SDDS_SUBSCRIPTION_REACTIVATION_TIMER_USEC, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
         Log_error("Task_start failed\n");
     }
 #   endif
@@ -196,7 +196,6 @@ s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
     FilteredDataReader_t* filteredReader = DataSink_getFilteredDataReaders();
     for (int i = 0; i < SDDS_DATA_FILTER_READER_MAX_OBJS; i++) {
         if (filteredReader[i].locationFilteredTopic->contentFilteredTopic.associatedTopic->id == topicID) {
-//            printf("Send filter expression for %d\n", topicID);
 
             SDDS_DCPSManagement data;
             data.participant = SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS;
@@ -223,10 +222,12 @@ s_key_requestFilterExpression(DDS_char* mValue, Locator_t* addr) {
 }
 #endif
 
+#ifdef SDDS_SUBSCRIPTION_MANAGER
 rc_t
 s_key_deleteFilterExpression(DDS_char* mValue) {
     return SDDS_RT_OK;
 }
+#endif
 
 static void
 s_reactivateSubscription() {
@@ -243,7 +244,7 @@ s_reactivateSubscription() {
                 }
 
                 remainingMSec = abs(remainingMSec);
-                msec16_t deadline = ((SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC * 1000) + SDDS_SUBSCRIPTION_REACTIVATION_TIMER_MSEC);
+                msec16_t deadline = ((SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC * 1000) + SDDS_SUBSCRIPTION_REACTIVATION_TIMER_USEC);
                 if (remainingMSec >= deadline) {
                     sub->state = ACTIVE;
                     if (Time_getTime16(&sub->updated) != SDDS_SSW_RT_OK) {

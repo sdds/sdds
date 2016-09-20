@@ -163,7 +163,7 @@ BuiltInTopicPublicationService_publishDCPSSubscription(topicid_t id) {
     return SDDS_RT_FAIL;
 }
 
-# ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
 rc_t
 BuiltInTopicPublicationService_publishDCPSLocation(DeviceLocation_t* dev) {
     assert(dev);
@@ -197,6 +197,7 @@ BuiltInTopicPublicationService_publishDCPSLocation(DeviceLocation_t* dev) {
     return SDDS_RT_OK;
 }
 
+#   ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
 static void
 s_BuiltInTopicPublicationService_publishDCPSLocation() {
     List_t* devices = LocationTrackingService_getLocations();
@@ -208,6 +209,7 @@ s_BuiltInTopicPublicationService_publishDCPSLocation() {
         dev = (DeviceLocation_t*) devices->next_fn(devices);
     }
 }
+#   endif
+#endif
 
-# endif
 #endif

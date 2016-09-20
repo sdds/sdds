@@ -31,9 +31,10 @@ struct _DataSink_t {
     DataReader_t readers[SDDS_DATA_READER_MAX_OBJS];
     uint64_t allocated_readers;
 
+#ifdef SDDS_DATA_FILTER_READER_MAX_OBJS
     FilteredDataReader_t filteredReaders[SDDS_DATA_FILTER_READER_MAX_OBJS];
 	uint64_t allocated_filteredReaders;
-
+#endif
 //    topicid_t iteratorTopicID;
 //    int8_t iteratorPos;
 //    int8_t iteratorNext;
@@ -59,16 +60,15 @@ BuiltinTopicDataReader_encode(NetBuffRef_t* buff, Data data, size_t* size);
 
 rc_t
 DataSink_init(void) {
-//    self->iteratorTopicID = 0;
-//    self->iteratorPos = -1;
-//    self->iteratorNext = -1;
-//    self->iteratorFiltered = 0;
     return SDDS_RT_OK;
 }
 
 FilteredDataReader_t*
 DataSink_getFilteredDataReaders() {
+#ifdef SDDS_DATA_FILTER_READER_MAX_OBJS
     return self->filteredReaders;
+#endif
+    return NULL;
 }
 
 #if defined(SDDS_TOPIC_HAS_PUB) || \
@@ -518,6 +518,7 @@ DataSink_create_filteredDatareader(LocationFilteredTopic_t* topic, Qos qos, List
     (void) qos;
     (void) sm;
 
+#ifdef SDDS_DATA_FILTER_READER_MAX_OBJS
     uint8_t index;
     for (index = 0; index < SDDS_DATA_FILTER_READER_MAX_OBJS; index++) {
         //  Check if object at index has been allocated
@@ -531,6 +532,7 @@ DataSink_create_filteredDatareader(LocationFilteredTopic_t* topic, Qos qos, List
             return reader;
         }
     }
+#endif
     return NULL;
 }
 
@@ -603,6 +605,7 @@ DataSink_readerIterator_reset(DataSink_ReaderIterator_t* it, topicid_t topic) {
 			return SDDS_RT_OK;
 		}
 	}
+#ifdef SDDS_DATA_FILTER_READER_MAX_OBJS
 	it->iteratorFiltered = 1;
 	for (int8_t i = 0; i < SDDS_DATA_FILTER_READER_MAX_OBJS; i++) {
 		if (self->filteredReaders[i].dataReader.topic->id == it->iteratorTopicID) {
@@ -610,7 +613,7 @@ DataSink_readerIterator_reset(DataSink_ReaderIterator_t* it, topicid_t topic) {
 			return SDDS_RT_OK;
 		}
 	}
-
+#endif
     return SDDS_RT_FAIL;
 }
 
@@ -624,7 +627,9 @@ DataSink_readerIterator_next(DataSink_ReaderIterator_t* it) {
         curReader = &(self->readers[it->iteratorPos]);
     }
     else {
+#ifdef SDDS_DATA_FILTER_READER_MAX_OBJS
         curReader = (DataReader_t*) &(self->filteredReaders[it->iteratorPos]);
+#endif
     }
 
     if (it->iteratorFiltered == 0) {
@@ -634,13 +639,14 @@ DataSink_readerIterator_next(DataSink_ReaderIterator_t* it) {
 				break;
 			}
 		}
-
+#ifdef SDDS_DATA_FILTER_READER_MAX_OBJS
 	    if (it->iteratorNext == -1) {
 	        it->iteratorFiltered = 1;
 	        it->iteratorPos = -1;
 	    }
+#endif
     }
-
+#ifdef SDDS_DATA_FILTER_READER_MAX_OBJS
     if (it->iteratorFiltered != 0) {
 		for (int8_t i = it->iteratorPos+1; i < SDDS_DATA_FILTER_READER_MAX_OBJS; i++) {
 			if (self->filteredReaders[i].dataReader.topic->id == it->iteratorTopicID) {
@@ -649,7 +655,7 @@ DataSink_readerIterator_next(DataSink_ReaderIterator_t* it) {
 			}
 		}
     }
-
+#endif
     return curReader;
 }
 
