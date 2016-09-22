@@ -623,6 +623,8 @@ Network_init(void) {
 
     sema_destroy(&net.initThreadSema);
 
+    RiotNetHelper_printAllAddresses();
+
 	return SDDS_RT_OK;
 }
 
