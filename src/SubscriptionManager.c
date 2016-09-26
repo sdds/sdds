@@ -42,8 +42,8 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
                     Log_error("Unable to resume subscription.\n");
                 }
             }
-
             if (prevState != edge->state) {
+                /*
                 printf("set Subscription State: ");
                 switch (edge->state) {
                 case CANCELLED:
@@ -59,7 +59,7 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
                     printf("UNKNOWN\n");
                     break;
                 }
-
+                */
                 ret = SubscriptionManager_publishSubscriptionState(edge);
                 if (ret != SDDS_RT_OK) {
                     Log_error("Unable to publish Subscription state.\n");
@@ -105,7 +105,7 @@ SubscriptionManager_handleParticipant(SubscriptionManager_t* self, SDDS_DCPSPart
             SubscriptionGraph_freeParticipantNode(&self->subscriptionGraph, node);
             return SDDS_RT_FAIL;
         }
-        printf("Create node %x\n", node->id);
+        //printf("Create node %x\n", node->id);
     }
 
     return SDDS_RT_OK;
@@ -137,10 +137,10 @@ SubscriptionManager_handlePublication(SubscriptionManager_t* self, DDS_DCPSPubli
                 Log_error("Unable to add topic to publisher.\n");
                 return ret;
             }
-            printf("node %x is publisher for topic %d\n", node->id, sample->topic_id);
+            //printf("node %x is publisher for topic %d\n", node->id, sample->topic_id);
         }
     } else {
-        printf("Unknown node\n");
+        //printf("Unknown node\n");
     }
 
     return SDDS_RT_OK;
@@ -165,9 +165,11 @@ SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSub
                     if (edge == NULL) {
                         return SDDS_RT_FAIL;
                     }
+                    /*
                     printf("New subscription: {%x --(%d)--> %x}\n", node->id, topic->id, sub->id);
                     Locator_print(edge->publisher->addr);
                     Locator_print(edge->subscriber->addr);
+                    */
                 }
             }
             node = nodes->next_fn(nodes);
@@ -225,11 +227,13 @@ SubscriptionManager_registerFilter(SubscriptionManager_t* self, SDDS_DCPSManagem
             if (ret != SDDS_RT_OK) {
                 Log_error("Unable to register Filter.\n");
             }
+            /*
             printf("Register Filter: %x: {%d, ", participantID, locTopic->contentFilteredTopic.associatedTopic->id);
             for (int i = 0; i < locTopic->expressionLength; i++) {
                 printf("|%d", locTopic->filterExpression[i]);
             }
             printf("|}\n");
+            */
         }
         edge = (DirectedEdge_t*) edges->next_fn(edges);
     }

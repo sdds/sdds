@@ -17,15 +17,15 @@ int main()
     alpha_pub.value3 = 1;
     alpha_pub.device = NodeConfig_getNodeID(); 
 
-    printf("DeviceID: %x\n", NodeConfig_getNodeID());
+    fprintf(stderr, "DeviceID: %x\n", NodeConfig_getNodeID());
 
     for (;;) {
         ret = DDS_AlphaDataWriter_write (g_Alpha_writer, &alpha_pub, NULL);
         if (ret != DDS_RETCODE_OK) {
-            printf ("Failed to send an alpha sample\n");
+            fprintf (stderr,"Failed to send an alpha sample\n");
         }
         else {
-            printf ("Send an alpha sample\n");
+            fprintf (stderr,"Send an alpha sample\n");
         }
 
         alpha_pub.pkey++;

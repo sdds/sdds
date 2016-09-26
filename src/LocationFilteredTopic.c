@@ -118,6 +118,17 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     assert(self);
     assert(devLoc);
 
+#ifdef SDDS_EVAL_LOCATION_FILTER
+    time16_t start;
+    Time_getTime16(&start);
+    msec16_t duration;
+    Time_remainMSec16(start, &duration);
+    time16_t now;
+    Time_getTime16(&now);
+
+    printf("filterEval: %d, %d\n", now, -duration);
+#endif
+
     while (self->filterstate.currentPosition < self->expressionLength) {
         rc_t ret;
         ret = s_readFunction(self);
