@@ -64,11 +64,9 @@ CLEAN += \$(DATA_DEPEND_SRCS)
 IMPL_DEPEND_SRCS += \$(patsubst \$(SDDS_OBJDIR)/%.o,%.c,\$(IMPL_DEPEND_OBJS))
 IMPL_DEPEND_SRCS += \$(patsubst \$(SDDS_OBJDIR)/%.o,%.h,\$(IMPL_DEPEND_OBJS))
 CLEAN += \$(IMPL_DEPEND_SRCS)
-
 CLEAN += \$(ALL_OBJS)
 CLEAN += \$(patsubst %.o,%.d,\$(ALL_OBJS))
 CLEAN += \$(SDDS_CONSTANTS_FILE)
-CLEAN += local_constants.h
 
 all:
 
