@@ -11,6 +11,9 @@ function resolve_profiles ()
                 for my.profile_file.topic where count (project.role, role.topic = topic.name)
                     move topic after include
                 endfor
+                for my.profile_file.enum
+                    move enum after include
+                endfor
             else
                 echo "E: error loading include file: $(filename): $(xml.error?)"
             endif

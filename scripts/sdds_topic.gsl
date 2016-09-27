@@ -11,6 +11,57 @@
 .template 0
 
 .#
+.#  Counts the bits of a number
+.#
+function count_bits (value)
+    bits = 0
+    while my.value > 0
+        bits += 1
+        my.value -= math.pow (2, bits)
+    endwhile
+    return bits
+endfunction
+
+.#
+.#  Resolve a enum's data type.
+.#
+function resolve_enum_type (enum)
+    my.enum.namespace ?= ""
+    my.enum.c_name = enum.namespace + "_" + enum.name
+
+    #  If a literal value is provided count it's bits
+    for my.enum.literal
+        if defined (literal.value)
+            my.enum.bits ?= 0
+            bits = count_bits (literal.value)
+            if (my.enum.bits < bits)
+                my.enum.bits = bits
+            endif
+        endif
+    endfor
+    #  Else count the bits of the sum of literals
+    my.enum.bits ?= count_bits (count (enum.literal))
+
+    if my.enum.bits >= 32
+        my.enum.type = "uint64_t"
+        my.enum.enc_type = "uint64"
+        my.enum.size = 8
+    elsif my.enum.bits >= 16
+        my.enum.type = "uint32_t"
+        my.enum.enc_type = "uint32"
+        my.enum.size = 4
+    elsif my.enum.bits >= 8
+        my.enum.type = "uint16_t"
+        my.enum.enc_type = "uint16"
+        my.enum.size = 2
+    else
+        my.enum.type = "uint8_t"
+        my.enum.enc_type = "uint8"
+        my.enum.size = 1
+    endif
+endfunction
+
+.#
 .#  Resolve a topics DDS data types to C data types for encoding of data. Also
 .#  calculates the total size of a topic.
 .#
@@ -31,47 +82,56 @@ function resolve_topic_type (topic)
         if attribute.type = "DDS_short"
             attribute.enc_type = "int16"
             attribute.print_type = "\"PRId16\""
-            my.topic.size += 2
+            attribute.size = 2
         elsif attribute.type = "DDS_long"
             attribute.enc_type = "int32"
             attribute.print_type = "\"PRId32\""
-            my.topic.size += 4
+            attribute.size = 4
         elsif attribute.type = "DDS_long_long"
             attribute.enc_type = "int64"
             attribute.print_type = "\"PRId64\""
-            my.topic.size += 8
+            attribute.size = 8
         elsif attribute.type = "DDS_unsigned_short"
             attribute.enc_type = "uint16"
             attribute.print_type = "\"PRIu16\""
-            my.topic.size += 2
+            attribute.size = 2
         elsif attribute.type = "DDS_unsigned_long"
             attribute.enc_type = "uint32"
             attribute.print_type = "\"PRIu32\""
-            my.topic.size += 4
+            attribute.size = 4
         elsif attribute.type = "DDS_unsigned_long_long"
             attribute.enc_type = "uint64"
             attribute.print_type = "\"PRIu64\""
-            my.topic.size += 8
+            attribute.size = 8
         elsif attribute.type = "DDS_char"
             attribute.enc_type = "int8"
             attribute.print_type = "c"
-            my.topic.size += 1
         elsif attribute.type = "DDS_octet"
             attribute.enc_type = "uint8"
             attribute.print_type = "\"PRIu8\""
-            my.topic.size += 1
         elsif attribute.type = "DDS_boolean"
             attribute.enc_type = "bool"
             attribute.print_type = "d"
-            my.topic.size += 1
         elsif attribute.type = "DDS_string"
             attribute.type = "DDS_char"
             attribute.enc_type = "string"
             attribute.print_type = "s"
-            my.topic.size += attribute.size
         else
-            echo "E: Invalid type '$(attribute.type)' for attribute '$(attribute.name)' in topic $(topic.name:)"
+            hit = 0
+            # Check if type is an enums
+            for project.enum where attribute.type = enum.name
+                attribute.type = enum.c_name
+                attribute.enc_type = enum.enc_type
+                attribute.bits = enum.bits
+                attribute.print_type = "u"
+                attribute.size = enum.size
+                hit = 1
+            endfor
+            if hit = 0
+                echo "E: Invalid type '$(attribute.type)' for attribute '$(attribute.name)' in topic $(topic.name:)"
+            endif
         endif
+        my.topic.size += attribute.size
     endfor
 endfunction
 
@@ -141,12 +201,49 @@ project.qos_reliability_biggest_seqNr_bitsize ?= 0
 project.qos_reliability_biggest_max_blocking_time ?= 0
 
 
+for project.enum
+    resolve_enum_type (enum)
+endfor
 for project.topic
     resolve_topic_type (topic)
     resolve_topic_config (topic)
 endfor
 
 .endtemplate
+.#
+.#  Generate profile header
+.#
+.echo "Generating sdds_profile.h ..."
+.output "sdds_profile.h"
+/*  =========================================================================
+    sdds_profile.h - Contains enums and structs defined by all profiles
+
+.       for project.license
+    $(string.trim (license.):block                                         )
+.       endfor
+
+$(project.GENERATED_WARNING_HEADER:)
+    =========================================================================
+*/
+#ifndef PROFILE_H_INC
+#define PROFILE_H_INC
+
+.   for project.enum
+// $(string.trim (enum.?""):left)
+typedef $(enum.type:) $(enum.c_name:);
+.       literal_value = 0
+.       for enum.literal
+.           if defined (literal.value)
+#define $(ENUM.C_NAME:c)_$(LITERAL.NAME:c) $(literal.value)
+.           else
+#define $(ENUM.C_NAME:c)_$(LITERAL.NAME:c) $(literal_value)
+.           endif
+.       literal_value += 1
+.       endfor
+
+.   endfor
+#endif
+.close
 .for project.topic
 .#
 .#  Generate topic ds header
@@ -167,6 +264,7 @@ $(project.GENERATED_WARNING_HEADER:)
 #define $(TOPIC.NAME)_H_INC
 
 #include <sdds/sDDS.h>
+#include "sdds_profile.h"
 #include "List.h"
 
 struct $(topic.c_name:)
@@ -175,6 +273,12 @@ struct $(topic.c_name:)
     /* $(attribute.description:) */
 .       if attribute.enc_type = "string"
     $(attribute.type:) $(attribute.name:c)[$(attribute.size + 1)];
+.       elsif defined (attribute.bits)
+.           if attribute.bits < 8
+    $(attribute.type:) $(attribute.name:c) : $(attribute.bits);
+.           else
+    $(attribute.type:) $(attribute.name:c);
+.           endif
 .       else
     $(attribute.type:) $(attribute.name:c);
 .       endif
@@ -394,8 +498,11 @@ rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, s
 
 	int maxSize = 0;
 .   for topic.attribute
+.       if defined (attribute.bits)
+    maxSize += $(attribute.size);
+.       else
     maxSize += sizeof(real_data->$(attribute.name:c));
-
+.       endif
 .   endfor
 
 	if ((buffer->curPos + maxSize + 1) >= SDDS_NET_MAX_BUF_SIZE) {
@@ -406,9 +513,18 @@ rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, s
 .       if attribute.enc_type = "string"
     Marshalling_enc_$(attribute.enc_type)(start + *size, real_data->$(attribute.name:c), $(attribute.size));
 .       else
+.           if defined (attribute.bits)
+    $(attribute.enc_type)_t $(attribute.name:c)_tmp = real_data->$(attribute.name:c);
+    Marshalling_enc_$(attribute.enc_type)(start + *size, &$(attribute.name:c)_tmp);
+.           else
     Marshalling_enc_$(attribute.enc_type)(start + *size, &real_data->$(attribute.name:c));
+.           endif
 .       endif
+.       if defined (attribute.bits)
+    *size += $(attribute.size);
+.       else
     *size += sizeof(real_data->$(attribute.name:c));
+.       endif
 
 .   endfor
 
@@ -430,9 +546,19 @@ rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, s
 .       if attribute.enc_type = "string"
     Marshalling_dec_$(attribute.enc_type)(start + *size, real_data->$(attribute.name:c), $(attribute.size));
 .       else
+.           if defined (attribute.bits)
+    $(attribute.enc_type)_t $(attribute.name:c)_tmp;
+    Marshalling_dec_$(attribute.enc_type)(start + *size, &$(attribute.name:c)_tmp);
+    real_data->$(attribute.name:c) = $(attribute.name:c)_tmp;
+.           else
     Marshalling_dec_$(attribute.enc_type)(start + *size, &real_data->$(attribute.name:c));
+.           endif
 .       endif
+.       if defined (attribute.bits)
+    *size += $(attribute.size);
+.       else
     *size += sizeof(real_data->$(attribute.name:c));
+.       endif
 
 .   endfor
 
