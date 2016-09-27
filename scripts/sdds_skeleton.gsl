@@ -62,6 +62,15 @@ int main()
 .                       else
     $(topic.c_name:c)_pub.$(attribute.name:c) = 'H';
 .                       endif
+.                   else
+.                       # Check if type is an enums
+.                       for project.enum where attribute.type = enum.c_name
+.                           for enum.literal
+.                               if last ()
+    $(topic.c_name:c)_pub.$(attribute.name:c) = $(ENUM.C_NAME:c)_$(LITERAL.NAME:c);
+.                               endif
+.                           endfor
+.                       endfor
 .                   endif
 .               endfor
 .               elsif role.type = "subscriber"

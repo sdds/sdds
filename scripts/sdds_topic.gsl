@@ -45,18 +45,22 @@ function resolve_enum_type (enum)
     if my.enum.bits >= 32
         my.enum.type = "uint64_t"
         my.enum.enc_type = "uint64"
+        my.enum.print_type = "\"PRIu64\""
         my.enum.size = 8
     elsif my.enum.bits >= 16
         my.enum.type = "uint32_t"
         my.enum.enc_type = "uint32"
+        my.enum.print_type = "\"PRIu32\""
         my.enum.size = 4
     elsif my.enum.bits >= 8
         my.enum.type = "uint16_t"
         my.enum.enc_type = "uint16"
+        my.enum.print_type = "\"PRIu16\""
         my.enum.size = 2
     else
         my.enum.type = "uint8_t"
         my.enum.enc_type = "uint8"
+        my.enum.print_type = "\"PRIu8\""
         my.enum.size = 1
     endif
 endfunction
@@ -123,7 +127,7 @@ function resolve_topic_type (topic)
                 attribute.type = enum.c_name
                 attribute.enc_type = enum.enc_type
                 attribute.bits = enum.bits
-                attribute.print_type = "u"
+                attribute.print_type = enum.print_type
                 attribute.size = enum.size
                 hit = 1
             endfor
