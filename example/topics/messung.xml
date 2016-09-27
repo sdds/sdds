@@ -1,4 +1,5 @@
-<domain id = "1">
+<profile id = "1">
+
     <topic name = "alpha" domain = "1" id = "A">
         Alpha messung topic.
         <attribute name = "value" type = "DDS_char">Any char value</attribute>
@@ -15,5 +16,6 @@
         Delta messung topic.
         <attribute name = "value" type = "DDS_char">Any char value</attribute>
     </topic>
-</domain>
+
+</profile>
 

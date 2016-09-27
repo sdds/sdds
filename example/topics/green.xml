@@ -1,6 +1,8 @@
-<domain id = "1">
+<profile id = "1">
+
     <topic name = "green" domain = "1" id = "8">
         RGB green-topic.
         <attribute name = "value" type = "DDS_char">Any short value</attribute>
     </topic>
-</domain>
+
+</profile>

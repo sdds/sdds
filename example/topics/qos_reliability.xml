@@ -1,5 +1,6 @@
 <!-- WARNING!! IDs are equal to IDs from topics in basic.xml -->
-<domain id = "1">
+<profile id = "1">
+
     <topic name = "testQosReliabilityBasicBesteffort" domain = "1" id = "F">
         Test topic which sends some data for testing QoS RELIABILITY
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
@@ -61,4 +62,5 @@
         <attribute name = "number" type = "DDS_short">16-Bit signed</attribute>
         <config type="qos_reliability" reliabilitySeqnrSize="huge" kind="reliable" confirmationtype="nack" max_blocking_time="3000"/>
     </topic>
-</domain>
+
+</profile>

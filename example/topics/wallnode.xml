@@ -1,4 +1,5 @@
-<domain id = "0">
+<profile id = "0">
+
     <topic name = "OnOffSwitch" domain = "0" id = "4">
         <attribute name = "id" type = "DDS_unsigned_short"></attribute>
         <attribute name = "state" type = "DDS_octet"></attribute>
@@ -62,5 +63,5 @@
         <attribute name = "lightIntensityState" type = "DDS_octet"></attribute>
         <attribute name = "onOffState" type = "DDS_octet"></attribute>
     </topic>
-</domain>
 
+<profile />
