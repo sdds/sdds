@@ -3,12 +3,12 @@
 #  language. See https://github.com/imatix/gsl for details.
 
 #   Resolve XML includes
-function resolve_topics ()
+function resolve_profiles ()
     for project.include
         if defined (include.filename)
-            my.topic_file = project.load_file (filename)
-            if defined (my.topic_file)
-                for my.topic_file.topic where count (project.role, role.topic = topic.name)
+            my.profile_file = project.load_file (filename)
+            if defined (my.profile_file)
+                for my.profile_file.topic where count (project.role, role.topic = topic.name)
                     move topic after include
                 endfor
             else
@@ -17,7 +17,7 @@ function resolve_topics ()
         endif
     endfor
 endfunction
-resolve_topics ()
+resolve_profiles ()
 
 project.description ?= "$(string.trim (project.?""):left)"
 project.iface ?= ""
