@@ -10,6 +10,10 @@
 
 #ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
 
+#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH
+time32_t start_time;
+#endif
+
 List_t*
 ParticipantNode_getEdges(ParticipantNode_t* node) {
     return node->edges;
@@ -29,6 +33,13 @@ SubscriptionGraph_createParticipantNode(SubscriptionGraph_t *self) {
     node->edges = List_initDynamicLinkedList();
     node->roleMask = 0;
     List_t* nodes = self->nodes;
+
+#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH
+    if (nodes->size_fn(nodes) == 0) {
+        Time_getTime32(&start_time);
+    }
+#endif
+
     rc_t ret = nodes->add_fn(nodes, node);
     if (ret != SDDS_RT_OK) {
         free(node->topics);
@@ -94,6 +105,19 @@ SubscriptionGraph_createDirectedEdge(SubscriptionGraph_t *self) {
         free(edge);
         return NULL;
     }
+
+#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH
+    if (edges->size_fn(edges) == SDDS_EVAL_SUBSCRIPTION_GRAPH_MAX_EDGES) {
+        msec32_t build_time;
+        Time_remainMSec32(start_time, &build_time);
+
+        time32_t now;
+        Time_getTime32(&now);
+    
+        printf("Subscrption Graph Build (now, start, duration):\n");
+        printf("%u, %u, %d\n", now, start_time, abs(build_time));
+    }
+#endif
     return edge;
 }
 
@@ -191,7 +215,7 @@ s_containsLocationFilteredTopic(DirectedEdge_t* edge, LocationFilteredTopic_t* t
     LocationFilteredTopic_t* lt = locTopics->first_fn(locTopics);
     while (lt != NULL) {
         if (LocationFilteredTopic_equals(lt, topic) == SDDS_RT_OK) {
-            printf("Filter known\n");
+            //printf("Filter known\n");
             return SDDS_RT_OK;
         }
         lt = locTopics->next_fn(locTopics);
