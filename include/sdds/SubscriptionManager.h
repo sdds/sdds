@@ -34,7 +34,7 @@ rc_t
 SubscriptionManager_handlePublication(SubscriptionManager_t* self, DDS_DCPSPublication* sample);
 
 rc_t
-SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSubscription* sample);
+SubscriptionManager_handleSubscription(SubscriptionManager_t* self, DDS_DCPSSubscription* sample);
 
 rc_t
 SubscriptionManager_registerFilter(SubscriptionManager_t* self, SDDS_DCPSManagement* sample);

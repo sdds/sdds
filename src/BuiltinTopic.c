@@ -515,7 +515,7 @@ TopicMarshalling_DCPSParticipant_decode(NetBuffRef_t* buffer, Data data, size_t*
 
     size_t expectedSize = sizeof(real_data->key);
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;
@@ -693,7 +693,7 @@ TopicMarshalling_DCPSTopic_decode(NetBuffRef_t* buffer, Data data, size_t* size)
 
     size_t expectedSize = sizeof(real_data->key) + DDS_TOPIC_NAME_SIZE;
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;
@@ -867,7 +867,7 @@ TopicMarshalling_DCPSPublication_decode(NetBuffRef_t* buffer, Data data, size_t*
 
     size_t expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;
@@ -882,6 +882,10 @@ TopicMarshalling_DCPSPublication_decode(NetBuffRef_t* buffer, Data data, size_t*
 
     Marshalling_dec_uint16(start + *size, &real_data->topic_id);
     *size += sizeof(real_data->topic_id);
+
+    real_data->srcAddr = buffer->locators->first_fn(buffer->locators);
+    assert(real_data->srcAddr);
+    Locator_upRef(real_data->srcAddr);
 
     return SDDS_RT_OK;
 }
@@ -1066,7 +1070,7 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
 
     size_t expectedSize = sizeof(real_data->key) + sizeof(real_data->participant_key) + sizeof(real_data->topic_id);
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;
@@ -1457,7 +1461,7 @@ TopicMarshalling_DCPSLocation_decode(NetBuffRef_t* buffer, Data data, size_t* si
     expectedSize += sizeof(real_data->expiration);
     expectedSize += sizeof(real_data->age);
     if (*size != expectedSize) {
-        Log_info("size mismatch is %zu should be %zu \n", *size, expectedSize);
+        Log_debug("size mismatch is %zu should be %zu \n", *size, expectedSize);
     }
 
     byte_t* start = buffer->buff_start + buffer->curPos;

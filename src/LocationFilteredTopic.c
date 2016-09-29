@@ -126,7 +126,7 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     time16_t now;
     Time_getTime16(&now);
 
-    printf("filterEval: %d, %d\n", now, -duration);
+    printf("filterEval: %d, %d\n", now, abs(duration));
 #endif
 
     while (self->filterstate.currentPosition < self->expressionLength) {

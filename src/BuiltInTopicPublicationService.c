@@ -47,6 +47,7 @@ BuiltInTopicPublicationService_init() {
 #   endif
 
 #   if defined(SDDS_TOPIC_HAS_SUB) && (SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER != 0)
+    printf("\n\n\nRegister Publication Topic\n\n\n");
     sendPubTask = Task_create();
     Task_init(sendPubTask, s_BuiltInTopicPublicationService_publishDCPSPublication, NULL);
     if (Task_start(sendPubTask, SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER, 0, SDDS_SSW_TaskMode_repeat) != SDDS_RT_OK) {
