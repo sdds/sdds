@@ -51,24 +51,19 @@ Then run the 'example/generate_examples.sh' to create the stub for your app.
 
 #### Topics
 
-Topics are configured in a xml file. By convention these files are placed into 'example/topics' to avoid topic duplication and copy\&paste madness.
+Topics are grouped by profiles and are configured in a xml file. By convention
+these files are placed into 'example/topics' to avoid topic and profile
+duplication as well as copy\&paste madness. The following example is taken from
+`sdds/example/topics/alphabet.xml`:
 
 ```xml
-<domain id = "1">
-    <topic name = "test1" domain = "1" id = "0">
-        Test1 topic
-        <attribute name = "val1" type = "DDS_char">My example value 1</attribute>
-    </topic>
-    <topic name = "test2" domain = "1" id = "1">
-        Test2 topic
-        <attribute name = "val2" type = "DDS_char">My example value 2</attribute>
-    </topic>
-</domain>
+.pull ./sdds/example/topics/alphabet.xml
 ```
 
-#### Example
+#### Projects
 
-To configure your example use the generated sdds.xml and change it to your needs.
+To configure the example project use the generated sdds.xml and change it to
+your needs.
 
 ```xml
 <project
@@ -114,13 +109,17 @@ To configure your example use the generated sdds.xml and change it to your needs
 </project>
 ```
 
-Once you're done configuring your example run 'generate.sh' to create the Makefile after that you can you 'make' and 'make clean' to build your example.
+Once you're done configuring your example run 'generate.sh' to create the
+Makefile after that you can you 'make' and 'make clean' to build your example.
 
-NOTE: The first time you're running 'generate.sh' it will download and install the code generator which will take some time!
+NOTE: The first time you're running 'generate.sh' it will download and install
+the code generator which will take some time!
 
 ### Code Generator
 
-The sDDS Code Generator is responsible for generating DDS topic and DDS participant dependent code. It uses [GSL/4.1](https://github.com/imatix/gsl) as code construction tool.
+The sDDS Code Generator is responsible for generating DDS topic and DDS
+participant dependent code. It uses [GSL/4.1](https://github.com/imatix/gsl) as
+code construction tool.
 
 The sDDS Code Generator has these primary goals:
 
@@ -189,6 +188,6 @@ The entry point is 'sdds.gsl':
 
 ## Style Guide
 
-sDDS uses [uCLASS] (https://zenon.cs.hs-rm.de/sdds/sdds/blob/master/style_guide.md) guild for code style.
+sDDS uses [uCLASS](https://zenon.cs.hs-rm.de/sdds/sdds/blob/master/style_guide.md) guild for code style.
 
 ### This Document

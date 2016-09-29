@@ -12,13 +12,13 @@
 *  <a href="#toc3-38">Getting started</a>
 *  <a href="#toc3-53">Configuration</a>
 &emsp;<a href="#toc4-56">Topics</a>
-&emsp;<a href="#toc4-74">Example</a>
-*  <a href="#toc3-127">Code Generator</a>
-&emsp;<a href="#toc4-146">Generate an app stub</a>
-&emsp;<a href="#toc4-166">Generate example app</a>
+&emsp;<a href="#toc4-122">Projects</a>
+*  <a href="#toc3-178">Code Generator</a>
+&emsp;<a href="#toc4-199">Generate an app stub</a>
+&emsp;<a href="#toc4-219">Generate example app</a>
 
-**<a href="#toc2-199">Style Guide</a>**
-*  <a href="#toc3-204">This Document</a>
+**<a href="#toc2-252">Style Guide</a>**
+*  <a href="#toc3-257">This Document</a>
 
 <A name="toc2-24" title="Overview" />
 ## Overview
@@ -55,25 +55,74 @@ Then run the 'example/generate_examples.sh' to create the stub for your app.
 <A name="toc4-56" title="Topics" />
 #### Topics
 
-Topics are configured in a xml file. By convention these files are placed into 'example/topics' to avoid topic duplication and copy\&paste madness.
+Topics are grouped by profiles and are configured in a xml file. By convention
+these files are placed into 'example/topics' to avoid topic and profile
+duplication as well as copy\&paste madness. The following example is taken from
+`sdds/example/topics/alphabet.xml`:
 
 ```xml
-<domain id = "1">
-    <topic name = "test1" domain = "1" id = "0">
-        Test1 topic
-        <attribute name = "val1" type = "DDS_char">My example value 1</attribute>
+<profile name = "alphabet">
+
+    <topic name = "alpha" domain = "1" id = "A">
+        Alpha messung topic.
+        <attribute name = "value" type = "DDS_char">Any char value</attribute>
+        <attribute name = "variant" type = "variant"></attribute>
+        <attribute name = "parent" type = "parent"></attribute>
+        <attribute name = "child" type = "child"></attribute>
     </topic>
-    <topic name = "test2" domain = "1" id = "1">
-        Test2 topic
-        <attribute name = "val2" type = "DDS_char">My example value 2</attribute>
+
+    <topic name = "beta" domain = "1" id = "B">
+        Beta messung topic.
+        <attribute name = "value" type = "DDS_char">Any char value</attribute>
     </topic>
-</domain>
+
+    <topic name = "gamma" domain = "1" id = "C">
+        Gamma messung topic.
+        <attribute name = "value" type = "DDS_char">Any char value</attribute>
+    </topic>
+
+    <topic name = "delta" domain = "1" id = "D">
+        Delta messung topic.
+        <attribute name = "value" type = "DDS_char">Any char value</attribute>
+    </topic>
+
+    <!-- Enums have a mandatory name and a optional namespace. You can have as
+         many literals as an uint64 can hold. -->
+    <enum name = "variant" namespace = "greek">
+        Letter variants can be upper or lower case.
+        <literal name = "upper" />
+        <literal name = "lower" />
+    </enum>
+
+    <enum name = "parent" namespace = "greek">
+        Parent systems of the greek alphabet
+        <literal name = "egyptian" />
+        <literal name = "proto sinaitic" />
+        <literal name = "phoenician" />
+    </enum>
+
+    <!-- Enums can be further customized by assigning a unsigned integer. The
+         largest value determines the data type (uint8 - uint64). -->
+    <enum name = "child" namespace = "greek">
+        Child systems of the greek alphabet
+        <literal name = "coptic" value = "200" />
+        <literal name = "gothic" value = "350" />
+        <literal name = "glagolitic" value = "862" />
+        <literal name = "cyrillic" value = "940" />
+        <literal name = "armenian" value = "405" />
+        <literal name = "old italic" value = "1000" />
+        <literal name = "latin" value = "100" />
+        <literal name = "georgian" value = "430" />
+    </enum>
+</profile>
+
 ```
 
-<A name="toc4-74" title="Example" />
-#### Example
+<A name="toc4-122" title="Projects" />
+#### Projects
 
-To configure your example use the generated sdds.xml and change it to your needs.
+To configure the example project use the generated sdds.xml and change it to
+your needs.
 
 ```xml
 <project
@@ -119,14 +168,18 @@ To configure your example use the generated sdds.xml and change it to your needs
 </project>
 ```
 
-Once you're done configuring your example run 'generate.sh' to create the Makefile after that you can you 'make' and 'make clean' to build your example.
+Once you're done configuring your example run 'generate.sh' to create the
+Makefile after that you can you 'make' and 'make clean' to build your example.
 
-NOTE: The first time you're running 'generate.sh' it will download and install the code generator which will take some time!
+NOTE: The first time you're running 'generate.sh' it will download and install
+the code generator which will take some time!
 
-<A name="toc3-127" title="Code Generator" />
+<A name="toc3-178" title="Code Generator" />
 ### Code Generator
 
-The sDDS Code Generator is responsible for generating DDS topic and DDS participant dependent code. It uses [GSL/4.1](https://github.com/imatix/gsl) as code construction tool.
+The sDDS Code Generator is responsible for generating DDS topic and DDS
+participant dependent code. It uses [GSL/4.1](https://github.com/imatix/gsl) as
+code construction tool.
 
 The sDDS Code Generator has these primary goals:
 
@@ -142,7 +195,7 @@ Makefile generation is currently supported for:
 
 The code generator is split into two distinct generation processes:
 
-<A name="toc4-146" title="Generate an app stub" />
+<A name="toc4-199" title="Generate an app stub" />
 #### Generate an app stub
 
 <center>
@@ -151,7 +204,7 @@ The code generator is split into two distinct generation processes:
 
 This is done by 'sdds_examples.gsl'.
 
-<A name="toc4-166" title="Generate example app" />
+<A name="toc4-219" title="Generate example app" />
 #### Generate example app
 
 The entry point is 'sdds.gsl':
@@ -166,12 +219,12 @@ The entry point is 'sdds.gsl':
 * sdds_make\_<OS>.gsl - Generates the Makefiles for the different operating systems
 * sdds_skeleton - Generates a skeleton for new examples dependent on topics and roles
 
-<A name="toc2-199" title="Style Guide" />
+<A name="toc2-252" title="Style Guide" />
 ## Style Guide
 
-sDDS uses [uCLASS] (https://zenon.cs.hs-rm.de/sdds/sdds/blob/master/style_guide.md) guild for code style.
+sDDS uses [uCLASS](https://zenon.cs.hs-rm.de/sdds/sdds/blob/master/style_guide.md) guild for code style.
 
-<A name="toc3-204" title="This Document" />
+<A name="toc3-257" title="This Document" />
 ### This Document
 
-_This documentation was generated using [Gitdown](https://github.com/zeromq/gitdown)_
+_This documentation was generated from sdds/README.txt using [Gitdown](https://github.com/zeromq/gitdown)_
