@@ -7,38 +7,92 @@
 .#  This script will generate the following files:
 .#      * $(project.name).c
 .#  ===========================================================================
+
 .template 0
 project.lorem_ipsum = "\
 Es gibt im Moment in diese Mannschaft, oh, einige Spieler vergessen ihnen Profi was sie sind. Ich lese nicht sehr viele Zeitungen, aber ich habe gehört viele Situationen. Erstens: wir haben nicht offensiv gespielt. Es gibt keine deutsche Mannschaft spielt offensiv und die Name offensiv wie Bayern. Letzte Spiel hatten wir in Platz drei Spitzen: Elber, Jancka und dann Zickler. Wir müssen nicht vergessen Zickler. Zickler ist eine Spitzen mehr, Mehmet eh mehr Basler. Ist klar diese Wörter, ist möglich verstehen, was ich hab gesagt? Danke. Offensiv, offensiv ist wie machen wir in Platz. Zweitens: ich habe erklärt mit diese zwei Spieler: nach Dortmund brauchen vielleicht Halbzeit Pause. Ich habe auch andere Mannschaften gesehen in Europa nach diese Mittwoch. Ich habe gesehen auch zwei Tage die Training. Ein Trainer ist nicht ein Idiot! Ein Trainer sei sehen was passieren in Platz. In diese Spiel es waren zwei, drei diese Spieler waren schwach wie eine Flasche leer! Haben Sie gesehen Mittwoch"
 .endtemplate
-.if !file.exists ("$(project.name:c).c")
-.   output "$(project.name:c).c"
-.   if project.os = "contiki"
+
+.macro contiki_header(project)
 #include "contiki.h"
-#include "$(project.name:c)_sdds_impl.h"
+#include "$(my.project.name:c)_sdds_impl.h"
 
-PROCESS($(project.name:c), "$(string.trim (project.?""):left)");
-AUTOSTART_PROCESSES(&$(project.name:c));
+PROCESS($(my.project.name:c), "$(string.trim (my.project.?""):left)");
+AUTOSTART_PROCESSES(&$(my.project.name:c));
 
-PROCESS_THREAD($(project.name:c), ev, data)
+PROCESS_THREAD($(my.project.name:c), ev, data)
 {
 	static struct etimer g_wait_timer;
 
 	PROCESS_BEGIN();
+    
+.endmacro
 
-.   elsif project.os = "linux"
+.macro contiki_footer(project)
+		etimer_set(&g_wait_timer, 10 * CLOCK_SECOND);
+		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer));
+    }
+
+    PROCESS_END();
+}
+
+.endmacro
+
+.macro linux_header(project)
 #include <unistd.h>
-#include "$(project.name:c)_sdds_impl.h"
+#include "$(my.project.name:c)_sdds_impl.h"
 
 int main()
 {
-.   endif
-	DDS_ReturnCode_t ret;
+.endmacro
 
-	if (sDDS_init() == SDDS_RT_FAIL) {
-		return 1;
+.macro linux_footer(project)
+        sleep (1);
+    }
+
+    return 0;
+}
+.endmacro
+
+.macro riot_header(project)
+#include <pthread.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include "$(my.project.name:c)_sdds_impl.h"
+#include "xtimer.h"
+#include "thread.h"
+
+int main(void);
+
+int main(void)
+{
+.endmacro
+
+.macro riot_footer(project)
+
+		xtimer_usleep(2 *SEC_IN_USEC);
 	}
-	Log_setLvl(6);  // Disable logs, set to 0 for to see everything.
+}
+
+.endmacro
+
+
+.if !file.exists ("$(project.name:c).c")
+.   output "$(project.name:c).c"
+.   if project.os = "contiki"
+.       contiki_header(project)
+.   elsif project.os = "linux"
+.       linux_header(project)
+.   elsif project.os = "riot"
+.       riot_header(project)
+.   endif
+    DDS_ReturnCode_t ret;
+
+    if (sDDS_init() == SDDS_RT_FAIL) {
+        return 1;
+    }
+    Log_setLvl(6);  // Disable logs, set to 0 for to see everything.
 
 .       for project.role
 .           for project.topic where role.topic = topic.name
@@ -107,18 +161,11 @@ int main()
 .       endfor
 .   endfor
 .   if project.os = "contiki"
-		etimer_set(&g_wait_timer, 10 * CLOCK_SECOND);
-		PROCESS_YIELD_UNTIL(etimer_expired(&g_wait_timer));
-    }
-
-    PROCESS_END();
-}
+.       contiki_footer(project)
 .   elsif project.os = "linux"
-        sleep (1);
-    }
-
-    return 0;
-}
+.       linux_footer(project)
+.   elsif project.os = "riot"
+.       riot_footer(project)
 .   endif
 .   close
 .endif
