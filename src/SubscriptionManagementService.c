@@ -71,7 +71,7 @@ static void
 s_pauseSubscription() {
     List_t* edges = s_subscriptionManager.subscriptionGraph.edges;
     DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);
-//    printf("Update paused subscriptions\n");
+    Log_debug("Update paused subscriptions\n");
     while (edge != NULL) {
         if (edge->state == PAUSED) {
             rc_t ret = SubscriptionManager_publishSubscriptionState(edge);

@@ -4,7 +4,7 @@
     endian = "little"
     os = "linux"
     protocol = "AF_INET6"
-    ip = "fe80::219:99ff:fede:9af6"
+    ip = "fe80::5054:ff:fe2c:8c28"
     iface = "eth0"
     port = "23234"
     >

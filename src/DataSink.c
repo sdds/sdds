@@ -35,11 +35,6 @@ struct _DataSink_t {
     FilteredDataReader_t filteredReaders[SDDS_DATA_FILTER_READER_MAX_OBJS];
 	uint64_t allocated_filteredReaders;
 #endif
-//    topicid_t iteratorTopicID;
-//    int8_t iteratorPos;
-//    int8_t iteratorNext;
-//    bool_t iteratorFiltered;
-
     SNPS_Address_t addr;
 };
 static DataSink_t _dataSink;
@@ -483,6 +478,22 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             on_data_avail_listener(data_reader);
         }
     }
+
+#   ifdef SDDS_DATA_FILTER_READER_MAX_OBJS
+    for (index = 0; index < SDDS_DATA_FILTER_READER_MAX_OBJS; index++) {
+        DataReader_t* data_reader = (DataReader_t*)&self->filteredReaders[index];
+        if (!data_reader || !data_reader->topic) {
+            continue;
+        }
+        int tpc = DataReader_topic(data_reader)->id;
+        if ((topic_id == tpc) && DataReader_on_data_avail_listener(data_reader)) {
+            On_Data_Avail_Listener on_data_avail_listener =
+                DataReader_on_data_avail_listener(data_reader);
+            //  Notify listener
+            on_data_avail_listener(data_reader);
+        }
+    }
+#   endif
 #endif
     return SDDS_RT_OK;
 }

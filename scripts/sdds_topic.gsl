@@ -352,8 +352,15 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
 {
 	rc_t ret = DataWriter_write((DataWriter_t *) _this, (Data)instance_data, (void*) handle);
 
-	if (ret == SDDS_RT_OK)
+    if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY_RIOT
+        fprintf(stderr,"{SCL:D}\\n");
+#endif
 		return DDS_RETCODE_OK;
+    }
+    else if (ret == SDDS_RT_NO_SUB) {
+	    return DDS_RETCODE_OK;
+    }
 
 	return DDS_RETCODE_ERROR;
 }

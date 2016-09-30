@@ -104,13 +104,13 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
 rc_t
 LocationFilteredTopic_evalSample(LocationFilteredTopic_t* self, Data data) {
     SSW_NodeID_t* device = (SSW_NodeID_t*) self->contentFilteredTopic.associatedTopic->Data_getSecondaryKey(data);
-    DeviceLocation_t* devLoc;
+    DeviceLocation_t devLoc;
     rc_t ret = BuiltInLocationUpdateService_getDeviceLocation(*device, &devLoc);
     if (ret != SDDS_RT_OK) {
         return SDDS_RT_OK;
     }
 
-    return LocationFilteredTopic_evalExpression(self, devLoc);
+    return LocationFilteredTopic_evalExpression(self, &devLoc);
 }
 
 rc_t
@@ -118,7 +118,7 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     assert(self);
     assert(devLoc);
 
-#ifdef SDDS_EVAL_LOCATION_FILTER
+#ifdef TEST_EVAL_LOCATION_FILTER
     time16_t start;
     Time_getTime16(&start);
     msec16_t duration;
@@ -126,7 +126,7 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     time16_t now;
     Time_getTime16(&now);
 
-    printf("filterEval: %d, %d\n", now, -duration);
+    printf("filterEval: %d, %d, %d\n", start, now, abs(duration));
 #endif
 
     while (self->filterstate.currentPosition < self->expressionLength) {
