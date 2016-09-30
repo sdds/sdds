@@ -32,6 +32,7 @@ rc_t
 SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, DeviceLocation_t* sample) {
     List_t* edges = self->subscriptionGraph.edges;
     DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);
+
     while (edge != NULL) {
         if (sample->device == edge->publisher->id) {
             SubscriptionState_t prevState = edge->state;
@@ -41,14 +42,19 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
                 ret = SubscriptionGraph_pauseSubscription(&self->subscriptionGraph, edge);
                 if (ret != SDDS_RT_OK) {
                     Log_error("Unable to pause subscription.\n");
+                    edge = (DirectedEdge_t*) edges->next_fn(edges);
+                    continue;
                 }
             }
             else {
                 ret = SubscriptionGraph_resumeSubscription(&self->subscriptionGraph, edge);
                 if (ret != SDDS_RT_OK) {
                     Log_error("Unable to resume subscription.\n");
+                    edge = (DirectedEdge_t*) edges->next_fn(edges);
+                    continue;
                 }
             }
+
             if (prevState != edge->state) {
 #ifndef SDDS_EVAL_SUBSCRIPTION_GRAPH
                 Log_info("set Subscription State: ");
@@ -70,11 +76,15 @@ SubscriptionManager_evalFilteredSubscription(SubscriptionManager_t* self, Device
                 ret = SubscriptionManager_publishSubscriptionState(edge);
                 if (ret != SDDS_RT_OK) {
                     Log_error("Unable to publish Subscription state.\n");
+                    edge = (DirectedEdge_t*) edges->next_fn(edges);
+                    continue;
                 }
             }
         }
         edge = (DirectedEdge_t*) edges->next_fn(edges);
     }
+
+    return SDDS_RT_OK;
 }
 
 rc_t
