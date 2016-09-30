@@ -48,7 +48,8 @@ ALL_OBJS += \$(SDDS_OBJDIR)/$(project.name).o
 SDDS_CONSTANTS_FILE := \
     sdds_features_config.h \
     sdds_features.h \
-    sdds_network.h
+    sdds_network.h \
+    sdds_profile.h
 
 include \$(SDDS_TOPDIR)/sdds.mk
 
