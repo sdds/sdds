@@ -267,13 +267,19 @@ SubscriptionManager_registerFilter(SubscriptionManager_t* self, SDDS_DCPSManagem
         return SDDS_RT_FAIL;
     }
     LocationFilteredTopic_t* locTopic = malloc(sizeof(LocationFilteredTopic_t));
-    assert(locTopic);
+    if (locTopic == NULL) {
+        Log_error("System out of memory!\n");
+        return SDDS_RT_FAIL;
+    }
+
     rc_t ret = LocationFilteredTopic_create(locTopic, topic, NULL, &g_geometryStore);
 
     Marshalling_dec_uint8(sample->mValue+size, &locTopic->expressionLength);
     size += sizeof(locTopic->expressionLength);
 
     Marshalling_dec_string(sample->mValue+size, locTopic->filterExpression, locTopic->expressionLength);
+
+    bool_t reg = false;
 
     List_t* edges = self->subscriptionGraph.edges;
     DirectedEdge_t* edge = (DirectedEdge_t*) edges->first_fn(edges);
@@ -287,10 +293,15 @@ SubscriptionManager_registerFilter(SubscriptionManager_t* self, SDDS_DCPSManagem
             if (ret == SDDS_RT_OK) {
 #ifndef SDDS_EVAL_SUBSCRIPTION_GRAPH
                 Log_info("Register Filter: %x\n", participantID);
+                reg = true;
 #endif
             }
         }
         edge = (DirectedEdge_t*) edges->next_fn(edges);
+    }
+
+    if (!reg) {
+        free(locTopic);
     }
 
     return SDDS_RT_OK;

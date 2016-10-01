@@ -119,14 +119,8 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     assert(devLoc);
 
 #ifdef TEST_EVAL_LOCATION_FILTER
-    time16_t start;
-    Time_getTime16(&start);
-    msec16_t duration;
-    Time_remainMSec16(start, &duration);
-    time16_t now;
-    Time_getTime16(&now);
-
-    printf("filterEval: %d, %d, %d\n", start, now, abs(duration));
+    time32_t start;
+    Time_getTime32(&start);
 #endif
 
     while (self->filterstate.currentPosition < self->expressionLength) {
@@ -152,6 +146,13 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
             return SDDS_RT_FAIL;
         }
     }
+
+#ifdef TEST_EVAL_LOCATION_FILTER
+    msec32_t duration;
+    Time_remainMSec32(start, &duration);
+
+    printf("filterEval: %u, %d\n", start, abs(duration));
+#endif
 
 
     if (self->filterstate.result) {

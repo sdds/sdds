@@ -105,6 +105,7 @@ SubscriptionGraph_createDirectedEdge(SubscriptionGraph_t *self) {
 
 rc_t
 SubscriptionGraph_freeDirectedEdge(SubscriptionGraph_t *self, DirectedEdge_t*edge) {
+    printf("\t%s %u\n", __FUNCTION__, __LINE__);
     List_t* nodes = self->nodes;
     ParticipantNode_t* node = nodes->first_fn(nodes);
     while (nodes != NULL) {
@@ -226,7 +227,6 @@ SubscriptionGraph_registerFilter(DirectedEdge_t* edge, LocationFilteredTopic_t* 
 
 rc_t
 SubscriptionGraph_cancelSubscription(SubscriptionGraph_t *self, DirectedEdge_t* edge) {
-
     return SubscriptionGraph_freeDirectedEdge(self, edge);
 }
 

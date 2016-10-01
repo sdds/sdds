@@ -469,7 +469,7 @@ Ellipse_within(Ellipse_t* self, Geometry_t* otherObject) {
     {
         bool_t ret = s_Square_within(self, (Square_t*)otherObject);
         if (ret) {
-#ifdef UTILS_LOCATION_DEBUG
+#ifdef UTILS_DEBUG_LOCATION
             Log_info("Ellipse([%u, %u, %u], %u, %u) WHITHIN Square([%u, %u, %u], %u, %u): TRUE\n",
                     self->basicShape.vertex.x,
                     self->basicShape.vertex.y,
@@ -598,8 +598,8 @@ Ellipse_overlaps(Ellipse_t* self, Geometry_t* otherObject) {
 
     case GEO_TYPE_SQUARE:
     {
-        bool_t ret = s_Square_overlaps(self, (Square_t*)otherObject) && !s_Square_within(self, (Square_t*)otherObject);
-#ifdef UTILS_LOCATION_DEBUG
+        bool_t ret = s_Square_overlaps(self, (Square_t*)otherObject); // && !s_Square_within(self, (Square_t*)otherObject);
+#ifdef UTILS_DEBUG_LOCATION
         if (ret) {
             Log_info("Ellipse([%u, %u, %u], %u, %u) OVERLAPS Square([%u, %u, %u], %u, %u): TRUE\n",
                     self->basicShape.vertex.x,

@@ -16,7 +16,7 @@
 
 #define SDDS_MANAGEMENT_TOPIC_ALL_PARTICIPANTS           0
 
-#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC         30
+#define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC         3
 
 #ifndef SDDS_SUBSCRIPTION_REACTIVATION_TIMER_USEC
 #define SDDS_SUBSCRIPTION_REACTIVATION_TIMER_USEC        0
@@ -171,8 +171,7 @@ s_key_setSubscriptionState(DDS_char* mValue) {
     }
 
     if (sub == NULL) {
-        Log_error("Subscription not found.\n");
-        return SDDS_RT_FAIL;
+        Log_debug("Subscription not found.\n");
     }
 
     return SDDS_RT_OK;
@@ -239,18 +238,20 @@ s_reactivateSubscription() {
         while (sub != NULL) {
             if (sub->state == PAUSED) {
                 msec16_t remainingMSec;
-                if (Time_remainMSec16(sub->updated, &remainingMSec) != SDDS_SSW_RT_OK) {
+                time16_t updated = sub->updated;
+                if (Time_remainMSec16(updated, &remainingMSec) != SDDS_SSW_RT_OK) {
                     Log_error("Unable to get remainig time.\n");
                 }
 
                 remainingMSec = abs(remainingMSec);
-                msec16_t deadline = ((SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC * 1000) + SDDS_SUBSCRIPTION_REACTIVATION_TIMER_USEC);
+                msec32_t deadline = ((SDDS_SUBSCRIPTION_REACTIVATION_TIMER_SEC * 1000) + SDDS_SUBSCRIPTION_REACTIVATION_TIMER_USEC);
                 if (remainingMSec >= deadline) {
+                    Log_info("remainingMSec (%d) >= deadline (%d)\n", remainingMSec, deadline);
                     sub->state = ACTIVE;
                     if (Time_getTime16(&sub->updated) != SDDS_SSW_RT_OK) {
                         Log_error("Unable to get time.\n");
                     }
-                    printf("Subscription auto resumed (%x): t:%d, %d, %u\n", sub->participant, topic->id, sub->state, sub->updated);
+                    printf("Subscription auto resumed (%x): t:%d, %d, %d\n", sub->participant, topic->id, sub->state, remainingMSec);
                 }
             }
             sub = subscriptions->next_fn(subscriptions);

@@ -81,7 +81,7 @@ Time_remainMSec32(time32_t refTime, msec32_t* remainingMSec) {
     if (ret != SDDS_RT_OK) {
         return ret;
     }
-
+    
    *remainingMSec = refTime - time;
    return SDDS_RT_OK;
 }
