@@ -11,6 +11,10 @@
 #include "os-ssal/LocationService.h"
 #include "string.h"
 
+#ifdef TEST_EVAL_LOCATION_FILTER_LINUX
+#include <sys/time.h>
+#endif
+
 #ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
 
 #define EXPR_FUNC_EQUALS_STR        "EQUALS"
