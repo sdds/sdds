@@ -124,6 +124,11 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     Time_getTime32(&start);
 #endif
 
+#ifdef TEST_EVAL_LOCATION_FILTER_LINUX
+    struct timeval start;
+    gettimeofday(&start, NULL);
+#endif
+
     while (self->filterstate.currentPosition < self->expressionLength) {
         rc_t ret;
         ret = s_readFunction(self);
@@ -153,6 +158,16 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     Time_remainMSec32(start, &duration);
 
     printf("filterEval: %u, %d\n", start, abs(duration));
+#endif
+
+#ifdef TEST_EVAL_LOCATION_FILTER_LINUX
+    struct timeval end;
+    gettimeofday(&end, NULL);
+    long start_usec = (start.tv_sec * 1000000 + start.tv_usec);
+    long end_usec = (end.tv_sec * 1000000 + end.tv_usec);
+    long duration = (end_usec - start_usec);
+
+    printf("filterEval: %ld, %ld, %ld\n", start_usec, end_usec, duration);
 #endif
 
 
