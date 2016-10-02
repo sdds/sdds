@@ -11,6 +11,10 @@
 #include "os-ssal/LocationService.h"
 #include "string.h"
 
+#ifdef TEST_EVAL_LOCATION_FILTER_RIOT
+#include "xtimer.h"
+#endif
+
 #ifdef TEST_EVAL_LOCATION_FILTER_LINUX
 #include <sys/time.h>
 #endif
@@ -123,9 +127,9 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     assert(self);
     assert(devLoc);
 
-#ifdef TEST_EVAL_LOCATION_FILTER
-    time32_t start;
-    Time_getTime32(&start);
+#ifdef TEST_EVAL_LOCATION_FILTER_RIOT
+    timex_t start;
+    xtimer_now_timex(&start);
 #endif
 
 #ifdef TEST_EVAL_LOCATION_FILTER_LINUX
@@ -157,11 +161,16 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
         }
     }
 
-#ifdef TEST_EVAL_LOCATION_FILTER
-    msec32_t duration;
-    Time_remainMSec32(start, &duration);
+#ifdef TEST_EVAL_LOCATION_FILTER_RIOT
+    timex_t end;
+    xtimer_now_timex(&end);
 
-    printf("filterEval: %u, %d\n", start, abs(duration));
+    long start_usec = (start.seconds * 1000000 + start.microseconds);
+    long end_usec = (end.seconds * 1000000 + end.microseconds);
+    long duration = (end_usec - start_usec);
+
+    printf("filterEval s,e,d (us): %ld.%ld, %ld.%ld, %ld\n", start.seconds, start.microseconds, end.seconds, end.microseconds, duration); 
+
 #endif
 
 #ifdef TEST_EVAL_LOCATION_FILTER_LINUX
@@ -171,7 +180,7 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     time_t end_usec = (end.tv_sec * 1000000 + end.tv_usec);
     time_t duration = (end_usec - start_usec);
 
-    printf("filterEval: %lu.%lu, %lu.%lu, %lu\n", start.tv_sec, start.tv_usec, end.tv_sec, end.tv_usec, duration); 
+    printf("filterEval s,e,d (us): %lu.%lu, %lu.%lu, %lu\n", start.tv_sec, start.tv_usec, end.tv_sec, end.tv_usec, duration); 
     fflush(stdout);
 #endif
 
