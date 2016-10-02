@@ -7,6 +7,7 @@
 
 #include "sDDS.h"
 #include "LocationFilteredTopic.h"
+#include "BuiltInLocationUpdateService.h"
 #include "os-ssal/LocationService.h"
 #include "string.h"
 
