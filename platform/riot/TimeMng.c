@@ -40,7 +40,7 @@ Time_getTime16(time16_t* time) {
     // seconds to milliseconds
     *time = (time16_t) now.seconds * 1000;
     // micorseconds to milliseconds
-    *time += (time16_t) (now.microseconds * 1000);
+    *time += (time16_t) (now.microseconds / 1000);
 
     return SDDS_RT_OK;
 }
@@ -68,7 +68,7 @@ Time_getTime32(time32_t* time) {
 	// seconds to milliseconds
     *time = (time32_t) now.seconds * 1000;
     // micorseconds to milliseconds
-    *time += (time32_t) (now.microseconds * 1000);
+    *time += (time32_t) (now.microseconds / 1000);
 
     return SDDS_RT_OK;
 }

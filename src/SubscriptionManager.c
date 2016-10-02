@@ -14,8 +14,9 @@
 
 #ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
 
-#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH
-time32_t start_time;
+#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH_RIOT
+#include "xtimer.h"
+timex_t start;
 #endif
 
 #ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH_LINUX
@@ -27,13 +28,6 @@ extern GeometryStore_t g_geometryStore;
 
 rc_t
 SubscriptionManager_init(SubscriptionManager_t* self) {
-#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH
-        Time_getTime32(&start_time);
-#endif
-
-#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH_LINUX
-gettimeofday(&start, NULL);
-#endif
     return SubscriptionGraph_init(&self->subscriptionGraph);
 }
 
@@ -114,6 +108,20 @@ SubscriptionManager_publishSubscriptionState(DirectedEdge_t* edge) {
 
 rc_t
 SubscriptionManager_handleParticipant(SubscriptionManager_t* self, SDDS_DCPSParticipant* sample) {
+#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH_RIOT
+    List_t* n = self->subscriptionGraph.nodes;
+    if (n->size_fn(n) == 0) {
+        xtimer_now_timex(&start);
+    }
+#endif
+
+#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH_LINUX
+    List_t* n = self->subscriptionGraph.nodes;
+    if (n->size_fn(n) == 0) {
+        gettimeofday(&start, NULL);
+    }
+#endif
+
     ParticipantNode_t* node = SubscriptionGraph_containsParticipantNode(&self->subscriptionGraph, sample->data.key);
     if (node == NULL) {
         ParticipantNode_t* node = SubscriptionGraph_createParticipantNode(&self->subscriptionGraph);
@@ -206,16 +214,16 @@ SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSub
                     
                     Log_info("New subscription: {%x --(%d)--> %x}\n", node->id, topic->id, sub->id);
 
-#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH
+#ifdef SDDS_EVAL_SUBSCRIPTION_GRAPH_RIOT
                     if (self->subscriptionGraph.edges->size_fn(self->subscriptionGraph.edges) == SDDS_EVAL_SUBSCRIPTION_GRAPH_MAX_EDGES) {
-                        msec32_t build_time;
-                        Time_remainMSec32(start_time, &build_time);
+                        timex_t end;
+                        xtimer_now_timex(&end);
 
-                        time32_t now;
-                        Time_getTime32(&now);
+			            long start_usec = (start.seconds * 1000000 + start.microseconds);
+   			            long end_usec = (end.seconds * 1000000 + end.microseconds);
+   			            long duration = (end_usec - start_usec);
     
-                        printf("Subscrption Graph Build (now, start, duration):\n");
-                        printf("%u, %u, %d\n", now, start_time, abs(build_time));
+			            printf("graphBuild s,e,d (us): %ld.%ld, %ld.%ld, %ld\n", start.seconds, start.microseconds, end.seconds, end.microseconds, duration);
                     }
 #endif
 
@@ -227,7 +235,7 @@ SubscriptionManager_handleSubscription(SubscriptionManager_t* self, SDDS_DCPSSub
    			time_t end_usec = (end.tv_sec * 1000000 + end.tv_usec);
    			time_t duration = (end_usec - start_usec);
     
-			printf("graphBuild (us): %lu.%lu, %lu.%lu, %lu\n", start.tv_sec, start.tv_usec, end.tv_sec, end.tv_usec, duration);
+			printf("graphBuild s,e,d (us): %lu.%lu, %lu.%lu, %lu\n", start.tv_sec, start.tv_usec, end.tv_sec, end.tv_usec, duration);
 			fflush(stdout);
 			exit(0);
                     }
