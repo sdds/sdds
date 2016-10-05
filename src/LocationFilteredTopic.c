@@ -11,7 +11,7 @@
 #include "os-ssal/LocationService.h"
 #include "string.h"
 
-#ifdef TEST_EVAL_LOCATION_FILTER_RIOT
+#if defined(TEST_EVAL_LOCATION_FILTER_RIOT) || defined(TEST_EVAL_LOCATION_SET_FILTER_RIOT)
 #include "xtimer.h"
 #endif
 
@@ -100,6 +100,11 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
     gettimeofday(&start, NULL);
 #endif
 
+#ifdef TEST_EVAL_LOCATION_SET_FILTER_RIOT
+    timex_t start;
+    xtimer_now_timex(&start);
+#endif
+
     memset(self->filterExpression, 0, SDDS_FILTER_EXPR_MAX_LEN);
     char word[EXPR_WORD_MAX_LEN];
     char* pos = filterExpression;
@@ -123,6 +128,19 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
     fflush(stdout);
     exit(0);
 #endif
+
+#ifdef TEST_EVAL_LOCATION_SET_FILTER_RIOT
+    timex_t end;
+    xtimer_now_timex(&end);
+
+    long start_usec = (start.seconds * 1000000 + start.microseconds);
+    long end_usec = (end.seconds * 1000000 + end.microseconds);
+    long duration = (end_usec - start_usec);
+
+    printf("setFilterEval s,e,d (us): %ld.%ld, %ld.%ld, %ld\n", start.seconds, start.microseconds, end.seconds, end.microseconds, duration); 
+    exit(0);
+#endif
+
     return SDDS_RT_OK;
 }
 
@@ -186,7 +204,6 @@ LocationFilteredTopic_evalExpression(LocationFilteredTopic_t* self, DeviceLocati
     long duration = (end_usec - start_usec);
 
     printf("filterEval s,e,d (us): %ld.%ld, %ld.%ld, %ld\n", start.seconds, start.microseconds, end.seconds, end.microseconds, duration); 
-
 #endif
 
 #ifdef TEST_EVAL_LOCATION_FILTER_LINUX
