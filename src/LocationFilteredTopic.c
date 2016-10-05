@@ -15,7 +15,7 @@
 #include "xtimer.h"
 #endif
 
-#ifdef TEST_EVAL_LOCATION_FILTER_LINUX
+#if defined(TEST_EVAL_LOCATION_FILTER_LINUX) || defined(TEST_EVAL_LOCATION_SET_FILTER_LINUX)
 #include <sys/time.h>
 #endif
 
@@ -95,6 +95,11 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
     assert(self);
     assert(filterExpression);
 
+#ifdef TEST_EVAL_LOCATION_SET_FILTER_LINUX
+    struct timeval start;
+    gettimeofday(&start, NULL);
+#endif
+
     memset(self->filterExpression, 0, SDDS_FILTER_EXPR_MAX_LEN);
     char word[EXPR_WORD_MAX_LEN];
     char* pos = filterExpression;
@@ -107,6 +112,17 @@ LocationFilteredTopic_setFilter(LocationFilteredTopic_t* self, char* filterExpre
         }
     } while (pos != NULL);
 
+#ifdef TEST_EVAL_LOCATION_SET_FILTER_LINUX
+    struct timeval end;
+    gettimeofday(&end, NULL);
+    time_t start_usec = (start.tv_sec * 1000000 + start.tv_usec);
+    time_t end_usec = (end.tv_sec * 1000000 + end.tv_usec);
+    time_t duration = (end_usec - start_usec);
+
+    printf("setFilterEval s,e,d (us): %lu.%lu, %lu.%lu, %lu\n", start.tv_sec, start.tv_usec, end.tv_sec, end.tv_usec, duration); 
+    fflush(stdout);
+    exit(0);
+#endif
     return SDDS_RT_OK;
 }
 
