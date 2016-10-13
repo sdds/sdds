@@ -69,6 +69,92 @@ endfunction
 .#  Resolve a topics DDS data types to C data types for encoding of data. Also
 .#  calculates the total size of a topic.
 .#
+function resolve_attribute_type (attribute)
+    my.attribute.description ?= "$(string.trim (my.attribute.?""):left)"
+    my.attribute.size ?= 1
+
+    my.attribute.enc_type ?= ""
+    my.attribute.print_type ?= ""
+    if my.attribute.type = "DDS_short"
+        my.attribute.enc_type = "int16"
+        my.attribute.print_type = "\"PRId16\""
+        my.attribute.size = 2
+    elsif my.attribute.type = "DDS_long"
+        my.attribute.enc_type = "int32"
+        my.attribute.print_type = "\"PRId32\""
+        my.attribute.size = 4
+    elsif my.attribute.type = "DDS_long_long"
+        my.attribute.enc_type = "int64"
+        my.attribute.print_type = "\"PRId64\""
+        my.attribute.size = 8
+    elsif my.attribute.type = "DDS_unsigned_short"
+        my.attribute.enc_type = "uint16"
+        my.attribute.print_type = "\"PRIu16\""
+        my.attribute.size = 2
+    elsif my.attribute.type = "DDS_unsigned_long"
+        my.attribute.enc_type = "uint32"
+        my.attribute.print_type = "\"PRIu32\""
+        my.attribute.size = 4
+    elsif my.attribute.type = "DDS_unsigned_long_long"
+        my.attribute.enc_type = "uint64"
+        my.attribute.print_type = "\"PRIu64\""
+        my.attribute.size = 8
+    elsif my.attribute.type = "DDS_char"
+        my.attribute.enc_type = "int8"
+        my.attribute.print_type = "c"
+    elsif my.attribute.type = "DDS_octet"
+        my.attribute.enc_type = "uint8"
+        my.attribute.print_type = "\"PRIu8\""
+    elsif my.attribute.type = "DDS_boolean"
+        my.attribute.enc_type = "bool"
+        my.attribute.print_type = "d"
+    elsif my.attribute.type = "DDS_string"
+        my.attribute.type = "DDS_char"
+        my.attribute.enc_type = "string"
+        my.attribute.print_type = "s"
+    else
+        hit = 0
+        # Check if type is an enum
+        for project.enum where my.attribute.type = enum.name
+            my.attribute.type = enum.c_name
+            my.attribute.enc_type = enum.enc_type
+            my.attribute.bits = enum.bits
+            my.attribute.print_type = enum.print_type
+            my.attribute.size = enum.size
+            hit = 1
+        endfor
+        # Check if type is a struct
+        for project.struct where my.attribute.type = struct.name
+            my.attribute.type = struct.c_name
+            my.attribute.enc_type = "struct"
+            my.attribute.size = struct.size
+            hit = 1
+        endfor
+        if hit = 0
+            echo "E: Invalid type '$(my.attribute.type)' for attribute '$(my.attribute.name)'"
+        endif
+    endif
+    return my.attribute.size
+endfunction
+
+.#
+.#  Resolve a structs DDS data types to C data types for encoding of data. Also
+.#  calculates the total size of the struct.
+.#
+function resolve_struct (struct)
+    for project.struct
+        my.struct.size = 0
+        for my.struct.attribute
+            my.struct.c_name = "$(string.substr (my.struct.name, 0, 0):upper)" + "$(string.substr (my.struct.name, 1):Camel)"
+            my.struct.size += resolve_attribute_type (attribute)
+        endfor
+    endfor
+endfunction
+
+.#
+.#  Resolve a topics DDS data types to C data types for encoding of data. Also
+.#  calculates the total size of a topic.
+.#
 function resolve_topic_type (topic)
     my.topic.size ?= 0
     my.topic.description ?= "$(string.trim (topic.?""):left)"
@@ -78,64 +164,7 @@ function resolve_topic_type (topic)
     my.topic.c_name = "$(string.substr (my.topic.name, 0, 0):upper)" + "$(string.substr (my.topic.name, 1):Camel)"
 
     for my.topic.attribute
-        attribute.description ?= "$(string.trim (attribute.?""):left)"
-        attribute.size ?= 1
-
-        attribute.enc_type ?= ""
-        attribute.print_type ?= ""
-        if attribute.type = "DDS_short"
-            attribute.enc_type = "int16"
-            attribute.print_type = "\"PRId16\""
-            attribute.size = 2
-        elsif attribute.type = "DDS_long"
-            attribute.enc_type = "int32"
-            attribute.print_type = "\"PRId32\""
-            attribute.size = 4
-        elsif attribute.type = "DDS_long_long"
-            attribute.enc_type = "int64"
-            attribute.print_type = "\"PRId64\""
-            attribute.size = 8
-        elsif attribute.type = "DDS_unsigned_short"
-            attribute.enc_type = "uint16"
-            attribute.print_type = "\"PRIu16\""
-            attribute.size = 2
-        elsif attribute.type = "DDS_unsigned_long"
-            attribute.enc_type = "uint32"
-            attribute.print_type = "\"PRIu32\""
-            attribute.size = 4
-        elsif attribute.type = "DDS_unsigned_long_long"
-            attribute.enc_type = "uint64"
-            attribute.print_type = "\"PRIu64\""
-            attribute.size = 8
-        elsif attribute.type = "DDS_char"
-            attribute.enc_type = "int8"
-            attribute.print_type = "c"
-        elsif attribute.type = "DDS_octet"
-            attribute.enc_type = "uint8"
-            attribute.print_type = "\"PRIu8\""
-        elsif attribute.type = "DDS_boolean"
-            attribute.enc_type = "bool"
-            attribute.print_type = "d"
-        elsif attribute.type = "DDS_string"
-            attribute.type = "DDS_char"
-            attribute.enc_type = "string"
-            attribute.print_type = "s"
-        else
-            hit = 0
-            # Check if type is an enums
-            for project.enum where attribute.type = enum.name
-                attribute.type = enum.c_name
-                attribute.enc_type = enum.enc_type
-                attribute.bits = enum.bits
-                attribute.print_type = enum.print_type
-                attribute.size = enum.size
-                hit = 1
-            endfor
-            if hit = 0
-                echo "E: Invalid type '$(attribute.type)' for attribute '$(attribute.name)' in topic $(topic.name:)"
-            endif
-        endif
-        my.topic.size += attribute.size
+        my.topic.size += resolve_attribute_type (attribute)
     endfor
 endfunction
 
@@ -197,6 +226,42 @@ function resolve_topic_config (topic)
     endfor
 endfunction
 
+function print_encode_attribute (attribute, parent)
+    if my.attribute.enc_type = "string"
+>    Marshalling_enc_$(my.attribute.enc_type)(start + *size, $(my.parent:)->$(my.attribute.name:c), $(my.attribute.size));
+    else
+        if defined (my.attribute.bits)
+>    $(my.attribute.enc_type)_t $(my.attribute.name:c)_tmp = $(my.parent:)->$(my.attribute.name:c);
+>    Marshalling_enc_$(my.attribute.enc_type)(start + *size, &$(my.attribute.name:c)_tmp);
+        else
+>    Marshalling_enc_$(my.attribute.enc_type)(start + *size, &$(my.parent:)->$(my.attribute.name:c));
+        endif
+    endif
+    if defined (my.attribute.bits)
+>    *size += $(my.attribute.size);
+    else
+>    *size += sizeof($(my.parent:)->$(my.attribute.name:c));
+    endif
+endfunction
+
+function print_decode_attribute (attribute, parent)
+    if my.attribute.enc_type = "string"
+>    Marshalling_dec_$(my.attribute.enc_type)(start + *size, $(my.parent:)->$(my.attribute.name:c), $(my.attribute.size));
+    else
+        if defined (my.attribute.bits)
+>    $(my.attribute.enc_type)_t $(my.attribute.name:c)_tmp;
+>    Marshalling_dec_$(my.attribute.enc_type)(start + *size, &$(my.attribute.name:c)_tmp);
+>    $(my.parent:)->$(my.attribute.name:c) = $(my.attribute.name:c)_tmp;
+        else
+>    Marshalling_dec_$(my.attribute.enc_type)(start + *size, &$(my.parent:)->$(my.attribute.name:c));
+        endif
+    endif
+    if defined (my.attribute.bits)
+>    *size += $(my.attribute.size);
+    else
+>    *size += sizeof($(my.parent:)->$(my.attribute.name:c));
+    endif
+endfunction
 
 project.qos_reliability_has_kind_besteffort ?= 0
 project.qos_reliability_has_kind_reliableAck ?= 0
@@ -208,8 +273,12 @@ project.qos_reliability_biggest_max_blocking_time ?= 0
 for project.enum
     resolve_enum_type (enum)
 endfor
+for project.struct
+    resolve_struct (struct)
+endfor
 for project.topic
     resolve_topic_type (topic)
+
     resolve_topic_config (topic)
 endfor
 
@@ -244,6 +313,28 @@ typedef $(enum.type:) $(enum.c_name:);
 .           endif
 .       literal_value += 1
 .       endfor
+
+.   endfor
+
+.   for struct
+struct $(struct.c_name:)
+{
+.       for struct.attribute
+    /* $(attribute.description:) */
+.           if attribute.enc_type = "string"
+    $(attribute.type:) $(attribute.name:c)[$(attribute.size + 1)];
+.           elsif defined (attribute.bits)
+.               if attribute.bits < 8
+    $(attribute.type:) $(attribute.name:c) : $(attribute.bits);
+.               else
+    $(attribute.type:) $(attribute.name:c);
+.               endif
+.           else
+    $(attribute.type:) $(attribute.name:c);
+.           endif
+.   endfor
+};
+typedef struct $(struct.c_name:) $(struct.c_name:);
 
 .   endfor
 #endif
@@ -514,22 +605,17 @@ rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, s
 	}
 
 .   for topic.attribute
-.       if attribute.enc_type = "string"
-    Marshalling_enc_$(attribute.enc_type)(start + *size, real_data->$(attribute.name:c), $(attribute.size));
+.       if attribute.enc_type = "struct"
+.           for project.struct where attribute.type = struct.c_name
+.               parent = "$(attribute.name:c)"
+    $(struct.c_name:)* $(attribute.name:c) = &real_data->$(attribute.name:c);
+.               for struct.attribute
+.                   print_encode_attribute (attribute, parent)
+.               endfor
+.           endfor
 .       else
-.           if defined (attribute.bits)
-    $(attribute.enc_type)_t $(attribute.name:c)_tmp = real_data->$(attribute.name:c);
-    Marshalling_enc_$(attribute.enc_type)(start + *size, &$(attribute.name:c)_tmp);
-.           else
-    Marshalling_enc_$(attribute.enc_type)(start + *size, &real_data->$(attribute.name:c));
-.           endif
+.           print_encode_attribute (attribute, "real_data")
 .       endif
-.       if defined (attribute.bits)
-    *size += $(attribute.size);
-.       else
-    *size += sizeof(real_data->$(attribute.name:c));
-.       endif
-
 .   endfor
 
 	return SDDS_RT_OK;
@@ -547,23 +633,17 @@ rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, s
 	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
 
 .   for topic.attribute
-.       if attribute.enc_type = "string"
-    Marshalling_dec_$(attribute.enc_type)(start + *size, real_data->$(attribute.name:c), $(attribute.size));
+.       if attribute.enc_type = "struct"
+.           for project.struct where attribute.type = struct.c_name
+.               parent = "$(attribute.name:c)"
+    $(struct.c_name:)* $(attribute.name:c) = &real_data->$(attribute.name:c);
+.               for struct.attribute
+.                   print_decode_attribute (attribute, parent)
+.               endfor
+.           endfor
 .       else
-.           if defined (attribute.bits)
-    $(attribute.enc_type)_t $(attribute.name:c)_tmp;
-    Marshalling_dec_$(attribute.enc_type)(start + *size, &$(attribute.name:c)_tmp);
-    real_data->$(attribute.name:c) = $(attribute.name:c)_tmp;
-.           else
-    Marshalling_dec_$(attribute.enc_type)(start + *size, &real_data->$(attribute.name:c));
-.           endif
+.           print_decode_attribute (attribute, "real_data")
 .       endif
-.       if defined (attribute.bits)
-    *size += $(attribute.size);
-.       else
-    *size += sizeof(real_data->$(attribute.name:c));
-.       endif
-
 .   endfor
 
 	return SDDS_RT_OK;
