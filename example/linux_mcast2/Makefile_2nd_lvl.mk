@@ -1,4 +1,4 @@
-SDDS_TOPDIR := ../..
+SDDS_TOPDIR := $(shell dirname $(shell dirname $(shell readlink generate.sh)))
 
 SDDS_OBJDIR := objs-linux
 TARGET := linux
@@ -29,6 +29,7 @@ CLEAN += $(IMPL_DEPEND_SRCS)
 CLEAN += $(ALL_OBJS)
 CLEAN += $(patsubst %.o,%.d,$(ALL_OBJS))
 CLEAN += $(SDDS_CONSTANTS_FILE)
+CLEAN += local_constants.h
 
 all:
 
@@ -39,8 +40,10 @@ $(LOCAL_CONSTANTS):
 	touch $(LOCAL_CONSTANTS)
 
 CFLAGS += -I.
-CFLAGS += -O0 -ggdb3 -Werror
-LDLIBS += -lpthread
+# required for timer_t (POSIX.1b (real-time extensions))
+# and getline
+CFLAGS += -g -D_POSIX_C_SOURCE=200809L
+LDLIBS += -lrt -lm
 
 $(SDDS_OBJDIR)/%.o: %.c
 	echo $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)

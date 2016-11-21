@@ -132,7 +132,7 @@ DataReader_s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
 #           endif
 
                     DataWriter_mutex_lock();
-                    Topic_addRemoteDataSink(topic, loc);
+                    Topic_addRemoteDataSink(topic, loc, 0, ACTIVE);
                     Locator_upRef(loc);
 
                     List_t* subscribers = topic->dsinks.list;

@@ -1,4 +1,5 @@
 #include "linux_publisher_sdds_impl.h"
+#include <unistd.h>
 
 int main()
 {

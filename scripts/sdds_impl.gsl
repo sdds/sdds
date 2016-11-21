@@ -235,7 +235,7 @@ sDDS_init (void)
     if (ret != SDDS_RT_OK)
         return ret;
 
-    ret = Topic_addRemoteDataSink (g_$(topic.c_name:)_topic, locator);
+    ret = Topic_addRemoteDataSink (g_$(topic.c_name:)_topic, locator, 0, ACTIVE);
     if (ret != SDDS_RT_OK)
         return ret;
 

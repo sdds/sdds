@@ -301,7 +301,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             Reliable_DataWriter_t* dw_reliable_p = DataSource_DataWriter_by_topic(topic_id);
 
             DataWriter_mutex_lock();
-            Topic_addRemoteDataSink(topic, loc);
+            Topic_addRemoteDataSink(topic, loc, 0, ACTIVE);
             Locator_upRef(loc);
 
             for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++){
@@ -374,7 +374,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             Reliable_DataWriter_t* dw_reliable_p = DataSource_DataWriter_by_topic(topic_id);
 
             DataWriter_mutex_lock();
-            Topic_addRemoteDataSink(topic, loc);
+            Topic_addRemoteDataSink(topic, loc, 0, ACTIVE);
             Locator_upRef(loc);
 
             if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL){
