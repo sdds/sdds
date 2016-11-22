@@ -92,6 +92,9 @@ SNPS_evalSubMsg(NetBuffRef_t* ref, subMsg_t* type) {
     case (SDDS_SNPS_EXTSUBMSG_SEQNRHUGE):
         *type = SDDS_SNPS_T_SEQNRHUGE;
         break;
+    case (SDDS_SNPS_EXTSUBMSG_TOPIC):
+        *type = SDDS_SNPS_T_TOPIC;
+        break;
     case (SDDS_SNPS_EXTSUBMSG_FRAG):
         *type = SDDS_SNPS_T_FRAG;
         break;
