@@ -3,11 +3,6 @@
 #include "contiki-net.h"
 #include "net/ipv6/multicast/uip-mcast6.h"
 
-#include "Network.h"
-#include "BuiltinTopic.h"
-#include "Log.h"
-#include "Discovery.h"
-
 #include "mywrite_sdds_impl.h"
 
 #include <string.h>

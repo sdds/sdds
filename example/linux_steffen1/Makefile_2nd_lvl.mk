@@ -15,7 +15,20 @@ SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 include $(SDDS_TOPDIR)/sdds.mk
 
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/beta-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/alpha-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilityhugereliablenack-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitybigreliablenack-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitysmallreliablenack-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitybasicreliablenack-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilityhugereliableack-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitybigreliableack-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitysmallreliableack-ds.o
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitybasicreliableack-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilityhugebesteffort-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitybigbesteffort-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitysmallbesteffort-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/testqosreliabilitybasicbesteffort-ds.o
 ALL_OBJS += $(DATA_DEPEND_OBJS)
 
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
@@ -43,7 +56,7 @@ CFLAGS += -I.
 # required for timer_t (POSIX.1b (real-time extensions))
 # and getline
 CFLAGS += -g -D_POSIX_C_SOURCE=200809L
-LDLIBS += -lrt
+LDLIBS += -lrt -lm
 
 $(SDDS_OBJDIR)/%.o: %.c
 	echo $(SDDS_OBJS) $(IMPL_DEPEND_OBJS) $(DATA_DEPEND_OBJS)

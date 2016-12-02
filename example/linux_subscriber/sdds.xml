@@ -6,6 +6,7 @@
     iface = "eth0"
     ip = "fe80::219:99ff:fede:9b09"
     port = "23234"
+    protocol = "AF_INET6"
     >
     Linux basic subscriber example
 

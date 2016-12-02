@@ -1,4 +1,5 @@
-CONTIKI = ../../../platform/contiki
+SDDS_TOPDIR := $(shell dirname $(shell dirname $(shell readlink generate.sh)))
+CONTIKI = $(SDDS_TOPDIR)/../platform/contiki
 BUILD = sensor_board
 TARGET_USE_DERFMEGA128 = 1
 UIP_CONF_RPL=0

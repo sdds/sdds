@@ -48,10 +48,10 @@
     <!--
         Configure discovery intervals
     -->
-    <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1"/>
-    <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "1"/>
-    <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "5"/>
-    <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0"/>
+    <define name = "SDDS_BUILTIN_TOPIC_PARTICIPANT_TIMER" value = "1"/>
+    <define name = "SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER" value = "5"/>
+    <define name = "SDDS_BUILTIN_TOPIC_TOPIC_TIMER" value = "0"/>
+    <define name = "SDDS_BUILTIN_TOPIC_LOCATION_TIMER" value = "5"/>
     <!--
         Configure default history depth
     -->
