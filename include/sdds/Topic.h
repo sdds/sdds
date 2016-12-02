@@ -81,7 +81,11 @@ struct _Topic_t {
 #   endif
 #endif
 
-};  /* ----------  end of struct Topic  ---------- */
+#if defined FEATURE_SDDS_SECURITY_ENABLED
+    uint8_t protection:1;
+#endif
+/* ----------  end of struct Topic  ---------- */
+};                              
 //typedef struct _Topic_t Topic_t;
 
 rc_t

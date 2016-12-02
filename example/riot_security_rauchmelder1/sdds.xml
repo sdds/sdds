@@ -1,0 +1,57 @@
+<project
+    name = "riot"
+    script = "sdds.gsl"
+    endian = "big"
+    os = "riot"
+    ip = "fd29:144d:4196:94::125"
+    port = "23234"
+  	protocol = "AF_INET6"
+    >
+    RIOT example, Alarm publisher.
+
+	<!--
+		fe80::dafc:93ff:feb9:e678	wlan0
+		fe80::12:13ff:fe14:1516		usb0
+		fe80::12:13ff:fe14:2323		usb1
+	-->
+
+    <!--
+        Includes are processed first, so XML in included files will be
+        part of the XML tree
+    -->
+	<define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
+	<define name = "SDDS_6LOWPAN_PANID" value = "0xbabe"/>
+	<!-- optinal setting -->
+	<define name = "TRANSPORT_6LOWPAN_SDDS_TXPOWER" value = "-17"/>
+	<define name = "SDDS_6LOWPAN_RPL_ENABLED" value = "1"/>
+	<define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
+	<define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "50"/>
+
+    <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
+    <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
+    <define name = "FEATURE_SDDS_SECURITY_ENABLED" />
+
+    <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10"/>
+    <define name = "SDDS_QOS_HISTORY_DEPTH" value = "2"/>
+    <define name = "SDDS_NET_MAX_BUF_SIZE" value = "250"/>
+
+    <define name = "SDDS_SECURITY_CA_PUBLIC_KEY_X" value = "&quot;a8e0531c98672b624d583a596592b4d627ca62b936a01ff7&quot;"/>
+    <define name = "SDDS_SECURITY_CA_PUBLIC_KEY_Y" value = "&quot;2bb348361e561863ea8abd8d3b0ea03a4a39a70835f08fde&quot;"/>
+
+    <define name = "SDDS_SECURITY_USER_ID" value = "&quot;user0003&quot;"/>
+    <define name = "SDDS_SECURITY_VERSION" value = "1"/>
+    <define name = "SDDS_SECURITY_TIMESTAMP" value = "0x58dcead5"/>
+    <define name = "SDDS_SECURITY_CIPHER_SUITE" value = "0"/>
+    <define name = "SDDS_SECURITY_USER_PUBLIC_KEY_X" value = "&quot;7a0f286416d0ce257bb2b1e70de70cc072dacdedd7512709&quot;"/>
+    <define name = "SDDS_SECURITY_USER_PUBLIC_KEY_Y" value = "&quot;e103d394da4de385ef875531b26d692403d6c874838c16c8&quot;"/>
+    <define name = "SDDS_SECURITY_USER_CERT_SIG_R" value = "&quot;aab813d1a655f97598a8c865cb642967e45523c507e6660d&quot;"/>
+    <define name = "SDDS_SECURITY_USER_CERT_SIG_S" value = "&quot;78e65c86f5e8823673c9b1db2f34e867b0a8b20449dee8a3&quot;"/>
+    <define name = "SDDS_SECURITY_USER_PRIVATE_KEY" value = "&quot;cef9b458fb442f6abdcc73767e754f616c37b52746c7b5b1&quot;"/>
+
+    <include filename = "../topics/alarm.xml" />
+
+	<role topic = "Alarm" type = "publisher">
+      <subscriber ip="fe80::5847:75f:55dd:9e86"/>
+	</role>	
+</project>
+

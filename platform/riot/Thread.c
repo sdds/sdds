@@ -51,7 +51,15 @@ Thread_run(Thread _this);
 ssw_rc_t
 Thread_stop(Thread _this);
 ssw_rc_t
-Thread_sleep(Thread _this, uint16_t usecSleep) {
+
+Thread_sleep(Thread _this, uint16_t secSleep) {
+    (void)_this;
+    xtimer_usleep(secSleep * SEC_IN_USEC);
+    return SDDS_RT_OK;
+}
+
+ssw_rc_t
+Thread_usleep(Thread _this, uint16_t usecSleep) {
     (void)_this;
     xtimer_usleep(usecSleep);
     return SDDS_RT_OK;
