@@ -337,13 +337,6 @@ _initMulticast(void)  {
 
 	// register mulicast addresses
 
-	rc = _addIPv6Address(SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS, &addr, true, false, false);
-    if (rc != SDDS_RT_OK) {
-        Log_error("Can't register SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS %s\n", SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS);
-        return rc;
-    }
-    Log_debug("Registerd multcast address %s\n", SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS);
-
 	rc = _addIPv6Address(SDDS_BUILTIN_MULTICAST_ADDRESS, &addr, true, false, false);
     if (rc != SDDS_RT_OK) {
         Log_error("Can't register SDDS_BUILTIN_MULTICAST_ADDRESS %s\n", SDDS_BUILTIN_MULTICAST_ADDRESS);
@@ -380,7 +373,6 @@ _initMulticast(void)  {
     }
     Log_debug("Registerd multcast address %s\n", SDDS_BUILTIN_LOCATION_ADDRESS);
 #endif
-
 
     NetBuffRef_init(&multiInBuff);
 	// create receive thread

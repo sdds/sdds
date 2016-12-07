@@ -101,9 +101,6 @@ SNPS_evalSubMsg(NetBuffRef_t* ref, subMsg_t* type) {
     case (SDDS_SNPS_EXTSUBMSG_FRAGNACK):
         *type = SDDS_SNPS_T_FRAGNACK;
         break;
-    case (SDDS_SNPS_EXTSUBMSG_SECURE):
-        *type = SDDS_SNPS_T_SECURE;
-        break;
     case (SDDS_SNPS_EXTSUBMSG_EXTENDED):
         // read the next byte etc
         // TODO
@@ -196,9 +193,6 @@ SNPS_discardSubMsg(NetBuffRef_t* ref) {
         break;
     case (SDDS_SNPS_EXTSUBMSG_FRAG):
     case (SDDS_SNPS_EXTSUBMSG_FRAGNACK):
-        return SDDS_RT_FAIL;
-        break;
-    case (SDDS_SNPS_EXTSUBMSG_SECURE):
         return SDDS_RT_FAIL;
         break;
     case (SDDS_SNPS_EXTSUBMSG_EXTENDED):
@@ -451,64 +445,6 @@ SNPS_writeData(NetBuffRef_t* ref, TopicMarshalling_encode_fn encode_fn, Data d) 
     return SDDS_RT_OK;
 }
 
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
-//  -----------------------------------------------------------------------------
-//  Writes the given Data in the given NetBuffRef_t*. Uses the given
-//  TopicMarshalling_encode_fn to encode the (extended)data in the message
-//  and encrypts the buffer using DDS_Security_CryptoTransform_encode_serialized_data
-//  Returns SDDS_RT_OK on success.
-
-rc_t
-SNPS_writeSecureData(NetBuffRef_t* ref, Topic_t* topic, Data d) {
-
-  size_t writtenBytes = 0;
-  OctetSeq encoded_buffer;
-  OctetSeq plain_buffer;
-  DatawriterCryptoHandle *sending_datawriter_crypto;
-  SecurityException ex;
-
-  // start 1 byte later, the header have to be written if the size is known
-  if (topic->Data_encode(ref, d, &writtenBytes) != SDDS_RT_OK) {
-      return SDDS_RT_FAIL;
-  }
-  Log_debug("written bytes: %d\n", writtenBytes);  
-  plain_buffer.len = writtenBytes;
-  plain_buffer.data = START + 2;
-  
-  encoded_buffer.len = SDDS_SECURITY_IV_SIZE + plain_buffer.len + XCBC_MAC_SIZE;
-  encoded_buffer.data = Memory_alloc(encoded_buffer.len);
-
-  if((sending_datawriter_crypto = Security_lookup_key(topic->id)) == NULL) {
-    Log_error("can't find key for topic %d\n", topic->id);
-  }
-
-  if(!DDS_Security_CryptoTransform_encode_serialized_data(
-	    &encoded_buffer, 
-	    &plain_buffer, 
-	    sending_datawriter_crypto,
-	    &ex)
-  ) {
-    Log_error("encode failed\n");
-    return SDDS_RT_FAIL;
-  }
-
-//  Log_debug("sending encoded buffer: ");
-//  Security_print_key(encoded_buffer.data, encoded_buffer.len); 
-
-  Marshalling_enc_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, encoded_buffer.len);
- 
-  Memory_free(encoded_buffer.data);
-
-  // data header
-  ref->curPos += 2;
-  // data itself
-  ref->curPos += encoded_buffer.len;
-  ref->subMsgCount +=1;
-
-  return SDDS_RT_OK;
-}
-#endif
-
 //  -----------------------------------------------------------------------------
 //  Reads the data of the given NetBuffRef_t* and writes it in the given Data.
 //  Uses the given TopicMarshalling_decode_fn to decode the (extended)data.
@@ -529,69 +465,6 @@ SNPS_readData(NetBuffRef_t* ref, TopicMarshalling_decode_fn decode_fn, Data data
     ref->subMsgCount -= 1;
     return SDDS_RT_OK;
 }
-
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
-//  -----------------------------------------------------------------------------
-//  Reads the data of the given NetBuffRef_t* and writes it in the given Data.
-//  Uses the given TopicMarshalling_decode_fn to decode the (extended)data
-//  and decrypts the buffer using DDS_Security_CryptoTransform_decode_serialized_data
-//  Iterates to next submessage, returns SDDS_RT_OK on success.
-
-rc_t
-SNPS_readSecureData(NetBuffRef_t* ref, Topic_t* topic, Data data) {
-
-  size_t size = 0, data_size = 0;
-  OctetSeq encoded_buffer;
-  OctetSeq plain_buffer;
-  DatareaderCryptoHandle *receiving_datareader_crypto;
-  SecurityException ex;
-
-  Marshalling_dec_uint8(START + 1, (uint8_t *) &size);
-
-  plain_buffer.len = size - SDDS_SECURITY_IV_SIZE - XCBC_MAC_SIZE;
-  plain_buffer.data = Memory_alloc(plain_buffer.len);
-
-  encoded_buffer.len = size;
-  encoded_buffer.data = Memory_alloc(encoded_buffer.len);
-
-  Security_print_key(START, size);  
-  Marshalling_dec_ExtSubMsg(START, SDDS_SNPS_EXTSUBMSG_SECURE, encoded_buffer.data, size);
-  Log_debug("reading encoded buffer: ");
-  Security_print_key(encoded_buffer.data, encoded_buffer.len);  
-
-  if((receiving_datareader_crypto = Security_lookup_key(topic->id)) == NULL) {
-    Log_error("can't find key for topic %d\n", topic->id);
-    return SDDS_RT_FAIL;
-  }
-
-  if(!DDS_Security_CryptoTransform_decode_serialized_data(
-	    &plain_buffer, 
-	    &encoded_buffer, 
-	    receiving_datareader_crypto, 
-	    NULL, 
-	    &ex)
-  ) {
-    Log_error("decode failed\n");
-    return SDDS_RT_FAIL;
-  }
-  
-  Memory_free(encoded_buffer.data);
-
-  memcpy(START + 2, plain_buffer.data, plain_buffer.len);
-
-  Memory_free(plain_buffer.data);
-
-  ref->curPos += 2;
-
-  data_size = plain_buffer.len;
-  if (topic->Data_decode(ref, data, &data_size) != SDDS_RT_OK) {
-      return SDDS_RT_FAIL;
-  }
-  ref->curPos += size;
-  ref->subMsgCount -= 1;
-  return SDDS_RT_OK;
-}
-#endif 
 
 #if defined SDDS_HAS_QOS_RELIABILITY
 //  -----------------------------------------------------------------------------

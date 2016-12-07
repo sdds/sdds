@@ -4,8 +4,8 @@
     endian = "little"
     os = "linux"
     protocol = "AF_INET6"
-    ip = "fe80::dafc:93ff:feb9:e678"
-    iface = "wlp3s0"
+    ip = "fe80::219:99ff:fede:9af6"
+    iface = "eth0"
     port = "23234"
     >
     <!--
@@ -62,7 +62,7 @@
     <define name = "SDDS_QOS_HISTORY_DEPTH" value = "1"/>
     <!--
         Enable all debug messages
-    -->
     <define name = "UTILS_DEBUG"/>
+    -->
     
 </project>

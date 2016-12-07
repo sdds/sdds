@@ -45,7 +45,6 @@ typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 #endif
 
 //  Abstraction
-#include "os-ssal/Random.h"
 #include "os-ssal/Task.h"
 #include "os-ssal/Trace.h"
 #include "os-ssal/Thread.h"
@@ -110,9 +109,6 @@ typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 #include "SubscriptionManagementService.h"
 #endif
 
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
-#include "Security.h"
-#endif
 #include "Management.h"
 
 #endif   /* ----- #ifndef SDDS_H_INC  ----- */

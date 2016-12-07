@@ -191,18 +191,8 @@ sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
     }
 #endif //  End of SDDS_HAS_QOS_RELIABILITY
 
-    ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
-    rc_t ret;
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
-    if(topic->protection) {
-      ret = SNPS_readSecureData(buff, topic, (Data) self->samples[self->in_needle].data);
-    } else {
-      ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
-    }
-#else 
-    ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
-#endif
 
+    ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
     if (ret == SDDS_RT_FAIL) {
         Mutex_unlock(mutex);
         return ret;

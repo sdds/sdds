@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-int usleep(useconds_t usec);
+
 
 Thread
 Thread_create() {
@@ -68,4 +68,3 @@ Thread_yield(void) {
     // TODO
     return SDDS_RT_OK;
 }
-
