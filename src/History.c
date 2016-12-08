@@ -424,7 +424,7 @@ sdds_History_print(History_t* self) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
     printf("    samples:\n");
     for (int i=0; i<self->in_needle; i++){
-        printf("        instance: %d, seqNr: %d,\n", self->samples[i].instance, self->samples[i].seqNr);
+        printf("        instance: %p, seqNr: %d,\n", self->samples[i].instance, self->samples[i].seqNr);
     }
 #endif
     printf("}\n");

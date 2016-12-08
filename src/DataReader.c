@@ -94,7 +94,7 @@ DataReader_s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
     rc_t ret;
 
 #   ifdef SDDS_HAS_QOS_RELIABILITY
-    ret = sdds_History_enqueue(history, topic, &topic->incomingSample, topic->incomingSample.seqNr);
+    ret = sdds_History_enqueue(history, topic, &topic->incomingSample, buff, topic->incomingSample.seqNr);
     if (ret == SDDS_RT_FAIL) {
         Log_warn("Can't parse data: Discard submessage\n");
         SNPS_discardSubMsg(buff);
