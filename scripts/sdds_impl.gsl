@@ -285,10 +285,11 @@ sDDS_init (void)
 #endif
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 	assert(DiscoveryService_init() == SDDS_RT_OK);
+#endif
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
     assert(Security_init() == SDDS_RT_OK);
 
-#ifdef SDDS_SECURITY_KDC
+#   ifdef SDDS_SECURITY_KDC
 
   Security_kdc_init();
 .if count(project.access_control) > 0
@@ -300,7 +301,7 @@ sDDS_init (void)
 .  endfor
 .endfor
 .endif
-#endif
+#   endif
 #endif
 
     return ret;

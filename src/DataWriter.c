@@ -27,7 +27,7 @@ void
 checkSendingWrapper(void* buf);
 
 rc_t
-DataWriter_init () {
+DataWriter_init() {
     if (TimeMng_init() != SDDS_RT_OK) {
         return SDDS_RT_FAIL;
     }
@@ -89,13 +89,13 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
     assert (self);
     (void) handle;
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-#   if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
-#       ifdef FEATURE_SDDS_TRACING_CALL_WRITE
+#   ifdef FEATURE_SDDS_TRACING_ENABLED
+#       if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
+#           ifdef FEATURE_SDDS_TRACING_CALL_WRITE
     Trace_point(SDDS_TRACE_EVENT_CALL_WRITE);
+#           endif
 #       endif
 #   endif
-#endif
 
     Mutex_lock(mutex);
     Topic_t* topic = self->topic;
@@ -114,27 +114,27 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     }
     rc_t ret;
 
-#ifdef SDDS_QOS_LATENCYBUDGET
+#   ifdef SDDS_QOS_LATENCYBUDGET
     //  If new deadline is earlier
     if ((out_buffer->sendDeadline == 0)) {
-#   if SDDS_QOS_DW_LATBUD < 65536
+#       if SDDS_QOS_DW_LATBUD < 65536
         ret = Time_getTime16(&out_buffer->sendDeadline);
-#   else
+#       else
         ret = Time_getTime32(&out_buffer->sendDeadline);
-#   endif
+#       endif
         out_buffer->sendDeadline += self->qos.latBudDuration;
         out_buffer->latBudDuration = self->qos.latBudDuration;
         Log_debug("sendDeadline: %u\n", out_buffer->sendDeadline);
     }
-#endif
+#   endif
 
-#ifdef FEATURE_SDDS_TRACING_ENABLED
-#   if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
-#       ifdef FEATURE_SDDS_TRACING_PREPARE_SNPS
+#   ifdef FEATURE_SDDS_TRACING_ENABLED
+#       if defined (FEATURE_SDDS_TRACING_SEND_NORMAL) || defined (FEATURE_SDDS_TRACING_SEND_ISOLATED)
+#           ifdef FEATURE_SDDS_TRACING_PREPARE_SNPS
     Trace_point(SDDS_TRACE_EVENT_PREPARE_SNPS);
+#           endif
 #       endif
 #   endif
-#endif
 
     domainid_t domain = topic->domain;
     if (out_buffer->curDomain != domain) {
@@ -147,7 +147,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         out_buffer->curTopic = topic;
     }
 
-#ifdef SDDS_HAS_QOS_RELIABILITY
+#   ifdef SDDS_HAS_QOS_RELIABILITY
 
     if (self->topic->reliabilityKind > 0){ // relevant topic for qos reliability
 
@@ -155,7 +155,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
         bool_t newSampleHasSlot = 0;
 
 
-#   if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
+#       if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
         if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_RELIABLE) { // relevant topic has qos reliability_reliable
 
             // check, if sample is already in acknowledgement-list
@@ -192,7 +192,7 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
             }
 
 
-#      if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK)
+#           if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK)
             if (self->topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK) {
             // send every sample which is not yet acknowledged
                 for (int index = 0; index < SDDS_QOS_RELIABILITY_RELIABLE_SAMPLES_SIZE; index++) {
@@ -201,41 +201,41 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
                         if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC) {
                             SNPS_writeSeqNr(out_buffer, dw_reliable_p->samplesToKeep[index].seqNr);
 
-#           if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
+#               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_SMALL
                         } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_SMALL) {
                             SNPS_writeSeqNrSmall(out_buffer, dw_reliable_p->samplesToKeep[index].seqNr);
-#           endif
-#           if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
+#               endif
+#               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE >= SDDS_QOS_RELIABILITY_SEQSIZE_BIG
                         } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BIG) {
                             SNPS_writeSeqNrBig(out_buffer, dw_reliable_p->samplesToKeep[index].seqNr);
-#           endif
-#           if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
+#               endif
+#               if SDDS_SEQNR_BIGGEST_TYPE_BITSIZE == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE
                         } else if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_HUGE) {
                             SNPS_writeSeqNrHUGE(out_buffer, dw_reliable_p->samplesToKeep[index].seqNr);
-#           endif
+#               endif
                         }
 
                         if (SNPS_writeData(out_buffer, topic->Data_encode, dw_reliable_p->samplesToKeep[index].data) != SDDS_RT_OK) {
                             Log_error("(%d) SNPS_writeData failed\n", __LINE__);
-#           ifdef SDDS_QOS_LATENCYBUDGET
+#               ifdef SDDS_QOS_LATENCYBUDGET
                             out_buffer->bufferOverflow = true;
-#           endif
+#               endif
                         }
 
                     }
                 } // end of for all samples in samplesToKeep
             } // end of confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK
-#       endif // end of ACK
+#           endif // end of ACK
 
         } // end of relevant topic has qos reliability_reliable
-#   endif // end of if SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || NACK
+#       endif // end of if SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK || NACK
 
-#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+#       ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
         if((self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_BESTEFFORT)
         || (self->topic->confirmationtype == SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_NACK && newSampleHasSlot) )
-#   else
+#       else
         if (self->topic->reliabilityKind == SDDS_QOS_RELIABILITY_KIND_BESTEFFORT)
-#   endif
+#       endif
         {
 
             if (topic->seqNrBitSize == SDDS_QOS_RELIABILITY_SEQSIZE_BASIC){
@@ -283,52 +283,52 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
 
     } // end of topic is relevant for reliability
 
-#endif // end if SDDS_HAS_QOS_RELIABILITY
+#   endif // end if SDDS_HAS_QOS_RELIABILITY
 
-#ifdef SDDS_HAS_QOS_RELIABILITY
-#   ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
+#   ifdef SDDS_HAS_QOS_RELIABILITY
+#       ifdef SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK
         if (self->topic->confirmationtype != SDDS_QOS_RELIABILITY_CONFIRMATIONTYPE_ACK)
-#   else
+#       else
         if (self->topic->reliabilityKind != SDDS_QOS_RELIABILITY_KIND_RELIABLE)
-#   endif
+#       endif
         {
-#endif
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
+#   endif
+#   ifdef FEATURE_SDDS_SECURITY_ENABLED
             if(topic->protection) {
               if (SNPS_writeSecureData(out_buffer, topic, data) != SDDS_RT_OK) {
               	Log_error("(%d) SNPS_writeSecureData failed\n", __LINE__);
               }      
             } else {
-#endif
+#   endif
               ret = SNPS_writeData(out_buffer, topic->Data_encode, data);
               if (ret != SDDS_RT_OK) {
                   Log_error("(%d) SNPS_writeData failed\n", __LINE__);
-#ifdef SDDS_QOS_LATENCYBUDGET
+#   ifdef SDDS_QOS_LATENCYBUDGET
                       if (ret == SDDS_RT_FAIL) {
                           out_buffer->bufferOverflow = true;
                       }
-#endif
+#   endif
               }
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
+#   ifdef FEATURE_SDDS_SECURITY_ENABLED
             }
-#endif
-#ifdef SDDS_HAS_QOS_RELIABILITY
+#   endif
+#   ifdef SDDS_HAS_QOS_RELIABILITY
         }
-#endif
+#   endif
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
     ret = checkSending(out_buffer);
 
-#ifdef TEST_SCALABILITY_LINUX
+#   ifdef TEST_SCALABILITY_LINUX
     if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
         scalability_msg_count = fopen(SCALABILITY_LOG, "a");
         fwrite("D", 1, 1, scalability_msg_count);
         fclose(scalability_msg_count);
     }
-#endif
+#   endif
 
-#ifdef TEST_SCALABILITY_RIOT
+#   ifdef TEST_SCALABILITY_RIOT
     if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
 //        fprintf(stderr,"{SCL:D}\n");
     }
@@ -341,8 +341,8 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     else {
         Log_debug("ret: %d\n", ret);
     }
-#endif
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
+#   endif
+#   ifdef FEATURE_SDDS_SECURITY_ENABLED
     if(topic->protection) {
       if (SNPS_writeSecureData(out_buffer, topic, data) != SDDS_RT_OK) {
       	Log_error("(%d) SNPS_writeSecureData failed\n", __LINE__);
@@ -350,27 +350,28 @@ DataWriter_write(DataWriter_t* self, Data data, void* handle) {
     } else {
       if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
       	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
-#   ifdef SDDS_QOS_LATENCYBUDGET
+#       ifdef SDDS_QOS_LATENCYBUDGET
       	out_buffer->bufferOverflow = true;
-#   endif
+#       endif
       }
     }
-#else 
+#   else 
     if (SNPS_writeData(out_buffer, topic->Data_encode, data) != SDDS_RT_OK) {
         // something went wrong oO
     	Log_error("(%d) SNPS_writeData failed\n", __LINE__);
-#   ifdef SDDS_QOS_LATENCYBUDGET
+#       ifdef SDDS_QOS_LATENCYBUDGET
     	out_buffer->bufferOverflow = true;
+#       endif
+	}
 #   endif
-#endif
-#ifdef TEST_MSG_COUNT_RIOT
+#   ifdef TEST_MSG_COUNT_RIOT
     if (ret != SDDS_RT_NO_SUB && ret != SDDS_RT_FAIL) {
         fprintf(stderr,"MSG_COUNT\n");
     }
     else if (ret == SDDS_RT_NO_SUB) {
         Log_debug("No Subscroption\n");
     }
-#endif
+#   endif
 
     Log_debug("writing to domain %d and topic %d \n", topic->domain, topic->id);
 
@@ -455,7 +456,7 @@ DataWriter_writeAddress(DataWriter_t* self,
 
     return SDDS_RT_OK;
 }
-#endif
+#endif //FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 
 void
 checkSendingWrapper(void* buf) {
@@ -543,7 +544,7 @@ checkSending(NetBuffRef_t* buf) {
         return SDDS_RT_DEFERRED;
     }
 }
-#else
+#else // ! SDDS_QOS_LATENCYBUDGET
 rc_t
 checkSending(NetBuffRef_t* buf) {
     // update header
@@ -569,4 +570,4 @@ checkSending(NetBuffRef_t* buf) {
 
     return ret;
 }
-#endif
+#endif //SDDS_QOS_LATENCYBUDGET

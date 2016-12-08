@@ -78,9 +78,9 @@ DataSink_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
            &&  DataReader_topic(&self->readers[index])->id == id) {
             if (st != NULL) {
                 st->key = DataReader_id(&self->readers[index]);
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+#   ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
                 st->participant_key = BuiltinTopic_participantID;
-#endif
+#   endif
                 st->topic_id = DataReader_topic(&self->readers[index])->id;
             }
             if (topic != NULL) {
@@ -131,7 +131,6 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #       endif
 #   endif
 #endif
-#endif
     //  Parse the header
     rc_t ret;
     ret = SNPS_readHeader(buff);
@@ -169,30 +168,6 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             Log_debug("Read topic %u\n", topic_id);
             checkTopic(buff, topic_id);
             break;
-        case (SDDS_SNPS_T_SECURE):
-#if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-            {
-                DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
-                if (data_reader == NULL) {
-                    Log_debug("Couĺdn't get Data Reader for topic id %d: "
-                              "Discard submessage\n", topic_id);
-                    SNPS_discardSubMsg(buff);
-                    return SDDS_RT_FAIL;
-                }
-                History_t* history = DataReader_history(data_reader);
-#ifdef SDDS_HAS_QOS_RELIABILITY
-                ret = sdds_History_enqueue_buffer(history, buff, seqNr);
-#else
-                ret = sdds_History_enqueue_buffer(history, buff);
-#endif
-                if (ret == SDDS_RT_FAIL) {
-                    Log_warn("Can't parse data: Discard submessage\n");
-                    SNPS_discardSubMsg(buff);
-                    return SDDS_RT_FAIL;
-                }
-            }
-#endif
-            break;
         case (SDDS_SNPS_T_ADDRESS):
             //  Write address into global variable
             if (SNPS_readAddress(buff, &self->addr.addrCast, &self->addr.addrType, &self->addr.addr) != SDDS_RT_OK) {
@@ -200,7 +175,8 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 SNPS_discardSubMsg(buff);
             }
             break;
-
+            
+        case (SDDS_SNPS_T_SECURE):
         case (SDDS_SNPS_T_DATA):
         {
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) || defined(FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED)

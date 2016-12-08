@@ -141,7 +141,6 @@ sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
 #       endif
 #   endif
 #endif
-#endif
 
     Locator_t* loc = sample->instance;
     Locator_upRef(loc);
@@ -194,17 +193,18 @@ sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
 
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
     if(topic->protection) {
+        // FIXME irgendwas hat sich geändert. Data muss nicht mehr decodiert werden?
       ret = SNPS_readSecureData(buff, topic, (Data) self->samples[self->in_needle].data);
     } else {
-      ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+     // ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+     ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
     }
 #else 
-    ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
-    // FIXME API hat sich geändert!
-    //ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
-#endif
-
+// FIXME API hat sich geändert!
+//    ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
     
+    ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
+#endif
 
     if (ret == SDDS_RT_FAIL) {
         Mutex_unlock(mutex);
