@@ -3,8 +3,8 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "usb0"
-    ip = "fe80::12:13ff:fe14:2323"
+    iface = "tap0"
+    ip = "fe80::c0ef:62ff:fed4:d26a"
     port = "23234"
     protocol = "AF_INET6"
     >

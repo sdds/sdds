@@ -3,8 +3,8 @@
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
-    iface = "eth0"
-    ip = "fe80::a00:27ff:fe23:cf9b" 
+    iface = "wlp3s0"
+    ip = "fe80::dafc:93ff:feb9:e678" 
     port = "23234"
     protocol = "AF_INET6"
     >
@@ -14,7 +14,8 @@
     <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
     <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
     <define name = "FEATURE_SDDS_SECURITY_ENABLED" />
-
+<!--
+-->
     <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "10"/>
     <define name = "SDDS_QOS_HISTORY_DEPTH" value = "3"/>
     <define name = "SDDS_NET_MAX_BUF_SIZE" value = "1024"/>
@@ -35,7 +36,7 @@
     <include filename = "../topics/alarm.xml" />
 
     <role topic = "Alarm" type = "publisher">
-      <subscriber ip="fe80::a00:27ff:fe90:fc89"/>
+      <subscriber ip="fe80::c0ef:62ff:fed4:d26a"/>
     </role>
 
 </project>

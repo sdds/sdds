@@ -169,8 +169,8 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             checkTopic(buff, topic_id);
             break;
 
-        case (SDDS_SNPS_T_DATA):
         case (SDDS_SNPS_T_SECURE):
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
             {
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
                 DataReader_t* data_reader = DataSink_DataReader_by_topic(topic_id);
@@ -337,7 +337,7 @@ DataSink_processFrame(NetBuffRef_t* buff) {
 #       endif // end of SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK/NACK
 #    else // else of: if SDDS_HAS_QOS_RELIABILITY
 
-                ret = sdds_History_enqueue(history, buff);
+                ret = sdds_History_enqueue(history, buff->curTopic, &buff->curTopic->incomingSample, buff);
                 if (ret == SDDS_RT_FAIL) {
                     Log_warn("Can't parse data: Discard submessage\n");
                     SNPS_discardSubMsg(buff);
@@ -345,7 +345,8 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 }
 #    endif // end of: if SDDS_HAS_QOS_RELIABILITY
 #endif // end of defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED)
-            } // end of case SDDS_SNPS_T_DATA
+            } // end of case SDDS_SNPS_T_SECURE
+#endif
             break;
 
         case (SDDS_SNPS_T_ADDRESS):

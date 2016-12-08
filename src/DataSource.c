@@ -113,7 +113,7 @@ DataSource_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
 }
 #endif
 
-#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
+#ifdef SDDS_TOPIC_HAS_SUB
 rc_t
 DataSource_getDataWrites(DDS_DCPSPublication* pt, int* len) {
     int index = 0;

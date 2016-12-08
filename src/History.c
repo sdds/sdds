@@ -122,12 +122,12 @@ s_History_contains(History_t* self,Topic_t* topic, Sample_t* sample, uint16_t* i
 //  this call will discard the oldest sample in case of RELIABILITY best effort
 //  and block in case of RELIABILITY reliable until samples are taken out. If
 //  the buffer is going to be enqueued it will be decoded.
-#ifdef SDDS_HAS_QOS_RELIABILITY
+#if defined(SDDS_HAS_QOS_RELIABILITY)
 rc_t
-sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
 #else
 rc_t
-sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
+sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, NetBuffRef_t* buff) {
 #endif
     assert(self);
     assert(topic);
@@ -157,7 +157,10 @@ sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
 #endif //  End of SDDS_HAS_QOS_RELIABILITY
 
     uint16_t index;
-    rc_t ret = s_History_contains(self, topic, sample, &index);
+    rc_t ret = SDDS_RT_FAIL;
+#ifdef FEATURE_SDDS_SECURITY_ENABLED 
+    ret = s_History_contains(self, topic, sample, &index);
+#endif
     if (ret == SDDS_RT_OK) {
         self->in_needle = index;
     } else {
@@ -191,8 +194,6 @@ sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
     }
 #endif //  End of SDDS_HAS_QOS_RELIABILITY
 
-    ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
-    rc_t ret;
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
     if(topic->protection) {
       ret = SNPS_readSecureData(buff, topic, (Data) self->samples[self->in_needle].data);
@@ -200,7 +201,7 @@ sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
       ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
     }
 #else 
-    ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+    ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
 #endif
 
     if (ret == SDDS_RT_FAIL) {
