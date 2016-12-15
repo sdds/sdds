@@ -9,7 +9,7 @@ int main()
 	if (sDDS_init() == SDDS_RT_FAIL) {
 		return 1;
 	}
-	Log_setLvl(4);  // Disable logs, set to 0 for to see everything.
+	Log_setLvl(0);  // Disable logs, set to 0 for to see everything.
 
     static Alpha alpha_sub;
     Alpha *alpha_sub_p = &alpha_sub;

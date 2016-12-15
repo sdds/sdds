@@ -102,10 +102,10 @@ rc_t
 Network_Multicast_joinMulticastGroup(char* multicast_group_ip) {
     int ret;
     struct addrinfo* multicast_address;
-    struct addrinfo addrCriteria;                   // Criteria for address match
     char multicast_port[PLATFORM_LINUX_IPV6_MAX_CHAR_LEN];
     unsigned int loop;
 
+    struct addrinfo addrCriteria;                   // Criteria for address match
     memset(&addrCriteria, 0, sizeof(addrCriteria)); // Zero out structure
     addrCriteria.ai_family = AF_INET6;
     addrCriteria.ai_socktype = SOCK_DGRAM;          
@@ -144,6 +144,7 @@ Network_Multicast_joinMulticastGroup(char* multicast_group_ip) {
         return SDDS_RT_FAIL;
     }
 
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
     //  Disable multicast loop
     loop = 0;    
     if (setsockopt(net.fd_multi_socket,
@@ -153,7 +154,7 @@ Network_Multicast_joinMulticastGroup(char* multicast_group_ip) {
         Log_error("%d ERROR: setsockopt() failed: %s\n", __LINE__, strerror(errno));
         return SDDS_RT_FAIL;
     }
-
+#endif
     return SDDS_RT_OK;
 }
 

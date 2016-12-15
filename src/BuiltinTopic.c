@@ -481,6 +481,9 @@ TopicMarshalling_DCPSParticipant_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_DCPSParticipant_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     DDS_DCPSParticipant* real_data1 = (DDS_DCPSParticipant*) data1;
     DDS_DCPSParticipant* real_data2 = (DDS_DCPSParticipant*) data2;
 
@@ -654,6 +657,9 @@ TopicMarshalling_DCPSTopic_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_DCPSTopic_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     DDS_DCPSTopic* real_data1 = (DDS_DCPSTopic*) data1;
     DDS_DCPSTopic* real_data2 = (DDS_DCPSTopic*) data2;
 
@@ -827,6 +833,9 @@ TopicMarshalling_DCPSPublication_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_DCPSPublication_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     DDS_DCPSPublication* real_data1 = (DDS_DCPSPublication*) data1;
     DDS_DCPSPublication* real_data2 = (DDS_DCPSPublication*) data2;
 
@@ -1029,6 +1038,9 @@ TopicMarshalling_DCPSSubscription_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_DCPSSubscription_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     DDS_DCPSSubscription* real_data1 = (DDS_DCPSSubscription*) data1;
     DDS_DCPSSubscription* real_data2 = (DDS_DCPSSubscription*) data2;
 
@@ -1206,6 +1218,9 @@ TopicMarshalling_ParticipantStatelessMessage_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_ParticipantStatelessMessage_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     DDS_ParticipantStatelessMessage* real_data1 = (DDS_ParticipantStatelessMessage*) data1;
     DDS_ParticipantStatelessMessage* real_data2 = (DDS_ParticipantStatelessMessage*) data2;
 
@@ -1401,6 +1416,9 @@ TopicMarshalling_DCPSLocation_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_DCPSLocation_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     SDDS_DCPSLocation* real_data1 = (SDDS_DCPSLocation*) data1;
     SDDS_DCPSLocation* real_data2 = (SDDS_DCPSLocation*) data2;
 
