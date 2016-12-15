@@ -1,0 +1,68 @@
+<project
+    name = "riot"
+    script = "sdds.gsl"
+    endian = "big"
+    os = "riot"
+  	ip = "fd29:144d:4196:94::123"
+    port = "23234"
+  	protocol = "AF_INET6"
+    >
+    RIOT example, Security KDC.
+
+	<!--
+		fe80::dafc:93ff:feb9:e678	wlan0
+		fe80::12:13ff:fe14:1516		usb0
+		fe80::12:13ff:fe14:2323		usb1
+	-->
+
+    <!--
+        Includes are processed first, so XML in included files will be
+        part of the XML tree
+    -->
+	<define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
+	<define name = "SDDS_6LOWPAN_PANID" value = "0xbabe"/>
+	<!-- optinal setting -->
+  <define name = "TRANSPORT_6LOWPAN_SDDS_TXPOWER" value = "-17"/>
+  <define name = "SDDS_6LOWPAN_RPL_ENABLED" value = "1"/>
+  <!-- SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR only one node in network-->
+  <!--<define name = "SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR" value = "2001:db8::1/64"/>-->
+	<define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
+	<define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "50"/>
+
+	<define name = "FEATURE_SDDS_MULTICAST_ENABLED" value = "1"/>
+  <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" value = "1"/>
+  <define name = "FEATURE_SDDS_SECURITY_ENABLED" value = "1"/>
+
+  <define name = "SDDS_NET_MAX_BUF_SIZE" value = "250"/>
+  <define name = "SDDS_NET_MAX_LOCATOR_COUNT" value = "5"/>
+  <define name = "SDDS_QOS_HISTORY_DEPTH" value = "2"/>
+
+    <define name = "SDDS_SECURITY_KDC" />
+    <define name = "SDDS_SECURITY_CA_PUBLIC_KEY_X" value = "&quot;a8e0531c98672b624d583a596592b4d627ca62b936a01ff7&quot;"/>
+    <define name = "SDDS_SECURITY_CA_PUBLIC_KEY_Y" value = "&quot;2bb348361e561863ea8abd8d3b0ea03a4a39a70835f08fde&quot;"/>
+    <define name = "SDDS_SECURITY_USER_ID" value = "&quot;user0001&quot;"/>
+    <define name = "SDDS_SECURITY_VERSION" value = "1"/>
+    <define name = "SDDS_SECURITY_TIMESTAMP" value = "0x58dcead5"/>
+    <define name = "SDDS_SECURITY_CIPHER_SUITE" value = "0"/>
+    <define name = "SDDS_SECURITY_USER_PUBLIC_KEY_X" value = "&quot;df68d8c28a69a39e267d7b7b2510d3f643bdadf5d324d7a1&quot;"/>
+    <define name = "SDDS_SECURITY_USER_PUBLIC_KEY_Y" value = "&quot;e1eb05d8af1a31dda7e11ff98ae8fd90f323a5495b8f2cff&quot;"/>
+    <define name = "SDDS_SECURITY_USER_CERT_SIG_R" value = "&quot;27b77cb65508df612915ceab66728410f53ee514a6dcd011&quot;"/>
+    <define name = "SDDS_SECURITY_USER_CERT_SIG_S" value = "&quot;ef2f67d5c521d9623e35e9c687b0eb3d62c5ae4fcaf47443&quot;"/>
+    <define name = "SDDS_SECURITY_USER_PRIVATE_KEY" value = "&quot;f3fdf140113e2d189d5b0f792ab100eb99b0f5ef775426f8&quot;"/>
+
+    <include filename = "../topics/ipc.xml" />
+
+	<role topic = "ipc" type = "subscriber">
+	</role>
+
+    <access_control>
+
+      <ac_topic id="8">
+        <ac_application id="user0002" />
+        <ac_application id="user0003" />
+        <ac_application id="user0004" />
+      </ac_topic>
+
+    </access_control>
+
+</project>

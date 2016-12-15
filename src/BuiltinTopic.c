@@ -22,7 +22,7 @@ SSW_NodeID_t BuiltinTopic_participantID;
 static FILE* scalability_msg_count;
 #endif
 
-
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
 DDS_Topic g_DCPSParticipant_topic;
 Sample_t dcps_participant_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSParticipant dcps_participant_sample_data[SDDS_QOS_HISTORY_DEPTH];
@@ -50,6 +50,7 @@ static SDDS_DCPSSubscription dcps_subscription_sample_data[SDDS_QOS_HISTORY_DEPT
 static SDDS_DCPSSubscription dcps_subscription_incomingSample_data;
 DDS_DataReader g_DCPSSubscription_reader;
 DDS_DataWriter g_DCPSSubscription_writer;
+#endif
 
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
 DDS_Topic g_ParticipantStatelessMessage_topic;
@@ -101,6 +102,7 @@ BuiltinTopic_init(void) {
     Locator_t* l;
 
     int index;
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
     for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
         dcps_participant_samples_pool[index].data = &dcps_participant_sample_data[index];
         dcps_topic_samples_pool[index].data = &dcps_topic_sample_data[index];
@@ -113,11 +115,14 @@ BuiltinTopic_init(void) {
         dcps_location_samples_pool[index].data = &dcps_location_sample_data[index];
 #endif
     }
-
+#else
+    for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
+        dcps_psm_samples_pool[index].data = &dcps_psm_sample_data[index];
+    }
+#endif
     BuiltinTopic_participantID = NodeConfig_getNodeID();
 
-    /* Participant */
-
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
     g_DCPSParticipant_topic = sDDS_DCPSParticipantTopic_create();
     if (g_DCPSParticipant_topic == NULL){
         return SDDS_RT_FAIL;
@@ -247,6 +252,7 @@ BuiltinTopic_init(void) {
         Locator_downRef(l);
         return ret;
     }
+#endif
 
     /* Security */
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
@@ -315,7 +321,8 @@ BuiltinTopic_init(void) {
     }
 #endif
 
-#ifdef FEATURE_SDDS_MULTICAST_ENABLED
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
+#   ifdef FEATURE_SDDS_MULTICAST_ENABLED
     uint8_t addrLen;
     ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_MULTICAST_ADDRESS, generalByteAddr, &addrLen);
     if (ret != SDDS_RT_OK) {
@@ -333,14 +340,15 @@ BuiltinTopic_init(void) {
     if (ret != SDDS_RT_OK) {
         return ret;
     }
-#   ifdef FEATURE_SDDS_LOCATION_ENABLED
+#       ifdef FEATURE_SDDS_LOCATION_ENABLED
     ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_LOCATION_ADDRESS, locationByteAddr, &addrLen);
     if (ret != SDDS_RT_OK) {
         return ret;
     }
-#   endif
-#else
+#       endif
+#   else
     // TO DO
+#   endif
 #endif
     return SDDS_RT_OK;
 }
@@ -358,6 +366,7 @@ TopicMarshalling_DCPSParticipant_getSecondaryKey(Data data);
 rc_t
 TopicMarshalling_DCPSParticipant_cmpPrimaryKeys(Data data1, Data data2);
 
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
 rc_t
 TopicMarshalling_DCPSParticipant_cpy(Data dest, Data source);
 
@@ -472,6 +481,9 @@ TopicMarshalling_DCPSParticipant_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_DCPSParticipant_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     DDS_DCPSParticipant* real_data1 = (DDS_DCPSParticipant*) data1;
     DDS_DCPSParticipant* real_data2 = (DDS_DCPSParticipant*) data2;
 
@@ -645,6 +657,9 @@ TopicMarshalling_DCPSTopic_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_DCPSTopic_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     DDS_DCPSTopic* real_data1 = (DDS_DCPSTopic*) data1;
     DDS_DCPSTopic* real_data2 = (DDS_DCPSTopic*) data2;
 
@@ -818,6 +833,9 @@ TopicMarshalling_DCPSPublication_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_DCPSPublication_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     DDS_DCPSPublication* real_data1 = (DDS_DCPSPublication*) data1;
     DDS_DCPSPublication* real_data2 = (DDS_DCPSPublication*) data2;
 
@@ -1020,6 +1038,9 @@ TopicMarshalling_DCPSSubscription_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_DCPSSubscription_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     DDS_DCPSSubscription* real_data1 = (DDS_DCPSSubscription*) data1;
     DDS_DCPSSubscription* real_data2 = (DDS_DCPSSubscription*) data2;
 
@@ -1096,6 +1117,7 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
     return SDDS_RT_OK;
 }
 
+#endif
 /******************************
 * ParticipantStatelessMessage *
 *******************************/
@@ -1196,6 +1218,9 @@ TopicMarshalling_ParticipantStatelessMessage_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_ParticipantStatelessMessage_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     DDS_ParticipantStatelessMessage* real_data1 = (DDS_ParticipantStatelessMessage*) data1;
     DDS_ParticipantStatelessMessage* real_data2 = (DDS_ParticipantStatelessMessage*) data2;
 
@@ -1215,8 +1240,11 @@ TopicMarshalling_ParticipantStatelessMessage_cpy(Data dest, Data source) {
 rc_t
 TopicMarshalling_ParticipantStatelessMessage_encode(NetBuffRef_t* buffer, Data data, size_t* size) {
     *size = 0;
-    byte_t* start = buffer->buff_start + buffer->curPos;
+    byte_t* start = buffer->buff_start + buffer->curPos + 1;
     DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
+
+    Marshalling_enc_uint16(start + *size, &real_data->msgid);
+    *size += sizeof(real_data->msgid);
 
     Marshalling_enc_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
@@ -1243,6 +1271,9 @@ TopicMarshalling_ParticipantStatelessMessage_decode(NetBuffRef_t* buffer, Data d
     *size = 0;
     byte_t* start = buffer->buff_start + buffer->curPos;
     DDS_ParticipantStatelessMessage* real_data = (DDS_ParticipantStatelessMessage*) data;
+
+    Marshalling_dec_uint16(start + *size, &real_data->msgid);
+    *size += sizeof(real_data->msgid);
 
     Marshalling_dec_uint16(start + *size, &real_data->key);
     *size += sizeof(real_data->key);
@@ -1385,6 +1416,9 @@ TopicMarshalling_DCPSLocation_getSecondaryKey(Data data) {
 
 rc_t
 TopicMarshalling_DCPSLocation_cmpPrimaryKeys(Data data1, Data data2) {
+    if (data1 == NULL || data2 == NULL) {
+        return SDDS_RT_FAIL;
+    }
     SDDS_DCPSLocation* real_data1 = (SDDS_DCPSLocation*) data1;
     SDDS_DCPSLocation* real_data2 = (SDDS_DCPSLocation*) data2;
 

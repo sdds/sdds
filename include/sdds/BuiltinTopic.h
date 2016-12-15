@@ -27,7 +27,7 @@
 #define SDDS_BUILTIN_TOPIC_ADDRESS              "ff02::50"
 #endif
 
-#ifndef SDDS_BUILTIN_PAR_STATE_MSG
+#ifndef SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS
 #define SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS      "ff02::60"	
 #endif
 
@@ -65,6 +65,8 @@ extern DDS_Topic g_DCPSSubscription_topic;
 extern DDS_DataReader g_DCPSLocation_reader;
 extern DDS_DataWriter g_DCPSLocation_writer;
 extern DDS_Topic g_DCPSLocation_topic;
+#define g_ParticipantVolatileMessage_reader g_ParticipantStatelessMessage_reader
+#define g_ParticipantVolatileMessage_writer g_ParticipantStatelessMessage_writer
 
 extern DDS_DataReader g_ParticipantStatelessMessage_reader;
 extern DDS_DataWriter g_ParticipantStatelessMessage_writer;
@@ -228,11 +230,16 @@ struct ParticipantGenericMessage_t {
         BuiltinTopicKey_t pkey;
         BuiltinTopicKey_t skey;
     };
+    uint16_t msgid;
     DDS_char message_class_id[CLASS_ID_STRLEN];
     DataHolder message_data;
 };
 
 typedef struct ParticipantGenericMessage_t DDS_ParticipantStatelessMessage;
+typedef struct ParticipantGenericMessage_t DDS_ParticipantVolatileMessage;
+
+#define DDS_ParticipantVolatileMessageDataReader_take_next_sample DDS_ParticipantStatelessMessageDataReader_take_next_sample
+#define DDS_ParticipantVolatileMessageDataWriter_write DDS_ParticipantStatelessMessageDataWriter_write
 
 DDS_ReturnCode_t
 DDS_ParticipantStatelessMessageDataReader_take_next_sample(

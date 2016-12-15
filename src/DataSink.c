@@ -78,9 +78,9 @@ DataSink_getTopic(DDS_DCPSSubscription* st, topicid_t id, Topic_t** topic) {
            &&  DataReader_topic(&self->readers[index])->id == id) {
             if (st != NULL) {
                 st->key = DataReader_id(&self->readers[index]);
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+#   ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
                 st->participant_key = BuiltinTopic_participantID;
-#endif
+#   endif
                 st->topic_id = DataReader_topic(&self->readers[index])->id;
             }
             if (topic != NULL) {
@@ -168,7 +168,6 @@ DataSink_processFrame(NetBuffRef_t* buff) {
             Log_debug("Read topic %u\n", topic_id);
             checkTopic(buff, topic_id);
             break;
-
         case (SDDS_SNPS_T_ADDRESS):
             //  Write address into global variable
             if (SNPS_readAddress(buff, &self->addr.addrCast, &self->addr.addrType, &self->addr.addr) != SDDS_RT_OK) {
@@ -176,7 +175,8 @@ DataSink_processFrame(NetBuffRef_t* buff) {
                 SNPS_discardSubMsg(buff);
             }
             break;
-
+            
+        case (SDDS_SNPS_T_SECURE):
         case (SDDS_SNPS_T_DATA):
         {
 #if defined(SDDS_TOPIC_HAS_PUB) || defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) || defined(FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED)
