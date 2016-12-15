@@ -39,7 +39,8 @@ int main(int argc, char** argv)
 
 
     for (;;) {
-        SSW_NodeID_t device;
+        int ret_scan = 0;
+        unsigned int device;
         unsigned int x;
         unsigned int y;
         unsigned int z;
@@ -52,20 +53,20 @@ int main(int argc, char** argv)
             printf(" [%x]", g_LocationService_simulatedDevices[i].device);
         }
         printf(": ");
-        scanf("%x", &device);
+        ret_scan = scanf("%x", &device);
 
         printf("x: ");
-        scanf("%u", &x);
+        ret_scan = scanf("%u", &x);
         printf("y: ");
-        scanf("%u", &y);
+        ret_scan = scanf("%u", &y);
         printf("z: ");
-        scanf("%u", &z);
+        ret_scan = scanf("%u", &z);
         printf("width: ");
-        scanf("%u", &width);
+        ret_scan = scanf("%u", &width);
         printf("length: ");
-        scanf("%u", &length);
+        ret_scan = scanf("%u", &length);
         printf("expiration: ");
-        scanf("%u", &expiration);
+        ret_scan = scanf("%u", &expiration);
 
         int i = 0;
         for (i = 0; i < g_LocationService_simulatedDevicesCount; i++) {

@@ -62,7 +62,7 @@
     <define name = "SDDS_QOS_HISTORY_DEPTH" value = "1"/>
     <!--
         Enable all debug messages
-    -->
     <define name = "UTILS_DEBUG"/>
+    -->
     
 </project>
