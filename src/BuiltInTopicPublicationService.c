@@ -76,7 +76,6 @@ BuiltInTopicPublicationService_publishDCPSParticipant() {
     p.data.key = BuiltinTopic_participantID; //(BuiltinTopic_participantID << 4) | dw->id;
     p.participantID = BuiltinTopic_participantID;
 
-    Log_debug("Send (participant):[%x]\n", p.participantID);
     if (DDS_DCPSParticipantDataWriter_write(g_DCPSParticipant_writer, (DDS_DCPSParticipant *)&p,
                                             NULL) == DDS_RETCODE_ERROR) {
         // handle error

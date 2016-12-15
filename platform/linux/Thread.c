@@ -68,4 +68,3 @@ Thread_yield(void) {
     // TODO
     return SDDS_RT_OK;
 }
-

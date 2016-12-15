@@ -4,7 +4,6 @@
 
 int main() {
 	DDS_ReturnCode_t ret;
-
   Alarm alarm_sub;
   Alarm *alarm_sub_p = &alarm_sub;
   int i;

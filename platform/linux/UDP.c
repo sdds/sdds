@@ -46,7 +46,7 @@
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PARTICIPANT_ADDRESS       SDDS_BUILTIN_PARTICIPANT_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_TOPIC_ADDRESS             SDDS_BUILTIN_TOPIC_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_SUB_PUB_ADDRESS           SDDS_BUILTIN_SUB_PUB_ADDRESS
-#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_LOCATION_ADDRESS          SDDS_BUILTIN_LOCATION_ADDRESS
+#define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_LOCATION_ADDRESS           SDDS_BUILTIN_LOCATION_ADDRESS
 #define PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PAR_STATE_MSG_ADDRESS     SDDS_BUILTIN_PAR_STATE_MSG_ADDRESS
 
 #ifndef PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF
@@ -102,21 +102,19 @@ rc_t
 Network_Multicast_joinMulticastGroup(char* multicast_group_ip) {
     int ret;
     struct addrinfo* multicast_address;
-    //struct addrinfo addrCriteria;                   // Criteria for address match
     char multicast_port[PLATFORM_LINUX_IPV6_MAX_CHAR_LEN];
-    //unsigned int loop;
+    unsigned int loop;
 
-    /*
+    struct addrinfo addrCriteria;                   // Criteria for address match
     memset(&addrCriteria, 0, sizeof(addrCriteria)); // Zero out structure
     addrCriteria.ai_family = AF_INET6;
     addrCriteria.ai_socktype = SOCK_DGRAM;          
     addrCriteria.ai_flags |= AI_NUMERICHOST;
-    */
 
     sprintf(multicast_port, "%d", (net.port + PLATFORM_LINUX_SDDS_BUILTIN_MULTICAST_PORT_OFF));
     //  Get the multicast address for the provided multicast group ip
 
-    if ((ret = getaddrinfo(multicast_group_ip, multicast_port, NULL /*&addrCriteria*/, &multicast_address)) != 0) {
+    if ((ret = getaddrinfo(multicast_group_ip, multicast_port, &addrCriteria, &multicast_address)) != 0) {
         Log_error("%d ERROR: getaddrinfo() failed: %s\n", __LINE__, gai_strerror(ret));
         return SDDS_RT_FAIL;
     }
@@ -146,7 +144,7 @@ Network_Multicast_joinMulticastGroup(char* multicast_group_ip) {
         return SDDS_RT_FAIL;
     }
 
-    /*
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
     //  Disable multicast loop
     loop = 0;    
     if (setsockopt(net.fd_multi_socket,
@@ -156,8 +154,7 @@ Network_Multicast_joinMulticastGroup(char* multicast_group_ip) {
         Log_error("%d ERROR: setsockopt() failed: %s\n", __LINE__, strerror(errno));
         return SDDS_RT_FAIL;
     }
-    */
-
+#endif
     return SDDS_RT_OK;
 }
 

@@ -62,8 +62,8 @@
     <define name = "GEO_MEASUEMENT_ACCURACY" value = "GEO_CM_ACCURACY" />
     <!--
         Enable all debug messages
-    -->
     <define name = "UTILS_DEBUG"/>
+    -->
 
     <include filename = "../geometries/wohnzimmer.xml" />
     <include filename = "../geometries/schlafzimmer.xml" />

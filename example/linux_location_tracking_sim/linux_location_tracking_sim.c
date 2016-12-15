@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <stdio.h>
 #include "linux_location_tracking_sim_sdds_impl.h"
 
 uint16_t g_LocationService_simulatedDevicesCount;

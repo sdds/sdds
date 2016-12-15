@@ -22,6 +22,7 @@ SSW_NodeID_t BuiltinTopic_participantID;
 static FILE* scalability_msg_count;
 #endif
 
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
 DDS_Topic g_DCPSParticipant_topic;
 Sample_t dcps_participant_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSParticipant dcps_participant_sample_data[SDDS_QOS_HISTORY_DEPTH];
@@ -49,6 +50,7 @@ static SDDS_DCPSSubscription dcps_subscription_sample_data[SDDS_QOS_HISTORY_DEPT
 static SDDS_DCPSSubscription dcps_subscription_incomingSample_data;
 DDS_DataReader g_DCPSSubscription_reader;
 DDS_DataWriter g_DCPSSubscription_writer;
+#endif
 
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
 DDS_Topic g_ParticipantStatelessMessage_topic;
@@ -120,7 +122,7 @@ BuiltinTopic_init(void) {
 #endif
     BuiltinTopic_participantID = NodeConfig_getNodeID();
 
-    /* Participant */
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
     g_DCPSParticipant_topic = sDDS_DCPSParticipantTopic_create();
     if (g_DCPSParticipant_topic == NULL){
         return SDDS_RT_FAIL;
@@ -250,6 +252,7 @@ BuiltinTopic_init(void) {
         Locator_downRef(l);
         return ret;
     }
+#endif
 
     /* Security */
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
@@ -363,6 +366,7 @@ TopicMarshalling_DCPSParticipant_getSecondaryKey(Data data);
 rc_t
 TopicMarshalling_DCPSParticipant_cmpPrimaryKeys(Data data1, Data data2);
 
+#ifndef FEATURE_SDDS_SECURITY_ENABLED
 rc_t
 TopicMarshalling_DCPSParticipant_cpy(Data dest, Data source);
 
@@ -1113,6 +1117,7 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
     return SDDS_RT_OK;
 }
 
+#endif
 /******************************
 * ParticipantStatelessMessage *
 *******************************/

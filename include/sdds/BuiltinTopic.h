@@ -65,7 +65,6 @@ extern DDS_Topic g_DCPSSubscription_topic;
 extern DDS_DataReader g_DCPSLocation_reader;
 extern DDS_DataWriter g_DCPSLocation_writer;
 extern DDS_Topic g_DCPSLocation_topic;
-
 #define g_ParticipantVolatileMessage_reader g_ParticipantStatelessMessage_reader
 #define g_ParticipantVolatileMessage_writer g_ParticipantStatelessMessage_writer
 

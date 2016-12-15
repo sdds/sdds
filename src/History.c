@@ -122,12 +122,12 @@ s_History_contains(History_t* self,Topic_t* topic, Sample_t* sample, uint16_t* i
 //  this call will discard the oldest sample in case of RELIABILITY best effort
 //  and block in case of RELIABILITY reliable until samples are taken out. If
 //  the buffer is going to be enqueued it will be decoded.
-#if defined(SDDS_HAS_QOS_RELIABILITY)
+#ifdef SDDS_HAS_QOS_RELIABILITY
 rc_t
-sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, NetBuffRef_t* buff, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
 #else
 rc_t
-sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, NetBuffRef_t* buff) {
+sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
 #endif
     assert(self);
     assert(topic);
@@ -157,10 +157,7 @@ sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, NetBuffR
 #endif //  End of SDDS_HAS_QOS_RELIABILITY
 
     uint16_t index;
-    rc_t ret = SDDS_RT_FAIL;
-#ifdef FEATURE_SDDS_SECURITY_ENABLED 
-    ret = s_History_contains(self, topic, sample, &index);
-#endif
+    rc_t ret = s_History_contains(self, topic, sample, &index);
     if (ret == SDDS_RT_OK) {
         self->in_needle = index;
     } else {
@@ -196,11 +193,16 @@ sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, NetBuffR
 
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
     if(topic->protection) {
+        // FIXME irgendwas hat sich geändert. Data muss nicht mehr decodiert werden?
       ret = SNPS_readSecureData(buff, topic, (Data) self->samples[self->in_needle].data);
     } else {
-      ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+     // ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+     ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
     }
 #else 
+// FIXME API hat sich geändert!
+//    ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
+    
     ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
 #endif
 
@@ -424,7 +426,7 @@ sdds_History_print(History_t* self) {
 #ifdef SDDS_HAS_QOS_RELIABILITY
     printf("    samples:\n");
     for (int i=0; i<self->in_needle; i++){
-        printf("        instance: %p, seqNr: %d,\n", self->samples[i].instance, self->samples[i].seqNr);
+        printf("        instance: %d, seqNr: %d,\n", self->samples[i].instance, self->samples[i].seqNr);
     }
 #endif
     printf("}\n");
