@@ -192,7 +192,7 @@ s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
     ret = LocationFilteredTopic_evalSample(locationFilteredTopic, (Data) topic->incomingSample.data);
 
     if (ret == SDDS_RT_OK) {
-        ret = sdds_History_enqueue(history, topic, &topic->incomingSample, buff);
+        ret = sdds_History_enqueue(history, topic, &topic->incomingSample);
         if (ret == SDDS_RT_FAIL) {
             Log_warn("Can't parse data: Discard submessage\n");
             SNPS_discardSubMsg(buff);
