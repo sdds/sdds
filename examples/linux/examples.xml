@@ -2,41 +2,24 @@
     script = "sdds_examples.gsl"
      >
 
-    <example name = "linux alpha pub" os = "linux">Linux alpha topic - Publisher</example>
-    <example name = "linux alpha sub" os = "linux">Linux alpha topic - Sublisher</example>
+    <example name = "linux temperature unicast publisher" os = "linux">Linux temperature topic - Unicast Publisher</example>
+    <example name = "linux temperature publisher" os = "linux">Linux temperature topic - Publisher</example>
+    <example name = "linux temperature subscriber" os = "linux">Linux temperature topic - Sublisher</example>
+    <example name = "linux filtered temperature subscriber" os = "linux">Linux filtered temperature topic - Sublisher</example>
+    <example name = "linux infrastructure based location tracking simulation" os = "linux">Linux infrastructure based location tracking simulation</example>
+    <example name = "linux Subscription Manager" os = "linux">Linux Subscription Manager</example>
 
-    <example name = "linux hello pub" os = "linux">Linux hello world - Publisher</example>
-    <example name = "linux hello sub" os = "linux">Linux hello world - Subscriber</example>
+    <example name = "linux besteffort reliableTemperature publisher" os = "linux">linux besteffort reliableTemperature - Publisher</example>
+    <example name = "linux besteffort reliableTemperature subscriber" os = "linux">linux besteffort reliableTemperature - Subscriber</example>
 
-    <example name = "linux mcast1"  os = "linux">Linux mulitcast example - Publisher</example>
-    <example name = "linux mcast2"  os = "linux" >Linux multicast example - Subscriber</example>
-    <example name = "linux publisher"  os = "linux">Linux publisher example</example>
-    <example name = "linux subscriber"  os = "linux" >Linux subscriber example</example>
-    <example name = "history demo" os = "linux" />
-    <example name = "history demo reliability" os = "linux" />
+    <example name = "linux ack reliableTemperature publisher" os = "linux">linux ack reliableTemperature - Publisher</example>
+    <example name = "linux ack reliableTemperature subscriber" os = "linux">linux ack reliableTemperature - Subscriber</example>
 
-    <example name = "messung1_contiki"  os = "contiki" />
-    <example name = "messung1_esp"      os = "freertos" />
-    <example name = "messung1_linux"    os = "linux" />
-    <example name = "messung1_riot"     os = "riot" />
-    <example name = "messung2_contiki"  os = "contiki" />
-    <example name = "messung2_esp"      os = "freertos" />
-    <example name = "messung2_linux"    os = "linux" />
-    <example name = "messung2_riot"     os = "riot" />
-    <example name = "messung3_contiki"  os = "contiki" />
-    <example name = "messung3_esp"      os = "freertos" />
-    <example name = "messung3_linux"    os = "linux" />
-    <example name = "messung3_riot"     os = "riot" />
-    <example name = "messung4_contiki"  os = "contiki" />
-    <example name = "messung4_esp"      os = "freertos" />
-    <example name = "messung4_linux"    os = "linux" />
-    <example name = "messung4_riot"     os = "riot" />
-    <example name = "messung5_contiki"  os = "contiki" />
-    <example name = "messung5_esp"      os = "freertos" />
-    <example name = "messung5_linux"    os = "linux" />
-    <example name = "messung5_riot"     os = "riot" />
-    <example name = "messung6_contiki"  os = "contiki" />
-    <example name = "messung6_esp"      os = "freertos" />
-    <example name = "messung6_linux"    os = "linux" />
-    <example name = "messung6_riot"     os = "riot" />
+    <example name = "linux nack reliableTemperature publisher" os = "linux">linux ack reliableTemperature - Publisher</example>
+    <example name = "linux nack reliableTemperature subscriber" os = "linux">linux ack reliableTemperature - Subscriber</example>
+
+    <example name = "linux security alarm publisher" os = "linux">linux security alarm - Publisher</example>
+    <example name = "linux security alarm subscriber" os = "linux">linux security alarm - Subscriber</example>
+    <example name = "linux security key distribution center" os = "linux">linux security key distribution center</example>
+
 </examples>

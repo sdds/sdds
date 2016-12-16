@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-SCRIPT_DIR="../../scripts"
+SCRIPT_DIR="../scripts"
 GSL_DIR="$SCRIPT_DIR"/gsl
 
 #  Remove gsl if it has not been properly installed

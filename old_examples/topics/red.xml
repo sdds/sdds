@@ -1,0 +1,6 @@
+<domain id = "1">
+    <topic name = "red" domain = "1" id = "7">
+        RGB red-topic.
+        <attribute name = "value" type = "DDS_char">Any short value</attribute>
+    </topic>
+</domain>

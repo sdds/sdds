@@ -1,12 +1,10 @@
 <project
-    name = "linux_alpha_pub"
+    name = "linux_temperature_publisher"
     script = "sdds.gsl"
     endian = "little"
     os = "linux"
     protocol = "AF_INET6"
-    ip = "fe80::c0ef:62ff:fed4:d36b"
-    iface = "tap1"
-    port = "23234"
+    ip = "<your-IP>"
     >
     <!--
     Set Set interface and port for this project. Interface is required if your
@@ -15,7 +13,7 @@
         port = "23456"
     >
     -->
-    "Linux alpha topic - Publisher"
+    "Linux temperature topic - Publisher"
 
     <!--
         Include your topic files here. You can include topics from multiple files.
@@ -33,29 +31,22 @@
     <role topic = "mytopic" type = "subscriber" />
     -->
     <role topic = "alpha" type = "publisher" />
+    <role topic = "alpha" type = "subscriber" />
+
+
     <!--
         This enables multicast discovery.
     -->
     <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
     <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
     <define name = "FEATURE_SDDS_DISCOVERY_ENABLED" />
-<!--
-    <define name = "FEATURE_SDDS_GEOMETRY_ENABLED" />
-    <define name = "FEATURE_SDDS_LOCATION_ENABLED" />
-    <define name = "FEATURE_SDDS_LOCATION_TRACKING_ENABLED" />
-    <define name = "FEATURE_SDDS_SIMULATION_ENABLED" />
-    <define name = "FEATURE_SDDS_LOCATION_FILTER_ENABLED" />
-    <define name = "FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED" />
-    <define name = "SDDS_SUBSCRIPTION_MANAGER" />
--->
-    <define name = "FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED" />
     <!--
         Configure discovery intervals
     -->
-    <define name = "SDDS_BUILTIN_TOPIC_PARTICIPANT_TIMER" value = "1"/>
-    <define name = "SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER" value = "5"/>
-    <define name = "SDDS_BUILTIN_TOPIC_TOPIC_TIMER" value = "0"/>
-    <define name = "SDDS_BUILTIN_TOPIC_LOCATION_TIMER" value = "5"/>
+    <define name = "SDDS_DISCOVERY_RECEIVE_TIMER" value = "1"/>
+    <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "1"/>
+    <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "5"/>
+    <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0"/>
     <!--
         Configure default history depth
     -->
@@ -64,5 +55,4 @@
         Enable all debug messages
     <define name = "UTILS_DEBUG"/>
     -->
-    
 </project>

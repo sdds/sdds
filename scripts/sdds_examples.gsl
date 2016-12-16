@@ -22,7 +22,7 @@ endfunction
 .       directory.create ("$(example.name:c)")
 .   endif
 .   if !file.exists ("$(example.name:c)/generate.sh")
-.       ln_s ("../../scripts/generate.sh", "$(example.name:c)/generate.sh")
+.       ln_s ("../../../scripts/generate.sh", "$(example.name:c)/generate.sh")
 .   endif
 .   if !file.exists ("$(example.name:c)/sdds.xml")
 .       output "$(example.name:c)/sdds.xml"

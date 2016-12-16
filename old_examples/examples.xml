@@ -1,0 +1,42 @@
+<examples
+    script = "sdds_examples.gsl"
+     >
+
+    <example name = "linux alpha pub" os = "linux">Linux alpha topic - Publisher</example>
+    <example name = "linux alpha sub" os = "linux">Linux alpha topic - Sublisher</example>
+
+    <example name = "linux hello pub" os = "linux">Linux hello world - Publisher</example>
+    <example name = "linux hello sub" os = "linux">Linux hello world - Subscriber</example>
+
+    <example name = "linux mcast1"  os = "linux">Linux mulitcast example - Publisher</example>
+    <example name = "linux mcast2"  os = "linux" >Linux multicast example - Subscriber</example>
+    <example name = "linux publisher"  os = "linux">Linux publisher example</example>
+    <example name = "linux subscriber"  os = "linux" >Linux subscriber example</example>
+    <example name = "history demo" os = "linux" />
+    <example name = "history demo reliability" os = "linux" />
+
+    <example name = "messung1_contiki"  os = "contiki" />
+    <example name = "messung1_esp"      os = "freertos" />
+    <example name = "messung1_linux"    os = "linux" />
+    <example name = "messung1_riot"     os = "riot" />
+    <example name = "messung2_contiki"  os = "contiki" />
+    <example name = "messung2_esp"      os = "freertos" />
+    <example name = "messung2_linux"    os = "linux" />
+    <example name = "messung2_riot"     os = "riot" />
+    <example name = "messung3_contiki"  os = "contiki" />
+    <example name = "messung3_esp"      os = "freertos" />
+    <example name = "messung3_linux"    os = "linux" />
+    <example name = "messung3_riot"     os = "riot" />
+    <example name = "messung4_contiki"  os = "contiki" />
+    <example name = "messung4_esp"      os = "freertos" />
+    <example name = "messung4_linux"    os = "linux" />
+    <example name = "messung4_riot"     os = "riot" />
+    <example name = "messung5_contiki"  os = "contiki" />
+    <example name = "messung5_esp"      os = "freertos" />
+    <example name = "messung5_linux"    os = "linux" />
+    <example name = "messung5_riot"     os = "riot" />
+    <example name = "messung6_contiki"  os = "contiki" />
+    <example name = "messung6_esp"      os = "freertos" />
+    <example name = "messung6_linux"    os = "linux" />
+    <example name = "messung6_riot"     os = "riot" />
+</examples>

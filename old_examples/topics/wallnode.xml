@@ -1,0 +1,66 @@
+<domain id = "0">
+    <topic name = "OnOffSwitch" domain = "0" id = "4">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "state" type = "DDS_octet"></attribute>
+    </topic>
+
+    <topic name = "SimpleLamp" domain = "0" id = "5">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "state" type = "DDS_octet"></attribute>
+        <attribute name = "dummy" type = "DDS_octet"></attribute>
+    </topic>
+
+    <topic name = "TemperatureSensor" domain = "0" id = "6">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "temperature" type = "DDS_short"></attribute>
+    </topic>
+
+    <topic name = "HumiditySensor" domain = "0" id = "b">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "humidity" type = "DDS_unsigned_short"></attribute>
+    </topic>
+
+    <topic name = "MovementSensor" domain = "0" id = "7">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "state" type = "DDS_octet"></attribute>
+    </topic>
+
+    <topic name = "DoorSensor" domain = "0" id = "9">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "state" type = "DDS_octet"></attribute>
+    </topic>
+
+    <topic name = "WindowSensor" domain = "0" id = "a">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "state" type = "DDS_octet"></attribute>
+    </topic>
+
+    <topic name = "LightSensor" domain = "0" id = "8">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "lux" type = "DDS_unsigned_short"></attribute>
+    </topic>
+
+    <topic name = "OnOffFunctionality" domain = "0" id = "c">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "command" type = "DDS_octet"></attribute>
+        <attribute name = "dummy" type = "DDS_octet"></attribute>
+    </topic>
+
+    <topic name = "ToggleFunctionality" domain = "0" id = "d">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "command" type = "DDS_octet"></attribute>
+        <attribute name = "dummy" type = "DDS_octet"></attribute>
+    </topic>
+
+    <topic name = "LightRegulationFunctionality" domain = "0" id = "f">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "setValue" type = "DDS_octet"></attribute>
+    </topic>
+
+    <topic name = "DimmableLight" domain = "0" id = "e">
+        <attribute name = "id" type = "DDS_unsigned_short"></attribute>
+        <attribute name = "lightIntensityState" type = "DDS_octet"></attribute>
+        <attribute name = "onOffState" type = "DDS_octet"></attribute>
+    </topic>
+</domain>
+
