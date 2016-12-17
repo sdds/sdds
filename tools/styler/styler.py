@@ -27,6 +27,7 @@ class Comment(object):
     def update(self):
         """
         Applies updates to the comment
+        Will be overwritten by subclass
         """
         self.new_text = self.orginal_text
 
@@ -66,12 +67,47 @@ class DHC(Comment):
      * bla
      */
     """
-    def __init__(self, orginal_text):
+    def __init__(self, orginal_text, filename):
         super().__init__(orginal_text)
+        self.filename = filename
+        self.author = "TODO"
+        self.brief = "TODO"
+        self.description = "TODO"
 
     @staticmethod
     def is_DHC(comment_text):
         return comment_text.startswith("/**") and comment_text.endswith("*/")
+
+    def get_info_from_old_comment(self, old_comment):
+        result = False #true if comment was used to delete it
+        lines = old_comment.split("\n")
+        lines = lines[1:-1]
+        new_lines = []
+        for line in lines:
+            new_lines.extend(line.split("*"))
+
+        new_lines[:] = [s.strip() for s in new_lines] # delete all whitespace from beginning or ending 
+        new_lines =  remove_values_from_list(new_lines, "") # removes all empty strings
+
+        for line in new_lines:
+            if line.startswith("Author:"):
+                self.author = line.replace("Author:", "").strip()
+                result = True
+            if line.startswith("Description:"):
+                self.description = line.replace("Description:", "").strip()
+                result = True
+            
+        return result
+
+    def update(self):
+        """
+        Applies updates to the comment
+        """
+        self.new_text = open("./comment_styles/DHC.txt", "r").read()
+        self.new_text = self.new_text.replace("<file>", self.filename)
+        self.new_text = self.new_text.replace("<author>", self.author)
+        self.new_text = self.new_text.replace("<brief>", self.brief)
+        self.new_text = self.new_text.replace("<description>", self.description)
 
     def __str__(self):
         return "DHC: \n" + super().__str__()
@@ -80,21 +116,11 @@ class DHC(Comment):
 def remove_values_from_list(the_list, val):
    return [value for value in the_list if value != val]
 
-def prepare_doxy_com(string):
-    lines = string.split("\n")
-    lines = lines[1:-1]
-    new_lines = []
-    for line in lines:
-        new_lines.extend(line.split("*"))
-
-    new_lines[:] = [s.strip() for s in new_lines] # delete all whitespace from beginning or ending 
-    new_lines =  remove_values_from_list(new_lines, "") # removes all empty strings
-    return new_lines
-
 def head_comment(file_path):
     comments = []
     ihc = None
     dhc = None
+    first_comment = "" 
 
     f = open(file_path,"r")
     f_backup = open(file_path + ".old", "w")
@@ -103,21 +129,41 @@ def head_comment(file_path):
     file_text = f.read()
     f_backup.write(file_text)
 
+    #test if there is IHC and DHC at the beginning
+    regex_IHC_DHC = r"\A[\s\n]*/\*\*\*\*(.|\n)*?\*\*\*\*/[\s\n]*/\*\*(.|\n)*?\*/"
+    beginn_with = re.match(regex_IHC_DHC, file_text) != None
+
+    # for all "/* */" comments
     regex = r'/\*(.|\n)*?\*/' # gets a "/* */" comments
     matches = re.finditer(regex, file_text)
     for matchNum, match in enumerate(matches):
+        #get comment
         comment_text = match.group()
-        if IHC.is_IHC(comment_text):
-            ihc = IHC(comment_text)
-        elif DHC.is_DHC(comment_text):
-            dhc = DHC(comment_text)
+        #If in the file are already correct comments
+        if beginn_with:
+            if matchNum == 0:
+                ihc = IHC(comment_text)
+            elif matchNum == 1:
+                dhc = DHC(comment_text, file_path)
+            elif matchNum == 2:
+                first_comment = comment_text
+        else:
+            if matchNum == 0:
+                first_comment = comment_text
 
+    print (first_comment)
     if ihc == None:
         ihc = IHC("")
     if dhc == None:
-        dhc = DHC("")
+        dhc = DHC("", file_path)
+    
+    if first_comment != "":
+        delete_comment = dhc.get_info_from_old_comment(first_comment)
+        # if the comment was used delete the comment from the file
+        if delete_comment:
+            file_text = file_text.replace(first_comment, "")
 
-    for c in [ihc, dhc]:
+    for c in [dhc, ihc]:
         c.update()
         file_text = c.replace(file_text)
         #print(str(c))
