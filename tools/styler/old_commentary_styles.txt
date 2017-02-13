@@ -1,0 +1,34 @@
+/*
+ * ArrayList.c
+ *
+ *  Created on: Dec 11, 2015
+ *      Author: olga
+ */
+
+/*  =========================================================================
+    BitArray - simple 64-Bit bit array implementation
+
+    Copyright (c) the Contributors as noted in the AUTHORS file.
+
+    This file is part of sDDS:
+    http://wwwvs.cs.hs-rm.de.
+    =========================================================================
+ */
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  DataSink.c
+ *
+ *    Description:  Impl file for the DataSink class
+ *
+ *        Version:  1.0
+ *        Created:  03.03.2010 08:57:23
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Kai Beckmann (kai), kai-oliver.beckmann@hs-rm.de
+ *        Company:  Hochschule RheinMain - DOPSY Labor für verteilte Systeme
+ *
+ * =====================================================================================
+ */
