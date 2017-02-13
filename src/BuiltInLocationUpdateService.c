@@ -9,6 +9,7 @@
 #include "BuiltInLocationUpdateService.h"
 #include "BuiltinTopic.h"
 #include "Geometry.h"
+#include "SubscriptionManagementService.h"
 #include "dds/DDS_DCPS.h"
 
 #if defined(FEATURE_SDDS_BUILTIN_TOPICS_ENABLED) && defined(FEATURE_SDDS_LOCATION_ENABLED)

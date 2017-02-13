@@ -34,7 +34,7 @@ s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
     rc_t ret;
 
 #   ifdef SDDS_HAS_QOS_RELIABILITY
-    ret = sdds_History_enqueue(history, topic, &topic->incomingSample, topic->incomingSample.seqNr);
+    ret = sdds_History_enqueue(history, topic, &topic->incomingSample, topic->incomingSample.seqNr, buff);
     if (ret == SDDS_RT_FAIL) {
         Log_warn("Can't parse data: Discard submessage\n");
         SNPS_discardSubMsg(buff);
@@ -192,7 +192,7 @@ s_pushData(DataReader_t* self, NetBuffRef_t* buff) {
     ret = LocationFilteredTopic_evalSample(locationFilteredTopic, (Data) topic->incomingSample.data);
 
     if (ret == SDDS_RT_OK) {
-        ret = sdds_History_enqueue(history, topic, &topic->incomingSample);
+        ret = sdds_History_enqueue(history, topic, &topic->incomingSample, buff);
         if (ret == SDDS_RT_FAIL) {
             Log_warn("Can't parse data: Discard submessage\n");
             SNPS_discardSubMsg(buff);

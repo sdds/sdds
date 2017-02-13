@@ -1,5 +1,6 @@
+
 # name of your application
-APPLICATION = default
+APPLICATION = riot
 
 # If no BOARD is found in the environment, use this default:
 BOARD ?= samr21-xpro
@@ -42,34 +43,30 @@ export BOARD
 CFLAGS += -DDEVELHELP
 
 # Change this to 0 show compiler invocation lines by default:
-QUIET ?= 1
-
-# Modules to include:
+QUIET ?= 0
 
 #USEMODULE += shell
 #USEMODULE += shell_commands
-#USEMODULE += ps
+USEMODULE += ps
 USEMODULE += xtimer
 USEMODULE += config
 USEMODULE += gnrc_netdev_default
 USEMODULE += auto_init_gnrc_netif
 # Specify the mandatory networking modules for IPv6 and UDP
 USEMODULE += gnrc_ipv6
-#USEMODULE += gnrc_ipv6_router_default
+USEMODULE += gnrc_ipv6_router_default
 USEMODULE += gnrc_udp
 # Add a routing protocol
 USEMODULE += gnrc_rpl
 USEMODULE += gnrc_conn_udp
-#USEMODULE += gnrc_icmpv6_echo
+USEMODULE += gnrc_icmpv6_echo
 USEMODULE += sema
 
-#USEMODULE += gnrc_ndp
-# Additional networking modules that can be dropped if not needed
+USEMODULE += gnrc_ndp
 # Use minimal standard PRNG
 USEMODULE += prng_minstd
 
 CFLAGS += -DGNRC_IPV6_NETIF_ADDR_NUMOF=12
-
 
 FEATURES_OPTIONAL += transceiver
 FEATURES_OPTIONAL += config
@@ -95,35 +92,43 @@ ifneq (,$(filter iot-lab_M3,$(BOARD)))
 	USEMODULE += lsm303dlhc
 endif
 ifneq (,$(filter fox,$(BOARD)))
-        USEMODULE += lps331ap
-        USEMODULE += l3g4200d
+    USEMODULE += lps331ap
+    USEMODULE += l3g4200d
 	USEMODULE += lsm303dlhc
 endif
 
-include ../../sdds.mk
+include $(SDDS_TOPDIR)/sdds.mk
+
 
 # depended/ generated objects
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/alarm-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/dimmablelight-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/lightregulationfunctionality-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/togglefunctionality-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/onofffunctionality-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/lightsensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/windowsensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/doorsensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/movementsensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/humiditysensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/temperaturesensor-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/simplelamp-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/onoffswitch-ds.o
 IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/riot_sdds_impl.o
 
 # driver
 # DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
 
-%-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
-	$(shell ./generate.sh)
-
-#SDDS_OBJS += $(DATA_DEPEND_OBJS)
-#SDDS_OBJS += $(IMPL_DEPEND_OBJS)
-
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.h,$(DATA_DEPEND_OBJS))
+
 IMPL_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(IMPL_DEPEND_OBJS))
 IMPL_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.h,$(IMPL_DEPEND_OBJS))
 
 $(SDDS_OBJS): $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS) $(SDDS_CONSTANTS_FILE) $(LOCAL_CONSTANTS) $(SDDS_OBJDIR)
 
-foo:
-	echo $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS)
+%-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
+	$(shell ./generate.sh)
 
 $(LOCAL_CONSTANTS):
 	touch $(LOCAL_CONSTANTS)
@@ -138,12 +143,10 @@ clean2:
 	rm $(LOCAL_CONSTANTS)
 	rm $(SDDS_OBJDIR)/*
 
-
-#DIRS += $(SDDS_TOPDIR)
 INCLUDES += -I $(RIOTBASE)/core/include/
 INCLUDES += -I $(RIOTBASE)/sys/include/
 CFLAGS += $(INCLUDES)
-CFLAGS += -DTHREAD_STACKSIZE_DEFAULT=1300
+CFLAGS += -DTHREAD_STACKSIZE_DEFAULT=1024
 
 APPDEPS += $(SDDS_OBJS)
 include $(RIOTBASE)/Makefile.include

@@ -45,7 +45,7 @@
     <define name = "FEATURE_SDDS_LOCATION_FILTER_ENABLED" />
     <define name = "FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED" />
     <define name = "FEATURE_SDDS_SUBSCRIPION_MANAGER_ENABLED" />
-    <define name = "SDDS_SUBSCRIPTION_MANAGER" />
+    <define name = "FEATURE_SDDS_SUBSCRIPTION_MANAGER" />
     <!--
         Configure discovery intervals
     -->

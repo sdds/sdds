@@ -83,16 +83,6 @@ typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 #include "Geometry.h"
 #include "GeometryStore.h"
 #endif
-#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-#include "DiscoveryService.h"
-#endif
-#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
-#include "BuiltinTopic.h"
-#include "BuiltInTopicPublicationService.h"
-#   ifdef FEATURE_SDDS_LOCATION_ENABLED 
-#include "BuiltInLocationUpdateService.h"
-#   endif
-#endif
 #ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
 #include "LocationTrackingService.h"
 #endif
@@ -108,6 +98,16 @@ typedef struct LocationFilteredTopic LocationFilteredTopic_t;
 #endif
 #ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
 #include "SubscriptionManagementService.h"
+#endif
+#ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
+#include "BuiltinTopic.h"
+#include "BuiltInTopicPublicationService.h"
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED 
+#include "BuiltInLocationUpdateService.h"
+#   endif
+#endif
+#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
+#include "DiscoveryService.h"
 #endif
 
 #ifdef FEATURE_SDDS_SECURITY_ENABLED

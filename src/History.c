@@ -124,14 +124,15 @@ s_History_contains(History_t* self,Topic_t* topic, Sample_t* sample, uint16_t* i
 //  the buffer is going to be enqueued it will be decoded.
 #ifdef SDDS_HAS_QOS_RELIABILITY
 rc_t
-sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, SDDS_SEQNR_BIGGEST_TYPE seqNr) {
+sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, SDDS_SEQNR_BIGGEST_TYPE seqNr, NetBuffRef_t* buff) {
 #else
 rc_t
-sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
+sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample, NetBuffRef_t* buff) {
 #endif
     assert(self);
     assert(topic);
     assert(sample);
+    assert(buff);
 	Mutex_lock(mutex);
 
 #ifdef FEATURE_SDDS_TRACING_ENABLED
@@ -193,16 +194,11 @@ sdds_History_enqueue(History_t* self, Topic_t* topic, Sample_t* sample) {
 
 #ifdef FEATURE_SDDS_SECURITY_ENABLED
     if(topic->protection) {
-        // FIXME irgendwas hat sich geändert. Data muss nicht mehr decodiert werden?
-      ret = SNPS_readSecureData(buff, topic, (Data) self->samples[self->in_needle].data);
+      ret = SNPS_readSecureData(buff, topic, (Data) topic->incomingSample.data);
     } else {
-     // ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
      ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
     }
 #else 
-// FIXME API hat sich geändert!
-//    ret = SNPS_readData(buff, topic->Data_decode, (Data) self->samples[self->in_needle].data);
-    
     ret = topic->Data_cpy((Data) self->samples[self->in_needle].data, (Data) topic->incomingSample.data);
 #endif
 

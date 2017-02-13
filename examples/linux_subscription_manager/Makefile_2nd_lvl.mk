@@ -15,7 +15,7 @@ SDDS_CONSTANTS_FILE := ./gen_constants.h
 
 include $(SDDS_TOPDIR)/sdds.mk
 
-DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/temperature-ds.o
+DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/alpha-ds.o
 ALL_OBJS += $(DATA_DEPEND_OBJS)
 
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
@@ -42,7 +42,7 @@ $(LOCAL_CONSTANTS):
 CFLAGS += -I.
 # required for timer_t (POSIX.1b (real-time extensions))
 # and getline
-CFLAGS += -g -D_POSIX_C_SOURCE=200809L
+CFLAGS += -g -D_POSIX_C_SOURCE=200809L -fstack-usage
 LDLIBS += -lrt -lm
 
 $(SDDS_OBJDIR)/%.o: %.c

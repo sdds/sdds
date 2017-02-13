@@ -6,6 +6,7 @@
  */
 
 #include "sDDS.h"
+#include "SubscriptionManagementService.h"
 #include "ManagementTopicSubscriptionService.h"
 #include "ManagementTopicPublicationService.h"
 #include "ManagementTopic.h"

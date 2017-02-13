@@ -6,6 +6,9 @@
  */
 
 #include "DiscoveryService.h"
+#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
+#include "SubscriptionManagementService.h"
+#endif
 
 #ifdef FEATURE_SDDS_DISCOVERY_ENABLED
 

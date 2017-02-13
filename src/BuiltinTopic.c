@@ -17,12 +17,11 @@ extern "C"
 
 SSW_NodeID_t BuiltinTopic_participantID;
 
-#ifdef TEST_SCALABILITY_LINUX
+#   ifdef TEST_SCALABILITY_LINUX
 #include <stdio.h>
 static FILE* scalability_msg_count;
-#endif
+#   endif
 
-#ifndef FEATURE_SDDS_SECURITY_ENABLED
 DDS_Topic g_DCPSParticipant_topic;
 Sample_t dcps_participant_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSParticipant dcps_participant_sample_data[SDDS_QOS_HISTORY_DEPTH];
@@ -50,25 +49,24 @@ static SDDS_DCPSSubscription dcps_subscription_sample_data[SDDS_QOS_HISTORY_DEPT
 static SDDS_DCPSSubscription dcps_subscription_incomingSample_data;
 DDS_DataReader g_DCPSSubscription_reader;
 DDS_DataWriter g_DCPSSubscription_writer;
-#endif
 
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
+#   ifdef FEATURE_SDDS_SECURITY_ENABLED
 DDS_Topic g_ParticipantStatelessMessage_topic;
 Sample_t dcps_psm_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static DDS_ParticipantStatelessMessage dcps_psm_sample_data[SDDS_QOS_HISTORY_DEPTH];
 static DDS_ParticipantStatelessMessage dcps_psm_incomingSample_data;
 DDS_DataReader g_ParticipantStatelessMessage_reader;
 DDS_DataWriter g_ParticipantStatelessMessage_writer;
-#endif
+#   endif
 
-#ifdef FEATURE_SDDS_LOCATION_ENABLED
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED
 DDS_Topic g_DCPSLocation_topic;
 Sample_t dcps_location_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSLocation dcps_location_sample_data[SDDS_QOS_HISTORY_DEPTH];
 static SDDS_DCPSLocation dcps_location_incomingSample_data;
 DDS_DataReader g_DCPSLocation_reader;
 DDS_DataWriter g_DCPSLocation_writer;
-#endif
+#   endif
 
 Topic_t*
 sDDS_DCPSParticipantTopic_create();
@@ -88,9 +86,9 @@ static uint8_t participantByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE
 static uint8_t subPubByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
 static uint8_t topicByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
 
-#ifdef FEATURE_SDDS_LOCATION_ENABLED
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED
 static uint8_t locationByteAddr[SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE];
-#endif
+#   endif
 
 /**************
 * Initialize *
@@ -102,27 +100,23 @@ BuiltinTopic_init(void) {
     Locator_t* l;
 
     int index;
-#ifndef FEATURE_SDDS_SECURITY_ENABLED
     for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
+#   ifndef FEATURE_SDDS_SECURITY_ENABLED
         dcps_participant_samples_pool[index].data = &dcps_participant_sample_data[index];
         dcps_topic_samples_pool[index].data = &dcps_topic_sample_data[index];
         dcps_publication_samples_pool[index].data = &dcps_publication_sample_data[index];
         dcps_subscription_samples_pool[index].data = &dcps_subscription_sample_data[index];
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
+#   endif
+#   ifdef FEATURE_SDDS_SECURITY_ENABLED
         dcps_psm_samples_pool[index].data = &dcps_psm_sample_data[index];
-#endif
-#ifdef FEATURE_SDDS_LOCATION_ENABLED
+#   endif
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED
         dcps_location_samples_pool[index].data = &dcps_location_sample_data[index];
-#endif
+#   endif
     }
-#else
-    for (index = 0; index < SDDS_QOS_HISTORY_DEPTH; index++) {
-        dcps_psm_samples_pool[index].data = &dcps_psm_sample_data[index];
-    }
-#endif
+
     BuiltinTopic_participantID = NodeConfig_getNodeID();
 
-#ifndef FEATURE_SDDS_SECURITY_ENABLED
     g_DCPSParticipant_topic = sDDS_DCPSParticipantTopic_create();
     if (g_DCPSParticipant_topic == NULL){
         return SDDS_RT_FAIL;
@@ -252,10 +246,9 @@ BuiltinTopic_init(void) {
         Locator_downRef(l);
         return ret;
     }
-#endif
 
     /* Security */
-#ifdef FEATURE_SDDS_SECURITY_ENABLED
+#   ifdef FEATURE_SDDS_SECURITY_ENABLED
     g_ParticipantStatelessMessage_topic = sDDS_ParticipantStatelessMessageTopic_create();
     if (g_ParticipantStatelessMessage_topic == NULL){
         return SDDS_RT_FAIL;
@@ -286,9 +279,9 @@ BuiltinTopic_init(void) {
         Locator_downRef(l);
         return ret;
     }
-#endif
+#   endif
     /* Location Built-In Topic */
-#ifdef FEATURE_SDDS_LOCATION_ENABLED
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED
     g_DCPSLocation_topic = sDDS_DCPSLocationTopic_create();
     if (g_DCPSLocation_topic == NULL){
         return SDDS_RT_FAIL;
@@ -319,10 +312,10 @@ BuiltinTopic_init(void) {
         Locator_downRef(l);
         return ret;
     }
-#endif
+#   endif
 
-#ifndef FEATURE_SDDS_SECURITY_ENABLED
-#   ifdef FEATURE_SDDS_MULTICAST_ENABLED
+#   ifndef FEATURE_SDDS_SECURITY_ENABLED
+#       ifdef FEATURE_SDDS_MULTICAST_ENABLED
     uint8_t addrLen;
     ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_MULTICAST_ADDRESS, generalByteAddr, &addrLen);
     if (ret != SDDS_RT_OK) {
@@ -340,16 +333,16 @@ BuiltinTopic_init(void) {
     if (ret != SDDS_RT_OK) {
         return ret;
     }
-#       ifdef FEATURE_SDDS_LOCATION_ENABLED
+#           ifdef FEATURE_SDDS_LOCATION_ENABLED
     ret = SNPS_IPv6_str2Addr(SDDS_BUILTIN_LOCATION_ADDRESS, locationByteAddr, &addrLen);
     if (ret != SDDS_RT_OK) {
         return ret;
     }
-#       endif
-#   else
+#           endif
+#       else
     // TO DO
+#       endif
 #   endif
-#endif
     return SDDS_RT_OK;
 }
 
@@ -366,7 +359,6 @@ TopicMarshalling_DCPSParticipant_getSecondaryKey(Data data);
 rc_t
 TopicMarshalling_DCPSParticipant_cmpPrimaryKeys(Data data1, Data data2);
 
-#ifndef FEATURE_SDDS_SECURITY_ENABLED
 rc_t
 TopicMarshalling_DCPSParticipant_cpy(Data dest, Data source);
 
@@ -406,34 +398,34 @@ DDS_DCPSParticipantDataWriter_write(
     char* addr = "";
     uint8_t addrLen = 0;
 
-#if PLATFORM_LINUX_SDDS_PROTOCOL != AF_INET6
+#   if PLATFORM_LINUX_SDDS_PROTOCOL != AF_INET6
     addrType = SDDS_SNPS_ADDR_IPV4;
-#endif
+#   endif
 
-#ifdef FEATURE_SDDS_MULTICAST_ENABLED
+#   ifdef FEATURE_SDDS_MULTICAST_ENABLED
     castType = SDDS_SNPS_CAST_MULTICAST;
     addr = subPubByteAddr;
     addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
-#endif
+#   endif
 
-#ifdef DISCOVERY_UNICAST_SUBSCRIPTION
+#   ifdef DISCOVERY_UNICAST_SUBSCRIPTION
     castType = SDDS_SNPS_CAST_UNICAST;
     addr = "";
     addrLen = 0;
-#endif
+#   endif
 
     rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
-#ifdef TEST_SCALABILITY_LINUX
+#   ifdef TEST_SCALABILITY_LINUX
     	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
     	fwrite("I", 1, 1, scalability_msg_count);
 		fclose(scalability_msg_count);
-#endif
+#   endif
 
-#ifdef TEST_SCALABILITY_RIOT
+#   ifdef TEST_SCALABILITY_RIOT
         fprintf(stderr,"{SCL:I}\n");
-#endif
+#   endif
         return DDS_RETCODE_OK;
     }
     return DDS_RETCODE_ERROR;
@@ -600,15 +592,15 @@ DDS_DCPSTopicDataWriter_write(
     rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
-#ifdef TEST_SCALABILITY_LINUX
+#   ifdef TEST_SCALABILITY_LINUX
     	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
     	fwrite("T", 1, 1, scalability_msg_count);
 		fclose(scalability_msg_count);
-#endif
+#   endif
 
-#ifdef TEST_SCALABILITY_RIOT
+#   ifdef TEST_SCALABILITY_RIOT
         fprintf(stderr,"{SCL:T}\n");
-#endif
+#   endif
         return DDS_RETCODE_OK;
     }
 
@@ -774,15 +766,15 @@ DDS_DCPSPublicationDataWriter_write(
     rc_t ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
-#ifdef TEST_SCALABILITY_LINUX
+#   ifdef TEST_SCALABILITY_LINUX
     	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
     	fwrite("P", 1, 1, scalability_msg_count);
 		fclose(scalability_msg_count);
-#endif
+#   endif
 
-#ifdef TEST_SCALABILITY_RIOT
+#   ifdef TEST_SCALABILITY_RIOT
         fprintf(stderr, "{SCL:P}\n");
-#endif
+#   endif
         return DDS_RETCODE_OK;
     }
 
@@ -961,35 +953,35 @@ DDS_DCPSSubscriptionDataWriter_write(
     char* addr = "";
     uint8_t addrLen = 0;
 
-#if PLATFORM_LINUX_SDDS_PROTOCOL != AF_INET6
+#   if PLATFORM_LINUX_SDDS_PROTOCOL != AF_INET6
     addrType = SDDS_SNPS_ADDR_IPV4;
-#endif
+#   endif
 
-#ifdef FEATURE_SDDS_MULTICAST_ENABLED
+#   ifdef FEATURE_SDDS_MULTICAST_ENABLED
     castType = SDDS_SNPS_CAST_MULTICAST;
     addr = generalByteAddr;
     addrLen = SNPS_MULTICAST_COMPRESSION_MAX_LENGTH_IN_BYTE;
-#endif
+#   endif
 
-#ifdef DISCOVERY_UNICAST_SUBSCRIPTION
+#   ifdef DISCOVERY_UNICAST_SUBSCRIPTION
     castType = SDDS_SNPS_CAST_UNICAST;
     addr = "";
     addrLen = 0;
-#endif
+#   endif
 
     rc_t ret = DataWriter_writeAddress((DataWriter_t*) _this, castType, addrType, addr, addrLen);
     ret = DataWriter_write((DataWriter_t*) _this, (Data)instance_data, (void*) handle);
 
     if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
-#ifdef TEST_SCALABILITY_LINUX
+#   ifdef TEST_SCALABILITY_LINUX
     	scalability_msg_count = fopen(SCALABILITY_LOG, "a");
     	fwrite("S", 1, 1, scalability_msg_count);
 		fclose(scalability_msg_count);
-#endif
+#   endif
 
-#ifdef TEST_SCALABILITY_RIOT
+#   ifdef TEST_SCALABILITY_RIOT
         fprintf(stderr,"{SCL:S}\n");
-#endif
+#   endif
         return DDS_RETCODE_OK;
     }
 
@@ -1117,7 +1109,6 @@ TopicMarshalling_DCPSSubscription_decode(NetBuffRef_t* buffer, Data data, size_t
     return SDDS_RT_OK;
 }
 
-#endif
 /******************************
 * ParticipantStatelessMessage *
 *******************************/
