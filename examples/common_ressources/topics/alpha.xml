@@ -1,9 +1,0 @@
-<domain id = "1">
-    <topic name = "alpha" domain = "1" id = "A">
-        Alpha testing topic.
-        <attribute name = "value" type = "DDS_char" key = "primary">Any char value</attribute>
-        <attribute name = "device" type = "DDS_short" key = "secondary">Device ID</attribute>
-        <attribute name = "value2" type = "DDS_string" size= "10" >Any string value</attribute>
-        <attribute name = "value3" type = "DDS_short">Any short value</attribute>
-    </topic>
-</domain>

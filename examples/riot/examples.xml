@@ -1,8 +1,0 @@
-<examples
-    script = "sdds_examples.gsl"
-     >
-
-    <example name = "linux alpha pub" os = "linux">Linux alpha topic - Publisher</example>
-    <example name = "linux alpha sub" os = "linux">Linux alpha topic - Sublisher</example>
-
-</examples>

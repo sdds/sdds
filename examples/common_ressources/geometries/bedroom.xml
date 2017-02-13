@@ -1,9 +1,0 @@
-<geometryEntry name="GEO_BEDROOM" id="3" >
-    <class type="Square" name="s_geo_bedroom">
-        <attribute name="basicShape.vertex.x" value="0"/>
-        <attribute name="basicShape.vertex.y" value="400"/>
-        <attribute name="basicShape.vertex.z" value="0"/>
-        <attribute name="basicShape.width" value="400"/>
-        <attribute name="basicShape.length" value="500"/>     
-    </class>
-</geometryEntry>

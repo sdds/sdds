@@ -1,9 +1,0 @@
-<geometryEntry name="GEO_KITCHEN" id="4" >
-    <class type="Square" name="s_geo_kitchen">
-        <attribute name="basicShape.vertex.x" value="0"/>
-        <attribute name="basicShape.vertex.y" value="0"/>
-        <attribute name="basicShape.vertex.z" value="0"/>
-        <attribute name="basicShape.width" value="300"/>
-        <attribute name="basicShape.length" value="400"/>     
-    </class>
-</geometryEntry>
