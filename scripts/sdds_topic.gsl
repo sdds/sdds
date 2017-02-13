@@ -165,6 +165,7 @@ function resolve_topic_type (topic)
 
     for my.topic.attribute
         my.topic.size += resolve_attribute_type (attribute)
+        attribute.key ?= 0 
     endfor
 endfunction
 
@@ -220,6 +221,8 @@ function resolve_topic_config (topic)
         elsif config.type = "qos_history"
             config.depth ?= "1"
             my.topic.history_depth = config.depth
+        elsif config.type = "security"
+            
         else
             echo "E: Invalid config '$(config.type)' in topic $(topic.name:)"
         endif
@@ -366,16 +369,52 @@ struct $(topic.c_name:)
 {
 .   for topic.attribute
     /* $(attribute.description:) */
-.       if attribute.enc_type = "string"
+.       if attribute.key <> 0
+    union {
+.           if attribute.enc_type = "string"
+.               if attribute.key = "primary"
+        $(attribute.type:) pkey[$(attribute.size + 1)];
+.               elsif attribute.key = "secondary"
+        $(attribute.type:) skey[$(attribute.size + 1)];
+.               endif
+        $(attribute.type:) $(attribute.name:c)[$(attribute.size + 1)];
+.           elsif defined (attribute.bits)
+.               if attribute.bits < 8
+.                   if attribute.key = "primary"
+        $(attribute.type:) pkey : $(attribute.bits);
+.                   elsif attribute.key = "secondary"
+        $(attribute.type:) skey : $(attribute.bits);
+.                   endif
+        $(attribute.type:) $(attribute.name:c) : $(attribute.bits);
+.               else
+.                   if attribute.key = "primary"
+        $(attribute.type:) pkey;
+.                   elsif attribute.key = "secondary"
+        $(attribute.type:) skey;
+.                   endif
+        $(attribute.type:) $(attribute.name:c);
+.               endif
+.           else
+.               if attribute.key = "primary"
+        $(attribute.type:) pkey;
+.               elsif attribute.key = "secondary"
+        $(attribute.type:) skey;
+.               endif
+        $(attribute.type:) $(attribute.name:c);
+.           endif
+    };
+.       else
+.           if attribute.enc_type = "string"
     $(attribute.type:) $(attribute.name:c)[$(attribute.size + 1)];
-.       elsif defined (attribute.bits)
-.           if attribute.bits < 8
+.           elsif defined (attribute.bits)
+.               if attribute.bits < 8
     $(attribute.type:) $(attribute.name:c) : $(attribute.bits);
+.               else
+    $(attribute.type:) $(attribute.name:c);
+.               endif
 .           else
     $(attribute.type:) $(attribute.name:c);
 .           endif
-.       else
-    $(attribute.type:) $(attribute.name:c);
 .       endif
 .   endfor
 };
@@ -383,7 +422,7 @@ typedef struct $(topic.c_name:) $(topic.c_name:);
 
 
 DDS_ReturnCode_t
-$(topic.c_name:)_init ();
+$(topic.c_name:)_init();
 
 #ifdef SDDS_TOPIC_HAS_PUB
 DDS_ReturnCode_t DDS_$(topic.c_name:)DataReader_take_next_sample(
@@ -459,6 +498,7 @@ static $(topic.c_name:) $(topic.c_name)_sample_data[$(topic.history_depth)];
 Sample_t $(topic.c_name)_samples_pool[SDDS_QOS_HISTORY_DEPTH];
 static $(topic.c_name:) $(topic.c_name)_sample_data[SDDS_QOS_HISTORY_DEPTH];
 .           endif
+static $(topic.c_name:) $(topic.c_name)_incomingSample_data;
 .       endif
 .       if topic.isPub
 #if defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_ACK) || defined (SDDS_HAS_QOS_RELIABILITY_KIND_RELIABLE_NACK)
@@ -473,7 +513,7 @@ static $(topic.c_name:) $(topic.c_name)_reliableSamples_data[SDDS_QOS_RELIABILIT
 rc_t TopicMarshalling_$(topic.c_name:)_cpy(Data dest, Data source);
 
 DDS_ReturnCode_t
-$(topic.c_name:)_init ()
+$(topic.c_name:)_init()
 {
    int index;
 .   if topic.isSub
@@ -529,12 +569,27 @@ DDS_ReturnCode_t DDS_$(topic.c_name:)DataWriter_write(
 {
 	rc_t ret = DataWriter_write((DataWriter_t *) _this, (Data)instance_data, (void*) handle);
 
-	if (ret == SDDS_RT_OK)
+    if ((ret == SDDS_RT_OK) || (ret == SDDS_RT_DEFERRED)) {
+#ifdef TEST_SCALABILITY_RIOT
+        fprintf(stderr,"{SCL:D}\\n");
+#endif
 		return DDS_RETCODE_OK;
+    }
+    else if (ret == SDDS_RT_NO_SUB) {
+	    return DDS_RETCODE_OK;
+    }
 
 	return DDS_RETCODE_ERROR;
 }
 #endif
+
+rc_t TopicMarshalling_$(topic.c_name:)_cmpPrimaryKeys(Data data1, Data data2);
+
+void*
+TopicMarshalling_$(topic.c_name:)_getPrimaryKey(Data data);
+
+void*
+TopicMarshalling_$(topic.c_name:)_getSecondaryKey(Data data);
 
 Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 {
@@ -548,7 +603,8 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
     }
 #endif
 
-#ifdef SDDS_TOPIC_HAS_PUB
+#ifdef SDDS_TOPIC_HAS_PUB 
+    topic->incomingSample.data = &$(topic.c_name)_incomingSample_data; 
 	topic->Data_decode = TopicMarshalling_$(topic.c_name:)_decode;
 	topic->dsources.list = List_initConcurrentLinkedList();
     if(topic->dsources.list == NULL){
@@ -559,6 +615,9 @@ Topic_t * sDDS_$(topic.c_name:)Topic_create($(topic.c_name:)* pool, int count)
 	topic->domain = SDDS_DOMAIN;
 	topic->id = SDDS_TOPIC;
 	topic->Data_cpy = TopicMarshalling_$(topic.c_name:)_cpy;
+    topic->Data_cmpPrimaryKeys = TopicMarshalling_$(topic.c_name:)_cmpPrimaryKeys;
+    topic->Data_getPrimaryKey = TopicMarshalling_$(topic.c_name:)_getPrimaryKey;
+    topic->Data_getSecondaryKey = TopicMarshalling_$(topic.c_name:)_getSecondaryKey;
 
 .   for topic.config
 .       if config.type = "qos_reliability"
@@ -571,6 +630,19 @@ topic->max_blocking_time = $(topic.qos_reliability_max_blocking_time:);
 .           endif
 #endif
 .       endif
+.   endfor
+
+
+.   for topic.config
+.      if config.type = "security"
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
+.        if config.data_protection_kind = "ENCRYPT"
+topic->protection = 1;
+.       else 
+topic->protection = 0;
+.        endif
+#endif
+.      endif
 .   endfor
 
 	return topic;
@@ -586,10 +658,19 @@ rc_t TopicMarshalling_$(topic.c_name:)_cpy(Data dest, Data source)
 rc_t TopicMarshalling_$(topic.c_name:)_encode(NetBuffRef_t* buffer, Data data, size_t* size)
 {
 	*size = 0;
+  byte_t* start;
 
 	$(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
 
-	byte_t* start = buffer->buff_start + buffer->curPos + 1;
+	start = buffer->buff_start + buffer->curPos + 1;
+
+.   for topic.config
+.      if config.type = "security"
+.        if config.data_protection_kind = "ENCRYPT"
+	start = buffer->buff_start + buffer->curPos + 2;
+.        endif
+.      endif
+.   endfor
 
 	int maxSize = 0;
 .   for topic.attribute
@@ -648,6 +729,54 @@ rc_t TopicMarshalling_$(topic.c_name:)_decode(NetBuffRef_t* buffer, Data data, s
 
 	return SDDS_RT_OK;
 }
+
+void*
+TopicMarshalling_$(topic.c_name:)_getPrimaryKey(Data data) {
+    $(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
+    
+.   for topic.attribute
+.       if attribute.key = "primary"
+    return (void*) &real_data->pkey;
+.       else
+    return NULL;
+.       endif
+.   endfor
+}
+
+void*
+TopicMarshalling_$(topic.c_name:)_getSecondaryKey(Data data) {
+    assert(data);
+    $(topic.c_name:)* real_data = ($(topic.c_name:)*) data;
+    
+.   for topic.attribute
+.       if attribute.key = "secondary"
+    return (void*) &real_data->skey;
+.       endif
+.   endfor
+
+    return NULL;
+}
+
+rc_t TopicMarshalling_$(topic.c_name:)_cmpPrimaryKeys(Data data1, Data data2) {
+	$(topic.c_name:)* real_data1 = ($(topic.c_name:)*) data1;
+	$(topic.c_name:)* real_data2 = ($(topic.c_name:)*) data2;
+
+.   for topic.attribute
+.       if attribute.key = "primary"
+.           if attribute.enc_type = "string"
+    if (strcmp(real_data1->pkey, real_data2->pkey) == 0) {
+        return SDDS_RT_OK;
+    } 
+.           else
+    if (real_data1->pkey == real_data2->pkey) {
+        return SDDS_RT_OK;
+    }
+.           endif
+.       endif
+.   endfor
+    return SDDS_RT_FAIL;
+}
+
 /*
 $(project.GENERATED_WARNING_HEADER:)
 */

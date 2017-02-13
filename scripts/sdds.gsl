@@ -48,6 +48,8 @@ project.generated_warning_header ?= "\
 .   gsl from "sdds_make_netbsd.gsl"
 .elsif project.os = "contiki"
 .   gsl from "sdds_make_contiki.gsl"
+.elsif project.os = "riot"
+.   gsl from "sdds_make_riot.gsl"
 .else
 .   echo "W: Cannot generate makefiles for '$(project.os)'. It's not supported by makefile generator!"
 .endif

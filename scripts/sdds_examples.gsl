@@ -22,7 +22,7 @@ endfunction
 .       directory.create ("$(example.name:c)")
 .   endif
 .   if !file.exists ("$(example.name:c)/generate.sh")
-.       ln_s ("../../scripts/generate.sh", "$(example.name:c)/generate.sh")
+.       ln_s ("../../../scripts/generate.sh", "$(example.name:c)/generate.sh")
 .   endif
 .   if !file.exists ("$(example.name:c)/sdds.xml")
 .       output "$(example.name:c)/sdds.xml"
@@ -60,6 +60,27 @@ endfunction
     -->
     <role topic = "alpha" type = "publisher" />
     <role topic = "alpha" type = "subscriber" />
+
+.   if example.os = "riot"
+    <!--
+        Config Options for RIOT os and 6LoWPAN
+    -->
+    <!--
+	<define name = "UTILS_DEBUG"/>
+    -->
+    <define name = "SDDS_6LOWPAN_PANID" value = "0x0023"/>
+    <define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
+    <define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
+    <define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "20"/>
+    <define name = "SDDS_6LOWPAN_RPL_ENABLED" />
+    <!-- optinal setting -->
+    <define name = "TRANSPORT_6LOWPAN_SDDS_TXPOWER" value = "-17"/>
+    <!-- SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR only one node in network-->
+    <!--
+    <define name = "SDDS_6LOWPAN_RPL_ROOT_NODE_ADDR" value = "2001:db8::1/64"/>
+    -->
+    
+.   endif
 
     <!--
         This enables multicast discovery.

@@ -1,0 +1,6 @@
+compile:
+	make
+
+delete:
+	make clean
+

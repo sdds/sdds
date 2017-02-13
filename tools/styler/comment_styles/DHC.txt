@@ -1,0 +1,9 @@
+/**
+ * @file      <file>
+ * @author    <author>
+ * @brief     <brief>
+ * @date      [1990-2011]
+ * @copyright MPL 2 
+ * @see       https://zenon.cs.hs-rm.de/sdds/sdds 
+ * <description>
+ */

@@ -34,7 +34,7 @@ rc_t
 Locator_print(Locator_t* loc) {
     char addr[NI_MAXHOST];
     rc_t ret = Locator_getAddress(loc, addr, NI_MAXHOST);
-    Log_debug("Locator {%s}\n", addr);
+    printf("Locator {%s}\n", addr);
     return ret;
 	return SDDS_RT_OK;
 }

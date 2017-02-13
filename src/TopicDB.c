@@ -24,9 +24,24 @@ struct _TopicDB_t {
 typedef struct _TopicDB_t TopicDB_t;
 
 static TopicDB_t topicdb = {.topicCount = 0};
+static unsigned int s_topicIterator = 0;
 
 rc_t
 BuiltinTopicTopic_encode(NetBuffRef_t* buff, Data data, size_t* size);
+
+void
+TopicDB_iteratorReset() {
+    s_topicIterator = 0;
+}
+Topic_t*
+TopicDB_iteratorNext() {
+    return &topicdb.db[s_topicIterator++];
+}
+
+bool_t
+TopicDB_iteratorHasNext() {
+    return (s_topicIterator < topicdb.topicCount);
+}
 
 Topic_t*
 TopicDB_createTopic(void) {
@@ -68,4 +83,31 @@ TopicDB_checkTopic(topicid_t topic) {
         }
     }
     return false;
+}
+
+// Impl for the BuiltinTopic
+rc_t
+BuiltinTopic_writeTopics2Buf(NetBuffRef_t* buf) {
+    SNPS_writeTopic(buf, DDS_DCPS_TOPIC_TOPIC);
+
+    for (uint8_t i = 0; i < topicdb.topicCount; i++) {
+        SNPS_writeData(buf, BuiltinTopicTopic_encode, (Data) &(topicdb.db[i]));
+    }
+
+    return SDDS_RT_OK;
+}
+
+rc_t
+BuiltinTopicTopic_encode(NetBuffRef_t* buff, Data data, size_t* size) {
+    Topic_t* t = (Topic_t*) data;
+
+    byte_t* start = buff->buff_start + buff->curPos;
+
+    *size = 0;
+    Marshalling_enc_uint8(start+(*size), &(t->domain));
+    *size += sizeof(domainid_t);
+    Marshalling_enc_uint8(start+(*size), (uint8_t*)&(t->id));
+    *size += sizeof(topicid_t);
+
+    return SDDS_RT_OK;
 }

@@ -24,7 +24,7 @@ typedef rc_t (List_delete_all_fn)(List_t* self);
 struct List {
     List_first_fn *first_fn; ///< Provides the data of the first element, or NULL.
     List_next_fn *next_fn; ///< Provides the data of the next element, or NULL.
-    List_add_fn *add_fn; ///< Adds data to the list, return SDDS_SSW_RT_OK or SDDS_SSW_RT_FAIL.
+    List_add_fn *add_fn; ///< Adds data to the list, return SDDS_RT_OK or SDDS_RT_FAIL.
     List_size_fn *size_fn;  ///< Return the size of the list.
     List_delete_fn *delete_fn; ///< Deletes the element under the cursor from the list.
     List_delete_all_fn *delete_all_fn; ///< Deletes all elements from the list.
@@ -54,6 +54,14 @@ List_initLinkedList(void);
  */
 List_t*
 List_initConcurrentLinkedList(void);
+
+/**
+ *  ----------------------------------------------------------------------------
+ * Initializes a linked list with dynamily allocated memory.
+ * @return     Returns the pointer to the list on success, or NULL on failure.
+ */
+List_t*
+List_initDynamicLinkedList(void);
 
 
 #endif /* SDDS_INCLUDE_OS_SSAL_LIST_H_ */

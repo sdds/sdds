@@ -29,9 +29,9 @@ rc_t
 sDDS_init(void);
 
 //  Forward declaration of classes
-#ifndef SDDS_DATA_READER_MAX_OBJS
-#define SDDS_DATA_READER_MAX_OBJS 64
-#endif
+//#ifndef SDDS_DATA_READER_MAX_OBJS
+//#define SDDS_DATA_READER_MAX_OBJS 64
+//#endif
 typedef struct _DataReader_t DataReader_t;
 typedef struct _History_t History_t;
 typedef struct _NetBuffRef_t NetBuffRef_t;
@@ -42,8 +42,12 @@ typedef struct _Sample_t Sample_t;
 typedef struct _ReliableSample_t ReliableSample_t;
 typedef struct _Topic_t Topic_t;
 typedef struct TimeStampSimple_struct TimeStampSimple_t;
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+typedef struct LocationFilteredTopic LocationFilteredTopic_t;
+#endif
 
 //  Abstraction
+#include "os-ssal/Random.h"
 #include "os-ssal/Task.h"
 #include "os-ssal/Trace.h"
 #include "os-ssal/Thread.h"
@@ -52,6 +56,9 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #include "os-ssal/Mutex.h"
 #include "os-ssal/NodeConfig.h"
 #include "os-ssal/SSW.h"
+#ifdef FEATURE_SDDS_LOCATION_ENABLED
+#include "os-ssal/LocationService.h"
+#endif
 #include "dds/DDS_DCPS.h"
 
 //  Class headers
@@ -74,11 +81,39 @@ typedef struct TimeStampSimple_struct TimeStampSimple_t;
 #include "Sample.h"
 #include "TopicDB.h"
 #include "Topic.h"
-#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
-#include "Discovery.h"
+#ifdef FEATURE_SDDS_GEOMETRY_ENABLED
+#include "Geometry.h"
+#include "GeometryStore.h"
+#endif
+#ifdef FEATURE_SDDS_LOCATION_TRACKING_ENABLED
+#include "LocationTrackingService.h"
+#endif
+#ifdef FEATURE_SDDS_LOCATION_FILTER_ENABLED
+#include "ContentFilteredTopic.h"
+#include "LocationFilteredTopic.h"
+#include "FilteredDataReader.h"
+#endif
+#ifdef FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED
+#include "ManagementTopic.h"
+#include "ManagementTopicPublicationService.h"
+#include "ManagementTopicSubscriptionService.h"
+#endif
+#ifdef FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED
+#include "SubscriptionManagementService.h"
 #endif
 #ifdef FEATURE_SDDS_BUILTIN_TOPICS_ENABLED
 #include "BuiltinTopic.h"
+#include "BuiltInTopicPublicationService.h"
+#   ifdef FEATURE_SDDS_LOCATION_ENABLED 
+#include "BuiltInLocationUpdateService.h"
+#   endif
+#endif
+#ifdef FEATURE_SDDS_DISCOVERY_ENABLED
+#include "DiscoveryService.h"
+#endif
+
+#ifdef FEATURE_SDDS_SECURITY_ENABLED
+#include "Security.h"
 #endif
 #include "Management.h"
 
