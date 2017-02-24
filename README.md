@@ -1,4 +1,3 @@
-
 <center>
 <img src="https://zenon.cs.hs-rm.de/sdds/sdds/raw/master/images/README_1.png" alt="1">
 </center>
@@ -162,9 +161,21 @@ your needs.
         If there's no subscriber for a publisher sDDS will automatically use
         discovery.
     -->
-    <role topic = "alpha" type = "publisher">
-        <subscriber ip = "fe80::12:13ff:fe14:1516" />
-    </role>
+    <role topic = "alpha" type = "publisher"/>
+
+    <!--
+		 static topic subscriptions
+		if a subcription should be static, it can be set here. This
+        should only be set, if the role is publisher
+		<subscription topic = "mytopic">
+			<subscriber ip = "fe80::20"/>
+			<subscriber ip = "fe80::30"/>
+		</subscription>
+	-->
+	<subscription topic = "alpha">
+		<subscriber ip = "fe80::12:13ff:fe14:1516"/>
+	</subscription>
+	
 </project>
 ```
 
