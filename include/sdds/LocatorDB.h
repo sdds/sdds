@@ -20,6 +20,13 @@
  * @copyright MPL 2 
  * @see       https://github.com/sdds/sdds
  * LocatorDB class manages the Locator object within the
+ * systems. It holds a pool for locator objects that might be used for
+ * incoming packates.
+ * This class is a singelton withing the system, therefor no this reference
+ * is needed as parameter for the methodes. But the init methode have to be
+ * called in the init phase of the middleware.
+ * Some of the methodes are abstract and have to be implemented in the
+ * generaded code!
  */
 
 

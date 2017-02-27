@@ -19,7 +19,7 @@
  * @author    Kai Beckmann
  * @copyright MPL 2 
  * @see       https://github.com/sdds/sdds
- * interface for the marshalling of the data assigend to a
+ * interface for the marshalling of the data assigend to a topic
  */
 
 

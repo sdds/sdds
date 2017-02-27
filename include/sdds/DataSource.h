@@ -20,6 +20,7 @@
  * @copyright MPL 2 
  * @see       https://github.com/sdds/sdds
  * Header File for the DataSource class. Object is dedicated to
+ * handle the publishing of data to the dds network.
  */
 
 

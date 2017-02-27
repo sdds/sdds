@@ -19,7 +19,7 @@
  * @author    Kai Beckmann
  * @copyright MPL 2 
  * @see       https://github.com/sdds/sdds
- * Locator interface for the abstractaion of the network
+ * Locator interface for the abstractaion of the network address
  */
 
 

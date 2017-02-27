@@ -19,7 +19,7 @@
  * @author    Kai Beckmann
  * @copyright MPL 2 
  * @see       https://github.com/sdds/sdds
- * class to wrap the networkbuffer and store the state of the
+ * class to wrap the networkbuffer and store the state of the protocol etc
  */
 
 

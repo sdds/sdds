@@ -19,7 +19,7 @@
  * @author    Kai Beckmann
  * @copyright MPL 2 
  * @see       https://github.com/sdds/sdds
- * SNPS protocoll class, does the en- and decoding of the
+ * SNPS protocoll class, does the en- and decoding of the SNPS-protocoll.
  */
 
 

@@ -19,7 +19,7 @@
  * @author    Kai Beckmann
  * @copyright MPL 2 
  * @see       https://github.com/sdds/sdds
- * singelton class to store all the topics within the dds
+ * singelton class to store all the topics within the dds system on one device
  */
 
 

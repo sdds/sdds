@@ -20,6 +20,7 @@
  * @copyright MPL 2 
  * @see       https://github.com/sdds/sdds
  * Marshalling class, holding the en- and decode functions for
+ * the primitive datatypes
  */
 
 
