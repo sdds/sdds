@@ -1,27 +1,28 @@
-/*
- * =====================================================================================
- *
- *       Filename:  LocatorDB.h
- *
- *    Description:  LocatorDB class manages the Locator object within the
- *    systems. It holds a pool for locator objects that might be used for
- *    incoming packates.
- *    This class is a singelton withing the system, therefor no this reference
- *    is needed as parameter for the methodes. But the init methode have to be
- *    called in the init phase of the middleware.
- *    Some of the methodes are abstract and have to be implemented in the
- *    generaded code!
- *
- *        Version:  1.0
- *        Created:  03.03.2010 10:42:14
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Kai Beckmann (kai), kai-oliver.beckmann@hs-rm.de
- *        Company:  Hochschule RheinMain - DOPSY Labor für verteilte Systeme
- *
- * =====================================================================================
+/****************************************************************************
+ * Copyright (C) 2017 RheinMain University of Applied Sciences              *
+ *                                                                          *
+ * This file is part of:                                                    *
+ *      _____  _____   _____                                                *
+ *     |  __ \|  __ \ / ____|                                               *
+ *  ___| |  | | |  | | (___                                                 *
+ * / __| |  | | |  | |\___ \                                                *
+ * \__ \ |__| | |__| |____) |                                               *
+ * |___/_____/|_____/|_____/                                                *
+ *                                                                          *
+ * This Source Code Form is subject to the terms of the Mozilla Public      *
+ * License, v. 2.0. If a copy of the MPL was not distributed with this      *
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.                 *
+ ****************************************************************************/
+
+/**
+ * @file      LocatorDB.h
+ * @author    Kai Beckmann
+ * @copyright MPL 2 
+ * @see       https://github.com/sdds/sdds
+ * LocatorDB class manages the Locator object within the
  */
+
+
 #ifndef  LOCATORDB_H_INC
 #define  LOCATORDB_H_INC
 

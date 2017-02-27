@@ -1,21 +1,28 @@
-/*
- * =====================================================================================
- *
- *       Filename:  DataSink.h
- *
- *    Description:  data sink class to receive data. Impl all datareader of the
- *    system
- *
- *        Version:  1.0
- *        Created:  02.03.2010 19:01:39
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Kai Beckmann (kai), kai-oliver.beckmann@hs-rm.de
- *        Company:  Hochschule RheinMain - DOPSY Labor für verteilte Systeme
- *
- * =====================================================================================
+/****************************************************************************
+ * Copyright (C) 2017 RheinMain University of Applied Sciences              *
+ *                                                                          *
+ * This file is part of:                                                    *
+ *      _____  _____   _____                                                *
+ *     |  __ \|  __ \ / ____|                                               *
+ *  ___| |  | | |  | | (___                                                 *
+ * / __| |  | | |  | |\___ \                                                *
+ * \__ \ |__| | |__| |____) |                                               *
+ * |___/_____/|_____/|_____/                                                *
+ *                                                                          *
+ * This Source Code Form is subject to the terms of the Mozilla Public      *
+ * License, v. 2.0. If a copy of the MPL was not distributed with this      *
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.                 *
+ ****************************************************************************/
+
+/**
+ * @file      DataSink.h
+ * @author    Kai Beckmann
+ * @copyright MPL 2 
+ * @see       https://github.com/sdds/sdds
+ * data sink class to receive data. Impl all datareader of the
  */
+
+
 
 #ifndef  DATASINK_H_INC
 #define  DATASINK_H_INC

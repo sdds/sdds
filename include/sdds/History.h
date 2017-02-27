@@ -1,12 +1,27 @@
-/*  =========================================================================
-    History - Subscriber sample queue.
+/****************************************************************************
+ * Copyright (C) 2017 RheinMain University of Applied Sciences              *
+ *                                                                          *
+ * This file is part of:                                                    *
+ *      _____  _____   _____                                                *
+ *     |  __ \|  __ \ / ____|                                               *
+ *  ___| |  | | |  | | (___                                                 *
+ * / __| |  | | |  | |\___ \                                                *
+ * \__ \ |__| | |__| |____) |                                               *
+ * |___/_____/|_____/|_____/                                                *
+ *                                                                          *
+ * This Source Code Form is subject to the terms of the Mozilla Public      *
+ * License, v. 2.0. If a copy of the MPL was not distributed with this      *
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.                 *
+ ****************************************************************************/
 
-    Copyright (c) the Contributors as noted in the AUTHORS file.
-
-    This file is part of sDDS:
-    http://wwwvs.cs.hs-rm.de.
-    =========================================================================
+/**
+ * @file      History.h
+ * @author    TODO
+ * @copyright MPL 2 
+ * @see       https://github.com/sdds/sdds
+ * Subscriber sample queue
  */
+
 
 #ifndef __HISTORY_H_INCLUDED__
 #define __HISTORY_H_INCLUDED__

@@ -1,20 +1,28 @@
-/*
- * =====================================================================================
- *
- *       Filename:  Qos.h
- *
- *    Description:  structure to hold the qos properties regarding a dw
- *
- *        Version:  1.0
- *        Created:  25.02.2010 15:10:59
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Kai Beckmann (kai), kai-oliver.beckmann@hs-rm.de
- *        Company:  Hochschule RheinMain - DOPSY Labor für verteilte Systeme
- *
- * =====================================================================================
+/****************************************************************************
+ * Copyright (C) 2017 RheinMain University of Applied Sciences              *
+ *                                                                          *
+ * This file is part of:                                                    *
+ *      _____  _____   _____                                                *
+ *     |  __ \|  __ \ / ____|                                               *
+ *  ___| |  | | |  | | (___                                                 *
+ * / __| |  | | |  | |\___ \                                                *
+ * \__ \ |__| | |__| |____) |                                               *
+ * |___/_____/|_____/|_____/                                                *
+ *                                                                          *
+ * This Source Code Form is subject to the terms of the Mozilla Public      *
+ * License, v. 2.0. If a copy of the MPL was not distributed with this      *
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.                 *
+ ****************************************************************************/
+
+/**
+ * @file      Qos.h
+ * @author    Kai Beckmann
+ * @copyright MPL 2 
+ * @see       https://github.com/sdds/sdds
+ * structure to hold the qos properties regarding a dw
  */
+
+
 
 #ifndef  QOS_INC
 #define  QOS_INC
