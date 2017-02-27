@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (C) 201X RheinMain University of Applied Sciences              *
+ * Copyright (C) 2017 RheinMain University of Applied Sciences              *
  *                                                                          *
  * This file is part of:                                                    *
  *      _____  _____   _____                                                *

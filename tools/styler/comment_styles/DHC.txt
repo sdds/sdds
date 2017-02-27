@@ -1,7 +1,6 @@
 /**
  * @file      <file>
  * @author    <author>
- * @brief     <brief>
  * @copyright MPL 2 
  * @see       https://github.com/sdds/sdds
  * <description>

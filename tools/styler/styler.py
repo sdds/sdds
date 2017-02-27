@@ -1,4 +1,6 @@
 import re
+import sys
+import os
 from os import walk
 
 
@@ -71,8 +73,15 @@ class DHC(Comment):
         super().__init__(orginal_text)
         self.filename = filename
         self.author = "TODO"
-        self.brief = "TODO"
         self.description = "TODO"
+        self.names = {
+                "olga" : "Olga Dedi",
+                "dedi" : "Olga Dedi",
+                "andreas" : "Andreas Zoor",
+                "kai" : "Kai Beckmann",
+                "kevin" : "Kevin Sapper",
+                "steffen" : "Steffen Reichmann",
+                }
 
     @staticmethod
     def is_DHC(comment_text):
@@ -92,6 +101,10 @@ class DHC(Comment):
         for line in new_lines:
             if line.startswith("Author:"):
                 self.author = line.replace("Author:", "").strip()
+                #replace with name
+                for sname, lname in self.names.items():
+                    if sname in self.author:
+                        self.author = lname
                 result = True
             if line.startswith("Description:"):
                 self.description = line.replace("Description:", "").strip()
@@ -106,7 +119,6 @@ class DHC(Comment):
         self.new_text = open("./comment_styles/DHC.txt", "r").read()
         self.new_text = self.new_text.replace("<file>", self.filename)
         self.new_text = self.new_text.replace("<author>", self.author)
-        self.new_text = self.new_text.replace("<brief>", self.brief)
         self.new_text = self.new_text.replace("<description>", self.description)
 
     def __str__(self):
@@ -122,12 +134,18 @@ def head_comment(file_path):
     dhc = None
     first_comment = "" 
 
+    backup_path = os.path.join(os.path.split(file_path)[0], "org", os.path.split(file_path)[1])
+
     f = open(file_path,"r")
-    f_backup = open(file_path + ".old", "w")
-    f_new = open(file_path + ".new", "w")
+    f_backup = open(backup_path, "w")
     
     file_text = f.read()
     f_backup.write(file_text)
+
+    f.close()
+    f_backup.close()
+
+    f_new = open(file_path,"w")
 
     #test if there is IHC and DHC at the beginning
     regex_IHC_DHC = r"\A[\s\n]*/\*\*\*\*(.|\n)*?\*\*\*\*/[\s\n]*/\*\*(.|\n)*?\*/"
@@ -144,18 +162,18 @@ def head_comment(file_path):
             if matchNum == 0:
                 ihc = IHC(comment_text)
             elif matchNum == 1:
-                dhc = DHC(comment_text, file_path)
+                dhc = DHC(comment_text, os.path.split(file_path)[1])
             elif matchNum == 2:
                 first_comment = comment_text
         else:
             if matchNum == 0:
                 first_comment = comment_text
 
-    print (first_comment)
+    #print (first_comment)
     if ihc == None:
         ihc = IHC("")
     if dhc == None:
-        dhc = DHC("", file_path)
+        dhc = DHC("", os.path.split(file_path)[1])
     
     if first_comment != "":
         delete_comment = dhc.get_info_from_old_comment(first_comment)
@@ -171,7 +189,15 @@ def head_comment(file_path):
     f_new.write(file_text)
 
 def main():
-    path = "./test/"
+
+    if(len(sys.argv) < 2):
+        print("Too few args")
+        exit(-1)
+    path = sys.argv[1]
+    print("Starting styler on: " + str(path))
+    if not os.path.exists(path):
+        print("Path does not exits: " + str(path))
+        exit(-1)
     files = []
     for (dirpath, dirnames, filenames) in walk(path):
         files.extend(filenames)
