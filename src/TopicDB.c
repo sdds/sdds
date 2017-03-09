@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "sDDS.h"
+#include "string.h"
 
 struct _TopicDB_t {
     Topic_t db[SDDS_TOPIC_MAX_COUNT];

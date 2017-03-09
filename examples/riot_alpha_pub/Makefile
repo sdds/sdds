@@ -1,19 +1,20 @@
+
 # name of your application
-APPLICATION = default
+APPLICATION = riot_mcast1
 
 # If no BOARD is found in the environment, use this default:
 BOARD ?= samr21-xpro
 
 # This has to be the absolute path to the RIOT base directory:
-RIOTBASE ?= $(CURDIR)/../../../platform/riot/
+RIOTBASE ?= $(CURDIR)/../../sysSW/riot/
 
 SDDS_TOPDIR ?= $(CURDIR)/../../
 SDDS_OBJDIR ?= $(CURDIR)/obj
 SDDS_PLATFORM ?= riot
 SDDS_ARCH ?= ARM
-SDDS_CONSTANTS_FILE ?= $(CURDIR)/gen_constants.h
-LOCAL_CONSTANTS ?= $(CURDIR)/local_constants.h
 SDDS_APPDIR ?= $(CURDIR)
+
+SDDS_CONSTANTS_FILE :=   sdds_features_config.h   sdds_features.h   sdds_network.h   sdds_profile.h
 
 export SDDS_TOPDIR
 export SDDS_OBJDIR
@@ -44,18 +45,14 @@ CFLAGS += -DDEVELHELP
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 0
 
-# Modules to include:
-
-USEMODULE += shell
-USEMODULE += shell_commands
+#USEMODULE += shell
+#USEMODULE += shell_commands
 USEMODULE += ps
 USEMODULE += xtimer
 USEMODULE += config
-#USEMODULE += gnrc_netif_default
 USEMODULE += gnrc_netdev_default
 USEMODULE += auto_init_gnrc_netif
 # Specify the mandatory networking modules for IPv6 and UDP
-#USEMODULE += gnrc_ipv6_default
 USEMODULE += gnrc_ipv6
 USEMODULE += gnrc_ipv6_router_default
 USEMODULE += gnrc_udp
@@ -66,12 +63,10 @@ USEMODULE += gnrc_icmpv6_echo
 USEMODULE += sema
 
 USEMODULE += gnrc_ndp
-# Additional networking modules that can be dropped if not needed
 # Use minimal standard PRNG
 USEMODULE += prng_minstd
 
-CFLAGS += -DGNRC_IPV6_NETIF_ADDR_NUMOF=16
-
+CFLAGS += -DGNRC_IPV6_NETIF_ADDR_NUMOF=12
 
 FEATURES_OPTIONAL += transceiver
 FEATURES_OPTIONAL += config
@@ -97,12 +92,13 @@ ifneq (,$(filter iot-lab_M3,$(BOARD)))
 	USEMODULE += lsm303dlhc
 endif
 ifneq (,$(filter fox,$(BOARD)))
-        USEMODULE += lps331ap
-        USEMODULE += l3g4200d
+    USEMODULE += lps331ap
+    USEMODULE += l3g4200d
 	USEMODULE += lsm303dlhc
 endif
 
-include ../../sdds.mk
+include $(SDDS_TOPDIR)/sdds.mk
+
 
 # depended/ generated objects
 DATA_DEPEND_OBJS += $(SDDS_OBJDIR)/alpha-ds.o
@@ -111,21 +107,16 @@ IMPL_DEPEND_OBJS = $(SDDS_OBJDIR)/riot_mcast1_sdds_impl.o
 # driver
 # DRIVER_DEPEND_OBJS += $(SDDS_OBJDIR)/sdds-driver-$(SDDS_ARCH)-LED.o
 
-%-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
-	$(shell ./generate.sh)
-
-#SDDS_OBJS += $(DATA_DEPEND_OBJS)
-#SDDS_OBJS += $(IMPL_DEPEND_OBJS)
-
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(DATA_DEPEND_OBJS))
 DATA_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.h,$(DATA_DEPEND_OBJS))
+
 IMPL_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.c,$(IMPL_DEPEND_OBJS))
 IMPL_DEPEND_SRCS += $(patsubst $(SDDS_OBJDIR)/%.o,%.h,$(IMPL_DEPEND_OBJS))
 
 $(SDDS_OBJS): $(IMPL_DEPEND_SRCS) $(DATA_DEPEND_SRCS) $(SDDS_CONSTANTS_FILE) $(LOCAL_CONSTANTS) $(SDDS_OBJDIR)
 
-foo:
-	echo $(CFLAGS)
+%-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
+	$(shell ./generate.sh)
 
 $(LOCAL_CONSTANTS):
 	touch $(LOCAL_CONSTANTS)
@@ -134,14 +125,11 @@ $(SDDS_OBJDIR):
 	mkdir $(SDDS_OBJDIR)
 
 clean2:
-	rm $(DATA_DEPEND_SRCS)
-	rm $(IMPL_DEPEND_SRCS)
-	rm $(SDDS_CONSTANTS_FILE)
-	rm $(LOCAL_CONSTANTS)
-	rm $(SDDS_OBJDIR)/*
+	rm -f $(DATA_DEPEND_SRCS)
+	rm -f $(IMPL_DEPEND_SRCS)
+	rm -f $(SDDS_CONSTANTS_FILE)
+	rm -f $(SDDS_OBJDIR)/*
 
-
-#DIRS += $(SDDS_TOPDIR)
 INCLUDES += -I $(RIOTBASE)/core/include/
 INCLUDES += -I $(RIOTBASE)/sys/include/
 CFLAGS += $(INCLUDES)
@@ -149,3 +137,4 @@ CFLAGS += -DTHREAD_STACKSIZE_DEFAULT=1024
 
 APPDEPS += $(SDDS_OBJS)
 include $(RIOTBASE)/Makefile.include
+CFLAGS += -Wno-error=strict-prototypes -Wno-error=old-style-definition -Wno-error

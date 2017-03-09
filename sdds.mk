@@ -44,7 +44,7 @@ ifeq ($(SDDS_PLATFORM),linux)
 CFLAGS += -D_DEFAULT_SOURCE
 
 CFLAGS += -std=c99 -pthread
-CFLAGS += -ggdb3 -Werror
+CFLAGS += -ggdb3 
 CFLAGS += -Os -fno-delete-null-pointer-checks -flto -ffat-lto-objects -fno-common
 LDLIBS += -lpthread
 endif

@@ -21,8 +21,6 @@
 #include "RiotLocator.h"
 #include "sdds/Log.h"
 
-#include "local_constants.h"
-
 #include "RiotNetHelper.h"
 
 // RIOT imports
