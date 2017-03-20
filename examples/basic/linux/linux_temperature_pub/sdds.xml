@@ -1,0 +1,27 @@
+<project
+    name = "linux_temperature_pub"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    protocol = "AF_INET6"
+    ip = "fe80::c0ef:62ff:fed4:d26a"
+    iface = "tap0"
+    port = "23234"
+    >
+    "Linux Temperature Topic - Publisher"
+
+    <!-- include common ressources -->
+    <include filename = "../../../common_ressources/topics/temperature.xml" />
+
+    <!-- define role for specific topic -->
+    <role topic = "temperature" type = "publisher" />
+
+    <subscription topic = "temperature">
+        <subscriber ip = "fe80::c0ef:62ff:fed4:d36b" />
+    </subscription>
+
+    <!--
+        Enable all debug messages
+        <define name = "UTILS_DEBUG"/>
+    -->
+</project>

@@ -1,0 +1,44 @@
+<project
+    name = "riot_location_tracking_sim"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "riot"
+	protocol = "AF_INET6"
+    ip = "<your-IP>"
+    port = "23234"
+    >
+    Simulation of an Infrastructure based location tracking
+
+	<!-- 6LoWPAN options -->
+    <define name = "SDDS_6LOWPAN_PANID" value = "0x23"/>
+    <define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
+    <define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
+    <define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "20"/>
+    <define name = "SDDS_6LOWPAN_RPL_ENABLED" />
+
+    <!--
+        This enables multicast discovery.
+    -->
+	<define name = "FEATURE_SDDS_MULTICAST_ENABLED"/>
+    <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED"/>
+    <define name = "FEATURE_SDDS_DISCOVERY_ENABLED"/>
+    <!--
+        Configure discovery intervals
+    -->
+    <define name = "SDDS_BUILTIN_TOPIC_PARTICIPANT_TIMER" value = "1"/>
+    <define name = "SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER" value = "5"/>
+    <define name = "SDDS_BUILTIN_TOPIC_TOPIC_TIMER" value = "0"/>
+    <define name = "SDDS_BUILTIN_TOPIC_LOCATION_TIMER" value = "1"/>
+	<!-- 
+		Enable locatin filter 
+	-->
+    <define name = "FEATURE_SDDS_GEOMETRY_ENABLED" />
+    <define name = "FEATURE_SDDS_GEOMETRY_ELLIPSE_ENABLED" />
+    <define name = "FEATURE_SDDS_LOCATION_ENABLED" />
+    <define name = "FEATURE_SDDS_LOCATION_TRACKING_ENABLED" />
+    <define name = "FEATURE_SDDS_SIMULATION_ENABLED" />
+    <define name = "SDDS_LOCATION_TRACKING_MAX_DEVS" value = "16"/>
+	<define name = "SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS" value = "16"/>
+    <define name = "GEO_MEASUEMENT_ACCURACY" value = "GEO_CM_ACCURACY" />
+
+</project>

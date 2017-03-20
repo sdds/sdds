@@ -1,8 +1,0 @@
-<profile id = "1">
-
-    <topic name = "blue" domain = "1" id = "9">
-        RGB blue-topic.
-        <attribute name = "value" type = "DDS_char">Any short value</attribute>
-    </topic>
-
-</profile>

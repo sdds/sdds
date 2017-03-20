@@ -1,0 +1,29 @@
+<project
+    name = "riot_temperature_sub_listener"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "riot"
+    protocol = "AF_INET6"
+    ip = "<your-IP>"
+	port = "23234"
+    >
+    "RIOT Temperature Topic - Subscriber"
+
+    <!-- include common ressources -->
+    <include filename = "../../../common_ressources/topics/temperature.xml" />
+
+    <!-- define role for specific topic -->
+    <role topic = "temperature" type = "subscriber" />
+
+	<!-- 6LoWPAN options -->
+    <define name = "SDDS_6LOWPAN_PANID" value = "0x23"/>
+    <define name = "SDDS_6LOWPAN_CHANNEL" value = "26"/>
+    <define name = "TRANSPORT_IPV6_SDDS_PORT" value = "23234"/>
+    <define name = "TRANSPORT_IPV6_SDDS_BUILTIN_MULTICAST_PORT_OFF" value = "20"/>
+    <define name = "SDDS_6LOWPAN_RPL_ENABLED" />
+
+    <!--
+        Enable all debug messages
+        <define name = "UTILS_DEBUG"/>
+    -->
+</project>

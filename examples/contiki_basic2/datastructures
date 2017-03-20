@@ -1,7 +1,0 @@
-[beta]
-domain:0 
-topic: 8
-
-DDS_char value
-DDS_string value2[10]
-DDS_string value3[9]

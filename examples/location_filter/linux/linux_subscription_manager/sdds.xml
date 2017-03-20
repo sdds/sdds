@@ -1,0 +1,51 @@
+<project
+    name = "linux_subscription_manager"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    protocol = "AF_INET6"
+    ip = "fe80::219:99ff:fede:9af6"
+    iface = "eth0"
+    port = "23234"
+    >
+    Subscription Manager
+
+    <!-- include common ressources -->
+    <include filename = "../../../common_ressources/topics/temperature.xml" />
+
+    <!--
+        This enables multicast discovery.
+    -->
+	<define name = "FEATURE_SDDS_MULTICAST_ENABLED"/>
+    <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED"/>
+    <define name = "FEATURE_SDDS_DISCOVERY_ENABLED"/>
+    <!--
+        Configure discovery intervals
+    -->
+    <define name = "SDDS_BUILTIN_TOPIC_PARTICIPANT_TIMER" value = "1"/>
+    <define name = "SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER" value = "5"/>
+    <define name = "SDDS_BUILTIN_TOPIC_TOPIC_TIMER" value = "0"/>
+    <define name = "SDDS_BUILTIN_TOPIC_LOCATION_TIMER" value = "5"/>
+	<!--
+		Enable location filter
+	-->
+    <define name = "FEATURE_SDDS_LOCATION_ENABLED"/>
+    <define name = "FEATURE_SDDS_GEOMETRY_ENABLED" />
+    <define name = "FEATURE_SDDS_GEOMETRY_ELLIPSE_ENABLED" />
+    <define name = "FEATURE_SDDS_GEOMETRY_SQUARE_ENABLED" />
+    <define name = "FEATURE_SDDS_LOCATION_FILTER_ENABLED" />
+    <define name = "FEATURE_SDDS_MANAGEMENT_TOPIC_ENABLED" />
+    <define name = "FEATURE_SDDS_SUBSCRIPTION_MANAGER_ENABLED" />
+    <define name = "SDDS_SUBSCRIPTION_MANAGER" />
+ 
+    <define name = "SDDS_EVAL_SUBSCRIPTION_GRAPH_LINUX" />
+    <define name = "SDDS_EVAL_SUBSCRIPTION_GRAPH_MAX_EDGES" value = "1"/>
+
+    <define name = "SDDS_SUBSCRIPTION_PAUSE_TIMER_SEC" value = "1"/>
+
+	<define name = "SDDS_BUILTIN_LOCATION_UPDATE_MAX_DEVS" value = "16"/>
+
+	<!-- define geometries -->
+    <include filename = "../../../common_ressources/geometries/bathroom.xml" />
+
+</project>

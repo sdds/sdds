@@ -20,10 +20,11 @@ APPLICATION = $(project.name)
 # If no BOARD is found in the environment, use this default:
 BOARD ?= samr21-xpro
 
+SDDS_TOPDIR := \$(shell dirname \$(shell dirname \$(shell readlink generate.sh)))
 # This has to be the absolute path to the RIOT base directory:
-RIOTBASE ?= \$(CURDIR)/../../sysSW/riot/
 
-SDDS_TOPDIR ?= \$(CURDIR)/../../
+RIOTBASE ?= \$(SDDS_TOPDIR)/sysSW/riot/
+
 SDDS_OBJDIR ?= \$(CURDIR)/obj
 SDDS_PLATFORM ?= riot
 SDDS_ARCH ?= ARM

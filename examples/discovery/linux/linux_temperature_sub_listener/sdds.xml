@@ -1,0 +1,36 @@
+<project
+    name = "linux_temperature_sub_listener"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    protocol = "AF_INET6"
+    ip = "fe80::c0ef:62ff:fed4:d36b"
+    iface = "tap1"
+    >
+    "Linux Temperature Topic - Sublisher"
+
+    <!-- include common ressources -->
+    <include filename = "../../../common_ressources/topics/temperature.xml" />
+
+    <!-- define role for specific topic -->
+    <role topic = "temperature" type = "subscriber" />
+
+    <!--
+        This enables multicast discovery.
+    -->
+    <define name = "FEATURE_SDDS_MULTICAST_ENABLED" />
+    <define name = "FEATURE_SDDS_BUILTIN_TOPICS_ENABLED" />
+    <define name = "FEATURE_SDDS_DISCOVERY_ENABLED" />
+    <!--
+        Configure discovery intervals
+    -->
+    <define name = "SDDS_BUILTIN_TOPIC_PARTICIPANT_TIMER" value = "1"/>
+    <define name = "SDDS_BUILTIN_TOPIC_PUBLICATION_TIMER" value = "5"/>
+    <define name = "SDDS_BUILTIN_TOPIC_TOPIC_TIMER" value = "0"/>
+    <define name = "SDDS_BUILTIN_TOPIC_LOCATION_TIMER" value = "5"/>
+
+    <!--
+        Enable all debug messages
+        <define name = "UTILS_DEBUG"/>
+    -->
+</project>
