@@ -1,7 +1,0 @@
-endian: little
-
-[alpha]
-publisher fe80::ff:fe00:1bef
-
-[beta]
-publisher fe80::ff:fe00:1bef

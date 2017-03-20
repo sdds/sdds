@@ -1,8 +1,0 @@
-
-endian: little
-
-[alpha]
-subscriber
-
-[beta]
-publisher

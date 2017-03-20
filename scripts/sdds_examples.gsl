@@ -47,19 +47,21 @@ endfunction
         Include your topic files here. You can include topics from multiple files.
         Only those topics will be generated that have at least one matching role.
     -->
-    <include filename = "../topics/alpha.xml" />
+    <include filename = "../common_ressources/topics/alpha.xml" />
 
     <!--
         Roles are bound to one topic and are either a publisher or subscriber.
-        Publisher can have a list of subscriber to whom the should send data.
-        If multicast discovery is enables no subscribers have to be entered.
-    <role topic = "mytopic" type = "publisher">
-        <subscriber ip = "fe80::12:13ff:fe14:1516" />
-    </role>
+        Publisher can have a list of subscriber to whom they should send data.
+        If multicast discovery is enables no subscriptions have to be specified.
+    <role topic = "mytopic" type = "publisher" />
+    <subscription topic = "mytopic">
+        <subscriber ip = "<subscriber-IP>" />
+    </subscription>
     <role topic = "mytopic" type = "subscriber" />
     -->
     <role topic = "alpha" type = "publisher" />
     <role topic = "alpha" type = "subscriber" />
+
 
 .   if example.os = "riot"
     <!--

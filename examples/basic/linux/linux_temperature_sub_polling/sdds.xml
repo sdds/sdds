@@ -1,0 +1,22 @@
+<project
+    name = "linux_temperature_sub_polling"
+    script = "sdds.gsl"
+    endian = "little"
+    os = "linux"
+    protocol = "AF_INET6"
+    ip = "fe80::c0ef:62ff:fed4:d36b"
+    iface = "tap1"
+    >
+    "Linux Temperature Topic - Sublisher"
+
+    <!-- include common ressources -->
+    <include filename = "../../../common_ressources/topics/temperature.xml" />
+
+    <!-- define role for specific topic -->
+    <role topic = "temperature" type = "subscriber" />
+
+    <!--
+        Enable all debug messages
+        <define name = "UTILS_DEBUG"/>
+    -->
+</project>

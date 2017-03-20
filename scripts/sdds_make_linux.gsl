@@ -15,30 +15,12 @@
 .output "Makefile"
 APPLICATION_NAME = $(project.name)
 
-export APPLICATION_NAME
-
-all:
-	\$(MAKE) -f Makefile_2nd_lvl.mk \$(APPLICATION_NAME) \$(MAKEOPTS)
-
-code:
-	\$(MAKE) -f Makefile_2nd_lvl.mk code
-
-clean:
-	\$(MAKE) -f Makefile_2nd_lvl.mk clean
-.close
-.#
-.#  Generate second level Makefile
-.#
-.echo "Generating Makefile_2nd_lvl.mk"
-.output "Makefile_2nd_lvl.mk"
 SDDS_TOPDIR := \$(shell dirname \$(shell dirname \$(shell readlink generate.sh)))
 
 SDDS_OBJDIR := objs-linux
 TARGET := linux
 SDDS_PLATFORM := linux
 SDDS_ARCH := x86
-
-LOCAL_CONSTANTS := local_constants.h
 
 IMPL_DEPEND_OBJS = \$(SDDS_OBJDIR)/$(project.name)_sdds_impl.o
 ALL_OBJS += \$(IMPL_DEPEND_OBJS)
@@ -68,19 +50,17 @@ CLEAN += \$(ALL_OBJS)
 CLEAN += \$(patsubst %.o,%.d,\$(ALL_OBJS))
 CLEAN += \$(SDDS_CONSTANTS_FILE)
 
-all:
+all: \$(APPLICATION_NAME)
 
 \$(SDDS_OBJDIR):
 	mkdir \$(SDDS_OBJDIR)
-
-\$(LOCAL_CONSTANTS):
-	touch \$(LOCAL_CONSTANTS)
 
 CFLAGS += -I.
 # required for timer_t (POSIX.1b (real-time extensions))
 # and getline
 CFLAGS += -g -D_POSIX_C_SOURCE=200809L -fstack-usage
 LDLIBS += -lrt -lm
+LDFLAGS += -g
 
 \$(SDDS_OBJDIR)/%.o: %.c
 	echo \$(SDDS_OBJS) \$(IMPL_DEPEND_OBJS) \$(DATA_DEPEND_OBJS)
@@ -89,10 +69,10 @@ LDLIBS += -lrt -lm
 \$(SDDS_OBJDIR)/%.o: %.c
 	\$(COMPILE.c) \$(CFLAGS) -MMD \$(OUTPUT_OPTION) $<
 
-\$(APPLICATION_NAME).c: \$(LOCAL_CONSTANTS) \$(SDDS_OBJDIR) \$(IMPL_DEPEND_SRCS) \$(DATA_DEPEND_SRCS)
+\$(APPLICATION_NAME).c: \$(SDDS_OBJDIR) \$(IMPL_DEPEND_SRCS) \$(DATA_DEPEND_SRCS)
 
 \$(APPLICATION_NAME): \$(SDDS_OBJDIR)/$(project.name).o \$(SDDS_OBJS) \$(IMPL_DEPEND_OBJS) \$(DATA_DEPEND_OBJS)
-	\$(CC) -o $@ $^ \$(LDLIBS)
+	\$(CC) \$(LDFLAGS) -o $@ $^ \$(LDLIBS)
 
 %-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
 	\$(shell ./generate.sh)
