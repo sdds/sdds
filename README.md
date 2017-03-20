@@ -1,5 +1,5 @@
 <center>
-<img src="https://zenon.cs.hs-rm.de/sdds/sdds/raw/master/images/README_1.png" alt="1">
+<img src="https://github.com/sdds/sdds/blob/master/images/README_1.png" alt="1">
 </center>
 
 <A name="toc2-19" title="Contents" />
@@ -210,7 +210,7 @@ The code generator is split into two distinct generation processes:
 #### Generate an app stub
 
 <center>
-<img src="https://zenon.cs.hs-rm.de/sdds/sdds/raw/master/images/README_2.png" alt="2">
+<img src="https://github.com/sdds/sdds/blob/master/images/README_2.png" alt="2">
 </center>
 
 This is done by 'sdds_examples.gsl'.
@@ -221,7 +221,7 @@ This is done by 'sdds_examples.gsl'.
 The entry point is 'sdds.gsl':
 
 <center>
-<img src="https://zenon.cs.hs-rm.de/sdds/sdds/raw/master/images/README_3.png" alt="3">
+<img src="https://github.com/sdds/sdds/blob/master/images/README_3.png" alt="3">
 </center>
 
 * sdds_topic.gsl - Generate the topics
