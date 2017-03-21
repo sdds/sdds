@@ -1,0 +1,37 @@
+theme: jekyll-theme-hacker
+
+domain		: sdds.io
+
+title		: "sensornet Data Distribution Service"
+description	: "Next Gen IoT Middleware"	
+
+show_downloads	: true
+
+
+repository: /sdds/sdds
+
+paginate	: 5
+
+markdown_ext: "markdown,mkdown,mkdn,mkd,md"
+
+# Conversion
+markdown: kramdown
+highlighter: rouge
+lsi: false
+excerpt_separator: "\n\n"
+incremental: false
+
+gems:
+  - jekyll-paginate
+
+exclude:
+- bin
+- config.rb
+- Gemfile
+- Gemfile.lock
+- gems
+- Procfile
+- Rakefile
+- README.md
+- script
+- vendor
