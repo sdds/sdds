@@ -2,30 +2,25 @@
 <img src="https://github.com/sdds/sdds/blob/master/images/README_1.png" alt="1">
 </center>
 
-<A name="toc2-19" title="Contents" />
-## Contents
+# Contents
 
+* [Overview](#overview)
+* [Scope and Goals](#scope-and-goals)
+* [Getting started](#getting-started)
+* [Configuration](#configration)
+** [Topics](#topics)
+** [Projects](#projects)
+* [Code Generator](#code-generator)
+** [Generate an app stub](#generate-an-app-stub)
+** [Generate example app](#generate-example-app)
+* [Style Guide](#style-guide)
 
-**<a href="#toc2-24">Overview</a>**
-*  <a href="#toc3-29">Scope and Goals</a>
-*  <a href="#toc3-38">Getting started</a>
-*  <a href="#toc3-53">Configuration</a>
-&emsp;<a href="#toc4-56">Topics</a>
-&emsp;<a href="#toc4-122">Projects</a>
-*  <a href="#toc3-178">Code Generator</a>
-&emsp;<a href="#toc4-199">Generate an app stub</a>
-&emsp;<a href="#toc4-219">Generate example app</a>
-
-**<a href="#toc2-252">Style Guide</a>**
-*  <a href="#toc3-257">This Document</a>
-
-<A name="toc2-24" title="Overview" />
-## Overview
+# Overview
 
 sDDS is a DDS implementation for sensor networks.
 
-<A name="toc3-29" title="Scope and Goals" />
-### Scope and Goals
+
+## Scope and Goals
 
 sDDS has these goals:
 
@@ -33,8 +28,8 @@ sDDS has these goals:
 * Run on embedded devices as low as 8-bit micro controllers
 * ...
 
-<A name="toc3-38" title="Getting started" />
-### Getting started
+
+## Getting started
 
 To get started with your first app add it to the 'example/examples.xml':
 
@@ -48,11 +43,11 @@ To get started with your first app add it to the 'example/examples.xml':
 
 Then run the 'example/generate_examples.sh' to create the stub for your app.
 
-<A name="toc3-53" title="Configuration" />
-### Configuration
 
-<A name="toc4-56" title="Topics" />
-#### Topics
+## Configuration
+
+
+### Topics
 
 Topics are grouped by profiles and are configured in a xml file. By convention
 these files are placed into 'example/topics' to avoid topic and profile
@@ -117,8 +112,8 @@ duplication as well as copy\&paste madness. The following example is taken from
 
 ```
 
-<A name="toc4-122" title="Projects" />
-#### Projects
+
+### Projects
 
 To configure the example project use the generated sdds.xml and change it to
 your needs.
@@ -185,8 +180,8 @@ Makefile after that you can you 'make' and 'make clean' to build your example.
 NOTE: The first time you're running 'generate.sh' it will download and install
 the code generator which will take some time!
 
-<A name="toc3-178" title="Code Generator" />
-### Code Generator
+
+## Code Generator
 
 The sDDS Code Generator is responsible for generating DDS topic and DDS
 participant dependent code. It uses [GSL/4.1](https://github.com/imatix/gsl) as
@@ -206,8 +201,8 @@ Makefile generation is currently supported for:
 
 The code generator is split into two distinct generation processes:
 
-<A name="toc4-199" title="Generate an app stub" />
-#### Generate an app stub
+
+### Generate an app stub
 
 <center>
 <img src="https://github.com/sdds/sdds/blob/master/images/README_2.png" alt="2">
@@ -215,8 +210,8 @@ The code generator is split into two distinct generation processes:
 
 This is done by 'sdds_examples.gsl'.
 
-<A name="toc4-219" title="Generate example app" />
-#### Generate example app
+
+### Generate example app
 
 The entry point is 'sdds.gsl':
 
@@ -230,12 +225,8 @@ The entry point is 'sdds.gsl':
 * sdds_make\_<OS>.gsl - Generates the Makefiles for the different operating systems
 * sdds_skeleton - Generates a skeleton for new examples dependent on topics and roles
 
-<A name="toc2-252" title="Style Guide" />
-## Style Guide
+
+# Style Guide
 
 sDDS uses [uCLASS](https://zenon.cs.hs-rm.de/sdds/sdds/blob/master/style_guide.md) guild for code style.
 
-<A name="toc3-257" title="This Document" />
-### This Document
-
-_This documentation was generated from sdds/README.txt using [Gitdown](https://github.com/zeromq/gitdown)_
