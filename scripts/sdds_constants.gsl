@@ -179,7 +179,7 @@ $(project.GENERATED_WARNING_HEADER:)
 #   define PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS 			"$(project.ip)"
 #endif
 #ifndef PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS
-.if project.iface > 0
+.if project.iface > 0 & string.prefixed(project.ip, "fe80")
 #   define PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS		PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS"%"PLATFORM_$(PROJECT.OS)_SDDS_IFACE
 .else
 #   define PLATFORM_$(PROJECT.OS)_SDDS_ADDRESS		PLATFORM_$(PROJECT.OS)_SDDS_IP_ADDRESS
