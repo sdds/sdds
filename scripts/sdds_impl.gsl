@@ -219,6 +219,8 @@ sDDS_init (void)
 #endif
 .   endif
 
+    assert(Network_init() == SDDS_RT_OK);
+
 .   for project.subscription where topic.name = subscription.topic
 .       for subscription.subscriber
     ret = LocatorDB_newLocator (&locator);
@@ -256,7 +258,7 @@ sDDS_init (void)
 .   endif
 .endfor
 
-	assert(Network_init() == SDDS_RT_OK);
+	
 #ifdef FEATURE_SDDS_TRACING_ENABLED
     assert(Trace_init() == SDDS_RT_OK);
 #endif
