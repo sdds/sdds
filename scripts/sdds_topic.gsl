@@ -15,9 +15,15 @@
 .#
 function count_bits (value)
     bits = 0
-    while my.value > 0
+#    bits = math.log (my.value)
+#    bits = math . log10 (value) / math.log10 (2)
+#    bits = math . ceil (bits)
+    tmp = math.pow (2, bits)
+    while tmp <= value
         bits += 1
-        my.value -= math.pow (2, bits)
+        tmp = math.pow (2, bits)
+    
+#        my.value -= 
     endwhile
     return bits
 endfunction
@@ -130,6 +136,15 @@ function resolve_attribute_type (attribute)
             my.attribute.size = struct.size
             hit = 1
         endfor
+        # Check if type is own datatype
+        for project.datatype where my.attribute.type = datatype.name
+            my.attribute.type = datatype.c_name
+            my.attribute.enc_type = datatype.enc_type
+            my.attribute.bits = datatype.bits
+            my.attribute.print_type = datatype.print_type
+            my.attribute.size = datatype.size
+            hit = 1
+        endfor
         if hit = 0
             echo "E: Invalid type '$(my.attribute.type)' for attribute '$(my.attribute.name)'"
         endif
@@ -151,6 +166,72 @@ function resolve_struct (struct)
     endfor
 endfunction
 
+
+function resolve_datatype (datatype)
+    my.datatype.description ?= "$(string.trim (my.datatype.?""):left)"
+    my.datatype.size ?= 1
+    my.datatype.enc_type ?= ""
+    my.datatype.print_type ?= ""
+    my.datatype.namespace ?= ""
+    my.datatype.c_name = datatype.namespace + "_" + datatype.name
+    
+    if my.datatype.type = "DDS_short"
+        my.datatype.enc_type = "int16"
+        my.datatype.print_type = "\"PRId16\""
+        my.datatype.size = 2
+        my.datatype.bits = 8 * 2
+    elsif my.datatype.type = "DDS_long"
+        my.datatype.enc_type = "int32"
+        my.datatype.print_type = "\"PRId32\""
+        my.datatype.size = 4
+        my.datatype.bits = 8 * 4
+    elsif my.datatype.type = "DDS_long_long"
+        my.datatype.enc_type = "int64"
+        my.datatype.print_type = "\"PRId64\""
+        my.datatype.size = 8
+        my.datatype.bits = 8 * 8
+    elsif my.datatype.type = "DDS_unsigned_short"
+        my.datatype.enc_type = "uint16"
+        my.datatype.print_type = "\"PRIu16\""
+        my.datatype.size = 2
+        my.datatype.bits = 8 * 2
+    elsif my.datatype.type = "DDS_unsigned_long"
+        my.datatype.enc_type = "uint32"
+        my.datatype.print_type = "\"PRIu32\""
+        my.datatype.size = 4
+        my.datatype.bits = 8*4
+    elsif my.datatype.type = "DDS_unsigned_long_long"
+        my.datatype.enc_type = "uint64"
+        my.datatype.print_type = "\"PRIu64\""
+        my.datatype.size = 8
+        my.datatype.bits = 8*8
+    elsif my.datatype.type = "DDS_char"
+        my.datatype.enc_type = "int8"
+        my.datatype.print_type = "c"
+        my.datatype.bits = 8
+    elsif my.datatype.type = "DDS_octet"
+        my.datatype.enc_type = "uint8"
+        my.datatype.print_type = "\"PRIu8\""
+        my.datatype.bits = 8
+    elsif my.datatype.type = "DDS_boolean"
+        my.datatype.enc_type = "bool"
+        my.datatype.print_type = "d"
+        my.datatype.bits = 8
+    elsif my.datatype.type = "DDS_string"
+        my.datatype.type = "DDS_char"
+        my.datatype.enc_type = "string"
+        my.datatype.print_type = "s"
+        
+    else
+        echo "E: Invalid type 2 '$(my.datatype.type)' for datatype '$(my.datatype.name)'"
+    endif
+    return my.datatype.size
+    
+.#      .enc_type
+.#      .print_type = "\"PRIu8\""
+.#      .bits
+.#      .c_name
+endfunction
 .#
 .#  Resolve a topics DDS data types to C data types for encoding of data. Also
 .#  calculates the total size of a topic.
@@ -276,6 +357,9 @@ project.qos_reliability_biggest_max_blocking_time ?= 0
 for project.enum
     resolve_enum_type (enum)
 endfor
+for project.datatype
+    resolve_datatype (datatype)
+endfor
 for project.struct
     resolve_struct (struct)
 endfor
@@ -310,13 +394,17 @@ typedef $(enum.type:) $(enum.c_name:);
 .       literal_value = 0
 .       for enum.literal
 .           if defined (literal.value)
-#define $(ENUM.C_NAME:c)_$(LITERAL.NAME:c) $(literal.value)
+#define $(Enum.C_name:c)_$(LITERAL.NAME:c) $(literal.value)
 .           else
-#define $(ENUM.C_NAME:c)_$(LITERAL.NAME:c) $(literal_value)
+#define $(Enum.C_name:c)_$(LITERAL.NAME:c) $(literal_value)
 .           endif
 .       literal_value += 1
 .       endfor
 
+.   endfor
+
+.   for project.datatype
+typedef $(datatype.type:) $(datatype.c_name:);
 .   endfor
 
 .   for struct

@@ -18,23 +18,35 @@
 APPLICATION = $(project.name)
 
 # If no BOARD is found in the environment, use this default:
+.if defined (project.board)
+BOARD ?= $(project.board:)
+.else
 BOARD ?= samr21-xpro
+.endif
 
-SDDS_TOPDIR := \$(shell dirname \$(shell dirname \$(shell readlink generate.sh)))
+.if defined (project.RIOTBOARDPATH)
+RIOTBOARD ?= $(project.RIOTBOARDPATH:)
+.endif
+
+SDDS_TOPDIR ?= \$(shell dirname \$(shell dirname \$(shell readlink generate.sh)))
+
 # This has to be the absolute path to the RIOT base directory:
+RIOTBASE ?= \$(SDDS_TOPDIR)/../platform/riot/
 
-RIOTBASE ?= \$(SDDS_TOPDIR)/sysSW/riot/
+.for project.riot
+.   for riot.module
+USEMODULE += $(module.name:)
+.   endfor
+.   for riot.cflag
+CFLAGS += $(cflag.name:)
+.   endfor
+.endfor
 
 SDDS_OBJDIR ?= \$(CURDIR)/obj
 SDDS_PLATFORM ?= riot
 SDDS_ARCH ?= ARM
+SDDS_CONSTANTS_FILE :=   sdds_features_config.h   sdds_features.h   sdds_network.h   sdds_profile.h
 SDDS_APPDIR ?= \$(CURDIR)
-
-SDDS_CONSTANTS_FILE := \
-    sdds_features_config.h \
-    sdds_features.h \
-    sdds_network.h \
-    sdds_profile.h
 
 export SDDS_TOPDIR
 export SDDS_OBJDIR
@@ -135,7 +147,7 @@ DATA_DEPEND_SRCS += \$(patsubst \$(SDDS_OBJDIR)/%.o,%.h,\$(DATA_DEPEND_OBJS))
 IMPL_DEPEND_SRCS += \$(patsubst \$(SDDS_OBJDIR)/%.o,%.c,\$(IMPL_DEPEND_OBJS))
 IMPL_DEPEND_SRCS += \$(patsubst \$(SDDS_OBJDIR)/%.o,%.h,\$(IMPL_DEPEND_OBJS))
 
-\$(SDDS_OBJS): \$(IMPL_DEPEND_SRCS) \$(DATA_DEPEND_SRCS) \$(SDDS_CONSTANTS_FILE) \$(LOCAL_CONSTANTS) \$(SDDS_OBJDIR)
+\$(SDDS_OBJS): \$(IMPL_DEPEND_SRCS) \$(DATA_DEPEND_SRCS) \$(SDDS_CONSTANTS_FILE) \$(SDDS_OBJDIR)
 
 %-ds.c %-ds.h %_sdds_impl.c %_sdds_impl.h:
 	\$(shell ./generate.sh)
@@ -147,10 +159,10 @@ IMPL_DEPEND_SRCS += \$(patsubst \$(SDDS_OBJDIR)/%.o,%.h,\$(IMPL_DEPEND_OBJS))
 	mkdir \$(SDDS_OBJDIR)
 
 clean2:
-	rm -f \$(DATA_DEPEND_SRCS)
-	rm -f \$(IMPL_DEPEND_SRCS)
-	rm -f \$(SDDS_CONSTANTS_FILE)
-	rm -f \$(SDDS_OBJDIR)/*
+	rm \$(DATA_DEPEND_SRCS)
+	rm \$(IMPL_DEPEND_SRCS)
+	rm \$(SDDS_CONSTANTS_FILE)
+	rm \$(SDDS_OBJDIR)/*
 
 INCLUDES += -I \$(RIOTBASE)/core/include/
 INCLUDES += -I \$(RIOTBASE)/sys/include/

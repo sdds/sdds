@@ -219,8 +219,8 @@ sDDS_init (void)
 #endif
 .   endif
 
-.   for project.role where topic.name = role.topic
-.       for role.subscriber
+.   for project.subscription where topic.name = subscription.topic
+.       for subscription.subscriber
     ret = LocatorDB_newLocator (&locator);
     if (ret != SDDS_RT_OK)
         return ret;

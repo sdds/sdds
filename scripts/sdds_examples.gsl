@@ -51,16 +51,24 @@ endfunction
 
     <!--
         Roles are bound to one topic and are either a publisher or subscriber.
-        Publisher can have a list of subscriber to whom they should send data.
-        If multicast discovery is enables no subscriptions have to be specified.
-    <role topic = "mytopic" type = "publisher" />
-    <subscription topic = "mytopic">
-        <subscriber ip = "<subscriber-IP>" />
-    </subscription>
+        Publisher can have a list of subscriber to whom the should send data.
+        If topic profiles are used, the role is specified there!
+        
+    <role topic = "mytopic" type = "publisher"/>
     <role topic = "mytopic" type = "subscriber" />
     -->
     <role topic = "alpha" type = "publisher" />
     <role topic = "alpha" type = "subscriber" />
+    
+    <!--
+		 static topic subscriptions
+		if a subcription should be static, it can be set here. This
+        should only be set, if the role is publisher
+		<subscription topic = "mytopic">
+			<subscriber ip = "fe80::20"/>
+			<subscriber ip = "fe80::30"/>
+		</subscription>
+	-->
 
 
 .   if example.os = "riot"
@@ -97,6 +105,17 @@ endfunction
     <define name = "SDDS_DISCOVERY_PARTICIPANT_TIMER" value = "1"/>
     <define name = "SDDS_DISCOVERY_PUBLICATION_TIMER" value = "5"/>
     <define name = "SDDS_DISCOVERY_TOPIC_TIMER" value = "0"/>
+    
+    <!-- 
+        Configure latency budget
+    -->
+    <!-- 
+    <define name = "SDDS_QOS_LATENCYBUDGET"/>
+    <define name = "SDDS_QOS_DW_LATBUD" value = "10000"/>
+    <define name = "SDDS_QOS_DW_COMM" value = "1000"/>
+    <define name = "SDDS_QOS_DW_READ" value = "100"/>
+    -->
+
     <!--
         Configure default history depth
     -->

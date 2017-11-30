@@ -8,8 +8,21 @@ function resolve_profiles ()
         if defined (include.filename)
             my.profile_file = project.load_file (filename)
             if defined (my.profile_file)
+# if there are includes within the profile spec
+                for my.profile_file.include
+                    my.topic_file = project.load_file (filename)
+                    if defined (my.topic_file)
+                        move my.topic_file after include
+                    endif
+                endfor
+                for my.profile_file.role
+                    move role after include
+                endfor
                 for my.profile_file.topic where count (project.role, role.topic = topic.name)
                     move topic after include
+                endfor
+                for my.profile_file.datatype
+                    move datatype after include
                 endfor
                 for my.profile_file.enum
                     move enum after include
